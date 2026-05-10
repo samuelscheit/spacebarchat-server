@@ -1211,6 +1211,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"TenorTrendingSearchResponse"
+		],
+		"route": "/gifs/trending-search",
+		"route_name": "GET_GIFS_TRENDING_SEARCH",
+		"source": "src/api/routes/gifs/trending-search.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"GuildRecommendationsResponse"
 		],
 		"route": "/guild-recommendations",

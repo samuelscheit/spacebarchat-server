@@ -20,6 +20,7 @@ const coveredManifestIds = [
     "api:http:GET:/gateway/bot/",
     "api:http:GET:/gifs/search/",
     "api:http:GET:/gifs/trending-gifs/",
+    "api:http:GET:/gifs/trending-search/",
     "api:http:GET:/gifs/trending/",
     "api:http:GET:/guild-recommendations/",
     "api:http:GET:/policies/instance/",
@@ -53,6 +54,7 @@ test(
             "api:http:GET:/gateway/bot/",
             "api:http:GET:/gifs/search/",
             "api:http:GET:/gifs/trending-gifs/",
+            "api:http:GET:/gifs/trending-search/",
             "api:http:GET:/gifs/trending/",
             "api:http:GET:/guild-recommendations/",
             "api:http:GET:/policies/instance/",
@@ -316,9 +318,14 @@ async function coverGifRoutes(api: StartedApi, token: string, tenorRequests: str
     assert.deepEqual(trendingBody.categories, [{ name: "spacebar", src: "https://tenor.example/category.png" }]);
     assert.deepEqual(trendingBody.gifs, [expectedGifResult()]);
 
+    await assertJsonError(await getJson(`${api.apiBaseUrl}/gifs/trending-search?locale=en_US&limit=2`), 401);
+    const trendingSearch = await getJsonArray(`${api.apiBaseUrl}/gifs/trending-search?locale=en_US&limit=2`, token);
+    assert.deepEqual(trendingSearch, ["spacebar", "cats"]);
+
     assert.ok(tenorRequests.some((url) => url.includes("/v1/search?") && url.includes("q=spacebar")));
     assert.ok(tenorRequests.filter((url) => url.includes("/v1/trending?")).length >= 2);
     assert.ok(tenorRequests.some((url) => url.includes("/v1/categories?")));
+    assert.ok(tenorRequests.some((url) => url.includes("/v1/trending_terms?") && url.includes("limit=2")));
 }
 
 async function seedDiscoveryData(owner: User) {
@@ -367,6 +374,10 @@ function installTenorFetchMock() {
             return jsonResponse({
                 tags: [{ searchterm: "spacebar", image: "https://tenor.example/category.png" }],
             });
+        }
+
+        if (url.includes("/v1/trending_terms")) {
+            return jsonResponse({ results: ["spacebar", "cats"] });
         }
 
         return jsonResponse({ results: [tenorGif()] });

@@ -71,6 +71,11 @@ export type TenorSearchResults = {
     results: TenorGif[];
 };
 
+export type TenorTrendingSearchResults = {
+    results: string[];
+    locale?: string;
+};
+
 export interface TenorGifResponse {
     id: string;
     title: string;
@@ -97,3 +102,5 @@ export interface TenorTrendingResponse {
 
 export type TenorGifsResponse = TenorGifResponse[];
 export type TenorIntegrationSearchResponse = TenorIntegrationGifResponse[];
+
+export type TenorTrendingSearchResponse = string[];

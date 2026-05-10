@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 398,
+        "totalCoveredManifestEntries": 399,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 376,
-                "totalCoveredManifestEntries": 376,
-                "totalCoveredRequiredManifestEntries": 376,
+                "totalRequiredManifestEntries": 377,
+                "totalCoveredManifestEntries": 377,
+                "totalCoveredRequiredManifestEntries": 377,
                 "totalSuites": 11
             },
             "protocol": {
@@ -29,7 +29,7 @@
         },
         "byCoveredTestTier": {
             "stateful-domain": 257,
-            "contract": 17,
+            "contract": 18,
             "auth-scenario": 16,
             "integration": 11,
             "cdn-integration": 74,
@@ -52,6 +52,7 @@
                 "api:http:GET:/gateway/bot/",
                 "api:http:GET:/gifs/search/",
                 "api:http:GET:/gifs/trending-gifs/",
+                "api:http:GET:/gifs/trending-search/",
                 "api:http:GET:/gifs/trending/",
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/policies/instance/",
@@ -63,9 +64,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 376,
-                "totalCoveredManifestEntries": 376,
-                "totalCoveredRequiredManifestEntries": 376,
+                "totalRequiredManifestEntries": 377,
+                "totalCoveredManifestEntries": 377,
+                "totalCoveredRequiredManifestEntries": 377,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -152,6 +153,7 @@
                 "api:http:GET:/gateway/bot/",
                 "api:http:GET:/gifs/search/",
                 "api:http:GET:/gifs/trending-gifs/",
+                "api:http:GET:/gifs/trending-search/",
                 "api:http:GET:/gifs/trending/",
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/guilds/:guild_id/",
@@ -530,6 +532,7 @@
                 "api:http:GET:/gateway/bot/",
                 "api:http:GET:/gifs/search/",
                 "api:http:GET:/gifs/trending-gifs/",
+                "api:http:GET:/gifs/trending-search/",
                 "api:http:GET:/gifs/trending/",
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/guilds/:guild_id/",
@@ -1261,6 +1264,7 @@
                         "api:http:GET:/gateway/bot/",
                         "api:http:GET:/gifs/search/",
                         "api:http:GET:/gifs/trending-gifs/",
+                        "api:http:GET:/gifs/trending-search/",
                         "api:http:GET:/gifs/trending/",
                         "api:http:GET:/guild-recommendations/",
                         "api:http:GET:/policies/instance/",

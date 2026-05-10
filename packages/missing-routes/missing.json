@@ -1,6 +1,6 @@
 {
-    "missing": 834,
-    "spacebar": 346,
+    "missing": 833,
+    "spacebar": 347,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -190,7 +190,6 @@
         "/games/{param}/announcements",
         "/gifs/select",
         "/gifs/suggest",
-        "/gifs/trending-search",
         "/google-play/downgrade-subscription",
         "/google-play/validate-purchase",
         "/google-play/verify-purchase-token",
@@ -1957,13 +1956,6 @@
             "route_name": "GET_GIFS_SUGGEST",
             "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Suggested GIF Search Terms"]
-        },
-        {
-            "method": "GET",
-            "route": "/gifs/trending-search",
-            "route_name": "GET_GIFS_TRENDING_SEARCH",
-            "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Trending GIF Search Terms"]
         },
         { "method": "GET", "route": "/gravity-custom-channel-scores", "route_name": "GRAVITY_CUSTOM_SCORES", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/gravity-recommended-guilds", "route_name": "GRAVITY_RECOMMENDED_GUILDS", "sources": ["xhyrom:data/client/routes.json"] },

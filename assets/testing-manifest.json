@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 451,
+        "totalEntries": 452,
         "byService": {
-            "api": 354,
+            "api": 355,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 426,
+            "http-route": 427,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 59,
+            "contract": 60,
             "stateful-domain": 257,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 314,
+            "route-class": 315,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -6063,6 +6063,42 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/gifs/trending-search/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/gifs/trending-search/",
+            "sourceFile": "src/api/routes/gifs/trending-search.ts",
+            "line": 64,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "TenorTrendingSearchResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
                 ],
                 "hasQuery": true
             },

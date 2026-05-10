@@ -7074,6 +7074,12 @@
                     "$ref": "#/components/schemas/TenorIntegrationGifResponse"
                 }
             },
+            "TenorTrendingSearchResponse": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
             "ThreadSearchResponse": {
                 "type": "object",
                 "properties": {
@@ -35710,6 +35716,67 @@
                             "type": "string"
                         },
                         "description": "Locale"
+                    }
+                ],
+                "tags": [
+                    "gifs"
+                ]
+            }
+        },
+        "/gifs/trending-search/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Trending GIF Search Terms",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TenorTrendingSearchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "provider",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "GIF provider to use."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Maximum number of search terms to return, from 1 to 50."
+                    },
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to use in search results."
                     }
                 ],
                 "tags": [
