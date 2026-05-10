@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 549,
+        "totalEntries": 550,
         "byService": {
-            "api": 452,
+            "api": 453,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 524,
+            "http-route": 525,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 108,
+            "contract": 109,
             "stateful-domain": 297,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 407,
+            "route-class": 408,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15366,6 +15366,42 @@
                     403
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/store/price-tiers/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/price-tiers/",
+            "sourceFile": "src/api/routes/store/price-tiers.ts",
+            "line": 66,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StorePriceTiersResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

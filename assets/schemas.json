@@ -9610,6 +9610,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StorePriceTiersResponse": {
+        "type": "array",
+        "items": {
+            "type": "integer"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "TenorGifResponse": {
         "type": "object",
         "properties": {

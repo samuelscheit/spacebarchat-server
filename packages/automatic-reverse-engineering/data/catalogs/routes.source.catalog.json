@@ -3216,6 +3216,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"StorePriceTiersResponse"
+		],
+		"route": "/store/price-tiers",
+		"route_name": "GET_STORE_PRICE_TIERS",
+		"source": "src/api/routes/store/price-tiers.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/store/published-listings/applications/{application_id}",
 		"route_name": "GET_STORE_PUBLISHED_LISTINGS_APPLICATIONS_APPLICATION_ID",

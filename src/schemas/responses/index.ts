@@ -117,6 +117,7 @@ export * from "./ReportingMenuResponse";
 export * from "./SettingsProtoUpdateResponse";
 export * from "./SoundboardDefaultSoundsResponse";
 export * from "./StageInstanceResponse";
+export * from "./StorePriceTiersResponse";
 export * from "./TeamListResponse";
 export * from "./Tenor";
 export * from "./ThreadSearchResponse";

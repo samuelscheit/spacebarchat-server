@@ -9175,6 +9175,12 @@
                     "topic"
                 ]
             },
+            "StorePriceTiersResponse": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
             "TenorGifResponse": {
                 "type": "object",
                 "properties": {
@@ -34230,6 +34236,52 @@
                             "type": "string"
                         },
                         "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "store"
+                ]
+            }
+        },
+        "/store/price-tiers/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the available store price tier identifiers.",
+                "summary": "Get Store Price Tiers",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StorePriceTiersResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "price_tier_type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Price tier type to retrieve: 1 for guild role subscriptions, 2 for guild products."
                     }
                 ],
                 "tags": [
