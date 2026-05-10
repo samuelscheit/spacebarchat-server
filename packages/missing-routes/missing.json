@@ -1,6 +1,6 @@
 {
-    "missing": 841,
-    "spacebar": 339,
+    "missing": 840,
+    "spacebar": 340,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -486,7 +486,6 @@
         "/subscription-plans/{param}/subscription-group-listing",
         "/teams/invite/accept",
         "/teams/{param}",
-        "/teams/{param}/applications",
         "/teams/{param}/companies",
         "/teams/{param}/delete",
         "/teams/{param}/identity/verification",
@@ -3080,14 +3079,6 @@
             "sources": ["userdoccers:resources/team.mdx"],
             "source_routes": ["/teams/{team_id}"],
             "summaries": ["Get Team"]
-        },
-        {
-            "method": "GET",
-            "route": "/teams/{param}/applications",
-            "route_name": "GET_TEAMS_TEAM_ID_APPLICATIONS",
-            "sources": ["userdoccers:resources/team.mdx"],
-            "source_routes": ["/teams/{team_id}/applications"],
-            "summaries": ["Get Team Applications"]
         },
         {
             "method": "GET",

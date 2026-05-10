@@ -2348,6 +2348,16 @@
 		"source": "src/api/routes/teams.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIApplicationArray",
+			"APIErrorResponse"
+		],
+		"route": "/teams/{team_id}/applications",
+		"route_name": "GET_TEAMS_TEAM_ID_APPLICATIONS",
+		"source": "src/api/routes/teams/#team_id/applications.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [],
 		"route": "/track",

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 444,
+        "totalEntries": 445,
         "byService": {
-            "api": 347,
+            "api": 348,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 419,
+            "http-route": 420,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 54,
+            "contract": 55,
             "stateful-domain": 255,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 307,
+            "route-class": 308,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -11480,6 +11480,44 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/teams/:team_id/applications/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/teams/:team_id/applications/",
+            "sourceFile": "src/api/routes/teams/#team_id/applications.ts",
+            "line": 86,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIApplicationArray",
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
+                ],
                 "hasQuery": false
             },
             "coverage": {
