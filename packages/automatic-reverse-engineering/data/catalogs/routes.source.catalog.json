@@ -2393,6 +2393,25 @@
 		"source": "src/api/routes/oauth2/tokens.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/oauth2/tokens/{token_id}",
+		"route_name": "DELETE_OAUTH2_TOKENS_TOKEN_ID",
+		"source": "src/api/routes/oauth2/tokens/#token_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"OAuthAuthorizationResponse"
+		],
+		"route": "/oauth2/tokens/{token_id}",
+		"route_name": "GET_OAUTH2_TOKENS_TOKEN_ID",
+		"source": "src/api/routes/oauth2/tokens/#token_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/outbound-promotions",

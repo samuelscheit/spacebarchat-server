@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 408,
+        "totalCoveredManifestEntries": 410,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 386,
-                "totalCoveredManifestEntries": 386,
-                "totalCoveredRequiredManifestEntries": 386,
+                "totalRequiredManifestEntries": 388,
+                "totalCoveredManifestEntries": 388,
+                "totalCoveredRequiredManifestEntries": 388,
                 "totalSuites": 12
             },
             "protocol": {
@@ -29,9 +29,9 @@
         },
         "byCoveredTestTier": {
             "stateful-domain": 265,
+            "integration": 13,
             "contract": 19,
             "auth-scenario": 16,
-            "integration": 11,
             "cdn-integration": 74,
             "middleware-contract": 1,
             "protocol-integration": 21,
@@ -65,9 +65,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 386,
-                "totalCoveredManifestEntries": 386,
-                "totalCoveredRequiredManifestEntries": 386,
+                "totalRequiredManifestEntries": 388,
+                "totalCoveredManifestEntries": 388,
+                "totalCoveredRequiredManifestEntries": 388,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -99,6 +99,7 @@
                 "api:http:DELETE:/guilds/:guild_id/roles/:role_id/",
                 "api:http:DELETE:/guilds/:guild_id/stickers/:sticker_id",
                 "api:http:DELETE:/guilds/:guild_id/templates/:code",
+                "api:http:DELETE:/oauth2/tokens/:token_id/",
                 "api:http:DELETE:/users/@me/avatars/:avatar_id",
                 "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                 "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
@@ -206,6 +207,7 @@
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
                 "api:http:GET:/oauth2/tokens/",
+                "api:http:GET:/oauth2/tokens/:token_id/",
                 "api:http:GET:/policies/instance/",
                 "api:http:GET:/policies/instance/config/",
                 "api:http:GET:/policies/instance/domains/",
@@ -487,6 +489,7 @@
                 "api:http:DELETE:/guilds/:guild_id/roles/:role_id/",
                 "api:http:DELETE:/guilds/:guild_id/stickers/:sticker_id",
                 "api:http:DELETE:/guilds/:guild_id/templates/:code",
+                "api:http:DELETE:/oauth2/tokens/:token_id/",
                 "api:http:DELETE:/users/@me/avatars/:avatar_id",
                 "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                 "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
@@ -594,6 +597,7 @@
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
                 "api:http:GET:/oauth2/tokens/",
+                "api:http:GET:/oauth2/tokens/:token_id/",
                 "api:http:GET:/policies/instance/",
                 "api:http:GET:/policies/instance/config/",
                 "api:http:GET:/policies/instance/domains/",
@@ -1264,11 +1268,13 @@
                     "fixtures": ["users", "applications", "oauth-clients", "connected-accounts"],
                     "checks": ["auth-boundary", "redirects", "provider-state", "token-state"],
                     "manifestIds": [
+                        "api:http:DELETE:/oauth2/tokens/:token_id/",
                         "api:http:GET:/connections/",
                         "api:http:GET:/connections/:connection_name/authorize/",
                         "api:http:GET:/oauth2/applications/@me/",
                         "api:http:GET:/oauth2/authorize/",
                         "api:http:GET:/oauth2/tokens/",
+                        "api:http:GET:/oauth2/tokens/:token_id/",
                         "api:http:POST:/connections/:connection_name/:connection_id/refresh/",
                         "api:http:POST:/connections/:connection_name/callback/",
                         "api:http:POST:/oauth2/authorize/"

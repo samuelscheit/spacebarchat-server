@@ -47,3 +47,22 @@ describe("OAuthAuthorizeInfoResponse schema", () => {
         });
     });
 });
+
+describe("OAuthAuthorizationResponse schema", () => {
+    test("describes the OAuth2 authorization response payload", () => {
+        const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8"));
+        const schema = schemas.OAuthAuthorizationResponse;
+
+        assert.equal(schema.properties.id.type, "string");
+        assert.deepEqual(schema.properties.scopes, {
+            items: {
+                type: "string",
+            },
+            type: "array",
+        });
+        assert.deepEqual(schema.properties.application, {
+            $ref: "#/definitions/APIApplication",
+        });
+        assert.deepEqual(schema.required, ["application", "id", "scopes"]);
+    });
+});

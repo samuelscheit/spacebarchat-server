@@ -1,6 +1,6 @@
 {
-    "missing": 808,
-    "spacebar": 372,
+    "missing": 806,
+    "spacebar": 374,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -357,7 +357,6 @@
         "/oauth2/samsung/authorize/callback",
         "/oauth2/token",
         "/oauth2/token/revoke",
-        "/oauth2/tokens/{param}",
         "/oauth2/userinfo",
         "/outbound-promotions/{param}/claim",
         "/partner-sdk/application/{param}/skus",
@@ -1071,14 +1070,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/oauth2/applications/{application_id}/assets/{application_asset_id}"],
             "summaries": ["Delete Application Asset"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/oauth2/tokens/{param}",
-            "route_name": "DELETE_OAUTH2_TOKENS_TOKEN_ID",
-            "sources": ["userdoccers:topics/oauth2.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/oauth2/tokens/{token_id}"],
-            "summaries": ["Delete OAuth2 Authorization"]
         },
         {
             "method": "DELETE",
@@ -2484,14 +2475,6 @@
         { "method": "GET", "route": "/oauth2/keys", "route_name": "GET_OAUTH2_KEYS", "sources": ["userdoccers:topics/oauth2.mdx"], "summaries": ["Get OpenID Connect Keys"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize/callback", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/oauth2/tokens/{param}",
-            "route_name": "GET_OAUTH2_TOKENS_TOKEN_ID",
-            "sources": ["userdoccers:topics/oauth2.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/oauth2/tokens/{token_id}"],
-            "summaries": ["Get OAuth2 Authorization"]
-        },
         {
             "method": "GET",
             "route": "/oauth2/userinfo",
