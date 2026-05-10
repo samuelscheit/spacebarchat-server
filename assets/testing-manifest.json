@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 491,
+        "totalEntries": 492,
         "byService": {
-            "api": 394,
+            "api": 395,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 466,
+            "http-route": 467,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 81,
+            "contract": 82,
             "stateful-domain": 273,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 354,
+            "route-class": 355,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7414,6 +7414,43 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/gifs/suggest/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/gifs/suggest/",
+            "sourceFile": "src/api/routes/gifs/suggest.ts",
+            "line": 111,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "TenorTrendingSearchResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    502
                 ],
                 "hasQuery": true
             },

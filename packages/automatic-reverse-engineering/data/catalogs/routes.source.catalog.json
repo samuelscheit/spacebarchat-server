@@ -1506,6 +1506,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"TenorTrendingSearchResponse"
+		],
+		"route": "/gifs/suggest",
+		"route_name": "GET_GIFS_SUGGEST",
+		"source": "src/api/routes/gifs/suggest.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"TenorTrendingResponse"
 		],
 		"route": "/gifs/trending",

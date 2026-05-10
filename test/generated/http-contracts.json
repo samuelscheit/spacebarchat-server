@@ -3,19 +3,19 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 466,
+        "totalContracts": 467,
         "byService": {
-            "api": 393,
+            "api": 394,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 337,
         "runtimeMalformedAuthContracts": 337,
         "runtimeRevokedSessionAuthContracts": 337,
         "runtimeStaleTokenAuthContracts": 337,
-        "runtimePublicAuthBoundaryContracts": 48,
+        "runtimePublicAuthBoundaryContracts": 49,
         "runtimePublicInvalidBodyContracts": 15,
         "runtimeProtectedInvalidBodyContracts": 60,
-        "runtimePublicResponseSchemaContracts": 10,
+        "runtimePublicResponseSchemaContracts": 11,
         "runtimeAuthenticatedResponseSchemaContracts": 20,
         "runtimeRightOnlyDenialContracts": 11,
         "runtimePermissionOnlyDenialContracts": 84,
@@ -9856,6 +9856,46 @@
                 {
                     "id": "malformed-auth",
                     "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/gifs/suggest/",
+            "service": "api",
+            "method": "GET",
+            "path": "/gifs/suggest/",
+            "samplePath": "/gifs/suggest/",
+            "sourceFile": "src/api/routes/gifs/suggest.ts",
+            "line": 111,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "TenorTrendingSearchResponse"],
+                "responseStatuses": [200, 400, 502]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
                 },
                 {
                     "id": "policy-auth-boundary",

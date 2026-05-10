@@ -19,6 +19,7 @@ const coveredManifestIds = [
     "api:http:GET:/gateway/",
     "api:http:GET:/gateway/bot/",
     "api:http:GET:/gifs/search/",
+    "api:http:GET:/gifs/suggest/",
     "api:http:GET:/gifs/trending-gifs/",
     "api:http:GET:/gifs/trending-search/",
     "api:http:GET:/gifs/trending/",
@@ -53,6 +54,7 @@ test(
             "api:http:GET:/gateway/",
             "api:http:GET:/gateway/bot/",
             "api:http:GET:/gifs/search/",
+            "api:http:GET:/gifs/suggest/",
             "api:http:GET:/gifs/trending-gifs/",
             "api:http:GET:/gifs/trending-search/",
             "api:http:GET:/gifs/trending/",
@@ -322,10 +324,17 @@ async function coverGifRoutes(api: StartedApi, token: string, tenorRequests: str
     const trendingSearch = await getJsonArray(`${api.apiBaseUrl}/gifs/trending-search?locale=en_US&limit=2`, token);
     assert.deepEqual(trendingSearch, ["spacebar", "cats"]);
 
+    const anonymousSuggestedSearch = await getJsonArray(`${api.apiBaseUrl}/gifs/suggest?q=spa&locale=en_US&limit=2`);
+    assert.deepEqual(anonymousSuggestedSearch, ["spacebar", "space cats"]);
+
+    const suggestedSearch = await getJsonArray(`${api.apiBaseUrl}/gifs/suggest?q=spa&locale=en_US&limit=2`, token);
+    assert.deepEqual(suggestedSearch, ["spacebar", "space cats"]);
+
     assert.ok(tenorRequests.some((url) => url.includes("/v1/search?") && url.includes("q=spacebar")));
     assert.ok(tenorRequests.filter((url) => url.includes("/v1/trending?")).length >= 2);
     assert.ok(tenorRequests.some((url) => url.includes("/v1/categories?")));
     assert.ok(tenorRequests.some((url) => url.includes("/v1/trending_terms?") && url.includes("limit=2")));
+    assert.ok(tenorRequests.some((url) => url.includes("/v1/autocomplete?") && url.includes("q=spa") && url.includes("limit=2")));
 }
 
 async function seedDiscoveryData(owner: User) {
@@ -378,6 +387,10 @@ function installTenorFetchMock() {
 
         if (url.includes("/v1/trending_terms")) {
             return jsonResponse({ results: ["spacebar", "cats"] });
+        }
+
+        if (url.includes("/v1/autocomplete")) {
+            return jsonResponse({ results: ["spacebar", "space cats"] });
         }
 
         return jsonResponse({ results: [tenorGif()] });

@@ -1,6 +1,6 @@
 {
-    "missing": 794,
-    "spacebar": 386,
+    "missing": 793,
+    "spacebar": 387,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -161,7 +161,6 @@
         "/games",
         "/games/{param}",
         "/gifs/select",
-        "/gifs/suggest",
         "/google-play/downgrade-subscription",
         "/google-play/validate-purchase",
         "/google-play/verify-purchase-token",
@@ -1720,13 +1719,6 @@
             "sources": ["userdoccers:resources/game.mdx"],
             "source_routes": ["/games/{game_id}"],
             "summaries": ["Get Game"]
-        },
-        {
-            "method": "GET",
-            "route": "/gifs/suggest",
-            "route_name": "GET_GIFS_SUGGEST",
-            "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Suggested GIF Search Terms"]
         },
         {
             "method": "GET",
