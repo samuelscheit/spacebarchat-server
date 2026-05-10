@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 452,
+        "totalEntries": 453,
         "byService": {
-            "api": 355,
+            "api": 356,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 427,
+            "http-route": 428,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 60,
+            "contract": 61,
             "stateful-domain": 257,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 315,
+            "route-class": 316,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -5882,7 +5882,7 @@
             "method": "GET",
             "path": "/family-center/@me/",
             "sourceFile": "src/api/routes/family-center/@me.ts",
-            "line": 40,
+            "line": 45,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5892,6 +5892,43 @@
                 ],
                 "responseStatuses": [
                     200,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/family-center/@me/link-code",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/family-center/@me/link-code",
+            "sourceFile": "src/api/routes/family-center/@me.ts",
+            "line": 61,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "FamilyCenterLinkCodeResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
                     401
                 ],
                 "hasQuery": false

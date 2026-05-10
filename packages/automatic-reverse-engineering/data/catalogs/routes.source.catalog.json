@@ -1157,6 +1157,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"FamilyCenterLinkCodeResponse"
+		],
+		"route": "/family-center/@me/link-code",
+		"route_name": "GET_FAMILY_CENTER__ME_LINK_CODE",
+		"source": "src/api/routes/family-center/@me.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ApplicationDetectableResponse"
 		],
 		"route": "/games/detectable",

@@ -18,6 +18,7 @@
 
 import { route } from "@spacebar/api";
 import type { FamilyCenterResponse } from "@spacebar/schemas";
+import { DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
@@ -37,6 +38,10 @@ export function buildFamilyCenterOverviewResponse(): FamilyCenterResponse {
     };
 }
 
+export function getFamilyCenterLinkCodeUnavailableError() {
+    return DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED;
+}
+
 router.get(
     "/",
     route({
@@ -51,6 +56,29 @@ router.get(
         },
     }),
     (_req: Request, res: Response) => res.json(buildFamilyCenterOverviewResponse()),
+);
+
+router.get(
+    "/link-code",
+    route({
+        summary: "Get Link Code",
+        responses: {
+            200: {
+                body: "FamilyCenterLinkCodeResponse",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (_req: Request, _res: Response) => {
+        // The upstream route generates a QR link code. Spacebar currently has no persisted
+        // Family Center link-code, expiry, or eligibility model, so fail closed.
+        throw getFamilyCenterLinkCodeUnavailableError();
+    },
 );
 
 export default router;

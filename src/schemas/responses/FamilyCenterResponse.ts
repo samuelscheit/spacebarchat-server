@@ -74,3 +74,7 @@ export interface FamilyCenterResponse {
     teen_audit_log: FamilyCenterTeenAuditLog;
     users: PartialUser[];
 }
+
+export interface FamilyCenterLinkCodeResponse {
+    link_code: string;
+}

@@ -20,7 +20,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, test } from "node:test";
-import familyCenterMeRouter, { buildFamilyCenterOverviewResponse } from "../../src/api/routes/family-center/@me";
+import { DiscordApiErrors } from "@spacebar/util";
+import { ErrorHandler } from "../../src/api/middlewares/ErrorHandler";
+import familyCenterMeRouter, { buildFamilyCenterOverviewResponse, getFamilyCenterLinkCodeUnavailableError } from "../../src/api/routes/family-center/@me";
 import { createUserRouteApp, requestJson } from "../../src/api/tests/helpers/UserRouteTestHelpers";
 
 describe("GET /family-center/@me", () => {
@@ -38,5 +40,34 @@ describe("GET /family-center/@me", () => {
         assert.match(routeSource, /summary:\s*"Get Family Center Overview"/);
         assert.match(routeSource, /200:\s*\{\s*body:\s*"FamilyCenterResponse"/s);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+    });
+});
+
+describe("GET /family-center/@me/link-code", () => {
+    test("fails closed while link-code persistence and expiry are unsupported", async () => {
+        const app = createUserRouteApp(familyCenterMeRouter, "/family-center/@me");
+        app.use(ErrorHandler);
+
+        const response = await requestJson(app, "/family-center/@me/link-code");
+
+        assert.equal(response.status, DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED.httpStatus);
+        assert.deepEqual(response.body, {
+            code: DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED.code,
+            message: DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED.message,
+        });
+    });
+
+    test("uses the shared conservative compatibility error", () => {
+        assert.equal(getFamilyCenterLinkCodeUnavailableError(), DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED);
+    });
+
+    test("documents the source response shape and bearer-auth error shape", () => {
+        const routeSource = readFileSync(path.join(process.cwd(), "src", "api", "routes", "family-center", "@me.ts"), "utf-8");
+
+        assert.match(routeSource, /summary:\s*"Get Link Code"/);
+        assert.match(routeSource, /200:\s*\{\s*body:\s*"FamilyCenterLinkCodeResponse"/s);
+        assert.match(routeSource, /400:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(routeSource, /FEATURE_TEMPORARILY_DISABLED/);
     });
 });
