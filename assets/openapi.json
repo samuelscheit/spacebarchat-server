@@ -2460,6 +2460,26 @@
                     "$ref": "#/components/schemas/CollectiblesCategory"
                 }
             },
+            "CollectiblesCategoriesV2Response": {
+                "type": "object",
+                "properties": {
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CollectiblesCategory"
+                        }
+                    },
+                    "user_discounts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CollectiblesUserDiscount"
+                        }
+                    }
+                },
+                "required": [
+                    "categories"
+                ]
+            },
             "CollectiblesProductResponse": {
                 "anyOf": [
                     {
@@ -13918,6 +13938,28 @@
                 "required": [
                     "animated",
                     "static"
+                ]
+            },
+            "CollectiblesUserDiscount": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "integer"
+                    },
+                    "discount_id": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "amount",
+                    "discount_id",
+                    "expires_at"
                 ]
             },
             "CollectiblesMarketingItem": {
@@ -37113,6 +37155,107 @@
                         "description": "No description available"
                     }
                 },
+                "tags": [
+                    "collectibles-categories"
+                ]
+            }
+        },
+        "/collectibles-categories/v2/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Collectibles Categories V2",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CollectiblesCategoriesV2Response"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "country_code",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO 3166-1 alpha-2 country code used for localized pricing."
+                    },
+                    {
+                        "name": "include_bundles",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include bundle products."
+                    },
+                    {
+                        "name": "include_nameplates_on_mobile",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include mobile nameplate assets."
+                    },
+                    {
+                        "name": "include_unpublished",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include unpublished collectible categories."
+                    },
+                    {
+                        "name": "no_cache",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to bypass cached catalog data."
+                    },
+                    {
+                        "name": "payment_gateway",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Payment gateway used to select storefront pricing."
+                    },
+                    {
+                        "name": "skip_num_categories",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Number of categories to skip for pagination."
+                    },
+                    {
+                        "name": "variants_return_style",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Variant return style requested by the client."
+                    }
+                ],
                 "tags": [
                     "collectibles-categories"
                 ]

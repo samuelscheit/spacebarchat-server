@@ -20,6 +20,17 @@ import type { StringStringDictionary } from "../HelperTypes";
 
 export type CollectiblesCategoriesResponse = CollectiblesCategory[];
 
+export interface CollectiblesCategoriesV2Response {
+    categories: CollectiblesCategory[];
+    user_discounts?: CollectiblesUserDiscount[];
+}
+
+export interface CollectiblesUserDiscount {
+    amount: number;
+    discount_id: string;
+    expires_at: string | null;
+}
+
 export type CollectiblesProductResponse = CollectiblesCategoryProduct | CollectiblesProductVariant;
 
 export interface CollectiblesCategoryStyle {

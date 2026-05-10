@@ -2564,6 +2564,28 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CollectiblesCategoriesV2Response": {
+        "type": "object",
+        "properties": {
+            "categories": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/CollectiblesCategory"
+                }
+            },
+            "user_discounts": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/CollectiblesUserDiscount"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "categories"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CollectiblesProductResponse": {
         "anyOf": [
             {
@@ -14587,6 +14609,30 @@
         "required": [
             "animated",
             "static"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CollectiblesUserDiscount": {
+        "type": "object",
+        "properties": {
+            "amount": {
+                "type": "integer"
+            },
+            "discount_id": {
+                "type": "string"
+            },
+            "expires_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "amount",
+            "discount_id",
+            "expires_at"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

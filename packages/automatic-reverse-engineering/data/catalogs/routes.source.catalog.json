@@ -1082,6 +1082,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"CollectiblesCategoriesV2Response"
+		],
+		"route": "/collectibles-categories/v2",
+		"route_name": "GET_COLLECTIBLES_CATEGORIES_V2",
+		"source": "src/api/routes/collectibles-categories/v2.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"CollectiblesProductResponse"
 		],
 		"route": "/collectibles-products/{sku_id}",

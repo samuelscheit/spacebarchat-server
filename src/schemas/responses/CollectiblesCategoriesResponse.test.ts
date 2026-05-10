@@ -39,6 +39,8 @@ function readAssetJson<T>(name: string): T {
 
 function assertCollectiblesDefinitionsUseScopedNames(schemas: Record<string, JsonShape>, refPrefix: string) {
     assert.equal(schemas.CollectiblesCategoriesResponse.items?.$ref, `${refPrefix}CollectiblesCategory`);
+    assert.equal(schemas.CollectiblesCategoriesV2Response.properties?.categories?.items?.$ref, `${refPrefix}CollectiblesCategory`);
+    assert.equal(schemas.CollectiblesCategoriesV2Response.properties?.user_discounts?.items?.$ref, `${refPrefix}CollectiblesUserDiscount`);
     assert.equal(schemas.CollectiblesShopResponse.properties?.categories?.items?.$ref, `${refPrefix}CollectiblesCategory`);
     assert.equal(schemas.CollectiblesCategory.properties?.banner_asset?.$ref, `${refPrefix}CollectiblesStaticAnimatedAsset`);
     assert.equal(schemas.CollectiblesCategoryProduct.properties?.items?.items?.$ref, `${refPrefix}CollectiblesProductItem`);
@@ -56,6 +58,7 @@ function assertCollectiblesDefinitionsUseScopedNames(schemas: Record<string, Jso
     assert.ok(schemas.CollectiblesCategoryProduct);
     assert.ok(schemas.CollectiblesProductItem);
     assert.ok(schemas.CollectiblesProductVariant);
+    assert.ok(schemas.CollectiblesUserDiscount);
     assert.ok(schemas.CollectiblesStaticAnimatedAsset);
     assert.ok(schemas.CollectiblesCountryPrice);
     assert.ok(schemas.CollectiblesPriceEntry);
@@ -144,4 +147,45 @@ test("CollectiblesCategoriesResponse validates collectible categories", () => {
 
     assert.equal(ajv.validate("CollectiblesCategoriesResponse", response), true);
     assert.equal(ajv.validate("CollectiblesCategoriesResponse", [{ ...response[0], internal_field: true }]), false);
+});
+
+test("CollectiblesCategoriesV2Response validates category wrappers and optional user discounts", () => {
+    const response = {
+        categories: [
+            {
+                sku_id: "category-sku",
+                name: "Spring drops",
+                summary: "Seasonal profile collectibles",
+                store_listing_id: "category-listing",
+                banner: "banner-asset",
+                unpublished_at: null,
+                styles: {
+                    background_colors: [16777215],
+                    button_colors: [0],
+                    confetti_colors: [255],
+                },
+                logo: "logo-asset",
+                hero_ranking: [],
+                mobile_bg: null,
+                pdp_bg: null,
+                success_modal_bg: null,
+                mobile_banner: null,
+                featured_block: null,
+                hero_banner: null,
+                wide_banner: null,
+                hero_logo: null,
+                products: [],
+            },
+        ],
+        user_discounts: [
+            {
+                amount: 10,
+                discount_id: "123456789012345678",
+                expires_at: null,
+            },
+        ],
+    };
+
+    assert.equal(ajv.validate("CollectiblesCategoriesV2Response", response), true);
+    assert.equal(ajv.validate("CollectiblesCategoriesV2Response", { ...response, user_discounts: [{ ...response.user_discounts[0], internal_field: true }] }), false);
 });
