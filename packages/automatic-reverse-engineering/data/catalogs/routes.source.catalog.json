@@ -505,6 +505,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ChannelFollowerMessageStatsResponse"
+		],
+		"route": "/channels/{channel_id}/follower-message-stats",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_FOLLOWER_MESSAGE_STATS",
+		"source": "src/api/routes/channels/#channel_id/follower-message-stats.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ChannelFollowerStatsResponse"
 		],
 		"route": "/channels/{channel_id}/follower-stats",

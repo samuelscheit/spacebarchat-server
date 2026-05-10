@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 445,
+        "totalEntries": 446,
         "byService": {
-            "api": 348,
+            "api": 349,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 420,
+            "http-route": 421,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 55,
-            "stateful-domain": 255,
+            "stateful-domain": 256,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 308,
+            "route-class": 309,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2336,6 +2336,59 @@
                 ],
                 "responseStatuses": [
                     200,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/channels/:channel_id/follower-message-stats/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/follower-message-stats/",
+            "sourceFile": "src/api/routes/channels/#channel_id/follower-message-stats.ts",
+            "line": 26,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_CHANNEL",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ChannelFollowerMessageStatsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
                     401,
                     403,
                     404

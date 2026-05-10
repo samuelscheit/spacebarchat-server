@@ -1,6 +1,6 @@
 {
-    "missing": 840,
-    "spacebar": 340,
+    "missing": 839,
+    "spacebar": 341,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -115,7 +115,6 @@
         "/channels/{param}/directory-entries/search",
         "/channels/{param}/directory-entry/{param}",
         "/channels/{param}/explicit-media",
-        "/channels/{param}/follower-message-stats",
         "/channels/{param}/integrations",
         "/channels/{param}/integrations/{param}",
         "/channels/{param}/linked-accounts",
@@ -1724,13 +1723,6 @@
             "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/directory-entries/search"],
             "summaries": ["Search Directory Entries"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/follower-message-stats",
-            "route_name": "CHANNEL_FOLLOWER_MESSAGE_STATS",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/follower-message-stats"]
         },
         {
             "method": "GET",

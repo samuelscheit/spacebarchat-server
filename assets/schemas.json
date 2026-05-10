@@ -2447,6 +2447,11 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ChannelFollowerMessageStatsResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ChannelFollowerStatsResponse": {
         "type": "object",
         "properties": {

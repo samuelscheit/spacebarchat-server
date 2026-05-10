@@ -1,5 +1,6 @@
 import { HTTPError } from "lambert-server";
 import { WebhookType } from "../../../schemas/api/channels/Webhook";
+import type { ChannelFollowerMessageStatsResponse } from "../../../schemas/responses/ChannelFollowerMessageStatsResponse";
 import type { ChannelFollowerStatsResponse } from "../../../schemas/responses/ChannelFollowerStatsResponse";
 
 export enum ChannelFollowerChannelType {
@@ -131,6 +132,11 @@ export function createChannelFollowerStatsResponse(webhooks: ChannelFollowerStat
         subscribers_gained_since_last_post: 0,
         subscribers_lost_since_last_post: 0,
     };
+}
+
+export function createChannelFollowerMessageStatsResponse(): ChannelFollowerMessageStatsResponse {
+    // Spacebar does not persist Discord's follower delivery analytics yet.
+    return [];
 }
 
 export async function followAnnouncementChannel({

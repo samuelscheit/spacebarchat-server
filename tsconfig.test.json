@@ -53,6 +53,7 @@
         "src/api/util/utility/ActiveThreads.test.ts",
         "src/api/routes/channels/#channel_id/purge.test.ts",
         "src/api/routes/channels/#channel_id/follower-stats.test.ts",
+        "src/api/routes/channels/#channel_id/follower-message-stats.test.ts",
         "src/api/util/utility/Messages.test.ts",
         "src/api/routes/channels/#channel_id/recipients.test.ts",
         "src/api/routes/guilds/GuildImageField.test.ts",

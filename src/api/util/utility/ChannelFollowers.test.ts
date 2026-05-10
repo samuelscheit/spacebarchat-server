@@ -7,6 +7,7 @@ import {
     ChannelFollowerChannelType,
     ChannelFollowerWebhook,
     ChannelFollowerPermissionResolver,
+    createChannelFollowerMessageStatsResponse,
     createChannelFollowerStatsResponse,
     createChannelFollowerWebhookPayload,
     createFollowedChannelResponse,
@@ -113,6 +114,10 @@ describe("ChannelFollowers", () => {
             subscribers_gained_since_last_post: 0,
             subscribers_lost_since_last_post: 0,
         });
+    });
+
+    test("builds an empty follower message stats compatibility response", () => {
+        assert.deepEqual(createChannelFollowerMessageStatsResponse(), []);
     });
 
     test("rejects following when the user cannot view the source announcement channel before creating a webhook", async () => {
