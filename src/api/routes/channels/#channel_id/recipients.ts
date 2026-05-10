@@ -17,13 +17,30 @@
 */
 
 import { route } from "@spacebar/api";
-import { Channel, ChannelRecipientAddEvent, DiscordApiErrors, DmChannelDTO, assertCanAddGroupDmRecipient, emitEvent, Recipient, User } from "@spacebar/util";
+import { type ChannelRecipientMeUpdateSchema, ChannelType, PublicUserProjection } from "@spacebar/schemas";
+import {
+    Channel,
+    type ChannelDeleteEvent,
+    ChannelRecipientAddEvent,
+    type ChannelUpdateEvent,
+    DiscordApiErrors,
+    DmChannelDTO,
+    type MessageAckEvent,
+    assertCanAddGroupDmRecipient,
+    emitEvent,
+    Recipient,
+    User,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { ChannelType, PublicUserProjection } from "@spacebar/schemas";
 
 const router: Router = Router({ mergeParams: true });
+const ACCEPTED_MESSAGE_REQUEST_CONSENT_STATUS = 2;
 
 type GroupDmRecipientCarrier = { recipients?: Pick<Recipient, "user_id">[] };
+type MessageRequestRecipient = Pick<Recipient, "closed" | "save" | "user_id">;
+type MessageRequestChannel = Pick<Channel, "id" | "last_message_id" | "type"> & {
+    recipients?: MessageRequestRecipient[] | null;
+};
 
 function assertNewGroupDmRecipient(channel: GroupDmRecipientCarrier, user_id: string) {
     if (channel.recipients?.some((recipient) => recipient.user_id === user_id)) {
@@ -44,6 +61,95 @@ async function loadGroupDmRecipientUser(user_id: string) {
 export async function loadAddableGroupDmRecipient(channel: GroupDmRecipientCarrier, user_id: string) {
     assertNewGroupDmRecipient(channel, user_id);
     return await loadGroupDmRecipientUser(user_id);
+}
+
+function assertMessageRequestDmChannel(channel: Pick<Channel, "type">) {
+    if (channel.type !== ChannelType.DM) throw DiscordApiErrors.CANNOT_EXECUTE_ON_THIS_CHANNEL_TYPE;
+}
+
+function getCurrentMessageRequestRecipient(channel: MessageRequestChannel, userId: string): MessageRequestRecipient {
+    const recipient = channel.recipients?.find((candidate) => candidate.user_id === userId);
+    if (!recipient) throw DiscordApiErrors.MISSING_PERMISSIONS;
+
+    return recipient;
+}
+
+export function assertPendingMessageRequestRecipient(channel: MessageRequestChannel, userId: string): MessageRequestRecipient {
+    const recipient = getCurrentMessageRequestRecipient(channel, userId);
+    if (recipient.closed === false) throw DiscordApiErrors.MISSING_PERMISSIONS;
+
+    return recipient;
+}
+
+async function toCurrentUserDmChannel(channel: MessageRequestChannel, userId: string) {
+    const channelDto = await DmChannelDTO.from(channel as Channel);
+    return channelDto.forRecipient(userId);
+}
+
+type CurrentUserDmChannel = Awaited<ReturnType<typeof toCurrentUserDmChannel>>;
+
+async function emitMessageRequestUpdate(data: CurrentUserDmChannel, userId: string) {
+    await emitEvent({
+        event: "CHANNEL_UPDATE",
+        user_id: userId,
+        data,
+    } as ChannelUpdateEvent);
+}
+
+async function emitMessageRequestDelete(data: CurrentUserDmChannel, userId: string) {
+    await emitEvent({
+        event: "CHANNEL_DELETE",
+        user_id: userId,
+        data,
+    } as ChannelDeleteEvent);
+}
+
+async function emitMessageRequestAck(channel: MessageRequestChannel) {
+    if (!channel.last_message_id) return;
+
+    await emitEvent({
+        event: "MESSAGE_ACK",
+        channel_id: channel.id,
+        data: {
+            channel_id: channel.id,
+            message_id: channel.last_message_id,
+        },
+    } satisfies MessageAckEvent);
+}
+
+export async function updateCurrentUserMessageRequest(channel: MessageRequestChannel, userId: string, body: ChannelRecipientMeUpdateSchema) {
+    assertMessageRequestDmChannel(channel);
+    const recipient = getCurrentMessageRequestRecipient(channel, userId);
+
+    if (body.consent_status !== ACCEPTED_MESSAGE_REQUEST_CONSENT_STATUS) {
+        throw DiscordApiErrors.MISSING_PERMISSIONS;
+    }
+
+    if (recipient.closed !== false) {
+        recipient.closed = false;
+        await recipient.save();
+    }
+
+    const response = await toCurrentUserDmChannel(channel, userId);
+    await emitMessageRequestUpdate(response, userId);
+    return response;
+}
+
+export async function rejectCurrentUserMessageRequest(channel: MessageRequestChannel, userId: string) {
+    assertMessageRequestDmChannel(channel);
+    const recipient = assertPendingMessageRequestRecipient(channel, userId);
+
+    if (recipient.closed !== true) {
+        recipient.closed = true;
+        await recipient.save();
+    }
+
+    const response = await toCurrentUserDmChannel(channel, userId);
+    await emitMessageRequestUpdate(response, userId);
+    await emitMessageRequestAck(channel);
+    await emitMessageRequestDelete(response, userId);
+
+    return response;
 }
 
 export async function putChannelRecipient(req: Request, res: Response) {
@@ -84,6 +190,112 @@ export async function putChannelRecipient(req: Request, res: Response) {
         return res.sendStatus(204);
     }
 }
+
+router.delete(
+    "/@me",
+    route({
+        summary: "Reject Message Request",
+        event: ["CHANNEL_UPDATE", "MESSAGE_ACK", "CHANNEL_DELETE"],
+        responses: {
+            200: {
+                body: "DmChannelDTO",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
+        const channel = await Channel.findOneOrFail({
+            where: { id: channel_id },
+            relations: { recipients: true },
+        });
+
+        return res.status(200).json(await rejectCurrentUserMessageRequest(channel, req.user_id));
+    },
+);
+
+router.patch(
+    "/@me",
+    route({
+        requestBody: "ChannelRecipientMeUpdateSchema",
+        coerceRequestBody: false,
+        summary: "Update Message Request",
+        event: "CHANNEL_UPDATE",
+        responses: {
+            200: {
+                body: "DmChannelDTO",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
+        const channel = await Channel.findOneOrFail({
+            where: { id: channel_id },
+            relations: { recipients: true },
+        });
+
+        return res.status(200).json(await updateCurrentUserMessageRequest(channel, req.user_id, req.body as ChannelRecipientMeUpdateSchema));
+    },
+);
+
+router.put(
+    "/@me",
+    route({
+        requestBody: "ChannelRecipientMeUpdateSchema",
+        coerceRequestBody: false,
+        summary: "Update Message Request",
+        event: "CHANNEL_UPDATE",
+        responses: {
+            200: {
+                body: "DmChannelDTO",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
+        const channel = await Channel.findOneOrFail({
+            where: { id: channel_id },
+            relations: { recipients: true },
+        });
+
+        return res.status(200).json(await updateCurrentUserMessageRequest(channel, req.user_id, req.body as ChannelRecipientMeUpdateSchema));
+    },
+);
 
 router.put(
     "/:user_id",

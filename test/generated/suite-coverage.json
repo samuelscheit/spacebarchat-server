@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 437,
+        "totalCoveredManifestEntries": 440,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 415,
-                "totalCoveredManifestEntries": 415,
-                "totalCoveredRequiredManifestEntries": 415,
+                "totalRequiredManifestEntries": 418,
+                "totalCoveredManifestEntries": 418,
+                "totalCoveredRequiredManifestEntries": 418,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 286,
+            "stateful-domain": 289,
             "cdn-integration": 78,
             "integration": 13,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 415,
-                "totalCoveredManifestEntries": 415,
-                "totalCoveredRequiredManifestEntries": 415,
+                "totalRequiredManifestEntries": 418,
+                "totalCoveredManifestEntries": 418,
+                "totalCoveredRequiredManifestEntries": 418,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -92,6 +92,7 @@
                 "api:http:DELETE:/channels/:channel_id/pins/:message_id",
                 "api:http:DELETE:/channels/:channel_id/pins/ack",
                 "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
+                "api:http:DELETE:/channels/:channel_id/recipients/@me",
                 "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                 "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
                 "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
@@ -279,6 +280,7 @@
                 "api:http:PATCH:/channels/:channel_id/",
                 "api:http:PATCH:/channels/:channel_id/call/",
                 "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
+                "api:http:PATCH:/channels/:channel_id/recipients/@me",
                 "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                 "api:http:PATCH:/guilds/:guild_id/",
                 "api:http:PATCH:/guilds/:guild_id/auto-moderation/rules/:rule_id",
@@ -402,6 +404,7 @@
                 "api:http:PUT:/channels/:channel_id/pins/:message_id",
                 "api:http:PUT:/channels/:channel_id/pins/ack",
                 "api:http:PUT:/channels/:channel_id/recipients/:user_id",
+                "api:http:PUT:/channels/:channel_id/recipients/@me",
                 "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/@me",
@@ -509,6 +512,7 @@
                 "api:http:DELETE:/channels/:channel_id/pins/:message_id",
                 "api:http:DELETE:/channels/:channel_id/pins/ack",
                 "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
+                "api:http:DELETE:/channels/:channel_id/recipients/@me",
                 "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                 "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
                 "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
@@ -696,6 +700,7 @@
                 "api:http:PATCH:/channels/:channel_id/",
                 "api:http:PATCH:/channels/:channel_id/call/",
                 "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
+                "api:http:PATCH:/channels/:channel_id/recipients/@me",
                 "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                 "api:http:PATCH:/guilds/:guild_id/",
                 "api:http:PATCH:/guilds/:guild_id/auto-moderation/rules/:rule_id",
@@ -819,6 +824,7 @@
                 "api:http:PUT:/channels/:channel_id/pins/:message_id",
                 "api:http:PUT:/channels/:channel_id/pins/ack",
                 "api:http:PUT:/channels/:channel_id/recipients/:user_id",
+                "api:http:PUT:/channels/:channel_id/recipients/@me",
                 "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/@me",
@@ -1180,6 +1186,7 @@
                         "api:http:DELETE:/channels/:channel_id/pins/:message_id",
                         "api:http:DELETE:/channels/:channel_id/pins/ack",
                         "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
+                        "api:http:DELETE:/channels/:channel_id/recipients/@me",
                         "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                         "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
                         "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
@@ -1215,6 +1222,7 @@
                         "api:http:PATCH:/channels/:channel_id/",
                         "api:http:PATCH:/channels/:channel_id/call/",
                         "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
+                        "api:http:PATCH:/channels/:channel_id/recipients/@me",
                         "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                         "api:http:POST:/channels/:channel_id/attachments/",
                         "api:http:POST:/channels/:channel_id/blocked-user-warning-dismissal/",
@@ -1247,6 +1255,7 @@
                         "api:http:PUT:/channels/:channel_id/pins/:message_id",
                         "api:http:PUT:/channels/:channel_id/pins/ack",
                         "api:http:PUT:/channels/:channel_id/recipients/:user_id",
+                        "api:http:PUT:/channels/:channel_id/recipients/@me",
                         "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                         "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
                         "api:http:PUT:/channels/:channel_id/thread-members/@me"

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 530,
+        "totalEntries": 533,
         "byService": {
-            "api": 433,
+            "api": 436,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 505,
+            "http-route": 508,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 102,
-            "stateful-domain": 286,
+            "stateful-domain": 289,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 13,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 388,
+            "route-class": 391,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -5741,7 +5741,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/recipients/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 99,
+            "line": 311,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5792,7 +5792,7 @@
             "method": "PUT",
             "path": "/channels/:channel_id/recipients/:user_id",
             "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
-            "line": 88,
+            "line": 300,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5804,6 +5804,182 @@
                 "emittedEvents": [
                     "CHANNEL_CREATE",
                     "CHANNEL_RECIPIENT_ADD"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/channels/:channel_id/recipients/@me",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/channels/:channel_id/recipients/@me",
+            "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
+            "line": 194,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "event": [
+                    "CHANNEL_UPDATE",
+                    "MESSAGE_ACK",
+                    "CHANNEL_DELETE"
+                ],
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "DmChannelDTO"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_DELETE",
+                    "CHANNEL_UPDATE",
+                    "MESSAGE_ACK"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PATCH:/channels/:channel_id/recipients/@me",
+            "type": "http-route",
+            "service": "api",
+            "method": "PATCH",
+            "path": "/channels/:channel_id/recipients/@me",
+            "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
+            "line": 228,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "ChannelRecipientMeUpdateSchema",
+                "event": "CHANNEL_UPDATE",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "DmChannelDTO"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/channels/:channel_id/recipients/@me",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/channels/:channel_id/recipients/@me",
+            "sourceFile": "src/api/routes/channels/#channel_id/recipients.ts",
+            "line": 264,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "ChannelRecipientMeUpdateSchema",
+                "event": "CHANNEL_UPDATE",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "DmChannelDTO"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
                 ]
             },
             "rateLimit": {

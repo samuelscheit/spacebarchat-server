@@ -36,6 +36,7 @@ export * from "./ChannelReorderSchema";
 export * from "./ChannelCallModifySchema";
 export * from "./ChannelCallRingSchema";
 export * from "./ChannelCallStopRingingSchema";
+export * from "./ChannelRecipientMeUpdateSchema";
 export * from "./ChannelSafetyWarningsAckSchema";
 export * from "./CodesVerificationSchema";
 export * from "./ConfettiConsumableApplySchema";

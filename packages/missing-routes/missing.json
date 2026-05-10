@@ -1,6 +1,6 @@
 {
-    "missing": 755,
-    "spacebar": 425,
+    "missing": 752,
+    "spacebar": 428,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -105,7 +105,6 @@
         "/channels/{param}/messages/{param}/hide-guild-feed",
         "/channels/{param}/polls/{param}/answers/@me",
         "/channels/{param}/polls/{param}/expire",
-        "/channels/{param}/recipients/@me",
         "/channels/{param}/safety-warning/report-false-positive",
         "/channels/{param}/send-soundboard-sound",
         "/channels/{param}/store-listing",
@@ -732,14 +731,6 @@
             "route_name": "SEARCH_CHANNEL",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/messages/search"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/channels/{param}/recipients/@me",
-            "route_name": "DELETE_CHANNELS_CHANNEL_ID_RECIPIENTS__ME",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/recipients/@me"],
-            "summaries": ["Reject Message Request"]
         },
         { "method": "DELETE", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         {
@@ -3171,13 +3162,6 @@
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/messages/search"]
         },
-        {
-            "method": "PATCH",
-            "route": "/channels/{param}/recipients/@me",
-            "route_name": "CHANNEL_RECIPIENT_ME",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/recipients/@me"]
-        },
         { "method": "PATCH", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PATCH",
@@ -5210,14 +5194,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/polls/{message_id}/answers/@me"],
             "summaries": ["Create Poll Vote"]
-        },
-        {
-            "method": "PUT",
-            "route": "/channels/{param}/recipients/@me",
-            "route_name": "PUT_CHANNELS_CHANNEL_ID_RECIPIENTS__ME",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/recipients/@me"],
-            "summaries": ["Update Message Request"]
         },
         {
             "method": "PUT",

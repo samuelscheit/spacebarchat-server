@@ -1165,6 +1165,38 @@
 	{
 		"method": "DELETE",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"DmChannelDTO"
+		],
+		"route": "/channels/{channel_id}/recipients/@me",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_RECIPIENTS__ME",
+		"source": "src/api/routes/channels/#channel_id/recipients.ts"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "ChannelRecipientMeUpdateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"DmChannelDTO"
+		],
+		"route": "/channels/{channel_id}/recipients/@me",
+		"route_name": "PATCH_CHANNELS_CHANNEL_ID_RECIPIENTS__ME",
+		"source": "src/api/routes/channels/#channel_id/recipients.ts"
+	},
+	{
+		"method": "PUT",
+		"request_schema_ref": "ChannelRecipientMeUpdateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"DmChannelDTO"
+		],
+		"route": "/channels/{channel_id}/recipients/@me",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_RECIPIENTS__ME",
+		"source": "src/api/routes/channels/#channel_id/recipients.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/channels/{channel_id}/safety-warnings",
