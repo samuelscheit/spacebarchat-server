@@ -245,6 +245,156 @@ describe("PATCH /channels/:channel_id/call", () => {
     });
 });
 
+describe("POST /channels/:channel_id/call/ring", () => {
+    test("declares authenticated call-ring request and response metadata", (t) => {
+        const harness = setupCallRoute(t, {});
+
+        assert.deepEqual(harness.routeOptions[2], {
+            requestBody: {
+                schema: "ChannelCallRingSchema",
+                required: false,
+            },
+            coerceRequestBody: false,
+            summary: "Ring Channel Recipients",
+            description: "Rings the recipients of a private channel to notify them of an active call.",
+            responses: {
+                204: {},
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                403: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        });
+    });
+
+    test("validates optional nullable recipient request bodies", () => {
+        const schemas = requireModule("@spacebar/schemas") as typeof import("@spacebar/schemas");
+        const validate = schemas.nonCoercingAjv.getSchema("ChannelCallRingSchema");
+        assert.ok(validate);
+
+        assert.equal(validate({}), true);
+        assert.equal(validate({ recipients: null }), true);
+        assert.equal(validate({ recipients: ["other-user"] }), true);
+        assert.equal(validate({ recipients: "other-user" }), false);
+        assert.equal(validate({ recipients: [123] }), false);
+    });
+
+    test("returns 204 without persistence when there is no active private call", async (t) => {
+        const harness = setupCallRoute(t, { activeVoiceStates: 0 });
+
+        const response = await request(harness.app, "/channels/dm/call/ring", {
+            method: "POST",
+        });
+
+        assert.equal(response.status, 204);
+        assert.equal(response.body, undefined);
+        assert.deepEqual(harness.channelFindOptions, [
+            {
+                where: { id: "dm" },
+                relations: { recipients: true },
+            },
+        ]);
+        assert.deepEqual(harness.voiceStateCountOptions, [
+            {
+                where: { channel_id: "dm" },
+            },
+        ]);
+    });
+
+    test("fails closed for active call ringing because Spacebar has no ringing state or Call Update support", async (t) => {
+        const harness = setupCallRoute(t, { activeVoiceStates: 1 });
+
+        const response = await request(harness.app, "/channels/dm/call/ring", {
+            method: "POST",
+            body: JSON.stringify({ recipients: ["other-user"] }),
+            headers: { "content-type": "application/json" },
+        });
+
+        assert.equal(response.status, 501);
+        assert.equal(response.body?.code, 501);
+        assert.equal(response.body?.message, "Error: Call ringing is not supported");
+    });
+
+    test("returns 204 for an active call when the request targets no recipients", async (t) => {
+        const harness = setupCallRoute(t, { activeVoiceStates: 1 });
+
+        const response = await request(harness.app, "/channels/dm/call/ring", {
+            method: "POST",
+            body: JSON.stringify({ recipients: ["viewer"] }),
+            headers: { "content-type": "application/json" },
+        });
+
+        assert.equal(response.status, 204);
+        assert.equal(response.body, undefined);
+    });
+
+    test("rejects non-private channel types before active-call lookup", async (t) => {
+        const harness = setupCallRoute(t, {
+            channel: {
+                type: ChannelType.GUILD_VOICE,
+                recipients: [{ user_id: "viewer", closed: false }],
+            },
+        });
+
+        const response = await request(harness.app, "/channels/voice/call/ring", {
+            method: "POST",
+            body: JSON.stringify({}),
+            headers: { "content-type": "application/json" },
+        });
+
+        assert.equal(response.status, 400);
+        assert.equal(response.body?.code, 50024);
+        assert.equal(harness.voiceStateCountOptions.length, 0);
+    });
+
+    test("requires the token user to be an active private-channel recipient before active-call lookup", async (t) => {
+        const harness = setupCallRoute(t, {
+            channel: {
+                type: ChannelType.GROUP_DM,
+                recipients: [
+                    { user_id: "viewer", closed: true },
+                    { user_id: "other-user", closed: false },
+                ],
+            },
+        });
+
+        const response = await request(harness.app, "/channels/group/call/ring", {
+            method: "POST",
+            body: JSON.stringify({}),
+            headers: { "content-type": "application/json" },
+        });
+
+        assert.equal(response.status, 403);
+        assert.equal(response.body?.code, 50013);
+        assert.equal(harness.voiceStateCountOptions.length, 0);
+    });
+
+    test("rejects recipient IDs outside the private channel before active-call lookup", async (t) => {
+        const harness = setupCallRoute(t, {});
+
+        const response = await request(harness.app, "/channels/dm/call/ring", {
+            method: "POST",
+            body: JSON.stringify({ recipients: ["not-a-recipient"] }),
+            headers: { "content-type": "application/json" },
+        });
+
+        assert.equal(response.status, 403);
+        assert.equal(response.body?.code, 50013);
+        assert.equal(harness.voiceStateCountOptions.length, 0);
+    });
+});
+
 type TestRecipient = {
     closed: boolean;
     user_id: string;

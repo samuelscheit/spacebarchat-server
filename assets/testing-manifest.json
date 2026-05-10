@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 481,
+        "totalEntries": 482,
         "byService": {
-            "api": 384,
+            "api": 385,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 456,
+            "http-route": 457,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 78,
-            "stateful-domain": 266,
+            "stateful-domain": 267,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 13,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 344,
+            "route-class": 345,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2607,7 +2607,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 61,
+            "line": 95,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2659,11 +2659,64 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 95,
+            "line": 129,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ChannelCallModifySchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    403,
+                    404,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/channels/:channel_id/call/ring",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/channels/:channel_id/call/ring",
+            "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
+            "line": 167,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "{\n            schema: \"ChannelCallRingSchema\",\n            required: false,\n        }",
                 "responseBodies": [
                     "APIErrorResponse"
                 ],

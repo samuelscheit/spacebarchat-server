@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 411,
+        "totalCoveredManifestEntries": 412,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 389,
-                "totalCoveredManifestEntries": 389,
-                "totalCoveredRequiredManifestEntries": 389,
+                "totalRequiredManifestEntries": 390,
+                "totalCoveredManifestEntries": 390,
+                "totalCoveredRequiredManifestEntries": 390,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 266,
+            "stateful-domain": 267,
             "integration": 13,
             "contract": 19,
             "auth-scenario": 16,
@@ -65,9 +65,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 389,
-                "totalCoveredManifestEntries": 389,
-                "totalCoveredRequiredManifestEntries": 389,
+                "totalRequiredManifestEntries": 390,
+                "totalCoveredManifestEntries": 390,
+                "totalCoveredRequiredManifestEntries": 390,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -316,6 +316,7 @@
                 "api:http:POST:/auth/verify/resend/",
                 "api:http:POST:/auth/verify/view-backup-codes-challenge/",
                 "api:http:POST:/channels/:channel_id/attachments/",
+                "api:http:POST:/channels/:channel_id/call/ring",
                 "api:http:POST:/channels/:channel_id/followers/",
                 "api:http:POST:/channels/:channel_id/greet/",
                 "api:http:POST:/channels/:channel_id/invites/",
@@ -707,6 +708,7 @@
                 "api:http:POST:/auth/verify/resend/",
                 "api:http:POST:/auth/verify/view-backup-codes-challenge/",
                 "api:http:POST:/channels/:channel_id/attachments/",
+                "api:http:POST:/channels/:channel_id/call/ring",
                 "api:http:POST:/channels/:channel_id/followers/",
                 "api:http:POST:/channels/:channel_id/greet/",
                 "api:http:POST:/channels/:channel_id/invites/",
@@ -1153,6 +1155,7 @@
                         "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
                         "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                         "api:http:POST:/channels/:channel_id/attachments/",
+                        "api:http:POST:/channels/:channel_id/call/ring",
                         "api:http:POST:/channels/:channel_id/followers/",
                         "api:http:POST:/channels/:channel_id/greet/",
                         "api:http:POST:/channels/:channel_id/invites/",

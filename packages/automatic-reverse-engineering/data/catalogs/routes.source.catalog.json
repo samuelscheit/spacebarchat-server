@@ -583,6 +583,15 @@
 		"source": "src/api/routes/channels/#channel_id/call.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/call/ring",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_CALL_RING",
+		"source": "src/api/routes/channels/#channel_id/call.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
