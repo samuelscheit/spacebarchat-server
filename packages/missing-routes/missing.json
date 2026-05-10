@@ -1,6 +1,6 @@
 {
-    "missing": 728,
-    "spacebar": 452,
+    "missing": 727,
+    "spacebar": 453,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -316,7 +316,6 @@
         "/partner-sdk/guilds/{param}/application-storefront/skus/{param}/eligibility",
         "/partner-sdk/provisional-accounts/unmerge",
         "/partner-sdk/provisional-accounts/unmerge/bot",
-        "/partner-sdk/storefront-config",
         "/partner-sdk/token",
         "/partner-sdk/token/bot",
         "/partner-sdk/users/@me/channels",
@@ -2124,13 +2123,6 @@
             "sources": ["userdoccers:resources/store.mdx"],
             "source_routes": ["/partner-sdk/guilds/{guild_id}/application-storefront/skus/{sku_id}"],
             "summaries": ["Get Guild Application SKU Storefront"]
-        },
-        {
-            "method": "GET",
-            "route": "/partner-sdk/storefront-config",
-            "route_name": "GET_PARTNER_SDK_STOREFRONT_CONFIG",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "summaries": ["Get Social Layer Storefront Config"]
         },
         {
             "method": "GET",

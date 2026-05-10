@@ -3012,6 +3012,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"PartnerSdkStorefrontConfigResponse"
+		],
+		"route": "/partner-sdk/storefront-config",
+		"route_name": "GET_PARTNER_SDK_STOREFRONT_CONFIG",
+		"source": "src/api/routes/partner-sdk/storefront-config.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"GuildDiscoveryRequirementsResponse"
 		],
 		"route": "/partners/{guild_id}/requirements",

@@ -8670,6 +8670,46 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PartnerSdkStorefrontConfigResponse": {
+        "type": "object",
+        "properties": {
+            "promotional_sku_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "promotion_end_datetime": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "storefronts": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartnerSdkStorefrontConfigStorefront"
+                }
+            },
+            "announcement_modal_config": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/PartnerSdkStorefrontConfigAnnouncementModal"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "promotion_end_datetime",
+            "promotional_sku_ids",
+            "storefronts"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PaymentSourceBillingAddressResponse": {
         "type": "object",
         "properties": {
@@ -29103,6 +29143,55 @@
         "required": [
             "message",
             "pinned_at"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PartnerSdkStorefrontConfigStorefront": {
+        "type": "object",
+        "properties": {
+            "application_id": {
+                "type": "string"
+            },
+            "game_id": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "excluded_platforms": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "collectibles_shop_navigation_enabled": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "collectibles_shop_navigation_enabled",
+            "excluded_platforms",
+            "game_id",
+            "guild_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PartnerSdkStorefrontConfigAnnouncementModal": {
+        "type": "object",
+        "properties": {
+            "application_id": {
+                "type": "string"
+            },
+            "version": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "version"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

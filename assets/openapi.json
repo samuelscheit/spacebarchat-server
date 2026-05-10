@@ -8282,6 +8282,44 @@
             "APIConnectionsConfiguration": {
                 "type": "object"
             },
+            "PartnerSdkStorefrontConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "promotional_sku_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "promotion_end_datetime": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "storefronts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartnerSdkStorefrontConfigStorefront"
+                        }
+                    },
+                    "announcement_modal_config": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PartnerSdkStorefrontConfigAnnouncementModal"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "promotion_end_datetime",
+                    "promotional_sku_ids",
+                    "storefronts"
+                ]
+            },
             "PaymentSourceBillingAddressResponse": {
                 "type": "object",
                 "properties": {
@@ -27751,6 +27789,51 @@
                     "pinned_at"
                 ]
             },
+            "PartnerSdkStorefrontConfigStorefront": {
+                "type": "object",
+                "properties": {
+                    "application_id": {
+                        "type": "string"
+                    },
+                    "game_id": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "excluded_platforms": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "collectibles_shop_navigation_enabled": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "collectibles_shop_navigation_enabled",
+                    "excluded_platforms",
+                    "game_id",
+                    "guild_id"
+                ]
+            },
+            "PartnerSdkStorefrontConfigAnnouncementModal": {
+                "type": "object",
+                "properties": {
+                    "application_id": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "version"
+                ]
+            },
             "PromotionMarketingComponentType": {
                 "type": "number",
                 "enum": [
@@ -30407,6 +30490,9 @@
         },
         {
             "name": "outbound-promotions"
+        },
+        {
+            "name": "partner-sdk"
         },
         {
             "name": "partners"
@@ -36291,6 +36377,42 @@
                 ],
                 "tags": [
                     "partners"
+                ]
+            }
+        },
+        "/partner-sdk/storefront-config/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the promotion currently running for Social Layer integrated storefronts.",
+                "summary": "Get Social Layer Storefront Config",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PartnerSdkStorefrontConfigResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "partner-sdk"
                 ]
             }
         },

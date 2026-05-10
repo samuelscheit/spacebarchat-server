@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 557,
+        "totalEntries": 558,
         "byService": {
-            "api": 460,
+            "api": 461,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 532,
+            "http-route": 533,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 114,
+            "contract": 115,
             "stateful-domain": 299,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 415,
+            "route-class": 416,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -14594,6 +14594,42 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/partner-sdk/storefront-config/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/partner-sdk/storefront-config/",
+            "sourceFile": "src/api/routes/partner-sdk/storefront-config.ts",
+            "line": 64,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PartnerSdkStorefrontConfigResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
                 "hasQuery": false
             },
             "coverage": {
