@@ -2057,6 +2057,16 @@
 		"source": "src/api/routes/guilds/#guild_id/bans.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildBasicResponse"
+		],
+		"route": "/guilds/{guild_id}/basic",
+		"route_name": "GET_GUILDS_GUILD_ID_BASIC",
+		"source": "src/api/routes/guilds/#guild_id/basic.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "BulkBanSchema",
 		"response_schema_refs": [

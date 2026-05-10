@@ -1,6 +1,6 @@
 {
-    "missing": 740,
-    "spacebar": 440,
+    "missing": 739,
+    "spacebar": 441,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -179,7 +179,6 @@
         "/guilds/{param}/auto-moderation/report-raid",
         "/guilds/{param}/auto-moderation/rules/validate",
         "/guilds/{param}/bans/search",
-        "/guilds/{param}/basic",
         "/guilds/{param}/creator-monetization/accept-new-terms-demonetized",
         "/guilds/{param}/creator-monetization/accept-terms",
         "/guilds/{param}/creator-monetization/enable-requests",
@@ -1734,14 +1733,6 @@
             "route_name": "GUILD_AUTOMOD_VALIDATE_RULE",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/auto-moderation/rules/validate"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/basic",
-            "route_name": "GET_GUILDS_GUILD_ID_BASIC",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/basic"],
-            "summaries": ["Get Guild Basic"]
         },
         {
             "method": "GET",

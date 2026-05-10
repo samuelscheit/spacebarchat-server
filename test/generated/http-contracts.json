@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 520,
+        "totalContracts": 521,
         "byService": {
-            "api": 447,
+            "api": 448,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 382,
-        "runtimeMalformedAuthContracts": 382,
-        "runtimeRevokedSessionAuthContracts": 382,
-        "runtimeStaleTokenAuthContracts": 382,
+        "runtimeAuthBoundaryContracts": 383,
+        "runtimeMalformedAuthContracts": 383,
+        "runtimeRevokedSessionAuthContracts": 383,
+        "runtimeStaleTokenAuthContracts": 383,
         "runtimePublicAuthBoundaryContracts": 57,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 69,
@@ -22,7 +22,7 @@
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 182,
+        "runtimeRateLimitHeaderContracts": 183,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -1046,7 +1046,7 @@
             "path": "/applications/:application_id/can-delete/",
             "samplePath": "/applications/100000000000000007/can-delete/",
             "sourceFile": "src/api/routes/applications/#application_id/can-delete.ts",
-            "line": 89,
+            "line": 88,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -13185,6 +13185,76 @@
                         "sourceFile": "src/api/middlewares/RateLimit.ts",
                         "line": 218
                     }
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/guilds/:guild_id/basic/",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/basic/",
+            "samplePath": "/guilds/100000000000000001/basic/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/basic.ts",
+            "line": 30,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "members", "roles", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "GuildBasicResponse"],
+                "responseStatuses": [200, 401, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "guild",
+                        "configPath": "limits.rate.routes.guild",
+                        "pathPrefix": "/guilds/:guild_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 218
+                    }
+                },
+                {
+                    "id": "policy-permission-denied",
+                    "checks": ["permission-denied"]
                 },
                 {
                     "id": "policy-schema-validation",
