@@ -7696,6 +7696,190 @@
                     "$ref": "#/components/schemas/PublicMessage"
                 }
             },
+            "PromotionMarketingComponentResponse": {
+                "type": "object",
+                "properties": {
+                    "component_type": {
+                        "$ref": "#/components/schemas/PromotionMarketingComponentType"
+                    },
+                    "id": {
+                        "type": "integer"
+                    },
+                    "promotion_id": {
+                        "type": "string"
+                    },
+                    "properties": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "component_type",
+                    "id",
+                    "promotion_id",
+                    "properties"
+                ]
+            },
+            "PromotionResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "trial_id": {
+                        "type": "string"
+                    },
+                    "start_date": {
+                        "type": "string"
+                    },
+                    "end_date": {
+                        "type": "string"
+                    },
+                    "outbound_redemption_end_date": {
+                        "type": "string"
+                    },
+                    "inbound_header_text": {
+                        "type": "string"
+                    },
+                    "inbound_body_text": {
+                        "type": "string"
+                    },
+                    "inbound_help_center_link": {
+                        "type": "string"
+                    },
+                    "outbound_title": {
+                        "type": "string"
+                    },
+                    "outbound_redemption_modal_body": {
+                        "type": "string"
+                    },
+                    "outbound_terms_and_conditions": {
+                        "type": "string"
+                    },
+                    "outbound_redemption_page_link": {
+                        "type": "string"
+                    },
+                    "outbound_redemption_url_format": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "inbound_restricted_countries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "outbound_restricted_countries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "promotion_type": {
+                        "$ref": "#/components/schemas/PromotionType"
+                    },
+                    "partner_id": {
+                        "type": "string"
+                    },
+                    "marketing_components": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PromotionMarketingComponentResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "end_date",
+                    "id",
+                    "promotion_type",
+                    "start_date"
+                ]
+            },
+            "BogoPromotionResponse": {
+                "type": "object",
+                "properties": {
+                    "promotion_type": {
+                        "type": "integer",
+                        "const": 1
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "trial_id": {
+                        "type": "string"
+                    },
+                    "start_date": {
+                        "type": "string"
+                    },
+                    "end_date": {
+                        "type": "string"
+                    },
+                    "outbound_redemption_end_date": {
+                        "type": "string"
+                    },
+                    "inbound_header_text": {
+                        "type": "string"
+                    },
+                    "inbound_body_text": {
+                        "type": "string"
+                    },
+                    "inbound_help_center_link": {
+                        "type": "string"
+                    },
+                    "outbound_title": {
+                        "type": "string"
+                    },
+                    "outbound_redemption_modal_body": {
+                        "type": "string"
+                    },
+                    "outbound_terms_and_conditions": {
+                        "type": "string"
+                    },
+                    "outbound_redemption_page_link": {
+                        "type": "string"
+                    },
+                    "outbound_redemption_url_format": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "inbound_restricted_countries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "outbound_restricted_countries": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "partner_id": {
+                        "type": "string"
+                    },
+                    "marketing_components": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PromotionMarketingComponentResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "end_date",
+                    "id",
+                    "promotion_type",
+                    "start_date"
+                ]
+            },
+            "BogoPromotionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/BogoPromotionResponse"
+                }
+            },
             "PublicApplicationResponse": {
                 "type": "object",
                 "properties": {
@@ -25192,6 +25376,27 @@
                     "pinned_at"
                 ]
             },
+            "PromotionMarketingComponentType": {
+                "type": "number",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4
+                ]
+            },
+            "PromotionType": {
+                "type": "number",
+                "enum": [
+                    0,
+                    1,
+                    3,
+                    4,
+                    5,
+                    6
+                ]
+            },
             "QuestTaskProgressMap": {
                 "type": "object",
                 "additionalProperties": {
@@ -27703,6 +27908,9 @@
         },
         {
             "name": "beaker"
+        },
+        {
+            "name": "bogo-promotions"
         },
         {
             "name": "channels"
@@ -44586,6 +44794,52 @@
                 ],
                 "tags": [
                     "channels"
+                ]
+            }
+        },
+        "/bogo-promotions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns BOGO promotions the current user is eligible for.",
+                "summary": "Get BOGO Promotions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BogoPromotionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to return promotions in."
+                    }
+                ],
+                "tags": [
+                    "bogo-promotions"
                 ]
             }
         },

@@ -88,6 +88,7 @@ export * from "./PinnedMessagesResponse";
 export * from "./PartialConnectedAccountResponse";
 export * from "./PaymentSourceResponse";
 export * from "./PreloadMessagesResponseSchema";
+export * from "./PromotionResponse";
 export * from "./PublicApplicationResponse";
 export * from "./QuestUserStatusResponse";
 export * from "./RecentAvatarsResponse";

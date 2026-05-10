@@ -1,6 +1,6 @@
 {
-    "missing": 788,
-    "spacebar": 392,
+    "missing": 787,
+    "spacebar": 393,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -89,7 +89,6 @@
         "/billing/popup-bridge/{param}/callback",
         "/billing/popup-bridge/{param}/callback/{param}/{param}",
         "/billing/verify-purchase-request",
-        "/bogo-promotions",
         "/branches",
         "/captcha/decider",
         "/channels/preload-messages",
@@ -1515,13 +1514,6 @@
             "sources": ["userdoccers:resources/billing.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/billing/popup-bridge/{payment_source_type}/callback/{state}/{response_type}"],
             "summaries": ["Create Billing Popup Bridge Redirect"]
-        },
-        {
-            "method": "GET",
-            "route": "/bogo-promotions",
-            "route_name": "GET_BOGO_PROMOTIONS",
-            "sources": ["userdoccers:resources/promotion.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get BOGO Promotions"]
         },
         {
             "method": "GET",

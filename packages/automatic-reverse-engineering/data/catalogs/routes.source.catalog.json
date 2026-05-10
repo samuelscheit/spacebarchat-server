@@ -526,6 +526,16 @@
 		"source": "src/api/routes/beaker.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"BogoPromotionsResponse"
+		],
+		"route": "/bogo-promotions",
+		"route_name": "GET_BOGO_PROMOTIONS",
+		"source": "src/api/routes/bogo-promotions.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"Channel"
