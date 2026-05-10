@@ -12,6 +12,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildApplicationCommandPermissionsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildApplicationCommandPermissions"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationCommandSchema": {
         "type": "object",
         "properties": {
@@ -12753,6 +12760,68 @@
         "additionalProperties": false,
         "required": [
             "user_sessions"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildApplicationCommandPermissions": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "permissions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationCommandPermission"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "guild_id",
+            "id",
+            "permissions"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandPermission": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/ApplicationCommandPermissionType"
+            },
+            "permission": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "permission",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandPermissionType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

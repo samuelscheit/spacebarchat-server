@@ -27,6 +27,7 @@ const coveredManifestIds = [
     "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
     "api:http:POST:/applications/:application_id/guilds/:guild_id/commands/",
     "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
+    "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
     "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
     "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
     "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
@@ -65,6 +66,7 @@ test(
             "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
             "api:http:POST:/applications/:application_id/guilds/:guild_id/commands/",
             "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
+            "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
             "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
             "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
             "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
@@ -300,6 +302,55 @@ test(
             assert.ok(guildBulkBody.every((command) => typeof command.id === "string" && typeof command.version === "string"));
             const guildCommands = await ApplicationCommand.findBy({ application_id: applicationId, guild_id: guildId });
             assert.deepEqual(guildCommands.map((command) => command.name).sort(), ["scenario-guild-bulk", "scenario-guild-updated"]);
+
+            await ApplicationCommand.update(
+                { id: globalCommand.id },
+                {
+                    permissions: {
+                        roles: {
+                            [guildId]: false,
+                        },
+                    },
+                },
+            );
+            await ApplicationCommand.update(
+                { id: guildCommand.id },
+                {
+                    permissions: {
+                        roles: {
+                            [guildId]: true,
+                        },
+                        users: {
+                            [owner.id]: true,
+                        },
+                        channels: {
+                            [channelId]: false,
+                        },
+                    } as unknown as ApplicationCommand["permissions"],
+                },
+            );
+            const guildCommandPermissions = await getJsonArray(`${api.apiBaseUrl}/applications/${applicationId}/guilds/${guildId}/commands/permissions`, ownerToken);
+            assert.deepEqual(
+                guildCommandPermissions.sort((a, b) => String(a.id).localeCompare(String(b.id))),
+                [
+                    {
+                        id: globalCommand.id,
+                        application_id: applicationId,
+                        guild_id: guildId,
+                        permissions: [{ id: guildId, type: 1, permission: false }],
+                    },
+                    {
+                        id: guildCommand.id,
+                        application_id: applicationId,
+                        guild_id: guildId,
+                        permissions: [
+                            { id: guildId, type: 1, permission: true },
+                            { id: owner.id, type: 2, permission: true },
+                            { id: channelId, type: 3, permission: false },
+                        ],
+                    },
+                ].sort((a, b) => a.id.localeCompare(b.id)),
+            );
 
             const commandIndex = await getJson(`${api.apiBaseUrl}/guilds/${guildId}/application-command-index`, ownerToken);
             await assertStatus(commandIndex, 200);

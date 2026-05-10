@@ -17,7 +17,7 @@
 */
 
 import type { ApplicationCommandCreateSchema } from "../../../schemas/api/bots/ApplicationCommandCreateSchema";
-import { ApplicationCommandType, type ApplicationCommandSchema } from "../../../schemas/api/bots/ApplicationCommandSchema";
+import { ApplicationCommandPermissionType, ApplicationCommandType, type ApplicationCommandSchema, type GuildApplicationCommandPermissions } from "../../../schemas/api/bots";
 import type {
     ApplicationCommandOption,
     ApplicationCommandOptionChoice,
@@ -87,6 +87,16 @@ export type ApplicationCommandLocaleSources = {
 type ApplicationCommandLocalizationSource = {
     name_localizations?: Record<string, string> | null;
     description_localizations?: Record<string, string> | null;
+};
+
+type ApplicationCommandPermissionStorage = {
+    roles?: Record<string, boolean> | null;
+    users?: Record<string, boolean> | null;
+    channels?: Record<string, boolean> | null;
+};
+
+type ApplicationCommandPermissionSource = Pick<ApplicationCommand, "id" | "application_id"> & {
+    permissions?: ApplicationCommandPermissionStorage | null;
 };
 
 function firstLocaleValue(locale: ApplicationCommandLocaleSource) {
@@ -232,5 +242,32 @@ export function serializeApplicationCommand(command: ApplicationCommand, locale?
         contexts: command.contexts,
         version: command.version,
         handler: command.handler,
+    };
+}
+
+function serializeApplicationCommandPermissionMap(map: Record<string, boolean> | null | undefined, type: ApplicationCommandPermissionType) {
+    return Object.entries(map ?? {})
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([id, permission]) => ({
+            id,
+            type,
+            permission,
+        }));
+}
+
+export function serializeGuildApplicationCommandPermissions(command: ApplicationCommandPermissionSource, guildId: string): GuildApplicationCommandPermissions | undefined {
+    const permissions = [
+        ...serializeApplicationCommandPermissionMap(command.permissions?.roles, ApplicationCommandPermissionType.ROLE),
+        ...serializeApplicationCommandPermissionMap(command.permissions?.users, ApplicationCommandPermissionType.USER),
+        ...serializeApplicationCommandPermissionMap(command.permissions?.channels, ApplicationCommandPermissionType.CHANNEL),
+    ];
+
+    if (!permissions.length) return undefined;
+
+    return {
+        id: command.id,
+        application_id: command.application_id,
+        guild_id: guildId,
+        permissions,
     };
 }

@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { ApplicationCommandCreateSchema } from "../../../schemas/api/bots/ApplicationCommandCreateSchema";
-import { ApplicationCommandType } from "../../../schemas/api/bots/ApplicationCommandSchema";
+import { ApplicationCommandPermissionType, ApplicationCommandType } from "../../../schemas/api/bots";
 import { ApplicationCommandOptionType } from "../../../schemas/api/developers/Application";
 import type { ApplicationCommand } from "../../../util/entities/ApplicationCommand";
 import { FieldError } from "../../../util/util/FieldError";
@@ -17,6 +17,7 @@ import {
     normalizeApplicationCommandName,
     resolveApplicationCommandLocale,
     serializeApplicationCommand,
+    serializeGuildApplicationCommandPermissions,
 } from "./ApplicationCommands";
 
 function assertIsNullOperator(value: unknown) {
@@ -227,6 +228,53 @@ describe("application command helpers", () => {
         const locale = resolveApplicationCommandLocale({ discordLocale: ["pt-BR", "de-DE"], acceptLanguage: "fr", userSettingsLocale: "de-DE" });
 
         assert.equal(locale, "pt-BR");
+    });
+
+    test("serializes command permission maps to guild command permission objects", () => {
+        const command = applicationCommand({
+            id: "command",
+            application_id: "app",
+            permissions: {
+                user: false,
+                roles: {
+                    role_b: false,
+                    role_a: true,
+                },
+                users: {
+                    user_b: false,
+                    user_a: true,
+                },
+                channels: {
+                    channel_b: true,
+                    channel_a: false,
+                },
+            } as unknown as ApplicationCommand["permissions"],
+        });
+
+        assert.deepEqual(serializeGuildApplicationCommandPermissions(command, "guild"), {
+            id: "command",
+            application_id: "app",
+            guild_id: "guild",
+            permissions: [
+                { id: "role_a", type: ApplicationCommandPermissionType.ROLE, permission: true },
+                { id: "role_b", type: ApplicationCommandPermissionType.ROLE, permission: false },
+                { id: "user_a", type: ApplicationCommandPermissionType.USER, permission: true },
+                { id: "user_b", type: ApplicationCommandPermissionType.USER, permission: false },
+                { id: "channel_a", type: ApplicationCommandPermissionType.CHANNEL, permission: false },
+                { id: "channel_b", type: ApplicationCommandPermissionType.CHANNEL, permission: true },
+            ],
+        });
+    });
+
+    test("omits command permission objects when no role, user, or channel overwrites are stored", () => {
+        const command = applicationCommand({
+            id: "command",
+            permissions: {
+                user: false,
+            },
+        });
+
+        assert.equal(serializeGuildApplicationCommandPermissions(command, "guild"), undefined);
     });
 });
 

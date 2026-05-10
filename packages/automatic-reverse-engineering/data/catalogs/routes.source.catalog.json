@@ -245,6 +245,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildApplicationCommandPermissionsResponse"
+		],
+		"route": "/applications/{application_id}/guilds/{guild_id}/commands/permissions",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS_PERMISSIONS",
+		"source": "src/api/routes/applications/#application_id/guilds/#guild_id/commands/permissions.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ApplicationSkusResponse"
 		],
 		"route": "/applications/{application_id}/skus",

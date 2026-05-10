@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 400,
+        "totalCoveredManifestEntries": 401,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 378,
-                "totalCoveredManifestEntries": 378,
-                "totalCoveredRequiredManifestEntries": 378,
+                "totalRequiredManifestEntries": 379,
+                "totalCoveredManifestEntries": 379,
+                "totalCoveredRequiredManifestEntries": 379,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 258,
+            "stateful-domain": 259,
             "contract": 18,
             "auth-scenario": 16,
             "integration": 11,
@@ -64,9 +64,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 378,
-                "totalCoveredManifestEntries": 378,
-                "totalCoveredRequiredManifestEntries": 378,
+                "totalRequiredManifestEntries": 379,
+                "totalCoveredManifestEntries": 379,
+                "totalCoveredRequiredManifestEntries": 379,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -116,6 +116,7 @@
                 "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
+                "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
                 "api:http:GET:/applications/:application_id/skus/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -496,6 +497,7 @@
                 "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
+                "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
                 "api:http:GET:/applications/:application_id/skus/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -1206,6 +1208,7 @@
                         "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
+                        "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
                         "api:http:GET:/applications/:application_id/skus/",
                         "api:http:GET:/applications/@me/",
                         "api:http:GET:/applications/detectable/",

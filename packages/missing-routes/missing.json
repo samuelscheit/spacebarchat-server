@@ -1,6 +1,6 @@
 {
-    "missing": 823,
-    "spacebar": 357,
+    "missing": 822,
+    "spacebar": 358,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -51,7 +51,6 @@
         "/applications/{param}/game-claims",
         "/applications/{param}/game-claims/{param}",
         "/applications/{param}/gift-code-batches",
-        "/applications/{param}/guilds/{param}/commands/permissions",
         "/applications/{param}/guilds/{param}/commands/{param}/permissions",
         "/applications/{param}/managed-links",
         "/applications/{param}/managed-links/{param}",
@@ -1512,14 +1511,6 @@
                 "/applications/{application_id}/guilds/{guild_id}/commands/{param}/permissions"
             ],
             "summaries": ["Get Application Command Permissions"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/guilds/{param}/commands/permissions",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS_PERMISSIONS",
-            "sources": ["userdoccers:interactions/application-commands.mdx"],
-            "source_routes": ["/applications/{application_id}/guilds/{guild_id}/commands/permissions"],
-            "summaries": ["Get Guild Application Command Permissions"]
         },
         {
             "method": "GET",
