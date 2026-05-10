@@ -1563,6 +1563,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"EmojiGuildResponse"
+		],
+		"route": "/emojis/{emoji_id}/guild",
+		"route_name": "GET_EMOJIS_EMOJI_ID_GUILD",
+		"source": "src/api/routes/emojis/#emoji_id/guild.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"EmojiSourceResponse"
 		],
 		"route": "/emojis/{emoji_id}/source",

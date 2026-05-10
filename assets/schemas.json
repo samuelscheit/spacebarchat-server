@@ -3672,6 +3672,107 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "EmojiGuildResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "banner": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "discovery_splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "vanity_url_code": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "preferred_locale": {
+                "type": "string"
+            },
+            "premium_subscription_count": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "approximate_member_count": {
+                "type": "integer"
+            },
+            "approximate_presence_count": {
+                "type": "integer"
+            },
+            "emojis": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/EmojiResponse"
+                }
+            },
+            "emoji_count": {
+                "type": "integer"
+            },
+            "auto_removed": {
+                "type": "boolean"
+            },
+            "primary_category_id": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "is_published": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "approximate_member_count",
+            "approximate_presence_count",
+            "auto_removed",
+            "features",
+            "id",
+            "is_published",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "EmojiSourceResponse": {
         "anyOf": [
             {

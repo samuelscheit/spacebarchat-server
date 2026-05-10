@@ -1,6 +1,6 @@
 {
-    "missing": 760,
-    "spacebar": 420,
+    "missing": 759,
+    "spacebar": 421,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -133,7 +133,6 @@
         "/discoverable-guilds/search",
         "/discovery/search",
         "/discovery/{param}",
-        "/emojis/{param}/guild",
         "/entitlements/gift-codes/{param}/redeem",
         "/entitlements/partner-promotions/{param}",
         "/family-center/more-activity/{param}/{param}/{param}/{param}",
@@ -1555,14 +1554,6 @@
             "route_name": "GET_DISCOVERY_SEARCH",
             "sources": ["userdoccers:resources/discovery.mdx"],
             "summaries": ["Search Published Guilds"]
-        },
-        {
-            "method": "GET",
-            "route": "/emojis/{param}/guild",
-            "route_name": "GET_EMOJIS_EMOJI_ID_GUILD",
-            "sources": ["userdoccers:resources/emoji.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/emojis/{emoji_id}/guild"],
-            "summaries": ["Get Emoji Guild"]
         },
         { "method": "GET", "route": "/family-center/{param}/activity", "route_name": "FAMILY_CENTER_TEEN_ACTIVITY", "sources": ["xhyrom:data/client/routes.json"] },
         {
