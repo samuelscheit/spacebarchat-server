@@ -1,6 +1,6 @@
 {
-    "missing": 786,
-    "spacebar": 394,
+    "missing": 784,
+    "spacebar": 396,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -121,7 +121,6 @@
         "/channels/{param}/store-listing",
         "/channels/{param}/store-listing/entitlement-grant",
         "/channels/{param}/store-listings/{param}",
-        "/channels/{param}/thread-members/@me",
         "/channels/{param}/voice-channel-effects",
         "/channels/{param}/voice-status",
         "/checkpoint/loot",
@@ -778,14 +777,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/recipients/@me"],
             "summaries": ["Reject Message Request"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/channels/{param}/thread-members/@me",
-            "route_name": "DELETE_CHANNELS_CHANNEL_ID_THREAD_MEMBERS__ME",
-            "sources": ["userdoccers:resources/channel.mdx"],
-            "source_routes": ["/channels/{channel_id}/thread-members/@me"],
-            "summaries": ["Leave Thread"]
         },
         { "method": "DELETE", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         {
@@ -5447,14 +5438,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/recipients/@me"],
             "summaries": ["Update Message Request"]
-        },
-        {
-            "method": "PUT",
-            "route": "/channels/{param}/thread-members/@me",
-            "route_name": "PUT_CHANNELS_CHANNEL_ID_THREAD_MEMBERS__ME",
-            "sources": ["userdoccers:resources/channel.mdx"],
-            "source_routes": ["/channels/{channel_id}/thread-members/@me"],
-            "summaries": ["Join Thread"]
         },
         {
             "method": "PUT",

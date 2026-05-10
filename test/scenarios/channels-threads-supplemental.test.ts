@@ -38,6 +38,7 @@ type CapturedEvent = EventCapture["events"][number];
 const coveredManifestIds = [
     "api:http:DELETE:/channels/:channel_id/permissions/:overwrite_id",
     "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
+    "api:http:DELETE:/channels/:channel_id/thread-members/@me",
     "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
     "api:http:GET:/channels/:channel_id/thread-members/",
     "api:http:GET:/channels/:channel_id/thread-members/:user_id",
@@ -53,6 +54,7 @@ const coveredManifestIds = [
     "api:http:POST:/channels/:channel_id/threads/",
     "api:http:PUT:/channels/:channel_id/permissions/:overwrite_id",
     "api:http:PUT:/channels/:channel_id/tags/:tag_id",
+    "api:http:PUT:/channels/:channel_id/thread-members/@me",
     "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
 ];
 const eventTimeoutMs = 1000;
@@ -67,6 +69,7 @@ test(
         assert.deepEqual(coveredManifestIds, [
             "api:http:DELETE:/channels/:channel_id/permissions/:overwrite_id",
             "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
+            "api:http:DELETE:/channels/:channel_id/thread-members/@me",
             "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
             "api:http:GET:/channels/:channel_id/thread-members/",
             "api:http:GET:/channels/:channel_id/thread-members/:user_id",
@@ -82,6 +85,7 @@ test(
             "api:http:POST:/channels/:channel_id/threads/",
             "api:http:PUT:/channels/:channel_id/permissions/:overwrite_id",
             "api:http:PUT:/channels/:channel_id/tags/:tag_id",
+            "api:http:PUT:/channels/:channel_id/thread-members/@me",
             "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
         ]);
 
@@ -344,7 +348,7 @@ async function coverThreadRoutes(
     try {
         await assertThreadChannelPatchValidation(apiBaseUrl, publicThreadId, token, publicThreadEvents);
         await assertThreadPermissionOverwriteRouteValidation(apiBaseUrl, publicThreadId, guildId, token, publicThreadEvents);
-        await coverThreadMemberRoutes(apiBaseUrl, publicThreadId, ownerMember.index, joinedMember.index, memberId, token, publicThreadEvents);
+        await coverThreadMemberRoutes(apiBaseUrl, publicThreadId, ownerMember.index, joinedMember.index, memberId, token, memberToken, publicThreadEvents);
         await coverImplicitThreadMessageJoin(apiBaseUrl, publicThreadId, joinedMember.index, memberId, token, memberToken, publicThreadEvents);
     } finally {
         await publicThreadEvents.stop();
@@ -612,6 +616,7 @@ async function coverThreadMemberRoutes(
     joinedMemberIndex: string,
     joinedUserId: string,
     token: string,
+    memberToken: string,
     events: EventCapture,
 ) {
     const members = await getJsonArray(`${apiBaseUrl}/channels/${threadId}/thread-members`, token);
@@ -663,6 +668,35 @@ async function coverThreadMemberRoutes(
             event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === joinedUserId),
     );
     assert.equal(putEvent.data.member_count, 2);
+    await assertThreadMember(threadId, joinedMemberIndex);
+    await assertPersistedThreadMemberCount(threadId, 2);
+
+    await overwriteThreadMemberCount(threadId, 99);
+
+    const beforeSelfDelete = markCapturedEvents(events);
+    await assertStatus(await deleteJson(`${apiBaseUrl}/channels/${threadId}/thread-members/@me`, memberToken), 204);
+    const selfDeleteEvent = await waitForEventAfter(
+        events,
+        beforeSelfDelete,
+        (event) => event.event === "THREAD_MEMBERS_UPDATE" && event.channel_id === threadId && event.data.removed_member_ids?.includes(joinedUserId),
+    );
+    assert.equal(selfDeleteEvent.data.member_count, 1);
+    assert.equal(await ThreadMember.findOneBy({ id: threadId, member_idx: joinedMemberIndex }), null);
+    await assertPersistedThreadMemberCount(threadId, 1);
+
+    await overwriteThreadMemberCount(threadId, 99);
+
+    const beforeSelfPut = markCapturedEvents(events);
+    await assertStatus(await putJson(`${apiBaseUrl}/channels/${threadId}/thread-members/@me`, {}, memberToken), 204);
+    const selfPutEvent = await waitForEventAfter(
+        events,
+        beforeSelfPut,
+        (event) =>
+            event.event === "THREAD_MEMBERS_UPDATE" &&
+            event.channel_id === threadId &&
+            event.data.added_members?.some((member: Record<string, unknown>) => member.user_id === joinedUserId),
+    );
+    assert.equal(selfPutEvent.data.member_count, 2);
     await assertThreadMember(threadId, joinedMemberIndex);
     await assertPersistedThreadMemberCount(threadId, 2);
 

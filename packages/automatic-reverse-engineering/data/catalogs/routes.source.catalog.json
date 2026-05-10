@@ -1142,6 +1142,20 @@
 		"source": "src/api/routes/channels/#channel_id/thread-members.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/thread-members/@me",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_THREAD_MEMBERS__ME",
+		"source": "src/api/routes/channels/#channel_id/thread-members.ts"
+	},
+	{
+		"method": "PUT",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/thread-members/@me",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_THREAD_MEMBERS__ME",
+		"source": "src/api/routes/channels/#channel_id/thread-members.ts"
+	},
+	{
 		"method": "PATCH",
 		"request_schema_ref": "ThreadMemberSettingsUpdateSchema",
 		"response_schema_refs": [],

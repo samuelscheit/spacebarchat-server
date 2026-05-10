@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 419,
+        "totalCoveredManifestEntries": 421,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 397,
-                "totalCoveredManifestEntries": 397,
-                "totalCoveredRequiredManifestEntries": 397,
+                "totalRequiredManifestEntries": 399,
+                "totalCoveredManifestEntries": 399,
+                "totalCoveredRequiredManifestEntries": 399,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 273,
+            "stateful-domain": 275,
             "integration": 13,
             "contract": 20,
             "auth-scenario": 16,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 397,
-                "totalCoveredManifestEntries": 397,
-                "totalCoveredRequiredManifestEntries": 397,
+                "totalRequiredManifestEntries": 399,
+                "totalCoveredManifestEntries": 399,
+                "totalCoveredRequiredManifestEntries": 399,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -93,6 +93,7 @@
                 "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
                 "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                 "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
+                "api:http:DELETE:/channels/:channel_id/thread-members/@me",
                 "api:http:DELETE:/guilds/:guild_id/auto-moderation/rules/:rule_id",
                 "api:http:DELETE:/guilds/:guild_id/bans/:user_id",
                 "api:http:DELETE:/guilds/:guild_id/emojis/:emoji_id",
@@ -387,6 +388,7 @@
                 "api:http:PUT:/channels/:channel_id/recipients/:user_id",
                 "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
+                "api:http:PUT:/channels/:channel_id/thread-members/@me",
                 "api:http:PUT:/guilds/:guild_id/bans/:user_id",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
@@ -492,6 +494,7 @@
                 "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
                 "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                 "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
+                "api:http:DELETE:/channels/:channel_id/thread-members/@me",
                 "api:http:DELETE:/guilds/:guild_id/auto-moderation/rules/:rule_id",
                 "api:http:DELETE:/guilds/:guild_id/bans/:user_id",
                 "api:http:DELETE:/guilds/:guild_id/emojis/:emoji_id",
@@ -786,6 +789,7 @@
                 "api:http:PUT:/channels/:channel_id/recipients/:user_id",
                 "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
+                "api:http:PUT:/channels/:channel_id/thread-members/@me",
                 "api:http:PUT:/guilds/:guild_id/bans/:user_id",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
@@ -1142,6 +1146,7 @@
                         "api:http:DELETE:/channels/:channel_id/summaries/:summary_id",
                         "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                         "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
+                        "api:http:DELETE:/channels/:channel_id/thread-members/@me",
                         "api:http:GET:/channels/:channel_id/",
                         "api:http:GET:/channels/:channel_id/call/",
                         "api:http:GET:/channels/:channel_id/directory-entries/",
@@ -1200,7 +1205,8 @@
                         "api:http:PUT:/channels/:channel_id/pins/:message_id",
                         "api:http:PUT:/channels/:channel_id/recipients/:user_id",
                         "api:http:PUT:/channels/:channel_id/tags/:tag_id",
-                        "api:http:PUT:/channels/:channel_id/thread-members/:user_id"
+                        "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
+                        "api:http:PUT:/channels/:channel_id/thread-members/@me"
                     ]
                 },
                 {

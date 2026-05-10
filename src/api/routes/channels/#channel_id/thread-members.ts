@@ -53,10 +53,40 @@ const addThreadMemberRoute = route({
     },
     permission: "VIEW_CHANNEL",
 });
+const joinThreadRoute = route({
+    summary: "Join Thread",
+    responses: {
+        204: {},
+        401: {
+            body: "APIErrorResponse",
+        },
+        403: {},
+    },
+    permission: "VIEW_CHANNEL",
+});
+const leaveThreadRoute = route({
+    summary: "Leave Thread",
+    responses: {
+        204: {},
+        401: {
+            body: "APIErrorResponse",
+        },
+        403: {},
+    },
+    permission: "VIEW_CHANNEL",
+});
+const removeThreadMemberRoute = route({
+    responses: {
+        200: {},
+        403: {},
+    },
+    permission: "VIEW_CHANNEL",
+});
 
-async function addThreadMember(req: Request, res: Response) {
-    // eslint-disable-next-line prefer-const
-    let { channel_id, user_id } = req.params as { [key: string]: string };
+export async function addThreadMember(req: Request, res: Response) {
+    const { channel_id } = req.params as { [key: string]: string };
+    const requestedUserId = (req.params.user_id as string | undefined) ?? "@me";
+    const user_id = resolveThreadMemberUserId(requestedUserId, req.user_id);
     const thread = await Channel.findOneOrFail({ where: { id: channel_id } });
     try {
         assertThreadIsNotArchived(thread);
@@ -64,8 +94,7 @@ async function addThreadMember(req: Request, res: Response) {
         throw DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD;
     }
 
-    if (user_id != "@me") (await thread.getUserPermissions({ user: req.user, guild: thread.guild })).hasThrow(Permissions.FLAGS.SEND_MESSAGES_IN_THREADS);
-    else user_id = req.user_id;
+    if (requestedUserId !== "@me") (await thread.getUserPermissions({ user: req.user, guild: thread.guild })).hasThrow(Permissions.FLAGS.SEND_MESSAGES_IN_THREADS);
 
     const member = await Member.findOneOrFail({ where: { id: user_id, guild_id: thread.guild_id! } });
 
@@ -92,6 +121,38 @@ async function addThreadMember(req: Request, res: Response) {
         data: { ...thread.toJSON(), newly_created: false },
         user_id: user_id,
     } satisfies ThreadCreateEvent);
+
+    return res.status(204).send();
+}
+
+export async function removeThreadMember(req: Request, res: Response) {
+    const { channel_id } = req.params as { [key: string]: string };
+    const requestedUserId = (req.params.user_id as string | undefined) ?? "@me";
+    const user_id = resolveThreadMemberUserId(requestedUserId, req.user_id);
+    const thread = await Channel.findOneOrFail({ where: { id: channel_id } });
+    try {
+        assertThreadIsNotArchived(thread);
+    } catch {
+        throw DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD;
+    }
+
+    if (requestedUserId !== "@me") {
+        const userCanRemovePrivateThreadMember = thread.type === ChannelType.GUILD_PRIVATE_THREAD && thread.owner_id === req.user_id;
+        if (!userCanRemovePrivateThreadMember) (await thread.getUserPermissions({ user: req.user, guild: thread.guild })).hasThrow(Permissions.FLAGS.MANAGE_THREADS);
+    }
+
+    await ThreadMember.removeFromThread(user_id, channel_id);
+    if (thread.type === ChannelType.GUILD_PRIVATE_THREAD)
+        await emitEvent({
+            event: "THREAD_DELETE",
+            data: {
+                id: thread.id,
+                guild_id: thread.guild_id!,
+                parent_id: thread.parent_id!,
+                type: thread.type,
+            },
+            user_id: user_id,
+        } satisfies ThreadDeleteEvent);
 
     return res.status(204).send();
 }
@@ -152,49 +213,12 @@ router.get(
         return res.json(threadMember);
     },
 );
+router.put("/@me", joinThreadRoute, addThreadMember);
 router.put("/:user_id", addThreadMemberRoute, addThreadMember);
 router.post("/:user_id", addThreadMemberRoute, addThreadMember);
 
-router.delete(
-    "/:user_id",
-    route({
-        responses: {
-            200: {},
-            403: {},
-        },
-        permission: "VIEW_CHANNEL",
-    }),
-    async (req: Request, res: Response) => {
-        // eslint-disable-next-line prefer-const
-        let { channel_id, user_id } = req.params as { [key: string]: string };
-        const thread = await Channel.findOneOrFail({ where: { id: channel_id } });
-        try {
-            assertThreadIsNotArchived(thread);
-        } catch {
-            throw DiscordApiErrors.CANNOT_EDIT_ARCHIVED_THREAD;
-        }
-
-        if (user_id != "@me") {
-            const userCanRemovePrivateThreadMember = thread.type === ChannelType.GUILD_PRIVATE_THREAD && thread.owner_id === req.user_id;
-            if (!userCanRemovePrivateThreadMember) (await thread.getUserPermissions({ user: req.user, guild: thread.guild })).hasThrow(Permissions.FLAGS.MANAGE_THREADS);
-        } else user_id = req.user_id;
-
-        await ThreadMember.removeFromThread(user_id, channel_id);
-        if (thread.type === ChannelType.GUILD_PRIVATE_THREAD)
-            await emitEvent({
-                event: "THREAD_DELETE",
-                data: {
-                    id: thread.id,
-                    guild_id: thread.guild_id!,
-                    parent_id: thread.parent_id!,
-                    type: thread.type,
-                },
-                user_id: user_id,
-            } satisfies ThreadDeleteEvent);
-
-        return res.status(204).send();
-    },
-);
+router.delete("/@me", leaveThreadRoute, removeThreadMember);
+router.delete("/:user_id", removeThreadMemberRoute, removeThreadMember);
 
 router.patch(
     "/@me/settings",
