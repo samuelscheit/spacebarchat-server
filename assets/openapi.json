@@ -40532,9 +40532,21 @@
         },
         "/download/": {
             "get": {
+                "description": "Redirects to the latest available desktop client installer for the selected platform.",
+                "summary": "Get Latest Application Installer",
                 "responses": {
                     "302": {
                         "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     },
                     "404": {
                         "description": "",
@@ -40547,6 +40559,87 @@
                         }
                     }
                 },
+                "parameters": [
+                    {
+                        "name": "platform",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Desktop platform to get the installer for."
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Linux executable format to get the installer for. Defaults to deb."
+                    }
+                ],
+                "tags": [
+                    "download"
+                ]
+            }
+        },
+        "/download/{release_channel}": {
+            "get": {
+                "description": "Redirects to the latest available desktop client installer for the provided release channel and selected platform. The special mobile channel redirects to the download page.",
+                "summary": "Get Latest Application Installer",
+                "responses": {
+                    "302": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "release_channel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "release_channel"
+                    },
+                    {
+                        "name": "platform",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Desktop platform to get the installer for."
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Linux executable format to get the installer for. Defaults to deb."
+                    }
+                ],
                 "tags": [
                     "download"
                 ]

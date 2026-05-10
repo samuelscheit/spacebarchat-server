@@ -17,41 +17,132 @@
 */
 
 import { route } from "@spacebar/api";
-import { FieldErrors, ClientRelease } from "@spacebar/util";
+import { ApiError, FieldErrors, ClientRelease } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
 
+const DESKTOP_RELEASE_CHANNELS = new Set(["stable", "ptb", "canary", "development"]);
+const MOBILE_RELEASE_CHANNEL = "mobile";
+export const MOBILE_DOWNLOAD_URL = "https://discord.com/download";
+export const DOWNLOAD_NOT_FOUND = new ApiError("404: Not Found", 0, 404);
+
+function requestTranslation(req: Request, key: string): string {
+    return typeof req.t === "function" ? req.t(key) : key;
+}
+
+function stringQueryParam(value: Request["query"][string]): string | undefined {
+    return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+export function requireDownloadPlatform(req: Request): string {
+    const platform = stringQueryParam(req.query.platform);
+
+    if (platform) return platform;
+
+    throw FieldErrors({
+        platform: {
+            code: "BASE_TYPE_REQUIRED",
+            message: requestTranslation(req, "common:field.BASE_TYPE_REQUIRED"),
+        },
+    });
+}
+
+export function isSupportedDownloadReleaseChannel(releaseChannel: string | undefined): boolean {
+    return !!releaseChannel && (releaseChannel === MOBILE_RELEASE_CHANNEL || DESKTOP_RELEASE_CHANNELS.has(releaseChannel));
+}
+
+export async function findLatestClientRelease(platform: string): Promise<ClientRelease | null> {
+    return ClientRelease.findOne({
+        where: {
+            enabled: true,
+            platform,
+        },
+        order: { pub_date: "DESC" },
+    });
+}
+
+async function redirectLatestClientRelease(req: Request, res: Response) {
+    const platform = requireDownloadPlatform(req);
+    const release = await findLatestClientRelease(platform);
+
+    if (!release) throw DOWNLOAD_NOT_FOUND;
+
+    res.redirect(release.url);
+}
+
 router.get(
     "/",
     route({
+        summary: "Get Latest Application Installer",
+        description: "Redirects to the latest available desktop client installer for the selected platform.",
+        query: {
+            platform: {
+                type: "string",
+                required: true,
+                description: "Desktop platform to get the installer for.",
+                values: ["win", "osx", "linux"],
+            },
+            format: {
+                type: "string",
+                description: "Linux executable format to get the installer for. Defaults to deb.",
+                values: ["deb", "tar.gz"],
+            },
+        },
         responses: {
             302: {},
+            400: {
+                body: "APIErrorResponse",
+            },
             404: {
                 body: "APIErrorResponse",
             },
         },
     }),
     async (req: Request, res: Response) => {
-        const { platform } = req.query;
+        await redirectLatestClientRelease(req, res);
+    },
+);
 
-        if (!platform)
-            throw FieldErrors({
-                platform: {
-                    code: "BASE_TYPE_REQUIRED",
-                    message: req.t("common:field.BASE_TYPE_REQUIRED"),
-                },
-            });
-
-        const release = await ClientRelease.findOneOrFail({
-            where: {
-                enabled: true,
-                platform: platform as string,
+router.get(
+    "/:release_channel",
+    route({
+        summary: "Get Latest Application Installer",
+        description:
+            "Redirects to the latest available desktop client installer for the provided release channel and selected platform. The special mobile channel redirects to the download page.",
+        query: {
+            platform: {
+                type: "string",
+                required: true,
+                description: "Desktop platform to get the installer for.",
+                values: ["win", "osx", "linux"],
             },
-            order: { pub_date: "DESC" },
-        });
+            format: {
+                type: "string",
+                description: "Linux executable format to get the installer for. Defaults to deb.",
+                values: ["deb", "tar.gz"],
+            },
+        },
+        responses: {
+            302: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { release_channel } = req.params as { release_channel?: string };
 
-        res.redirect(release.url);
+        if (!isSupportedDownloadReleaseChannel(release_channel)) throw DOWNLOAD_NOT_FOUND;
+        if (release_channel === MOBILE_RELEASE_CHANNEL) {
+            res.redirect(MOBILE_DOWNLOAD_URL);
+            return;
+        }
+
+        await redirectLatestClientRelease(req, res);
     },
 );
 

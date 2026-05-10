@@ -1524,6 +1524,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/download/{release_channel}",
+		"route_name": "GET_DOWNLOAD_RELEASE_CHANNEL",
+		"source": "src/api/routes/download.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse",
 			"EmojiSourceResponse"
 		],

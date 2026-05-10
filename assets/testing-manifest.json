@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 520,
+        "totalEntries": 521,
         "byService": {
-            "api": 423,
+            "api": 424,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 495,
+            "http-route": 496,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 97,
+            "contract": 98,
             "stateful-domain": 283,
             "cdn-integration": 76,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 380,
+            "route-class": 381,
             "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7622,13 +7622,13 @@
             }
         },
         {
-            "id": "api:http:GET:/download/",
+            "id": "api:http:GET:/download/:release_channel",
             "type": "http-route",
             "service": "api",
             "method": "GET",
-            "path": "/download/",
+            "path": "/download/:release_channel",
             "sourceFile": "src/api/routes/download.ts",
-            "line": 25,
+            "line": 107,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -7637,9 +7637,46 @@
                 ],
                 "responseStatuses": [
                     302,
+                    400,
                     404
                 ],
-                "hasQuery": false
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/download/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/download/",
+            "sourceFile": "src/api/routes/download.ts",
+            "line": 74,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    302,
+                    400,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",
