@@ -7998,6 +7998,12 @@
                     "start_date"
                 ]
             },
+            "PromotionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/PromotionResponse"
+                }
+            },
             "BogoPromotionsResponse": {
                 "type": "array",
                 "items": {
@@ -28414,6 +28420,9 @@
             "name": "policies"
         },
         {
+            "name": "promotions"
+        },
+        {
             "name": "quests"
         },
         {
@@ -33609,6 +33618,60 @@
                 ],
                 "tags": [
                     "quests"
+                ]
+            }
+        },
+        "/promotions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns promotions the current user is eligible for.",
+                "summary": "Get Promotions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PromotionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to return promotions in."
+                    },
+                    {
+                        "name": "platform",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Platform to get promotions for."
+                    }
+                ],
+                "tags": [
+                    "promotions"
                 ]
             }
         },

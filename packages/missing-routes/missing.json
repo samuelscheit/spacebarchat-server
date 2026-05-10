@@ -1,6 +1,6 @@
 {
-    "missing": 775,
-    "spacebar": 405,
+    "missing": 774,
+    "spacebar": 406,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -356,7 +356,6 @@
         "/premium-marketing",
         "/presences",
         "/private/bug-reports",
-        "/promotions",
         "/quests/@me",
         "/quests/@me/claimed",
         "/quests/decision",
@@ -2401,7 +2400,6 @@
         { "method": "GET", "route": "/premium-marketing", "route_name": "PREMIUM_MARKETING", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/presences", "route_name": "GET_PRESENCES", "sources": ["userdoccers:resources/presence.mdx"], "summaries": ["Get Presences"] },
         { "method": "GET", "route": "/private/bug-reports", "route_name": "BUG_REPORTS", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "GET", "route": "/promotions", "route_name": "GET_PROMOTIONS", "sources": ["userdoccers:resources/promotion.mdx"], "summaries": ["Get Promotions"] },
         {
             "method": "GET",
             "route": "/quests/{param}",

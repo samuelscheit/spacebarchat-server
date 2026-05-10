@@ -68,4 +68,6 @@ export interface BogoPromotionResponse extends PromotionResponse {
     promotion_type: BogoPromotionType;
 }
 
+export type PromotionsResponse = PromotionResponse[];
+
 export type BogoPromotionsResponse = BogoPromotionResponse[];

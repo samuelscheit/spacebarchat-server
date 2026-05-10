@@ -2738,6 +2738,16 @@
 		"source": "src/api/routes/policies/stats.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"PromotionsResponse"
+		],
+		"route": "/promotions",
+		"route_name": "GET_PROMOTIONS",
+		"source": "src/api/routes/promotions.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse",
