@@ -38,6 +38,7 @@ export * from "./DiscoverableGuildsResponse";
 export * from "./DmMessagesResponseSchema";
 export * from "./EmailDomainLookupResponse";
 export * from "./EmailDomainLookupVerifyCodeResponse";
+export * from "./EmbeddedActivityInstancesResponse";
 export * from "./EmojiSourceResponse";
 export * from "./ExperimentsResponse";
 export * from "./FamilyCenterResponse";

@@ -1,12 +1,11 @@
 {
-    "missing": 827,
-    "spacebar": 353,
+    "missing": 826,
+    "spacebar": 354,
     "discord": 1128,
     "routes": [
         "/activities",
         "/activities/shelf",
         "/activities/statistics/applications/{param}",
-        "/activities/{param}/instances/{param}",
         "/activities/{param}/test-mode",
         "/activities/{param}/{param}",
         "/age-verification/test",
@@ -1318,14 +1317,6 @@
             "route_name": "GET_ACTIVITIES",
             "sources": ["userdoccers:resources/presence.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Global Activity Statistics"]
-        },
-        {
-            "method": "GET",
-            "route": "/activities/{param}/instances/{param}",
-            "route_name": "GET_ACTIVITIES_APPLICATION_ID_INSTANCES_CHANNEL_ID",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/activities/{application_id}/instances/{channel_id}"],
-            "summaries": ["Get Embedded Activity Instances"]
         },
         {
             "method": "GET",

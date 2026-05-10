@@ -16,6 +16,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"EmbeddedActivityInstancesResponse"
+		],
+		"route": "/activities/{application_id}/instances/{channel_id}",
+		"route_name": "GET_ACTIVITIES_APPLICATION_ID_INSTANCES_CHANNEL_ID",
+		"source": "src/api/routes/activities/#application_id/instances/#channel_id/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ApexExperimentsResponse"
 		],
 		"route": "/apex/experiments",
