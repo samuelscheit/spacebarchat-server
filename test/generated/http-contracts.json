@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 480,
+        "totalContracts": 481,
         "byService": {
-            "api": 407,
+            "api": 408,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 349,
-        "runtimeMalformedAuthContracts": 349,
-        "runtimeRevokedSessionAuthContracts": 349,
-        "runtimeStaleTokenAuthContracts": 349,
+        "runtimeAuthBoundaryContracts": 350,
+        "runtimeMalformedAuthContracts": 350,
+        "runtimeRevokedSessionAuthContracts": 350,
+        "runtimeStaleTokenAuthContracts": 350,
         "runtimePublicAuthBoundaryContracts": 50,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 63,
@@ -9863,6 +9863,50 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "FamilyCenterLinkCodeResponse"],
                 "responseStatuses": [200, 400, 401]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/friend-suggestions/",
+            "service": "api",
+            "method": "GET",
+            "path": "/friend-suggestions/",
+            "samplePath": "/friend-suggestions/",
+            "sourceFile": "src/api/routes/friend-suggestions.ts",
+            "line": 30,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "FriendSuggestionsResponse"],
+                "responseStatuses": [200, 401]
             },
             "cases": [
                 {

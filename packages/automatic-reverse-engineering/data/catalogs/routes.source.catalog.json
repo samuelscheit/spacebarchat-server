@@ -1491,6 +1491,16 @@
 		"source": "src/api/routes/family-center/@me.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"FriendSuggestionsResponse"
+		],
+		"route": "/friend-suggestions",
+		"route_name": "GET_FRIEND_SUGGESTIONS",
+		"source": "src/api/routes/friend-suggestions.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"

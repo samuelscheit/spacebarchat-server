@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 505,
+        "totalEntries": 506,
         "byService": {
-            "api": 408,
+            "api": 409,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 480,
+            "http-route": 481,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 89,
+            "contract": 90,
             "stateful-domain": 276,
             "cdn-integration": 76,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 365,
+            "route-class": 366,
             "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7414,6 +7414,42 @@
                 "responseStatuses": [
                     200,
                     400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/friend-suggestions/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/friend-suggestions/",
+            "sourceFile": "src/api/routes/friend-suggestions.ts",
+            "line": 30,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "FriendSuggestionsResponse"
+                ],
+                "responseStatuses": [
+                    200,
                     401
                 ],
                 "hasQuery": false

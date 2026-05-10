@@ -1,6 +1,6 @@
 {
-    "missing": 780,
-    "spacebar": 400,
+    "missing": 779,
+    "spacebar": 401,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -150,7 +150,6 @@
         "/family-center/more-activity/{param}/{param}/{param}/{param}",
         "/family-center/{param}/activity",
         "/friend-finder/find-friends",
-        "/friend-suggestions",
         "/friend-suggestions/{param}",
         "/gifs/select",
         "/google-play/downgrade-subscription",
@@ -1669,13 +1668,6 @@
             "route": "/family-center/more-activity/{param}/{param}/{param}/{param}",
             "route_name": "FAMILY_CENTER_TEEN_ACTIVITY_MORE",
             "sources": ["xhyrom:data/client/routes.json"]
-        },
-        {
-            "method": "GET",
-            "route": "/friend-suggestions",
-            "route_name": "GET_FRIEND_SUGGESTIONS",
-            "sources": ["userdoccers:resources/relationships.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Friend Suggestions"]
         },
         {
             "method": "GET",

@@ -49,6 +49,7 @@ export * from "./EmbeddedActivityInstancesResponse";
 export * from "./EmojiSourceResponse";
 export * from "./ExperimentsResponse";
 export * from "./FamilyCenterResponse";
+export * from "./FriendSuggestionsResponse";
 export * from "./GameAnnouncementsResponse";
 export * from "./GameRelationshipsResponse";
 export * from "./GameResponse";

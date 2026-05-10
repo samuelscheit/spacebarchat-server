@@ -3569,6 +3569,12 @@
                     "link_code"
                 ]
             },
+            "FriendSuggestionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/FriendSuggestion"
+                }
+            },
             "GameAnnouncementsResponse": {
                 "type": "object",
                 "properties": {
@@ -16729,6 +16735,52 @@
                     "type": "integer"
                 }
             },
+            "FriendSuggestion": {
+                "type": "object",
+                "properties": {
+                    "suggested_user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "reasons": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FriendSuggestionReason"
+                        }
+                    },
+                    "from_suggested_user_contacts": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "reasons",
+                    "suggested_user"
+                ]
+            },
+            "FriendSuggestionReason": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/FriendSuggestionReasonType"
+                    },
+                    "platform": {
+                        "type": "string"
+                    },
+                    "platform_type": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type"
+                ]
+            },
+            "FriendSuggestionReasonType": {
+                "type": "number",
+                "const": 1
+            },
             "PublicMessage": {
                 "type": "object",
                 "properties": {
@@ -28086,6 +28138,9 @@
         },
         {
             "name": "family-center"
+        },
+        {
+            "name": "friend-suggestions"
         },
         {
             "name": "game-invite"
@@ -39601,6 +39656,41 @@
                 ],
                 "tags": [
                     "game-invite"
+                ]
+            }
+        },
+        "/friend-suggestions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Friend Suggestions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FriendSuggestionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "friend-suggestions"
                 ]
             }
         },
