@@ -3550,6 +3550,49 @@
                     "messages"
                 ]
             },
+            "GameRelationshipResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/GameRelationshipType"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/PublicUser"
+                    },
+                    "since": {
+                        "type": "string"
+                    },
+                    "dm_access_type": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "dm_access_type",
+                    "id",
+                    "since",
+                    "type",
+                    "user_id"
+                ]
+            },
+            "GameRelationshipsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GameRelationshipResponse"
+                }
+            },
             "GameResponse": {
                 "type": "object",
                 "properties": {
@@ -18527,6 +18570,14 @@
                     "gradient_angle"
                 ]
             },
+            "GameRelationshipType": {
+                "type": "number",
+                "enum": [
+                    1,
+                    3,
+                    4
+                ]
+            },
             "GameExecutable": {
                 "type": "object",
                 "properties": {
@@ -30272,6 +30323,41 @@
                         "description": "guild_id"
                     }
                 ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/game-relationships/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Game Relationships",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameRelationshipsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "users"
                 ]

@@ -3249,6 +3249,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GameRelationshipsResponse"
+		],
+		"route": "/users/@me/game-relationships",
+		"route_name": "GET_USERS__ME_GAME_RELATIONSHIPS",
+		"source": "src/api/routes/users/@me/game-relationships.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"UserGuildsResponse"
 		],
 		"route": "/users/@me/guilds",

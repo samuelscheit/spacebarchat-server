@@ -34,6 +34,7 @@ const AUTHENTICATED_RESPONSE_SCHEMA_MANIFEST_IDS = new Set([
     "api:http:GET:/users/@me/channels/",
     "api:http:GET:/users/@me/collectibles-marketing/",
     "api:http:GET:/users/@me/entitlements/gifts",
+    "api:http:GET:/users/@me/game-relationships/",
     "api:http:GET:/users/@me/guilds/",
     "api:http:GET:/users/@me/relationships/",
     "api:http:GET:/users/@me/settings/",

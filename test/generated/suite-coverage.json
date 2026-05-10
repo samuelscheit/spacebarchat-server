@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 421,
+        "totalCoveredManifestEntries": 422,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 399,
-                "totalCoveredManifestEntries": 399,
-                "totalCoveredRequiredManifestEntries": 399,
+                "totalRequiredManifestEntries": 400,
+                "totalCoveredManifestEntries": 400,
+                "totalCoveredRequiredManifestEntries": 400,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 275,
+            "stateful-domain": 276,
             "integration": 13,
             "contract": 20,
             "auth-scenario": 16,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 399,
-                "totalCoveredManifestEntries": 399,
-                "totalCoveredRequiredManifestEntries": 399,
+                "totalRequiredManifestEntries": 400,
+                "totalCoveredManifestEntries": 400,
+                "totalCoveredRequiredManifestEntries": 400,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -245,6 +245,7 @@
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
+                "api:http:GET:/users/@me/game-relationships/",
                 "api:http:GET:/users/@me/guilds/",
                 "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                 "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
@@ -646,6 +647,7 @@
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
+                "api:http:GET:/users/@me/game-relationships/",
                 "api:http:GET:/users/@me/guilds/",
                 "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                 "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
@@ -960,6 +962,7 @@
                         "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                         "api:http:GET:/users/@me/email-settings/",
                         "api:http:GET:/users/@me/entitlements/gifts",
+                        "api:http:GET:/users/@me/game-relationships/",
                         "api:http:GET:/users/@me/guilds/",
                         "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                         "api:http:GET:/users/@me/guilds/premium/subscription-slots/",

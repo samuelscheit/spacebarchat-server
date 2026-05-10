@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 501,
+        "totalEntries": 502,
         "byService": {
-            "api": 404,
+            "api": 405,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 476,
+            "http-route": 477,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 89,
-            "stateful-domain": 275,
+            "stateful-domain": 276,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 13,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 364,
+            "route-class": 365,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15445,6 +15445,46 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/game-relationships/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/game-relationships/",
+            "sourceFile": "src/api/routes/users/@me/game-relationships.ts",
+            "line": 25,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GameRelationshipsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
                 ],
                 "hasQuery": false
             },
