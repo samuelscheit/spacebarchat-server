@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 495,
+        "totalEntries": 496,
         "byService": {
-            "api": 398,
+            "api": 399,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 470,
+            "http-route": 471,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 85,
+            "contract": 86,
             "stateful-domain": 273,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 358,
+            "route-class": 359,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -6415,6 +6415,42 @@
             }
         },
         {
+            "id": "api:http:GET:/checkpoint/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/checkpoint/",
+            "sourceFile": "src/api/routes/checkpoint.ts",
+            "line": 83,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "CheckpointResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/collectibles-categories/",
             "type": "http-route",
             "service": "api",
@@ -11907,7 +11943,7 @@
             "method": "DELETE",
             "path": "/hypesquad/online/",
             "sourceFile": "src/api/routes/hypesquad/online.ts",
-            "line": 101,
+            "line": 100,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11947,7 +11983,7 @@
             "method": "POST",
             "path": "/hypesquad/online/",
             "sourceFile": "src/api/routes/hypesquad/online.ts",
-            "line": 69,
+            "line": 68,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

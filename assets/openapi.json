@@ -2619,6 +2619,81 @@
                     "linked_accounts"
                 ]
             },
+            "CheckpointResponse": {
+                "type": "object",
+                "properties": {
+                    "card_id": {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            8,
+                            9
+                        ],
+                        "type": "number"
+                    },
+                    "avatar_decoration": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CheckpointAvatarDecorationCollectibleItem"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "power_level": {
+                        "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                        "type": "number"
+                    },
+                    "power_level_percentile": {
+                        "anyOf": [
+                            {
+                                "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "messages": {
+                        "$ref": "#/components/schemas/CheckpointMessageStatistics"
+                    },
+                    "emojis": {
+                        "$ref": "#/components/schemas/CheckpointEmojiStatistics"
+                    },
+                    "voice": {
+                        "$ref": "#/components/schemas/CheckpointVoiceStatistics"
+                    },
+                    "guilds": {
+                        "$ref": "#/components/schemas/CheckpointGuildsStatistics"
+                    },
+                    "sidekick": {
+                        "$ref": "#/components/schemas/CheckpointSidekick"
+                    },
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CheckpointUser"
+                        }
+                    },
+                    "applications": {
+                        "$ref": "#/components/schemas/CheckpointGamesStatistics"
+                    },
+                    "quests": {
+                        "$ref": "#/components/schemas/CheckpointQuestStatistics"
+                    }
+                },
+                "required": [
+                    "avatar_decoration"
+                ]
+            },
             "CompanyResponse": {
                 "type": "object",
                 "properties": {
@@ -14533,6 +14608,401 @@
                 "required": [
                     "id",
                     "name"
+                ]
+            },
+            "CheckpointAvatarDecorationCollectibleItem": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "integer"
+                    },
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "sku_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "asset": {
+                        "type": "string"
+                    },
+                    "assets": {
+                        "$ref": "#/components/schemas/CheckpointAvatarDecorationAssets"
+                    },
+                    "label": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "asset",
+                    "assets",
+                    "id",
+                    "label",
+                    "sku_id",
+                    "type"
+                ]
+            },
+            "CheckpointAvatarDecorationAssets": {
+                "type": "object",
+                "properties": {
+                    "static_image_url": {
+                        "type": "string"
+                    },
+                    "animated_image_url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "animated_image_url",
+                    "static_image_url"
+                ]
+            },
+            "CheckpointMessageStatistics": {
+                "type": "object",
+                "properties": {
+                    "num_messages_sent": {
+                        "type": "integer"
+                    },
+                    "num_messages_sent_percentile": {
+                        "anyOf": [
+                            {
+                                "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "top_month": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CheckpointMessageTopMonthStatistics"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "num_messages_sent",
+                    "num_messages_sent_percentile",
+                    "top_month"
+                ]
+            },
+            "CheckpointMessageTopMonthStatistics": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "integer"
+                    },
+                    "num_messages_sent": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "month",
+                    "num_messages_sent"
+                ]
+            },
+            "CheckpointEmojiStatistics": {
+                "type": "object",
+                "properties": {
+                    "num_emojis_sent": {
+                        "type": "integer"
+                    },
+                    "emojis": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CheckpointPartialEmoji"
+                        }
+                    }
+                },
+                "required": [
+                    "emojis",
+                    "num_emojis_sent"
+                ]
+            },
+            "CheckpointPartialEmoji": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "animated": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "CheckpointVoiceStatistics": {
+                "type": "object",
+                "properties": {
+                    "total_voice_minutes": {
+                        "$ref": "#/components/schemas/CheckpointFloat"
+                    },
+                    "total_voice_minutes_percentile": {
+                        "anyOf": [
+                            {
+                                "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "top_month": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/CheckpointVoiceTopMonthStatistics"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "top_month",
+                    "total_voice_minutes",
+                    "total_voice_minutes_percentile"
+                ]
+            },
+            "CheckpointFloat": {
+                "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                "type": "number"
+            },
+            "CheckpointVoiceTopMonthStatistics": {
+                "type": "object",
+                "properties": {
+                    "month": {
+                        "type": "integer"
+                    },
+                    "num_minutes_in_voice": {
+                        "$ref": "#/components/schemas/CheckpointFloat"
+                    }
+                },
+                "required": [
+                    "month",
+                    "num_minutes_in_voice"
+                ]
+            },
+            "CheckpointGuildsStatistics": {
+                "type": "object",
+                "properties": {
+                    "num_guilds_joined": {
+                        "type": "integer"
+                    },
+                    "guilds": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CheckpointGuildStatistics"
+                        }
+                    }
+                },
+                "required": [
+                    "guilds",
+                    "num_guilds_joined"
+                ]
+            },
+            "CheckpointGuildStatistics": {
+                "type": "object",
+                "properties": {
+                    "num_messages_sent": {
+                        "type": "integer"
+                    },
+                    "num_voice_minutes": {
+                        "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                        "type": "number"
+                    },
+                    "guild": {
+                        "$ref": "#/components/schemas/CheckpointPartialGuild"
+                    }
+                },
+                "required": [
+                    "guild"
+                ]
+            },
+            "CheckpointPartialGuild": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "home_header": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "discovery_splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "features",
+                    "id",
+                    "name"
+                ]
+            },
+            "CheckpointSidekick": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "num_messages_sent": {
+                        "type": "integer"
+                    },
+                    "num_voice_minutes": {
+                        "$ref": "#/components/schemas/CheckpointFloat"
+                    }
+                },
+                "required": [
+                    "num_messages_sent",
+                    "num_voice_minutes",
+                    "user"
+                ]
+            },
+            "CheckpointUser": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    }
+                },
+                "required": [
+                    "user"
+                ]
+            },
+            "CheckpointGamesStatistics": {
+                "type": "object",
+                "properties": {
+                    "total_games_played": {
+                        "type": "integer"
+                    },
+                    "applications": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CheckpointGameStatistics"
+                        }
+                    }
+                },
+                "required": [
+                    "applications",
+                    "total_games_played"
+                ]
+            },
+            "CheckpointGameStatistics": {
+                "type": "object",
+                "properties": {
+                    "num_sessions": {
+                        "type": "integer"
+                    },
+                    "game": {
+                        "$ref": "#/components/schemas/CheckpointPartialApplication"
+                    }
+                },
+                "required": [
+                    "game",
+                    "num_sessions"
+                ]
+            },
+            "CheckpointPartialApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon_hash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "banner_hash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "cover_image_hash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "CheckpointQuestStatistics": {
+                "type": "object",
+                "properties": {
+                    "num_completed": {
+                        "type": "integer"
+                    },
+                    "num_orbs": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "num_completed",
+                    "num_orbs"
                 ]
             },
             "CollectiblesCategory": {
@@ -27232,6 +27702,9 @@
             "name": "channels"
         },
         {
+            "name": "checkpoint"
+        },
+        {
             "name": "collectibles-categories"
         },
         {
@@ -39565,6 +40038,41 @@
                 ],
                 "tags": [
                     "collectibles-categories"
+                ]
+            }
+        },
+        "/checkpoint/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Checkpoint",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CheckpointResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "checkpoint"
                 ]
             }
         },

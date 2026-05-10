@@ -2744,6 +2744,83 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CheckpointResponse": {
+        "type": "object",
+        "properties": {
+            "card_id": {
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9
+                ],
+                "type": "number"
+            },
+            "avatar_decoration": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/CheckpointAvatarDecorationCollectibleItem"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "power_level": {
+                "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                "type": "number"
+            },
+            "power_level_percentile": {
+                "anyOf": [
+                    {
+                        "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                        "type": "number"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "messages": {
+                "$ref": "#/definitions/CheckpointMessageStatistics"
+            },
+            "emojis": {
+                "$ref": "#/definitions/CheckpointEmojiStatistics"
+            },
+            "voice": {
+                "$ref": "#/definitions/CheckpointVoiceStatistics"
+            },
+            "guilds": {
+                "$ref": "#/definitions/CheckpointGuildsStatistics"
+            },
+            "sidekick": {
+                "$ref": "#/definitions/CheckpointSidekick"
+            },
+            "users": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/CheckpointUser"
+                }
+            },
+            "applications": {
+                "$ref": "#/definitions/CheckpointGamesStatistics"
+            },
+            "quests": {
+                "$ref": "#/definitions/CheckpointQuestStatistics"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "avatar_decoration"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CompanyResponse": {
         "type": "object",
         "properties": {
@@ -15246,6 +15323,436 @@
         "required": [
             "id",
             "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointAvatarDecorationCollectibleItem": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer"
+            },
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "sku_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "asset": {
+                "type": "string"
+            },
+            "assets": {
+                "$ref": "#/definitions/CheckpointAvatarDecorationAssets"
+            },
+            "label": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "asset",
+            "assets",
+            "id",
+            "label",
+            "sku_id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointAvatarDecorationAssets": {
+        "type": "object",
+        "properties": {
+            "static_image_url": {
+                "type": "string"
+            },
+            "animated_image_url": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "animated_image_url",
+            "static_image_url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointMessageStatistics": {
+        "type": "object",
+        "properties": {
+            "num_messages_sent": {
+                "type": "integer"
+            },
+            "num_messages_sent_percentile": {
+                "anyOf": [
+                    {
+                        "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                        "type": "number"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "top_month": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/CheckpointMessageTopMonthStatistics"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "num_messages_sent",
+            "num_messages_sent_percentile",
+            "top_month"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointMessageTopMonthStatistics": {
+        "type": "object",
+        "properties": {
+            "month": {
+                "type": "integer"
+            },
+            "num_messages_sent": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "month",
+            "num_messages_sent"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointEmojiStatistics": {
+        "type": "object",
+        "properties": {
+            "num_emojis_sent": {
+                "type": "integer"
+            },
+            "emojis": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/CheckpointPartialEmoji"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "emojis",
+            "num_emojis_sent"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointPartialEmoji": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "animated": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointVoiceStatistics": {
+        "type": "object",
+        "properties": {
+            "total_voice_minutes": {
+                "$ref": "#/definitions/CheckpointFloat"
+            },
+            "total_voice_minutes_percentile": {
+                "anyOf": [
+                    {
+                        "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                        "type": "number"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "top_month": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/CheckpointVoiceTopMonthStatistics"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "top_month",
+            "total_voice_minutes",
+            "total_voice_minutes_percentile"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointFloat": {
+        "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+        "type": "number",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointVoiceTopMonthStatistics": {
+        "type": "object",
+        "properties": {
+            "month": {
+                "type": "integer"
+            },
+            "num_minutes_in_voice": {
+                "$ref": "#/definitions/CheckpointFloat"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "month",
+            "num_minutes_in_voice"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointGuildsStatistics": {
+        "type": "object",
+        "properties": {
+            "num_guilds_joined": {
+                "type": "integer"
+            },
+            "guilds": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/CheckpointGuildStatistics"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guilds",
+            "num_guilds_joined"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointGuildStatistics": {
+        "type": "object",
+        "properties": {
+            "num_messages_sent": {
+                "type": "integer"
+            },
+            "num_voice_minutes": {
+                "description": "Keep Discord checkpoint ratio, percentile, and duration fields as JSON numbers.",
+                "type": "number"
+            },
+            "guild": {
+                "$ref": "#/definitions/CheckpointPartialGuild"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointPartialGuild": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "home_header": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "discovery_splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "features",
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointSidekick": {
+        "type": "object",
+        "properties": {
+            "user": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "num_messages_sent": {
+                "type": "integer"
+            },
+            "num_voice_minutes": {
+                "$ref": "#/definitions/CheckpointFloat"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "num_messages_sent",
+            "num_voice_minutes",
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointUser": {
+        "type": "object",
+        "properties": {
+            "user": {
+                "$ref": "#/definitions/PartialUser"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointGamesStatistics": {
+        "type": "object",
+        "properties": {
+            "total_games_played": {
+                "type": "integer"
+            },
+            "applications": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/CheckpointGameStatistics"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "applications",
+            "total_games_played"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointGameStatistics": {
+        "type": "object",
+        "properties": {
+            "num_sessions": {
+                "type": "integer"
+            },
+            "game": {
+                "$ref": "#/definitions/CheckpointPartialApplication"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "game",
+            "num_sessions"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointPartialApplication": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon_hash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "banner_hash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "cover_image_hash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CheckpointQuestStatistics": {
+        "type": "object",
+        "properties": {
+            "num_completed": {
+                "type": "integer"
+            },
+            "num_orbs": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "num_completed",
+            "num_orbs"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

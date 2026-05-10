@@ -1,6 +1,6 @@
 {
-    "missing": 790,
-    "spacebar": 390,
+    "missing": 789,
+    "spacebar": 391,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -125,7 +125,6 @@
         "/channels/{param}/thread-members/@me",
         "/channels/{param}/voice-channel-effects",
         "/channels/{param}/voice-status",
-        "/checkpoint",
         "/checkpoint/loot",
         "/companies",
         "/connections/{param}/callback",
@@ -1617,7 +1616,6 @@
             "source_routes": ["/channels/{channel_id}/store-listings/{param}"]
         },
         { "method": "GET", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "GET", "route": "/checkpoint", "route_name": "GET_CHECKPOINT", "sources": ["userdoccers:resources/checkpoint.mdx"], "summaries": ["Get Checkpoint"] },
         { "method": "GET", "route": "/companies", "route_name": "GET_COMPANIES", "sources": ["userdoccers:resources/team.mdx"], "summaries": ["Search Companies"] },
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback/session-handoff", "route_name": "CONNECTIONS_SESSION_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },

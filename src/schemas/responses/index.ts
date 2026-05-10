@@ -32,6 +32,7 @@ export * from "./ChannelCallEligibilityResponse";
 export * from "./ChannelFollowerMessageStatsResponse";
 export * from "./ChannelFollowerStatsResponse";
 export * from "./ChannelLinkedAccountsResponse";
+export * from "./CheckpointResponse";
 export * from "./CompanyResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";

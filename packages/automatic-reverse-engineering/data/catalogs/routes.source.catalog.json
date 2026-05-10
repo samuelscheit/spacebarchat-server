@@ -1238,6 +1238,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"CheckpointResponse"
+		],
+		"route": "/checkpoint",
+		"route_name": "GET_CHECKPOINT",
+		"source": "src/api/routes/checkpoint.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"CollectiblesCategoriesResponse"
 		],
 		"route": "/collectibles-categories",
