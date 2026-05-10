@@ -1,6 +1,6 @@
 {
-    "missing": 830,
-    "spacebar": 350,
+    "missing": 829,
+    "spacebar": 351,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -146,7 +146,6 @@
         "/collectibles-categories/v2",
         "/collectibles-products/{param}",
         "/companies",
-        "/company/{param}",
         "/connections/{param}/callback",
         "/connections/{param}/callback/session-handoff",
         "/connections/{param}/link-dispatch-auth-callback",
@@ -1801,14 +1800,6 @@
             "summaries": ["Get Collectibles Product"]
         },
         { "method": "GET", "route": "/companies", "route_name": "GET_COMPANIES", "sources": ["userdoccers:resources/team.mdx"], "summaries": ["Search Companies"] },
-        {
-            "method": "GET",
-            "route": "/company/{param}",
-            "route_name": "GET_COMPANY_COMPANY_ID",
-            "sources": ["userdoccers:resources/team.mdx"],
-            "source_routes": ["/company/{company_id}"],
-            "summaries": ["Get Company"]
-        },
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback/session-handoff", "route_name": "CONNECTIONS_SESSION_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/consoles/xbox-handoff", "route_name": "XBOX_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },

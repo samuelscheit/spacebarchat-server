@@ -29,6 +29,7 @@ export * from "./CaptchaRequiredResponse";
 export * from "./ChannelFollowerMessageStatsResponse";
 export * from "./ChannelFollowerStatsResponse";
 export * from "./ChannelLinkedAccountsResponse";
+export * from "./CompanyResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";
