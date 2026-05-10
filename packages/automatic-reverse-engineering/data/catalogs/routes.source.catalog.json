@@ -76,6 +76,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ApplicationsWithAssetsResponse"
+		],
+		"route": "/applications-with-assets",
+		"route_name": "GET_APPLICATIONS_WITH_ASSETS",
+		"source": "src/api/routes/applications-with-assets.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"Application"
 		],
 		"route": "/applications/{application_id}",

@@ -10,6 +10,7 @@ import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
 
 const coveredManifestIds = [
+    "api:http:GET:/applications-with-assets/",
     "api:http:GET:/applications/",
     "api:http:POST:/applications/",
     "api:http:GET:/applications/:application_id/",
@@ -49,6 +50,7 @@ test(
     },
     async () => {
         assert.deepEqual(coveredManifestIds, [
+            "api:http:GET:/applications-with-assets/",
             "api:http:GET:/applications/",
             "api:http:POST:/applications/",
             "api:http:GET:/applications/:application_id/",
@@ -159,6 +161,14 @@ test(
                 listedApplications.map((application) => application.id),
                 [applicationId],
             );
+            const applicationsWithAssets = await getJson(`${api.apiBaseUrl}/applications-with-assets`, ownerToken);
+            await assertStatus(applicationsWithAssets, 200);
+            const applicationsWithAssetsBody = await assertJsonObject(applicationsWithAssets);
+            assert.deepEqual(
+                (applicationsWithAssetsBody.applications as Array<Record<string, unknown>>).map((application) => application.id),
+                [applicationId],
+            );
+            assert.deepEqual(applicationsWithAssetsBody.assets, {});
 
             const intruderGet = await getJson(`${api.apiBaseUrl}/applications/${applicationId}`, intruderToken);
             await assertStatus(intruderGet, 400);

@@ -1,6 +1,6 @@
 {
-    "missing": 773,
-    "spacebar": 407,
+    "missing": 772,
+    "spacebar": 408,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -21,7 +21,6 @@
         "/application-directory-static/collections",
         "/application-directory-static/search",
         "/application-directory/applications/{param}/embed",
-        "/applications-with-assets",
         "/applications/games-supplemental",
         "/applications/non-games/detectable",
         "/applications/public",
@@ -1262,13 +1261,6 @@
             "sources": ["userdoccers:resources/application-directory.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/application-directory/applications/{application_id}/embed"],
             "summaries": ["Get Application Directory Application Embed"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications-with-assets",
-            "route_name": "GET_APPLICATIONS_WITH_ASSETS",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Applications with Assets"]
         },
         {
             "method": "GET",

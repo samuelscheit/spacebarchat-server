@@ -138,6 +138,7 @@
                         "src/api/util/utility/ApplicationAuthorization.test.ts",
                         "src/api/util/utility/ApplicationCommands.test.ts"
                     ],
+                    "manifestIds": ["api:http:GET:/applications-with-assets/"],
                     "selectors": [
                         { "service": "api", "type": "http-route", "pathPrefix": "/applications" },
                         { "service": "api", "type": "http-route", "pathPrefix": "/interactions" }

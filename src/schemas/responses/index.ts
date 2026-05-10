@@ -23,6 +23,7 @@ export * from "./ActiveThreadsResponse";
 export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";
+export * from "./ApplicationsWithAssetsResponse";
 export * from "./ArchivedThreadsResponse";
 export * from "./BackupCodesChallengeResponse";
 export * from "./BillingLocationInfoResponse";

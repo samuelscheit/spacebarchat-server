@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 512,
+        "totalEntries": 513,
         "byService": {
-            "api": 415,
+            "api": 416,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 487,
+            "http-route": 488,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 96,
-            "stateful-domain": 276,
+            "stateful-domain": 277,
             "cdn-integration": 76,
             "auth-scenario": 17,
             "integration": 13,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 372,
+            "route-class": 373,
             "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
@@ -422,6 +422,46 @@
                     "auth-boundary",
                     "schema-validation",
                     "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/applications-with-assets/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications-with-assets/",
+            "sourceFile": "src/api/routes/applications-with-assets.ts",
+            "line": 118,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationsWithAssetsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
                 ],
                 "allowMissingRouteMetadata": false
             }
