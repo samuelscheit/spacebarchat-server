@@ -2895,6 +2895,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"OAuthUserInfoResponse"
+		],
+		"route": "/oauth2/userinfo",
+		"route_name": "GET_OAUTH2_USERINFO",
+		"source": "src/api/routes/oauth2/userinfo.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/outbound-promotions",
 		"route_name": "GET_OUTBOUND_PROMOTIONS",

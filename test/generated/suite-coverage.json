@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 445,
+        "totalCoveredManifestEntries": 446,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 423,
-                "totalCoveredManifestEntries": 423,
-                "totalCoveredRequiredManifestEntries": 423,
+                "totalRequiredManifestEntries": 424,
+                "totalCoveredManifestEntries": 424,
+                "totalCoveredRequiredManifestEntries": 424,
                 "totalSuites": 12
             },
             "protocol": {
@@ -30,7 +30,7 @@
         "byCoveredTestTier": {
             "stateful-domain": 293,
             "cdn-integration": 78,
-            "integration": 14,
+            "integration": 15,
             "contract": 20,
             "auth-scenario": 17,
             "middleware-contract": 1,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 423,
-                "totalCoveredManifestEntries": 423,
-                "totalCoveredRequiredManifestEntries": 423,
+                "totalRequiredManifestEntries": 424,
+                "totalCoveredManifestEntries": 424,
+                "totalCoveredRequiredManifestEntries": 424,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -226,6 +226,7 @@
                 "api:http:GET:/oauth2/keys/",
                 "api:http:GET:/oauth2/tokens/",
                 "api:http:GET:/oauth2/tokens/:token_id/",
+                "api:http:GET:/oauth2/userinfo/",
                 "api:http:GET:/policies/instance/",
                 "api:http:GET:/policies/instance/config/",
                 "api:http:GET:/policies/instance/domains/",
@@ -651,6 +652,7 @@
                 "api:http:GET:/oauth2/keys/",
                 "api:http:GET:/oauth2/tokens/",
                 "api:http:GET:/oauth2/tokens/:token_id/",
+                "api:http:GET:/oauth2/userinfo/",
                 "api:http:GET:/policies/instance/",
                 "api:http:GET:/policies/instance/config/",
                 "api:http:GET:/policies/instance/domains/",
@@ -1376,6 +1378,7 @@
                         "api:http:GET:/oauth2/keys/",
                         "api:http:GET:/oauth2/tokens/",
                         "api:http:GET:/oauth2/tokens/:token_id/",
+                        "api:http:GET:/oauth2/userinfo/",
                         "api:http:POST:/connections/:connection_name/:connection_id/refresh/",
                         "api:http:POST:/connections/:connection_name/callback/",
                         "api:http:POST:/oauth2/authorize/"

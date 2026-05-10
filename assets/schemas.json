@@ -8213,6 +8213,43 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "OAuthUserInfoResponse": {
+        "type": "object",
+        "properties": {
+            "sub": {
+                "type": "string"
+            },
+            "email": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "email_verified": {
+                "type": "boolean"
+            },
+            "preferred_username": {
+                "type": "string"
+            },
+            "nickname": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "picture": {
+                "type": "string"
+            },
+            "locale": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "sub"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PasswordValidateResponse": {
         "type": "object",
         "properties": {

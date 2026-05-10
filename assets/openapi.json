@@ -7851,6 +7851,41 @@
                     "keys"
                 ]
             },
+            "OAuthUserInfoResponse": {
+                "type": "object",
+                "properties": {
+                    "sub": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "email_verified": {
+                        "type": "boolean"
+                    },
+                    "preferred_username": {
+                        "type": "string"
+                    },
+                    "nickname": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "picture": {
+                        "type": "string"
+                    },
+                    "locale": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "sub"
+                ]
+            },
             "PasswordValidateResponse": {
                 "type": "object",
                 "properties": {
@@ -35655,6 +35690,61 @@
                 },
                 "tags": [
                     "outbound-promotions"
+                ]
+            }
+        },
+        "/oauth2/userinfo/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get OpenID User Information",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuthUserInfoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "oauth2"
                 ]
             }
         },

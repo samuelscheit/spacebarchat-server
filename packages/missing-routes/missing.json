@@ -1,6 +1,6 @@
 {
-    "missing": 742,
-    "spacebar": 438,
+    "missing": 741,
+    "spacebar": 439,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -314,7 +314,6 @@
         "/oauth2/samsung/authorize/callback",
         "/oauth2/token",
         "/oauth2/token/revoke",
-        "/oauth2/userinfo",
         "/outbound-promotions/{param}/claim",
         "/partner-sdk/application/{param}/skus",
         "/partner-sdk/applications/{param}/skus/recommendations",
@@ -2170,13 +2169,6 @@
         { "method": "GET", "route": "/oauth2/authorize/webhook-channels", "route_name": "OAUTH2_AUTHORIZE_WEBHOOK_CHANNELS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize/callback", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/oauth2/userinfo",
-            "route_name": "GET_OAUTH2_USERINFO",
-            "sources": ["userdoccers:topics/oauth2.mdx"],
-            "summaries": ["Get OpenID User Information"]
-        },
         {
             "method": "GET",
             "route": "/partner-sdk/application/{param}/skus",
