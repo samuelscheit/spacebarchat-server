@@ -18,19 +18,29 @@
 
 import { route } from "@spacebar/api";
 import {
+    type ApplicationDirectoryApplication,
     type ApplicationDirectoryCategoriesResponse,
     type ApplicationDirectoryCategory,
     ApplicationDirectoryItemType,
     type ApplicationDirectorySearchResponse,
 } from "@spacebar/schemas";
+import { DiscordApiErrors } from "@spacebar/util";
 import { type Request, type Response, Router, type Router as ExpressRouter } from "express";
 
 export const APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL = "public, max-age=3600, s-maxage=3600";
 export const APPLICATION_DIRECTORY_STATIC_EMPTY_SEARCH_LOAD_ID = "application_directory_search/empty";
 
+type MaybePromise<T> = T | Promise<T>;
+
 type ApplicationDirectoryCategoryDefinition = ApplicationDirectoryCategory & {
     localizations?: Record<string, string>;
 };
+
+export interface ApplicationDirectoryApplicationQueryOptions {
+    locale?: string;
+    nocache?: boolean;
+    with_localizations?: boolean;
+}
 
 export interface ApplicationDirectorySearchQueryOptions {
     query?: string;
@@ -46,9 +56,14 @@ export interface ApplicationDirectorySearchQueryOptions {
     source?: number;
 }
 
+export type ApplicationDirectoryApplicationProvider = (
+    applicationId: string,
+    options: ApplicationDirectoryApplicationQueryOptions,
+) => MaybePromise<ApplicationDirectoryApplication | null | undefined>;
 export type ApplicationDirectorySearchProvider = (options: ApplicationDirectorySearchQueryOptions) => ApplicationDirectorySearchResponse;
 
 export interface ApplicationDirectoryStaticRouterOptions {
+    applicationProvider?: ApplicationDirectoryApplicationProvider;
     searchProvider?: ApplicationDirectorySearchProvider;
 }
 
@@ -162,6 +177,14 @@ export function getApplicationDirectoryCategories(query: Request["query"]): Appl
     return APPLICATION_DIRECTORY_CATEGORIES.map((category) => toApplicationDirectoryCategory(category, query.locale));
 }
 
+export function parseApplicationDirectoryApplicationQuery(query: Request["query"]): ApplicationDirectoryApplicationQueryOptions {
+    return {
+        locale: parseOptionalString(query.locale),
+        nocache: parseOptionalBoolean(query.nocache),
+        with_localizations: parseOptionalBoolean(query.with_localizations),
+    };
+}
+
 export function parseApplicationDirectorySearchQuery(query: Request["query"]): ApplicationDirectorySearchQueryOptions {
     return {
         query: parseOptionalString(query.query, { maxLength: 100 }),
@@ -178,6 +201,14 @@ export function parseApplicationDirectorySearchQuery(query: Request["query"]): A
     };
 }
 
+export function getApplicationDirectoryApplication(
+    _applicationId: string,
+    _options: ApplicationDirectoryApplicationQueryOptions = {},
+): ApplicationDirectoryApplication | undefined {
+    // Spacebar currently has no source-backed static App Directory application catalog.
+    return undefined;
+}
+
 export function getApplicationDirectorySearchResults(_options: ApplicationDirectorySearchQueryOptions = {}): ApplicationDirectorySearchResponse {
     return {
         results: [],
@@ -190,6 +221,7 @@ export function getApplicationDirectorySearchResults(_options: ApplicationDirect
 
 export function createApplicationDirectoryStaticRouter(options: ApplicationDirectoryStaticRouterOptions = {}): ExpressRouter {
     const router = Router({ mergeParams: true });
+    const applicationProvider = options.applicationProvider ?? getApplicationDirectoryApplication;
     const searchProvider = options.searchProvider ?? getApplicationDirectorySearchResults;
 
     router.get(
@@ -210,6 +242,44 @@ export function createApplicationDirectoryStaticRouter(options: ApplicationDirec
         }),
         (req: Request, res: Response) => {
             res.set("Cache-Control", APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL).status(200).json(getApplicationDirectoryCategories(req.query));
+        },
+    );
+
+    router.get(
+        "/applications/:application_id",
+        route({
+            summary: "Get Application Directory Application",
+            query: {
+                locale: {
+                    type: "string",
+                    description: "Locale to use when returning application directory details.",
+                },
+                nocache: {
+                    type: "boolean",
+                    description: "Whether the backing application directory provider should bypass its cache.",
+                },
+                with_localizations: {
+                    type: "boolean",
+                    description: "Whether to include source-backed localized directory descriptions.",
+                },
+            },
+            responses: {
+                200: {
+                    body: "ApplicationDirectoryApplication",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const applicationId = req.params.application_id;
+            if (typeof applicationId !== "string" || applicationId.length === 0) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+
+            const application = await applicationProvider(applicationId, parseApplicationDirectoryApplicationQuery(req.query));
+            if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+
+            res.set("Cache-Control", APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL).status(200).json(application);
         },
     );
 

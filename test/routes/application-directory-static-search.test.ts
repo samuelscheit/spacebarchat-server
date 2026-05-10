@@ -112,7 +112,7 @@ describe("GET /application-directory-static/search", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/search?query=activity"), true);
         assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/application-directory-static/search/"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v10/application-directory-static/search"), false);
-        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/1217877285923979415"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/1217877285923979415"), true);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/1217877285923979415/similar"), false);
 
         const response = await requestJson(createRouteApp({ authentication: true }), "/application-directory-static/search?query=activity");

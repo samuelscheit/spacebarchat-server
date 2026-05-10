@@ -75,6 +75,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationDirectoryApplication"
+		],
+		"route": "/application-directory-static/applications/{application_id}",
+		"route_name": "GET_APPLICATION_DIRECTORY_STATIC_APPLICATIONS_APPLICATION_ID",
+		"source": "src/api/routes/application-directory-static.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ApplicationDirectoryCategoriesResponse"
 		],
 		"route": "/application-directory-static/categories",
