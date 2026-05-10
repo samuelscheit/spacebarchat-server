@@ -20,6 +20,7 @@ export * from "./APIErrorOrCaptchaResponse";
 export * from "./APIErrorResponse";
 export * from "./AccountStandingResponse";
 export * from "./ActiveThreadsResponse";
+export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";
 export * from "./ArchivedThreadsResponse";

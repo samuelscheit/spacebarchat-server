@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 468,
+        "totalEntries": 469,
         "byService": {
-            "api": 371,
+            "api": 372,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 443,
+            "http-route": 444,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 74,
+            "contract": 75,
             "stateful-domain": 259,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 331,
+            "route-class": 332,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -333,6 +333,44 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/application-identities/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/application-identities/",
+            "sourceFile": "src/api/routes/application-identities.ts",
+            "line": 66,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "ApplicationIdentitiesSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationIdentitiesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
                 ],
                 "hasQuery": false
             },

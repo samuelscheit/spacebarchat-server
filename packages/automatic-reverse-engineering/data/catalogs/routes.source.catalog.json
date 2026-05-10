@@ -33,6 +33,17 @@
 		"source": "src/api/routes/apex/experiments.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "ApplicationIdentitiesSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationIdentitiesResponse"
+		],
+		"route": "/application-identities",
+		"route_name": "POST_APPLICATION_IDENTITIES",
+		"source": "src/api/routes/application-identities.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIApplicationArray"

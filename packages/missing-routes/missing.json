@@ -1,6 +1,6 @@
 {
-    "missing": 817,
-    "spacebar": 363,
+    "missing": 816,
+    "spacebar": 364,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -22,7 +22,6 @@
         "/application-directory-static/collections",
         "/application-directory-static/search",
         "/application-directory/applications/{param}/embed",
-        "/application-identities",
         "/applications-with-assets",
         "/applications/games-supplemental",
         "/applications/non-games/detectable",
@@ -3961,13 +3960,6 @@
         },
         { "method": "POST", "route": "/ai/title", "route_name": "POST_AI_TITLE", "sources": ["userdoccers:resources/ai.mdx"], "summaries": ["Paraphrase Thread Title"] },
         { "method": "POST", "route": "/ai/translate", "route_name": "POST_AI_TRANSLATE", "sources": ["userdoccers:resources/ai.mdx"], "summaries": ["Translate Message"] },
-        {
-            "method": "POST",
-            "route": "/application-identities",
-            "route_name": "POST_APPLICATION_IDENTITIES",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "summaries": ["Get Bulk Application Identities"]
-        },
         {
             "method": "POST",
             "route": "/applications/{param}/activities/{param}/instances/{param}/leave",
