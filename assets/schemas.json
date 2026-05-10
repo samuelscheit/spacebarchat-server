@@ -2659,97 +2659,74 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "PartialApplicationIdentityResponse": {
+    "ApplicationModifySchema": {
         "type": "object",
         "properties": {
-            "user_id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+            "description": {
                 "type": "string"
             },
-            "external_user_id": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "external_user_id",
-            "user_id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationIdentitiesResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/PartialApplicationIdentityResponse"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationBranchResponse": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+            "icon": {
+                "format": "image-data-uri",
                 "type": "string"
             },
-            "live_build_id": {
+            "cover_image": {
+                "format": "image-data-uri",
+                "type": "string"
+            },
+            "interactions_endpoint_url": {
+                "type": "string"
+            },
+            "max_participants": {
                 "type": [
                     "null",
-                    "string"
+                    "integer"
                 ]
-            },
-            "created_at": {
-                "type": "string"
             },
             "name": {
                 "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationBranchesResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/ApplicationBranchResponse"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationLiveBuildManifestResponse": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationLiveBuildResponse": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+            },
+            "privacy_policy_url": {
                 "type": "string"
             },
-            "manifests": {
+            "role_connections_verification_url": {
+                "type": "string"
+            },
+            "tags": {
                 "type": "array",
                 "items": {
-                    "$ref": "#/definitions/ApplicationLiveBuildManifestResponse"
+                    "type": "string"
                 }
+            },
+            "terms_of_service_url": {
+                "type": "string"
+            },
+            "bot_public": {
+                "type": "boolean"
+            },
+            "bot_require_code_grant": {
+                "type": "boolean"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "custom_install_url": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "install_params": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/ApplicationInstallParams"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
-        "required": [
-            "id",
-            "manifests"
-        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "OAuthAuthorizeResponse": {
@@ -2907,6 +2884,126 @@
         "items": {
             "$ref": "#/definitions/APIApplication"
         },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ActivityShelfResponse": {
+        "type": "object",
+        "properties": {
+            "activities": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/EmbeddedActivityConfig"
+                }
+            },
+            "applications": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ActivityShelfApplication"
+                }
+            },
+            "assets": {
+                "$ref": "#/definitions/ActivityShelfAssets"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "activities",
+            "applications",
+            "assets"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PartialApplicationIdentityResponse": {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "external_user_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "external_user_id",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationIdentitiesResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/PartialApplicationIdentityResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationBranchResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "live_build_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "created_at": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationBranchesResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ApplicationBranchResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationLiveBuildManifestResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationLiveBuildResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "manifests": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationLiveBuildManifestResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "manifests"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ApplicationAssetResponse": {
@@ -6209,76 +6306,6 @@
         "required": [
             "guilds"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationModifySchema": {
-        "type": "object",
-        "properties": {
-            "description": {
-                "type": "string"
-            },
-            "icon": {
-                "format": "image-data-uri",
-                "type": "string"
-            },
-            "cover_image": {
-                "format": "image-data-uri",
-                "type": "string"
-            },
-            "interactions_endpoint_url": {
-                "type": "string"
-            },
-            "max_participants": {
-                "type": [
-                    "null",
-                    "integer"
-                ]
-            },
-            "name": {
-                "type": "string"
-            },
-            "privacy_policy_url": {
-                "type": "string"
-            },
-            "role_connections_verification_url": {
-                "type": "string"
-            },
-            "tags": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "terms_of_service_url": {
-                "type": "string"
-            },
-            "bot_public": {
-                "type": "boolean"
-            },
-            "bot_require_code_grant": {
-                "type": "boolean"
-            },
-            "flags": {
-                "type": "integer"
-            },
-            "custom_install_url": {
-                "type": "string"
-            },
-            "guild_id": {
-                "type": "string"
-            },
-            "install_params": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/ApplicationInstallParams"
-                    },
-                    {
-                        "type": "null"
-                    }
-                ]
-            }
-        },
-        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "APIIntegrationApplication": {
@@ -16196,6 +16223,33 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationInstallParams": {
+        "type": "object",
+        "properties": {
+            "scopes": {
+                "minItems": 1,
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                    "enum": [
+                        "applications.commands",
+                        "bot"
+                    ],
+                    "type": "string"
+                }
+            },
+            "permissions": {
+                "pattern": "^(?:0|[1-9][0-9]*)$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "permissions",
+            "scopes"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PublicUser": {
         "type": "object",
         "properties": {
@@ -16281,30 +16335,395 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "ApplicationInstallParams": {
+    "EmbeddedActivityConfig": {
         "type": "object",
         "properties": {
-            "scopes": {
-                "minItems": 1,
-                "uniqueItems": true,
+            "application_id": {
+                "type": "string"
+            },
+            "activity_preview_video_asset_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "supported_platforms": {
                 "type": "array",
                 "items": {
-                    "enum": [
-                        "applications.commands",
-                        "bot"
-                    ],
+                    "$ref": "#/definitions/EmbeddedActivityPlatform"
+                }
+            },
+            "default_orientation_lock_state": {
+                "type": "integer"
+            },
+            "tablet_default_orientation_lock_state": {
+                "type": "integer"
+            },
+            "requires_age_gate": {
+                "type": "boolean"
+            },
+            "legacy_responsive_aspect_ratio": {
+                "type": "boolean"
+            },
+            "premium_tier_requirement": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "free_period_starts_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "free_period_ends_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "client_platform_config": {
+                "$ref": "#/definitions/EmbeddedActivityClientPlatformConfig"
+            },
+            "shelf_rank": {
+                "type": "integer"
+            },
+            "has_csp_exception": {
+                "type": "boolean"
+            },
+            "has_proxy_request_signing": {
+                "type": "boolean"
+            },
+            "displays_advertisements": {
+                "type": "boolean"
+            },
+            "supported_locales": {
+                "type": "array",
+                "items": {
                     "type": "string"
                 }
             },
-            "permissions": {
-                "pattern": "^(?:0|[1-9][0-9]*)$",
+            "blocked_locales": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "activity_preview_video_asset_id",
+            "blocked_locales",
+            "client_platform_config",
+            "default_orientation_lock_state",
+            "displays_advertisements",
+            "free_period_ends_at",
+            "free_period_starts_at",
+            "has_csp_exception",
+            "has_proxy_request_signing",
+            "legacy_responsive_aspect_ratio",
+            "premium_tier_requirement",
+            "requires_age_gate",
+            "shelf_rank",
+            "supported_locales",
+            "supported_platforms",
+            "tablet_default_orientation_lock_state"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmbeddedActivityPlatform": {
+        "enum": [
+            "android",
+            "ios",
+            "web"
+        ],
+        "type": "string",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmbeddedActivityClientPlatformConfig": {
+        "type": "object",
+        "properties": {
+            "web": {
+                "$ref": "#/definitions/EmbeddedActivityPlatformConfig"
+            },
+            "android": {
+                "$ref": "#/definitions/EmbeddedActivityPlatformConfig"
+            },
+            "ios": {
+                "$ref": "#/definitions/EmbeddedActivityPlatformConfig"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "android",
+            "ios",
+            "web"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmbeddedActivityPlatformConfig": {
+        "type": "object",
+        "properties": {
+            "label_from": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "label_type": {
+                "type": "integer"
+            },
+            "label_until": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "release_phase": {
+                "type": "string"
+            },
+            "omit_badge_from_surfaces": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "label_type",
+            "omit_badge_from_surfaces",
+            "release_phase"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ActivityShelfApplication": {
+        "type": "object",
+        "properties": {
+            "embedded_activity_config": {
+                "$ref": "#/definitions/EmbeddedActivityConfig"
+            },
+            "flags_new": {
+                "type": "string"
+            },
+            "integration_types_config": {
+                "$ref": "#/definitions/ActivityShelfApplicationIntegrationTypesConfig"
+            },
+            "is_discoverable": {
+                "type": "boolean"
+            },
+            "is_monetized": {
+                "type": "boolean"
+            },
+            "is_verified": {
+                "type": "boolean"
+            },
+            "max_participants": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "description": {
+                "type": "string"
+            },
+            "summary": {
+                "type": "string"
+            },
+            "type": {
+                "anyOf": [
+                    {
+                        "enum": [
+                            1,
+                            2,
+                            3,
+                            4
+                        ],
+                        "type": "number"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "hook": {
+                "type": "boolean"
+            },
+            "bot_public": {
+                "type": "boolean"
+            },
+            "bot_require_code_grant": {
+                "type": "boolean"
+            },
+            "verify_key": {
+                "type": "string"
+            },
+            "owner": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "redirect_uris": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "rpc_application_state": {
+                "type": "integer"
+            },
+            "store_application_state": {
+                "type": "integer"
+            },
+            "verification_state": {
+                "type": "integer"
+            },
+            "interactions_endpoint_url": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "integration_public": {
+                "type": "boolean"
+            },
+            "integration_require_code_grant": {
+                "type": "boolean"
+            },
+            "discoverability_state": {
+                "type": "integer"
+            },
+            "discovery_eligibility_flags": {
+                "type": "integer"
+            },
+            "bot": {
+                "$ref": "#/definitions/PublicUser"
+            },
+            "tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "cover_image": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "install_params": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/ApplicationInstallParams"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "terms_of_service_url": {
+                "type": "string"
+            },
+            "privacy_policy_url": {
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "custom_install_url": {
                 "type": "string"
             }
         },
         "additionalProperties": false,
         "required": [
-            "permissions",
-            "scopes"
+            "description",
+            "embedded_activity_config",
+            "flags",
+            "flags_new",
+            "id",
+            "is_discoverable",
+            "is_monetized",
+            "is_verified",
+            "max_participants",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ActivityShelfApplicationIntegrationTypesConfig": {
+        "type": "object",
+        "additionalProperties": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/ActivityShelfApplicationIntegrationTypeConfig"
+                },
+                {
+                    "type": "null"
+                }
+            ]
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ActivityShelfApplicationIntegrationTypeConfig": {
+        "type": "object",
+        "properties": {
+            "oauth2_install_params": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/ApplicationInstallParams"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ActivityShelfAssets": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/ActivityShelfApplicationAsset"
+            }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ActivityShelfApplicationAsset": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name",
+            "type"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

@@ -1,10 +1,9 @@
 {
-    "missing": 747,
-    "spacebar": 433,
+    "missing": 746,
+    "spacebar": 434,
     "discord": 1128,
     "routes": [
         "/activities",
-        "/activities/shelf",
         "/activities/statistics/applications/{param}",
         "/activities/{param}/test-mode",
         "/activities/{param}/{param}",
@@ -1139,13 +1138,6 @@
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/activities/{application_id}/test-mode"],
             "summaries": ["Query Application Test Mode"]
-        },
-        {
-            "method": "GET",
-            "route": "/activities/shelf",
-            "route_name": "GET_ACTIVITIES_SHELF",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Embedded Activities"]
         },
         {
             "method": "GET",

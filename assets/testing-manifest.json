@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 538,
+        "totalEntries": 539,
         "byService": {
-            "api": 441,
+            "api": 442,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 513,
+            "http-route": 514,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 103,
+            "contract": 104,
             "stateful-domain": 292,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 396,
+            "route-class": 397,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -301,6 +301,42 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/activities/shelf/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/activities/shelf/",
+            "sourceFile": "src/api/routes/activities/shelf.ts",
+            "line": 33,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "ActivityShelfResponse",
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

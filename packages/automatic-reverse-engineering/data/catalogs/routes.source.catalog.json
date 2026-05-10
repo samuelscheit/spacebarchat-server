@@ -24,6 +24,16 @@
 		"source": "src/api/routes/activities/#application_id/instances/#channel_id/index.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ActivityShelfResponse"
+		],
+		"route": "/activities/shelf",
+		"route_name": "GET_ACTIVITIES_SHELF",
+		"source": "src/api/routes/activities/shelf.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "AgeVerificationVerifySchema",
 		"response_schema_refs": [

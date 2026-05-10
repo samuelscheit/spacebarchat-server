@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 513,
+        "totalContracts": 514,
         "byService": {
-            "api": 440,
+            "api": 441,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 377,
-        "runtimeMalformedAuthContracts": 377,
-        "runtimeRevokedSessionAuthContracts": 377,
-        "runtimeStaleTokenAuthContracts": 377,
+        "runtimeAuthBoundaryContracts": 378,
+        "runtimeMalformedAuthContracts": 378,
+        "runtimeRevokedSessionAuthContracts": 378,
+        "runtimeStaleTokenAuthContracts": 378,
         "runtimePublicAuthBoundaryContracts": 55,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 69,
@@ -315,6 +315,50 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "EmbeddedActivityInstancesResponse"],
                 "responseStatuses": [200, 400, 401, 403, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/activities/shelf/",
+            "service": "api",
+            "method": "GET",
+            "path": "/activities/shelf/",
+            "samplePath": "/activities/shelf/",
+            "sourceFile": "src/api/routes/activities/shelf.ts",
+            "line": 33,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["ActivityShelfResponse", "APIErrorResponse"],
+                "responseStatuses": [200, 401]
             },
             "cases": [
                 {

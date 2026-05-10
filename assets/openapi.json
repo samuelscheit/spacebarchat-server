@@ -2551,88 +2551,73 @@
                     "threads"
                 ]
             },
-            "PartialApplicationIdentityResponse": {
+            "ApplicationModifySchema": {
                 "type": "object",
                 "properties": {
-                    "user_id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                    "description": {
                         "type": "string"
                     },
-                    "external_user_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "external_user_id",
-                    "user_id"
-                ]
-            },
-            "ApplicationIdentitiesResponse": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/PartialApplicationIdentityResponse"
-                }
-            },
-            "ApplicationBranchResponse": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                    "icon": {
+                        "format": "image-data-uri",
                         "type": "string"
                     },
-                    "live_build_id": {
+                    "cover_image": {
+                        "format": "image-data-uri",
+                        "type": "string"
+                    },
+                    "interactions_endpoint_url": {
+                        "type": "string"
+                    },
+                    "max_participants": {
                         "type": [
                             "null",
-                            "string"
+                            "integer"
                         ]
-                    },
-                    "created_at": {
-                        "type": "string"
                     },
                     "name": {
                         "type": "string"
-                    }
-                },
-                "required": [
-                    "id"
-                ]
-            },
-            "ApplicationBranchesResponse": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/ApplicationBranchResponse"
-                }
-            },
-            "ApplicationLiveBuildManifestResponse": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "id"
-                ]
-            },
-            "ApplicationLiveBuildResponse": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                    },
+                    "privacy_policy_url": {
                         "type": "string"
                     },
-                    "manifests": {
+                    "role_connections_verification_url": {
+                        "type": "string"
+                    },
+                    "tags": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ApplicationLiveBuildManifestResponse"
+                            "type": "string"
                         }
+                    },
+                    "terms_of_service_url": {
+                        "type": "string"
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "custom_install_url": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
-                },
-                "required": [
-                    "id",
-                    "manifests"
-                ]
+                }
             },
             "OAuthAuthorizeResponse": {
                 "type": "object",
@@ -2785,6 +2770,114 @@
                 "items": {
                     "$ref": "#/components/schemas/APIApplication"
                 }
+            },
+            "ActivityShelfResponse": {
+                "type": "object",
+                "properties": {
+                    "activities": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/EmbeddedActivityConfig"
+                        }
+                    },
+                    "applications": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ActivityShelfApplication"
+                        }
+                    },
+                    "assets": {
+                        "$ref": "#/components/schemas/ActivityShelfAssets"
+                    }
+                },
+                "required": [
+                    "activities",
+                    "applications",
+                    "assets"
+                ]
+            },
+            "PartialApplicationIdentityResponse": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "external_user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "external_user_id",
+                    "user_id"
+                ]
+            },
+            "ApplicationIdentitiesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/PartialApplicationIdentityResponse"
+                }
+            },
+            "ApplicationBranchResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "live_build_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "ApplicationBranchesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationBranchResponse"
+                }
+            },
+            "ApplicationLiveBuildManifestResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "ApplicationLiveBuildResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "manifests": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationLiveBuildManifestResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "manifests"
+                ]
             },
             "ApplicationAssetResponse": {
                 "type": "object",
@@ -5929,74 +6022,6 @@
                 "required": [
                     "guilds"
                 ]
-            },
-            "ApplicationModifySchema": {
-                "type": "object",
-                "properties": {
-                    "description": {
-                        "type": "string"
-                    },
-                    "icon": {
-                        "format": "image-data-uri",
-                        "type": "string"
-                    },
-                    "cover_image": {
-                        "format": "image-data-uri",
-                        "type": "string"
-                    },
-                    "interactions_endpoint_url": {
-                        "type": "string"
-                    },
-                    "max_participants": {
-                        "type": [
-                            "null",
-                            "integer"
-                        ]
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "privacy_policy_url": {
-                        "type": "string"
-                    },
-                    "role_connections_verification_url": {
-                        "type": "string"
-                    },
-                    "tags": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "terms_of_service_url": {
-                        "type": "string"
-                    },
-                    "bot_public": {
-                        "type": "boolean"
-                    },
-                    "bot_require_code_grant": {
-                        "type": "boolean"
-                    },
-                    "flags": {
-                        "type": "integer"
-                    },
-                    "custom_install_url": {
-                        "type": "string"
-                    },
-                    "guild_id": {
-                        "type": "string"
-                    },
-                    "install_params": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/ApplicationInstallParams"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    }
-                }
             },
             "APIIntegrationApplication": {
                 "type": "object",
@@ -15422,6 +15447,31 @@
                     "user_id"
                 ]
             },
+            "ApplicationInstallParams": {
+                "type": "object",
+                "properties": {
+                    "scopes": {
+                        "minItems": 1,
+                        "uniqueItems": true,
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "applications.commands",
+                                "bot"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    "permissions": {
+                        "pattern": "^(?:0|[1-9][0-9]*)$",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "permissions",
+                    "scopes"
+                ]
+            },
             "PublicUser": {
                 "type": "object",
                 "properties": {
@@ -15505,29 +15555,381 @@
                     "username"
                 ]
             },
-            "ApplicationInstallParams": {
+            "EmbeddedActivityConfig": {
                 "type": "object",
                 "properties": {
-                    "scopes": {
-                        "minItems": 1,
-                        "uniqueItems": true,
+                    "application_id": {
+                        "type": "string"
+                    },
+                    "activity_preview_video_asset_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "supported_platforms": {
                         "type": "array",
                         "items": {
-                            "enum": [
-                                "applications.commands",
-                                "bot"
-                            ],
+                            "$ref": "#/components/schemas/EmbeddedActivityPlatform"
+                        }
+                    },
+                    "default_orientation_lock_state": {
+                        "type": "integer"
+                    },
+                    "tablet_default_orientation_lock_state": {
+                        "type": "integer"
+                    },
+                    "requires_age_gate": {
+                        "type": "boolean"
+                    },
+                    "legacy_responsive_aspect_ratio": {
+                        "type": "boolean"
+                    },
+                    "premium_tier_requirement": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "free_period_starts_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "free_period_ends_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "client_platform_config": {
+                        "$ref": "#/components/schemas/EmbeddedActivityClientPlatformConfig"
+                    },
+                    "shelf_rank": {
+                        "type": "integer"
+                    },
+                    "has_csp_exception": {
+                        "type": "boolean"
+                    },
+                    "has_proxy_request_signing": {
+                        "type": "boolean"
+                    },
+                    "displays_advertisements": {
+                        "type": "boolean"
+                    },
+                    "supported_locales": {
+                        "type": "array",
+                        "items": {
                             "type": "string"
                         }
                     },
-                    "permissions": {
-                        "pattern": "^(?:0|[1-9][0-9]*)$",
+                    "blocked_locales": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "activity_preview_video_asset_id",
+                    "blocked_locales",
+                    "client_platform_config",
+                    "default_orientation_lock_state",
+                    "displays_advertisements",
+                    "free_period_ends_at",
+                    "free_period_starts_at",
+                    "has_csp_exception",
+                    "has_proxy_request_signing",
+                    "legacy_responsive_aspect_ratio",
+                    "premium_tier_requirement",
+                    "requires_age_gate",
+                    "shelf_rank",
+                    "supported_locales",
+                    "supported_platforms",
+                    "tablet_default_orientation_lock_state"
+                ]
+            },
+            "EmbeddedActivityPlatform": {
+                "enum": [
+                    "android",
+                    "ios",
+                    "web"
+                ],
+                "type": "string"
+            },
+            "EmbeddedActivityClientPlatformConfig": {
+                "type": "object",
+                "properties": {
+                    "web": {
+                        "$ref": "#/components/schemas/EmbeddedActivityPlatformConfig"
+                    },
+                    "android": {
+                        "$ref": "#/components/schemas/EmbeddedActivityPlatformConfig"
+                    },
+                    "ios": {
+                        "$ref": "#/components/schemas/EmbeddedActivityPlatformConfig"
+                    }
+                },
+                "required": [
+                    "android",
+                    "ios",
+                    "web"
+                ]
+            },
+            "EmbeddedActivityPlatformConfig": {
+                "type": "object",
+                "properties": {
+                    "label_from": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "label_type": {
+                        "type": "integer"
+                    },
+                    "label_until": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "release_phase": {
+                        "type": "string"
+                    },
+                    "omit_badge_from_surfaces": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "label_type",
+                    "omit_badge_from_surfaces",
+                    "release_phase"
+                ]
+            },
+            "ActivityShelfApplication": {
+                "type": "object",
+                "properties": {
+                    "embedded_activity_config": {
+                        "$ref": "#/components/schemas/EmbeddedActivityConfig"
+                    },
+                    "flags_new": {
+                        "type": "string"
+                    },
+                    "integration_types_config": {
+                        "$ref": "#/components/schemas/ActivityShelfApplicationIntegrationTypesConfig"
+                    },
+                    "is_discoverable": {
+                        "type": "boolean"
+                    },
+                    "is_monetized": {
+                        "type": "boolean"
+                    },
+                    "is_verified": {
+                        "type": "boolean"
+                    },
+                    "max_participants": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "hook": {
+                        "type": "boolean"
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "verify_key": {
+                        "type": "string"
+                    },
+                    "owner": {
+                        "$ref": "#/components/schemas/PublicUser"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "redirect_uris": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "rpc_application_state": {
+                        "type": "integer"
+                    },
+                    "store_application_state": {
+                        "type": "integer"
+                    },
+                    "verification_state": {
+                        "type": "integer"
+                    },
+                    "interactions_endpoint_url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "integration_public": {
+                        "type": "boolean"
+                    },
+                    "integration_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "discoverability_state": {
+                        "type": "integer"
+                    },
+                    "discovery_eligibility_flags": {
+                        "type": "integer"
+                    },
+                    "bot": {
+                        "$ref": "#/components/schemas/PublicUser"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "cover_image": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "terms_of_service_url": {
+                        "type": "string"
+                    },
+                    "privacy_policy_url": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "custom_install_url": {
                         "type": "string"
                     }
                 },
                 "required": [
-                    "permissions",
-                    "scopes"
+                    "description",
+                    "embedded_activity_config",
+                    "flags",
+                    "flags_new",
+                    "id",
+                    "is_discoverable",
+                    "is_monetized",
+                    "is_verified",
+                    "max_participants",
+                    "name"
+                ]
+            },
+            "ActivityShelfApplicationIntegrationTypesConfig": {
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/components/schemas/ActivityShelfApplicationIntegrationTypeConfig"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            },
+            "ActivityShelfApplicationIntegrationTypeConfig": {
+                "type": "object",
+                "properties": {
+                    "oauth2_install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
+            "ActivityShelfAssets": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/ActivityShelfApplicationAsset"
+                    }
+                }
+            },
+            "ActivityShelfApplicationAsset": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "type"
                 ]
             },
             "ChannelLinkedAccount": {
@@ -50589,6 +50991,52 @@
                 },
                 "tags": [
                     "age-verification"
+                ]
+            }
+        },
+        "/activities/shelf/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Embedded Activities",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ActivityShelfResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The guild ID to return embedded activities for."
+                    }
+                ],
+                "tags": [
+                    "activities"
                 ]
             }
         },
