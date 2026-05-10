@@ -1,6 +1,6 @@
 {
-    "missing": 811,
-    "spacebar": 369,
+    "missing": 809,
+    "spacebar": 371,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -100,7 +100,6 @@
         "/channels/{param}/application-command-index",
         "/channels/{param}/application-commands/search",
         "/channels/{param}/blocked-user-warning-dismissal",
-        "/channels/{param}/call",
         "/channels/{param}/call/ring",
         "/channels/{param}/call/stop-ringing",
         "/channels/{param}/custom-call-sounds",
@@ -1604,14 +1603,6 @@
             "route_name": "APPLICATION_COMMANDS_SEARCH",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/application-commands/search"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/call",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_CALL",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/call"],
-            "summaries": ["Get Call Eligibility"]
         },
         {
             "method": "GET",
@@ -3462,14 +3453,6 @@
         { "method": "PATCH", "route": "/applications/games-supplemental", "route_name": "APPLICATIONS_GAMES_SUPPLEMENTAL", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PATCH", "route": "/applications/public", "route_name": "APPLICATIONS_PUBLIC", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PATCH", "route": "/applications/shelf", "route_name": "APPLICATIONS_SHELF", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "PATCH",
-            "route": "/channels/{param}/call",
-            "route_name": "PATCH_CHANNELS_CHANNEL_ID_CALL",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/call"],
-            "summaries": ["Modify Call"]
-        },
         {
             "method": "PATCH",
             "route": "/channels/{param}/directory-entry/{param}",

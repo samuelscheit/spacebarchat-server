@@ -1403,6 +1403,16 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ChannelCallModifySchema": {
+        "type": "object",
+        "properties": {
+            "region": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CodesVerificationSchema": {
         "type": "object",
         "properties": {
@@ -2590,6 +2600,19 @@
     "BillingSubscriptionsResponse": {
         "type": "array",
         "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ChannelCallEligibilityResponse": {
+        "type": "object",
+        "properties": {
+            "ringable": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "ringable"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ChannelFollowerMessageStatsResponse": {

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 405,
+        "totalCoveredManifestEntries": 407,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 383,
-                "totalCoveredManifestEntries": 383,
-                "totalCoveredRequiredManifestEntries": 383,
+                "totalRequiredManifestEntries": 385,
+                "totalCoveredManifestEntries": 385,
+                "totalCoveredRequiredManifestEntries": 385,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 262,
+            "stateful-domain": 264,
             "contract": 19,
             "auth-scenario": 16,
             "integration": 11,
@@ -65,9 +65,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 383,
-                "totalCoveredManifestEntries": 383,
-                "totalCoveredRequiredManifestEntries": 383,
+                "totalRequiredManifestEntries": 385,
+                "totalCoveredManifestEntries": 385,
+                "totalCoveredRequiredManifestEntries": 385,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -128,6 +128,7 @@
                 "api:http:GET:/auth/sessions/",
                 "api:http:GET:/auth/whoami/",
                 "api:http:GET:/channels/:channel_id/",
+                "api:http:GET:/channels/:channel_id/call/",
                 "api:http:GET:/channels/:channel_id/directory-entries/",
                 "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                 "api:http:GET:/channels/:channel_id/follower-message-stats/",
@@ -257,6 +258,7 @@
                 "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:PATCH:/applications/@me/",
                 "api:http:PATCH:/channels/:channel_id/",
+                "api:http:PATCH:/channels/:channel_id/call/",
                 "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
                 "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                 "api:http:PATCH:/guilds/:guild_id/",
@@ -513,6 +515,7 @@
                 "api:http:GET:/auth/sessions/",
                 "api:http:GET:/auth/whoami/",
                 "api:http:GET:/channels/:channel_id/",
+                "api:http:GET:/channels/:channel_id/call/",
                 "api:http:GET:/channels/:channel_id/directory-entries/",
                 "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                 "api:http:GET:/channels/:channel_id/follower-message-stats/",
@@ -642,6 +645,7 @@
                 "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:PATCH:/applications/@me/",
                 "api:http:PATCH:/channels/:channel_id/",
+                "api:http:PATCH:/channels/:channel_id/call/",
                 "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
                 "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                 "api:http:PATCH:/guilds/:guild_id/",
@@ -1112,6 +1116,7 @@
                         "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                         "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
                         "api:http:GET:/channels/:channel_id/",
+                        "api:http:GET:/channels/:channel_id/call/",
                         "api:http:GET:/channels/:channel_id/directory-entries/",
                         "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                         "api:http:GET:/channels/:channel_id/follower-message-stats/",
@@ -1134,6 +1139,7 @@
                         "api:http:GET:/channels/:channel_id/users/@me/threads/archived/private/",
                         "api:http:GET:/channels/:channel_id/webhooks/",
                         "api:http:PATCH:/channels/:channel_id/",
+                        "api:http:PATCH:/channels/:channel_id/call/",
                         "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
                         "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                         "api:http:POST:/channels/:channel_id/attachments/",

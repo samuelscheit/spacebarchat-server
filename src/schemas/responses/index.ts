@@ -28,6 +28,7 @@ export * from "./BackupCodesChallengeResponse";
 export * from "./BillingLocationInfoResponse";
 export * from "./BillingSubscriptionsResponse";
 export * from "./CaptchaRequiredResponse";
+export * from "./ChannelCallEligibilityResponse";
 export * from "./ChannelFollowerMessageStatsResponse";
 export * from "./ChannelFollowerStatsResponse";
 export * from "./ChannelLinkedAccountsResponse";

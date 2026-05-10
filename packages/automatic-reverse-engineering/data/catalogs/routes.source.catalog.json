@@ -566,6 +566,26 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ChannelCallEligibilityResponse"
+		],
+		"route": "/channels/{channel_id}/call",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_CALL",
+		"source": "src/api/routes/channels/#channel_id/call.ts"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "ChannelCallModifySchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/call",
+		"route_name": "PATCH_CHANNELS_CHANNEL_ID_CALL",
+		"source": "src/api/routes/channels/#channel_id/call.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"HubDirectoryEntriesResponse"
 		],
 		"route": "/channels/{channel_id}/directory-entries",
