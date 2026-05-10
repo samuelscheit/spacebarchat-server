@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 553,
+        "totalEntries": 554,
         "byService": {
-            "api": 456,
+            "api": 457,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 528,
+            "http-route": 529,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 111,
+            "contract": 112,
             "stateful-domain": 298,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 411,
+            "route-class": 412,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -499,13 +499,49 @@
             }
         },
         {
+            "id": "api:http:GET:/application-directory-static/applications/:application_id/similar",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/application-directory-static/applications/:application_id/similar",
+            "sourceFile": "src/api/routes/application-directory-static.ts",
+            "line": 319,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationDirectorySimilarApplicationsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    404
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/application-directory-static/applications/:application_id",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/application-directory-static/applications/:application_id",
             "sourceFile": "src/api/routes/application-directory-static.ts",
-            "line": 248,
+            "line": 281,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -541,7 +577,7 @@
             "method": "GET",
             "path": "/application-directory-static/categories",
             "sourceFile": "src/api/routes/application-directory-static.ts",
-            "line": 227,
+            "line": 260,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -609,7 +645,7 @@
             "method": "GET",
             "path": "/application-directory-static/search",
             "sourceFile": "src/api/routes/application-directory-static.ts",
-            "line": 286,
+            "line": 364,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

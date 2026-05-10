@@ -23,12 +23,14 @@ import {
     type ApplicationDirectoryCategory,
     ApplicationDirectoryItemType,
     type ApplicationDirectorySearchResponse,
+    type ApplicationDirectorySimilarApplicationsResponse,
 } from "@spacebar/schemas";
 import { DiscordApiErrors } from "@spacebar/util";
 import { type Request, type Response, Router, type Router as ExpressRouter } from "express";
 
 export const APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL = "public, max-age=3600, s-maxage=3600";
 export const APPLICATION_DIRECTORY_STATIC_EMPTY_SEARCH_LOAD_ID = "application_directory_search/empty";
+export const APPLICATION_DIRECTORY_STATIC_EMPTY_SIMILAR_LOAD_ID = "application_directory_similar/empty";
 
 type MaybePromise<T> = T | Promise<T>;
 
@@ -56,15 +58,26 @@ export interface ApplicationDirectorySearchQueryOptions {
     source?: number;
 }
 
+export interface ApplicationDirectorySimilarApplicationsQueryOptions {
+    guild_id?: string;
+    page: number;
+    locale?: string;
+}
+
 export type ApplicationDirectoryApplicationProvider = (
     applicationId: string,
     options: ApplicationDirectoryApplicationQueryOptions,
 ) => MaybePromise<ApplicationDirectoryApplication | null | undefined>;
 export type ApplicationDirectorySearchProvider = (options: ApplicationDirectorySearchQueryOptions) => ApplicationDirectorySearchResponse;
+export type ApplicationDirectorySimilarApplicationsProvider = (
+    applicationId: string,
+    options: ApplicationDirectorySimilarApplicationsQueryOptions,
+) => MaybePromise<ApplicationDirectorySimilarApplicationsResponse>;
 
 export interface ApplicationDirectoryStaticRouterOptions {
     applicationProvider?: ApplicationDirectoryApplicationProvider;
     searchProvider?: ApplicationDirectorySearchProvider;
+    similarApplicationsProvider?: ApplicationDirectorySimilarApplicationsProvider;
 }
 
 // Application-directory categories are a separate static set from guild discovery categories.
@@ -201,6 +214,14 @@ export function parseApplicationDirectorySearchQuery(query: Request["query"]): A
     };
 }
 
+export function parseApplicationDirectorySimilarApplicationsQuery(query: Request["query"]): ApplicationDirectorySimilarApplicationsQueryOptions {
+    return {
+        guild_id: parseOptionalString(query.guild_id),
+        page: parseOptionalInteger(query.page, { min: 1, max: 1000 }) ?? 1,
+        locale: parseOptionalString(query.locale),
+    };
+}
+
 export function getApplicationDirectoryApplication(
     _applicationId: string,
     _options: ApplicationDirectoryApplicationQueryOptions = {},
@@ -219,10 +240,22 @@ export function getApplicationDirectorySearchResults(_options: ApplicationDirect
     };
 }
 
+export function getApplicationDirectorySimilarApplications(
+    _applicationId: string,
+    _options: ApplicationDirectorySimilarApplicationsQueryOptions = { page: 1 },
+): ApplicationDirectorySimilarApplicationsResponse {
+    return {
+        applications: [],
+        num_pages: 0,
+        load_id: APPLICATION_DIRECTORY_STATIC_EMPTY_SIMILAR_LOAD_ID,
+    };
+}
+
 export function createApplicationDirectoryStaticRouter(options: ApplicationDirectoryStaticRouterOptions = {}): ExpressRouter {
     const router = Router({ mergeParams: true });
     const applicationProvider = options.applicationProvider ?? getApplicationDirectoryApplication;
     const searchProvider = options.searchProvider ?? getApplicationDirectorySearchResults;
+    const similarApplicationsProvider = options.similarApplicationsProvider ?? getApplicationDirectorySimilarApplications;
 
     router.get(
         "/categories",
@@ -280,6 +313,51 @@ export function createApplicationDirectoryStaticRouter(options: ApplicationDirec
             if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
 
             res.set("Cache-Control", APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL).status(200).json(application);
+        },
+    );
+
+    router.get(
+        "/applications/:application_id/similar",
+        route({
+            summary: "Get Application Directory Similar Applications",
+            query: {
+                guild_id: {
+                    type: "string",
+                    description: "Guild ID the application directory request originated from.",
+                },
+                page: {
+                    type: "integer",
+                    description: "Page of similar application results to fetch. Discord documents pages from 1 to 1000.",
+                },
+                locale: {
+                    type: "string",
+                    description: "Locale to use when returning similar application details.",
+                },
+            },
+            responses: {
+                200: {
+                    body: "ApplicationDirectorySimilarApplicationsResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const applicationId = req.params.application_id;
+            if (typeof applicationId !== "string" || applicationId.length === 0) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+
+            const query = parseApplicationDirectorySimilarApplicationsQuery(req.query);
+            const application = await applicationProvider(applicationId, {
+                locale: query.locale,
+                nocache: undefined,
+                with_localizations: undefined,
+            });
+            if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+
+            const response = await similarApplicationsProvider(applicationId, query);
+
+            res.set("Cache-Control", APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL).status(200).json(response);
         },
     );
 

@@ -26,16 +26,22 @@ import express from "express";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "../../src/api/middlewares";
 import {
     APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL,
+    APPLICATION_DIRECTORY_STATIC_EMPTY_SIMILAR_LOAD_ID,
     createApplicationDirectoryStaticRouter,
     getApplicationDirectoryApplication,
+    getApplicationDirectorySimilarApplications,
     parseApplicationDirectoryApplicationQuery,
+    parseApplicationDirectorySimilarApplicationsQuery,
     type ApplicationDirectoryApplicationProvider,
     type ApplicationDirectoryApplicationQueryOptions,
+    type ApplicationDirectorySimilarApplicationsProvider,
+    type ApplicationDirectorySimilarApplicationsQueryOptions,
 } from "../../src/api/routes/application-directory-static";
-import type { ApplicationDirectoryApplication } from "../../src/schemas";
+import type { ApplicationDirectoryApplication, ApplicationDirectorySimilarApplicationsResponse } from "../../src/schemas";
 import { DiscordApiErrors } from "../../src/util";
 
 const coveredManifestIds = ["api:http:GET:/application-directory-static/applications/:application_id"];
+const coveredSimilarManifestIds = ["api:http:GET:/application-directory-static/applications/:application_id/similar"];
 
 type JsonSchema = {
     $ref?: string;
@@ -98,11 +104,31 @@ function sampleApplication(): ApplicationDirectoryApplication {
     };
 }
 
-function createRouteApp(options: { authentication?: boolean; applicationProvider?: ApplicationDirectoryApplicationProvider } = {}) {
+function sampleSimilarResponse(): ApplicationDirectorySimilarApplicationsResponse {
+    return {
+        applications: [sampleApplication()],
+        num_pages: 1,
+        load_id: "application_directory_similar/test",
+    };
+}
+
+function createRouteApp(
+    options: {
+        authentication?: boolean;
+        applicationProvider?: ApplicationDirectoryApplicationProvider;
+        similarApplicationsProvider?: ApplicationDirectorySimilarApplicationsProvider;
+    } = {},
+) {
     const app = express();
 
     if (options.authentication) app.use(Authentication);
-    app.use("/application-directory-static", createApplicationDirectoryStaticRouter({ applicationProvider: options.applicationProvider }));
+    app.use(
+        "/application-directory-static",
+        createApplicationDirectoryStaticRouter({
+            applicationProvider: options.applicationProvider,
+            similarApplicationsProvider: options.similarApplicationsProvider,
+        }),
+    );
     app.use(ErrorHandler);
 
     return app;
@@ -136,7 +162,7 @@ describe("GET /application-directory-static/applications/{application_id}", () =
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/1217877285923979415?locale=en-US"), true);
         assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/application-directory-static/applications/1217877285923979415/"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v10/application-directory-static/applications/1217877285923979415"), false);
-        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/1217877285923979415/similar"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/1217877285923979415/similar"), true);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/search?query=activity"), true);
 
         const response = await requestJson(createRouteApp({ authentication: true }), "/application-directory-static/applications/1217877285923979415");
@@ -304,6 +330,218 @@ describe("GET /application-directory-static/applications/{application_id}", () =
         const contractEntry = contracts.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);
         assert.equal(contractEntry?.authMode, "public");
         assert.deepEqual(contractEntry?.routeMetadata?.responses, ["APIErrorResponse", "ApplicationDirectoryApplication"]);
+        assert.deepEqual(contractEntry?.routeMetadata?.responseStatuses, [200, 404]);
+    });
+});
+
+describe("GET /application-directory-static/applications/{application_id}/similar", () => {
+    test("declares the assigned manifest route id and public auth boundary", async () => {
+        assert.deepEqual(coveredSimilarManifestIds, ["api:http:GET:/application-directory-static/applications/:application_id/similar"]);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/1217877285923979415/similar?guild_id=651719864473485313"), true);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/application-directory-static/applications/1217877285923979415/similar/"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v10/application-directory-static/applications/1217877285923979415/similar"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/1217877285923979415/similar/extra"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory/applications/1217877285923979415/embed"), false);
+
+        const response = await requestJson(
+            createRouteApp({
+                authentication: true,
+                applicationProvider: () => sampleApplication(),
+            }),
+            "/application-directory-static/applications/1217877285923979415/similar",
+        );
+
+        assert.equal(response.status, 200);
+        assert.equal(response.headers.get("cache-control"), APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL);
+        assert.deepEqual(response.body, getApplicationDirectorySimilarApplications("1217877285923979415"));
+    });
+
+    test("parses documented query fields and returns provider-backed similar applications", async () => {
+        const similarResponse = sampleSimilarResponse();
+        let receivedLookupApplicationId: string | undefined;
+        let receivedLookupOptions: ApplicationDirectoryApplicationQueryOptions | undefined;
+        let receivedSimilarApplicationId: string | undefined;
+        let receivedSimilarOptions: ApplicationDirectorySimilarApplicationsQueryOptions | undefined;
+        const app = createRouteApp({
+            applicationProvider: (applicationId, options) => {
+                receivedLookupApplicationId = applicationId;
+                receivedLookupOptions = options;
+                return sampleApplication();
+            },
+            similarApplicationsProvider: (applicationId, options) => {
+                receivedSimilarApplicationId = applicationId;
+                receivedSimilarOptions = options;
+                return similarResponse;
+            },
+        });
+
+        const response = await requestJson(app, "/application-directory-static/applications/1217877285923979415/similar?guild_id=651719864473485313&page=3&locale=de");
+
+        assert.equal(response.status, 200);
+        assert.equal(response.headers.get("cache-control"), APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL);
+        assert.equal(receivedLookupApplicationId, "1217877285923979415");
+        assert.deepEqual(receivedLookupOptions, {
+            locale: "de",
+            nocache: undefined,
+            with_localizations: undefined,
+        });
+        assert.equal(receivedSimilarApplicationId, "1217877285923979415");
+        assert.deepEqual(receivedSimilarOptions, {
+            guild_id: "651719864473485313",
+            page: 3,
+            locale: "de",
+        });
+        assert.deepEqual(response.body, similarResponse);
+    });
+
+    test("returns unknown application before similar lookup when the target is not source-backed", async () => {
+        let similarLookupCalled = false;
+        assert.deepEqual(getApplicationDirectorySimilarApplications("1217877285923979415"), {
+            applications: [],
+            num_pages: 0,
+            load_id: APPLICATION_DIRECTORY_STATIC_EMPTY_SIMILAR_LOAD_ID,
+        });
+        assert.deepEqual(
+            parseApplicationDirectorySimilarApplicationsQuery({
+                guild_id: ["651719864473485313", "999"],
+                page: "1001",
+                locale: "",
+            } as never),
+            {
+                guild_id: "651719864473485313",
+                page: 1,
+                locale: undefined,
+            },
+        );
+
+        const response = await requestJson(
+            createRouteApp({
+                applicationProvider: () => undefined,
+                similarApplicationsProvider: () => {
+                    similarLookupCalled = true;
+                    return sampleSimilarResponse();
+                },
+            }),
+            "/application-directory-static/applications/not-a-directory-application/similar",
+        );
+
+        assert.equal(response.status, 404);
+        assert.deepEqual(response.body, {
+            code: DiscordApiErrors.UNKNOWN_APPLICATION.code,
+            message: DiscordApiErrors.UNKNOWN_APPLICATION.message,
+        });
+        assert.equal(similarLookupCalled, false);
+    });
+
+    test("allows Express HEAD handling for the public GET route", async () => {
+        const response = await requestJson(
+            createRouteApp({
+                applicationProvider: () => sampleApplication(),
+            }),
+            "/application-directory-static/applications/1217877285923979415/similar",
+            { method: "HEAD" },
+        );
+
+        assert.equal(response.status, 200);
+        assert.equal(response.headers.get("cache-control"), APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL);
+        assert.equal(response.body, undefined);
+    });
+
+    test("declares public generated metadata and the response schema", () => {
+        const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonSchema>;
+        const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
+            paths?: Record<
+                string,
+                {
+                    get?: {
+                        parameters?: { name?: string; in?: string; schema?: JsonSchema }[];
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                        security?: unknown;
+                    };
+                }
+            >;
+        };
+        const manifest = JSON.parse(readFileSync(join(process.cwd(), "assets", "testing-manifest.json"), "utf8")) as {
+            entries?: {
+                id?: string;
+                authMode?: string;
+                sourceFile?: string;
+                routeMetadata?: {
+                    hasQuery?: boolean;
+                    responseBodies?: string[];
+                    responseStatuses?: number[];
+                };
+            }[];
+        };
+        const catalog = JSON.parse(readFileSync(join(process.cwd(), "packages", "automatic-reverse-engineering", "data", "catalogs", "routes.source.catalog.json"), "utf8")) as {
+            method?: string;
+            response_schema_refs?: string[];
+            route?: string;
+            route_name?: string;
+            source?: string;
+        }[];
+        const missingRoutes = JSON.parse(readFileSync(join(process.cwd(), "packages", "missing-routes", "missing.json"), "utf8")) as {
+            missing_entries?: { method?: string; route?: string }[];
+        };
+        const contracts = JSON.parse(readFileSync(join(process.cwd(), "test", "generated", "http-contracts.json"), "utf8")) as {
+            contracts?: {
+                authMode?: string;
+                manifestId?: string;
+                routeMetadata?: {
+                    responses?: string[];
+                    responseStatuses?: number[];
+                };
+            }[];
+        };
+        const ajv = new Ajv({ schemas: Object.entries(schemas).map(([key, schema]) => ({ ...schema, $id: key })) });
+        const validate = ajv.compile({ ...schemas.ApplicationDirectorySimilarApplicationsResponse, definitions: schemas });
+
+        assert.equal(validate(sampleSimilarResponse()), true);
+        assert.equal(validate({ applications: [], load_id: "application_directory_similar/incomplete" }), false);
+        assert.deepEqual(schemas.ApplicationDirectorySimilarApplicationsResponse.required, ["applications", "load_id", "num_pages"]);
+        assert.equal(schemas.ApplicationDirectorySimilarApplicationsResponse.properties?.applications?.items?.$ref, "#/definitions/ApplicationDirectoryApplication");
+
+        const route = openapi.paths?.["/application-directory-static/applications/{application_id}/similar"]?.get;
+        assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/ApplicationDirectorySimilarApplicationsResponse");
+        assert.equal(route?.responses?.["401"], undefined);
+        assert.equal(route?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(route?.security, undefined);
+        assert.equal(
+            route?.parameters?.some((parameter) => parameter.name === "guild_id" && parameter.in === "query" && parameter.schema?.type === "string"),
+            true,
+        );
+        assert.equal(
+            route?.parameters?.some((parameter) => parameter.name === "page" && parameter.in === "query" && parameter.schema?.type === "integer"),
+            true,
+        );
+        assert.equal(
+            route?.parameters?.some((parameter) => parameter.name === "locale" && parameter.in === "query" && parameter.schema?.type === "string"),
+            true,
+        );
+
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredSimilarManifestIds[0]);
+        assert.equal(manifestEntry?.authMode, "public");
+        assert.equal(manifestEntry?.sourceFile, "src/api/routes/application-directory-static.ts");
+        assert.equal(manifestEntry?.routeMetadata?.hasQuery, true);
+        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse", "ApplicationDirectorySimilarApplicationsResponse"]);
+        assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [200, 404]);
+
+        const catalogEntry = catalog.find((entry) => entry.method === "GET" && entry.route === "/application-directory-static/applications/{application_id}/similar");
+        assert.equal(catalogEntry?.route_name, "GET_APPLICATION_DIRECTORY_STATIC_APPLICATIONS_APPLICATION_ID_SIMILAR");
+        assert.equal(catalogEntry?.source, "src/api/routes/application-directory-static.ts");
+        assert.deepEqual(catalogEntry?.response_schema_refs, ["APIErrorResponse", "ApplicationDirectorySimilarApplicationsResponse"]);
+        assert.equal(
+            missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/application-directory-static/applications/{param}/similar"),
+            false,
+        );
+        assert.equal(
+            missingRoutes.missing_entries?.some((entry) => entry.route === "/application-directory/applications/{param}/embed"),
+            true,
+        );
+
+        const contractEntry = contracts.contracts?.find((entry) => entry.manifestId === coveredSimilarManifestIds[0]);
+        assert.equal(contractEntry?.authMode, "public");
+        assert.deepEqual(contractEntry?.routeMetadata?.responses, ["APIErrorResponse", "ApplicationDirectorySimilarApplicationsResponse"]);
         assert.deepEqual(contractEntry?.routeMetadata?.responseStatuses, [200, 404]);
     });
 });

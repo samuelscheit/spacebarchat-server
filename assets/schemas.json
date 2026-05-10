@@ -3005,6 +3005,30 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationDirectorySimilarApplicationsResponse": {
+        "type": "object",
+        "properties": {
+            "applications": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationDirectoryApplication"
+                }
+            },
+            "num_pages": {
+                "type": "integer"
+            },
+            "load_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "applications",
+            "load_id",
+            "num_pages"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PartialApplicationIdentityResponse": {
         "type": "object",
         "properties": {

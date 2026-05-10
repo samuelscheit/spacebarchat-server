@@ -41,6 +41,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /application-directory-static/categories",
     "GET /application-directory-static/collections",
     /^(GET|HEAD) \/application-directory-static\/applications\/[^/]+\/?$/,
+    /^(GET|HEAD) \/application-directory-static\/applications\/[^/]+\/similar\/?$/,
     "GET /application-directory-static/search",
     "GET /ping",
     "GET /gateway",
