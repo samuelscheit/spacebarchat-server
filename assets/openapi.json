@@ -31930,6 +31930,42 @@
                 ]
             }
         },
+        "/users/@me/pomelo-suggestions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a suggested unique username string based on the current user's username.",
+                "summary": "Get Unique Username Suggestions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UniqueUsernameSuggestionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/notification-center/items/": {
             "get": {
                 "security": [

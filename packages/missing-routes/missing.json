@@ -1,6 +1,6 @@
 {
-    "missing": 727,
-    "spacebar": 453,
+    "missing": 726,
+    "spacebar": 454,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -522,7 +522,6 @@
         "/users/@me/phone/verify",
         "/users/@me/pomelo",
         "/users/@me/pomelo-attempt",
-        "/users/@me/pomelo-suggestions",
         "/users/@me/premium-usage",
         "/users/@me/profile",
         "/users/@me/referrals/eligibility",
@@ -2786,13 +2785,6 @@
             "route_name": "GET_USERS__ME_OUTBOUND_PROMOTIONS_CODES",
             "sources": ["userdoccers:resources/promotion.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Claimed Promotions"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/pomelo-suggestions",
-            "route_name": "GET_USERS__ME_POMELO_SUGGESTIONS",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Unique Username Suggestions"]
         },
         {
             "method": "GET",

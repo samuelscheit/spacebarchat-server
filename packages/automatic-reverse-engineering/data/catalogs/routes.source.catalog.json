@@ -3961,6 +3961,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"UniqueUsernameSuggestionResponse"
+		],
+		"route": "/users/@me/pomelo-suggestions",
+		"route_name": "GET_USERS__ME_POMELO_SUGGESTIONS",
+		"source": "src/api/routes/users/@me/pomelo-suggestions.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"UserRelationshipsResponse"
 		],
 		"route": "/users/@me/relationships",
