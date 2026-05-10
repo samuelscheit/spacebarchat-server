@@ -1,6 +1,6 @@
 {
-    "missing": 800,
-    "spacebar": 380,
+    "missing": 799,
+    "spacebar": 381,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -99,7 +99,6 @@
         "/channels/{param}/add-safety-warning",
         "/channels/{param}/application-command-index",
         "/channels/{param}/application-commands/search",
-        "/channels/{param}/call/stop-ringing",
         "/channels/{param}/custom-call-sounds",
         "/channels/{param}/directory-entries/counts",
         "/channels/{param}/directory-entries/list",
@@ -4148,14 +4147,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/add-safety-warning"],
             "summaries": ["Add Safety Warning"]
-        },
-        {
-            "method": "POST",
-            "route": "/channels/{param}/call/stop-ringing",
-            "route_name": "POST_CHANNELS_CHANNEL_ID_CALL_STOP_RINGING",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/call/stop-ringing"],
-            "summaries": ["Stop Ringing Channel Recipients"]
         },
         {
             "method": "POST",

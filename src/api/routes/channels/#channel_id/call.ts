@@ -18,7 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Channel, DiscordApiErrors, VoiceState, type Recipient } from "@spacebar/util";
-import { ChannelType, type ChannelCallEligibilityResponse, type ChannelCallModifySchema, type ChannelCallRingSchema } from "@spacebar/schemas";
+import { ChannelType, type ChannelCallEligibilityResponse, type ChannelCallModifySchema, type ChannelCallRingSchema, type ChannelCallStopRingingSchema } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 
@@ -85,6 +85,35 @@ async function ringChannelCall(channel: CallEligibilityChannel, requesterId: str
     if (!activeVoiceStates || recipientIds.length === 0) return;
 
     throw new HTTPError("Call ringing is not supported", 501);
+}
+
+function resolveChannelCallStopRingingRecipients(channel: CallEligibilityChannel, requesterId: string, payload: ChannelCallStopRingingSchema): string[] {
+    resolveChannelCallEligibility(channel, requesterId);
+
+    const recipients = channel.recipients ?? [];
+    const recipientIds = new Set(recipients.map((recipient) => recipient.user_id));
+    const requestedRecipients = payload.recipients;
+
+    if (requestedRecipients === undefined || requestedRecipients === null) {
+        return [requesterId];
+    }
+
+    if (requestedRecipients.some((recipientId) => !recipientIds.has(recipientId))) {
+        throw DiscordApiErrors.MISSING_PERMISSIONS;
+    }
+
+    return [...new Set(requestedRecipients)];
+}
+
+async function stopRingingChannelCall(channel: CallEligibilityChannel, requesterId: string, payload: ChannelCallStopRingingSchema): Promise<void> {
+    const recipientIds = resolveChannelCallStopRingingRecipients(channel, requesterId, payload);
+
+    const activeVoiceStates = await VoiceState.count({
+        where: { channel_id: channel.id },
+    });
+    if (!activeVoiceStates || recipientIds.length === 0) return;
+
+    throw new HTTPError("Call stop-ringing is not supported", 501);
 }
 
 router.get(
@@ -196,6 +225,47 @@ router.post(
         });
 
         await ringChannelCall(channel, req.user_id, (req.body ?? {}) as ChannelCallRingSchema);
+        return res.sendStatus(204);
+    },
+);
+
+router.post(
+    "/stop-ringing",
+    route({
+        requestBody: {
+            schema: "ChannelCallStopRingingSchema",
+            required: false,
+        },
+        coerceRequestBody: false,
+        summary: "Stop Ringing Channel Recipients",
+        description: "Stops ringing the recipients of a private channel.",
+        responses: {
+            204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
+        const channel = await Channel.findOneOrFail({
+            where: { id: channel_id },
+            relations: { recipients: true },
+        });
+
+        await stopRingingChannelCall(channel, req.user_id, (req.body ?? {}) as ChannelCallStopRingingSchema);
         return res.sendStatus(204);
     },
 );

@@ -1433,6 +1433,26 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ChannelCallStopRingingSchema": {
+        "type": "object",
+        "properties": {
+            "recipients": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ChannelSafetyWarningsAckSchema": {
         "type": "object",
         "properties": {

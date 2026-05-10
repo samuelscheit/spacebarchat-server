@@ -601,6 +601,15 @@
 		"source": "src/api/routes/channels/#channel_id/call.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/call/stop-ringing",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_CALL_STOP_RINGING",
+		"source": "src/api/routes/channels/#channel_id/call.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

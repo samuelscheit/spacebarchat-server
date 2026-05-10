@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 460,
+        "totalContracts": 461,
         "byService": {
-            "api": 387,
+            "api": 388,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 332,
-        "runtimeMalformedAuthContracts": 332,
-        "runtimeRevokedSessionAuthContracts": 332,
-        "runtimeStaleTokenAuthContracts": 332,
+        "runtimeAuthBoundaryContracts": 333,
+        "runtimeMalformedAuthContracts": 333,
+        "runtimeRevokedSessionAuthContracts": 333,
+        "runtimeStaleTokenAuthContracts": 333,
         "runtimePublicAuthBoundaryContracts": 47,
         "runtimePublicInvalidBodyContracts": 15,
-        "runtimeProtectedInvalidBodyContracts": 59,
+        "runtimeProtectedInvalidBodyContracts": 60,
         "runtimePublicResponseSchemaContracts": 9,
         "runtimeAuthenticatedResponseSchemaContracts": 20,
         "runtimeRightOnlyDenialContracts": 10,
@@ -22,7 +22,7 @@
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 165,
+        "runtimeRateLimitHeaderContracts": 166,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -3371,7 +3371,7 @@
             "path": "/channels/:channel_id/call/",
             "samplePath": "/channels/100000000000000002/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 90,
+            "line": 125,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -3441,7 +3441,7 @@
             "path": "/channels/:channel_id/call/",
             "samplePath": "/channels/100000000000000002/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 124,
+            "line": 159,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -3513,7 +3513,7 @@
             "path": "/channels/:channel_id/call/ring",
             "samplePath": "/channels/100000000000000002/call/ring",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 162,
+            "line": 197,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -3552,6 +3552,78 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "{\n            schema: \"ChannelCallRingSchema\",\n            required: false,\n        }"
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "channel",
+                        "configPath": "limits.rate.routes.channel",
+                        "pathPrefix": "/channels/:channel_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 220
+                    }
+                },
+                {
+                    "id": "policy-permission-denied",
+                    "checks": ["permission-denied"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/channels/:channel_id/call/stop-ringing",
+            "service": "api",
+            "method": "POST",
+            "path": "/channels/:channel_id/call/stop-ringing",
+            "samplePath": "/channels/100000000000000002/call/stop-ringing",
+            "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
+            "line": 238,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "channels", "messages", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "routeMetadata": {
+                "requestBody": "{\n            schema: \"ChannelCallStopRingingSchema\",\n            required: false,\n        }",
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [204, 400, 401, 403, 404, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "{\n            schema: \"ChannelCallStopRingingSchema\",\n            required: false,\n        }"
                 },
                 {
                     "id": "rate-limit-headers",
