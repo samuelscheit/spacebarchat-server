@@ -1401,6 +1401,23 @@
                     }
                 }
             },
+            "ChannelSafetyWarningsAckSchema": {
+                "type": "object",
+                "properties": {
+                    "warning_ids": {
+                        "minItems": 1,
+                        "maxItems": 100,
+                        "items": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "warning_ids"
+                ]
+            },
             "CodesVerificationSchema": {
                 "type": "object",
                 "properties": {
@@ -39420,6 +39437,87 @@
                 ],
                 "description": "Deletes all safety warnings for a DM channel when safety-warning persistence is available.",
                 "summary": "Delete Safety Warnings",
+                "responses": {
+                    "200": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/safety-warnings/ack": {
+            "post": {
+                "x-fires-event": "CHANNEL_UPDATE",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Dismisses selected safety warnings for a DM channel when safety-warning persistence is available.",
+                "summary": "Acknowledge Safety Warnings",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChannelSafetyWarningsAckSchema"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "No description available"

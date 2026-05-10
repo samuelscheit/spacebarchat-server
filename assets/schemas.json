@@ -1433,6 +1433,25 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ChannelSafetyWarningsAckSchema": {
+        "type": "object",
+        "properties": {
+            "warning_ids": {
+                "minItems": 1,
+                "maxItems": 100,
+                "items": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "type": "array"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "warning_ids"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CodesVerificationSchema": {
         "type": "object",
         "properties": {

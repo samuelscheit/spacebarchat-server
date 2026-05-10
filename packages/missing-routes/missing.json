@@ -1,6 +1,6 @@
 {
-    "missing": 803,
-    "spacebar": 377,
+    "missing": 802,
+    "spacebar": 378,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -122,7 +122,6 @@
         "/channels/{param}/polls/{param}/expire",
         "/channels/{param}/recipients/@me",
         "/channels/{param}/safety-warning/report-false-positive",
-        "/channels/{param}/safety-warnings/ack",
         "/channels/{param}/send-soundboard-sound",
         "/channels/{param}/store-listing",
         "/channels/{param}/store-listing/entitlement-grant",
@@ -4230,14 +4229,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/safety-warning/report-false-positive"],
             "summaries": ["Report Safety Warning False Positive"]
-        },
-        {
-            "method": "POST",
-            "route": "/channels/{param}/safety-warnings/ack",
-            "route_name": "POST_CHANNELS_CHANNEL_ID_SAFETY_WARNINGS_ACK",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/safety-warnings/ack"],
-            "summaries": ["Acknowledge Safety Warnings"]
         },
         {
             "method": "POST",

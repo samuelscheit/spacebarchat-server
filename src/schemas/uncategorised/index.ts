@@ -33,6 +33,7 @@ export * from "./ChannelPermissionOverwriteSchema";
 export * from "./ChannelReorderSchema";
 export * from "./ChannelCallModifySchema";
 export * from "./ChannelCallRingSchema";
+export * from "./ChannelSafetyWarningsAckSchema";
 export * from "./CodesVerificationSchema";
 export * from "./ConnectedAccountSchema";
 export * from "./ConnectionCallbackSchema";

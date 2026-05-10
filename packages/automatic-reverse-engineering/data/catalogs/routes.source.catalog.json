@@ -1001,6 +1001,16 @@
 		"source": "src/api/routes/channels/#channel_id/safety-warnings.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "ChannelSafetyWarningsAckSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/safety-warnings/ack",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_SAFETY_WARNINGS_ACK",
+		"source": "src/api/routes/channels/#channel_id/safety-warnings.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 482,
+        "totalEntries": 483,
         "byService": {
-            "api": 385,
+            "api": 386,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 457,
+            "http-route": 458,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 78,
-            "stateful-domain": 267,
+            "stateful-domain": 268,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 13,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 345,
+            "route-class": 346,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2607,7 +2607,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 95,
+            "line": 90,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2659,7 +2659,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/call/",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 129,
+            "line": 124,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -2712,7 +2712,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/call/ring",
             "sourceFile": "src/api/routes/channels/#channel_id/call.ts",
-            "line": 167,
+            "line": 162,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5034,11 +5034,67 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/safety-warnings/",
             "sourceFile": "src/api/routes/channels/#channel_id/safety-warnings.ts",
-            "line": 44,
+            "line": 57,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "right": "OPERATOR",
+                "event": "CHANNEL_UPDATE",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/channels/:channel_id/safety-warnings/ack",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/channels/:channel_id/safety-warnings/ack",
+            "sourceFile": "src/api/routes/channels/#channel_id/safety-warnings.ts",
+            "line": 106,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "ChannelSafetyWarningsAckSchema",
                 "event": "CHANNEL_UPDATE",
                 "responseBodies": [
                     "APIErrorResponse"

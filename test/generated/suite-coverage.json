@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 412,
+        "totalCoveredManifestEntries": 413,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 390,
-                "totalCoveredManifestEntries": 390,
-                "totalCoveredRequiredManifestEntries": 390,
+                "totalRequiredManifestEntries": 391,
+                "totalCoveredManifestEntries": 391,
+                "totalCoveredRequiredManifestEntries": 391,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 267,
+            "stateful-domain": 268,
             "integration": 13,
             "contract": 19,
             "auth-scenario": 16,
@@ -65,9 +65,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 390,
-                "totalCoveredManifestEntries": 390,
-                "totalCoveredRequiredManifestEntries": 390,
+                "totalRequiredManifestEntries": 391,
+                "totalCoveredManifestEntries": 391,
+                "totalCoveredRequiredManifestEntries": 391,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -327,6 +327,7 @@
                 "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
                 "api:http:POST:/channels/:channel_id/post-data/",
                 "api:http:POST:/channels/:channel_id/purge/",
+                "api:http:POST:/channels/:channel_id/safety-warnings/ack",
                 "api:http:POST:/channels/:channel_id/tags/",
                 "api:http:POST:/channels/:channel_id/thread-members/:user_id",
                 "api:http:POST:/channels/:channel_id/threads/",
@@ -719,6 +720,7 @@
                 "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
                 "api:http:POST:/channels/:channel_id/post-data/",
                 "api:http:POST:/channels/:channel_id/purge/",
+                "api:http:POST:/channels/:channel_id/safety-warnings/ack",
                 "api:http:POST:/channels/:channel_id/tags/",
                 "api:http:POST:/channels/:channel_id/thread-members/:user_id",
                 "api:http:POST:/channels/:channel_id/threads/",
@@ -1166,6 +1168,7 @@
                         "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
                         "api:http:POST:/channels/:channel_id/post-data/",
                         "api:http:POST:/channels/:channel_id/purge/",
+                        "api:http:POST:/channels/:channel_id/safety-warnings/ack",
                         "api:http:POST:/channels/:channel_id/tags/",
                         "api:http:POST:/channels/:channel_id/thread-members/:user_id",
                         "api:http:POST:/channels/:channel_id/threads/",
