@@ -1,5 +1,6 @@
 import { HTTPError } from "lambert-server";
 import { WebhookType } from "../../../schemas/api/channels/Webhook";
+import type { ChannelFollowerStatsResponse } from "../../../schemas/responses/ChannelFollowerStatsResponse";
 
 export enum ChannelFollowerChannelType {
     GuildText = 0,
@@ -45,12 +46,23 @@ export type FollowAnnouncementChannelOptions = {
     createWebhook: (payload: ChannelFollowerWebhook) => Promise<CreatedChannelFollowerWebhook>;
 };
 
+export type ChannelFollowerStatsWebhook = {
+    channel_id?: string | null;
+    guild_id?: string | null;
+};
+
 export function validateChannelFollowerChannels(source: ChannelFollowerChannel, target: ChannelFollowerChannel) {
     if (source.type !== ChannelFollowerChannelType.GuildNews || !source.guild_id) {
         throw new HTTPError("Cannot execute action on this channel type", 400);
     }
 
     if ((target.type !== ChannelFollowerChannelType.GuildText && target.type !== ChannelFollowerChannelType.GuildNews) || !target.guild_id) {
+        throw new HTTPError("Cannot execute action on this channel type", 400);
+    }
+}
+
+export function assertChannelSupportsFollowerStats(channel: ChannelFollowerChannel) {
+    if (channel.type !== ChannelFollowerChannelType.GuildNews || !channel.guild_id) {
         throw new HTTPError("Cannot execute action on this channel type", 400);
     }
 }
@@ -94,6 +106,30 @@ export function createFollowedChannelResponse(channelId: string, webhookId: stri
     return {
         channel_id: channelId,
         webhook_id: webhookId,
+    };
+}
+
+function countUniqueDefined(values: Iterable<string | null | undefined>) {
+    const ids = new Set<string>();
+    for (const value of values) {
+        if (value) ids.add(value);
+    }
+
+    return ids.size;
+}
+
+export function getChannelFollowerStatsGuildIds(webhooks: ChannelFollowerStatsWebhook[]) {
+    return [...new Set(webhooks.map((webhook) => webhook.guild_id).filter((guildId): guildId is string => Boolean(guildId)))];
+}
+
+export function createChannelFollowerStatsResponse(webhooks: ChannelFollowerStatsWebhook[], guildMembers: number): ChannelFollowerStatsResponse {
+    return {
+        channels_following: countUniqueDefined(webhooks.map((webhook) => webhook.channel_id)),
+        guild_members: guildMembers,
+        guilds_following: countUniqueDefined(webhooks.map((webhook) => webhook.guild_id)),
+        users_seen_ever: 0,
+        subscribers_gained_since_last_post: 0,
+        subscribers_lost_since_last_post: 0,
     };
 }
 

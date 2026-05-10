@@ -502,6 +502,16 @@
 		"source": "src/api/routes/channels/#channel_id/directory-entry.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ChannelFollowerStatsResponse"
+		],
+		"route": "/channels/{channel_id}/follower-stats",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_FOLLOWER_STATS",
+		"source": "src/api/routes/channels/#channel_id/follower-stats.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [
 			"APIErrorResponse"

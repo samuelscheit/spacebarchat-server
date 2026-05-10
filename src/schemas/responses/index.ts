@@ -26,6 +26,7 @@ export * from "./BackupCodesChallengeResponse";
 export * from "./BillingLocationInfoResponse";
 export * from "./BillingSubscriptionsResponse";
 export * from "./CaptchaRequiredResponse";
+export * from "./ChannelFollowerStatsResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";

@@ -2355,6 +2355,37 @@
                 "type": "array",
                 "items": {}
             },
+            "ChannelFollowerStatsResponse": {
+                "type": "object",
+                "properties": {
+                    "channels_following": {
+                        "type": "integer"
+                    },
+                    "guild_members": {
+                        "type": "integer"
+                    },
+                    "guilds_following": {
+                        "type": "integer"
+                    },
+                    "users_seen_ever": {
+                        "type": "integer"
+                    },
+                    "subscribers_gained_since_last_post": {
+                        "type": "integer"
+                    },
+                    "subscribers_lost_since_last_post": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "channels_following",
+                    "guild_members",
+                    "guilds_following",
+                    "subscribers_gained_since_last_post",
+                    "subscribers_lost_since_last_post",
+                    "users_seen_ever"
+                ]
+            },
             "CollectiblesCategoriesResponse": {
                 "type": "array",
                 "items": {
@@ -38859,6 +38890,82 @@
                     },
                     "403": {
                         "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/follower-stats/": {
+            "get": {
+                "x-permission-required": "VIEW_CHANNEL",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChannelFollowerStatsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

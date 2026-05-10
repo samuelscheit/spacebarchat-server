@@ -2,12 +2,15 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { WebhookType } from "../../../schemas/api/channels/Webhook";
 import {
+    assertChannelSupportsFollowerStats,
     assertChannelFollowerWebhookLimit,
     ChannelFollowerChannelType,
     ChannelFollowerWebhook,
     ChannelFollowerPermissionResolver,
+    createChannelFollowerStatsResponse,
     createChannelFollowerWebhookPayload,
     createFollowedChannelResponse,
+    getChannelFollowerStatsGuildIds,
     followAnnouncementChannel,
     validateChannelFollowerChannels,
 } from "./ChannelFollowers";
@@ -62,6 +65,12 @@ describe("ChannelFollowers", () => {
         assert.throws(() => validateChannelFollowerChannels(source, { ...target, type: ChannelFollowerChannelType.GuildVoice }));
     });
 
+    test("accepts follower stats only for announcement source channels", () => {
+        assert.equal(assertChannelSupportsFollowerStats(source), undefined);
+        assert.throws(() => assertChannelSupportsFollowerStats({ ...source, type: ChannelFollowerChannelType.GuildText }));
+        assert.throws(() => assertChannelSupportsFollowerStats({ ...source, guild_id: null }));
+    });
+
     test("enforces destination webhook limit", () => {
         assert.equal(assertChannelFollowerWebhookLimit(9, 10), undefined);
         assert.throws(() => assertChannelFollowerWebhookLimit(10, 10));
@@ -83,6 +92,26 @@ describe("ChannelFollowers", () => {
         assert.deepEqual(createFollowedChannelResponse("target-channel", "webhook-id"), {
             channel_id: "target-channel",
             webhook_id: "webhook-id",
+        });
+    });
+
+    test("builds follower stats from known follower webhooks and zeroes unsupported history metrics", () => {
+        const followerWebhooks = [
+            { channel_id: "target-channel-a", guild_id: "target-guild-a" },
+            { channel_id: "target-channel-a", guild_id: "target-guild-a" },
+            { channel_id: "target-channel-b", guild_id: "target-guild-a" },
+            { channel_id: "target-channel-c", guild_id: "target-guild-b" },
+            { channel_id: null, guild_id: null },
+        ];
+
+        assert.deepEqual(getChannelFollowerStatsGuildIds(followerWebhooks), ["target-guild-a", "target-guild-b"]);
+        assert.deepEqual(createChannelFollowerStatsResponse(followerWebhooks, 123), {
+            channels_following: 3,
+            guild_members: 123,
+            guilds_following: 2,
+            users_seen_ever: 0,
+            subscribers_gained_since_last_post: 0,
+            subscribers_lost_since_last_post: 0,
         });
     });
 

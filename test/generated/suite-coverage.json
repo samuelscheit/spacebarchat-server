@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 395,
+        "totalCoveredManifestEntries": 396,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 373,
-                "totalCoveredManifestEntries": 373,
-                "totalCoveredRequiredManifestEntries": 373,
+                "totalRequiredManifestEntries": 374,
+                "totalCoveredManifestEntries": 374,
+                "totalCoveredRequiredManifestEntries": 374,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 254,
+            "stateful-domain": 255,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 373,
-                "totalCoveredManifestEntries": 373,
-                "totalCoveredRequiredManifestEntries": 373,
+                "totalRequiredManifestEntries": 374,
+                "totalCoveredManifestEntries": 374,
+                "totalCoveredRequiredManifestEntries": 374,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -124,6 +124,7 @@
                 "api:http:GET:/channels/:channel_id/",
                 "api:http:GET:/channels/:channel_id/directory-entries/",
                 "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
+                "api:http:GET:/channels/:channel_id/follower-stats/",
                 "api:http:GET:/channels/:channel_id/invites/",
                 "api:http:GET:/channels/:channel_id/messages/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/",
@@ -499,6 +500,7 @@
                 "api:http:GET:/channels/:channel_id/",
                 "api:http:GET:/channels/:channel_id/directory-entries/",
                 "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
+                "api:http:GET:/channels/:channel_id/follower-stats/",
                 "api:http:GET:/channels/:channel_id/invites/",
                 "api:http:GET:/channels/:channel_id/messages/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/",
@@ -1092,6 +1094,7 @@
                         "api:http:GET:/channels/:channel_id/",
                         "api:http:GET:/channels/:channel_id/directory-entries/",
                         "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
+                        "api:http:GET:/channels/:channel_id/follower-stats/",
                         "api:http:GET:/channels/:channel_id/invites/",
                         "api:http:GET:/channels/:channel_id/messages/",
                         "api:http:GET:/channels/:channel_id/messages/:message_id/",

@@ -2447,6 +2447,39 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ChannelFollowerStatsResponse": {
+        "type": "object",
+        "properties": {
+            "channels_following": {
+                "type": "integer"
+            },
+            "guild_members": {
+                "type": "integer"
+            },
+            "guilds_following": {
+                "type": "integer"
+            },
+            "users_seen_ever": {
+                "type": "integer"
+            },
+            "subscribers_gained_since_last_post": {
+                "type": "integer"
+            },
+            "subscribers_lost_since_last_post": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channels_following",
+            "guild_members",
+            "guilds_following",
+            "subscribers_gained_since_last_post",
+            "subscribers_lost_since_last_post",
+            "users_seen_ever"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CollectiblesCategoriesResponse": {
         "type": "array",
         "items": {
