@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import { TeamMemberRole, TeamMemberState } from "../../../schemas/api/developers/Team";
 import { DiscordApiErrors } from "../../../util/util/Constants";
 import {
+    canAccessApplicationBranches,
     canAccessApplicationGiftCodeBatches,
     canManageApplicationCommands,
+    requireApplicationBranchAccess,
     requireApplicationCommandManagement,
     requireApplicationGiftCodeBatchAccess,
 } from "./ApplicationAuthorization";
@@ -275,6 +277,100 @@ describe("application gift code batch authorization", () => {
 
         await assert.rejects(
             () => requireApplicationGiftCodeBatchAccess("app", "attacker", repository),
+            (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
+        );
+    });
+});
+
+describe("application branch authorization", () => {
+    test("uses the same owner and accepted team-member access boundary as developer resources", () => {
+        assert.equal(canAccessApplicationBranches({ owner: { id: "owner" } }, "owner"), true);
+        assert.equal(
+            canAccessApplicationBranches(
+                {
+                    owner: { id: "owner" },
+                    team: {
+                        members: [
+                            {
+                                user_id: "member",
+                                membership_state: TeamMemberState.ACCEPTED,
+                                role: TeamMemberRole.READ_ONLY,
+                            },
+                        ],
+                    },
+                },
+                "member",
+            ),
+            true,
+        );
+    });
+
+    test("does not allow application bot users or invited team members", () => {
+        const application = {
+            owner: { id: "owner" },
+            bot: { id: "application" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                ],
+            },
+        };
+
+        assert.equal(canAccessApplicationBranches(application, "application"), false);
+        assert.equal(canAccessApplicationBranches(application, "invited"), false);
+    });
+
+    test("loads owner and team members before allowing branch access", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({
+                owner: { id: "owner" },
+                team: {
+                    members: [
+                        {
+                            user_id: "developer",
+                            membership_state: TeamMemberState.ACCEPTED,
+                            role: TeamMemberRole.DEVELOPER,
+                        },
+                    ],
+                },
+            })),
+        };
+
+        await requireApplicationBranchAccess("app", "developer", repository);
+
+        assert.deepEqual(repository.findOne.mock.calls[0].arguments[0], {
+            where: { id: "app" },
+            relations: {
+                owner: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+    });
+
+    test("throws unknown application for missing applications", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => null),
+        };
+
+        await assert.rejects(
+            () => requireApplicationBranchAccess("missing-app", "user", repository),
+            (error) => error === DiscordApiErrors.UNKNOWN_APPLICATION,
+        );
+    });
+
+    test("throws the application authorization error for unauthorized callers", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({ owner: { id: "owner" } })),
+        };
+
+        await assert.rejects(
+            () => requireApplicationBranchAccess("app", "attacker", repository),
             (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
         );
     });

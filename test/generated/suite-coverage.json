@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 394,
+        "totalCoveredManifestEntries": 395,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 372,
-                "totalCoveredManifestEntries": 372,
-                "totalCoveredRequiredManifestEntries": 372,
+                "totalRequiredManifestEntries": 373,
+                "totalCoveredManifestEntries": 373,
+                "totalCoveredRequiredManifestEntries": 373,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 253,
+            "stateful-domain": 254,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 372,
-                "totalCoveredManifestEntries": 372,
-                "totalCoveredRequiredManifestEntries": 372,
+                "totalRequiredManifestEntries": 373,
+                "totalCoveredManifestEntries": 373,
+                "totalCoveredRequiredManifestEntries": 373,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -107,6 +107,7 @@
                 "api:http:GET:/apex/experiments/",
                 "api:http:GET:/applications/",
                 "api:http:GET:/applications/:application_id/",
+                "api:http:GET:/applications/:application_id/branches/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
@@ -481,6 +482,7 @@
                 "api:http:GET:/apex/experiments/",
                 "api:http:GET:/applications/",
                 "api:http:GET:/applications/:application_id/",
+                "api:http:GET:/applications/:application_id/branches/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
@@ -1182,6 +1184,7 @@
                         "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:GET:/applications/",
                         "api:http:GET:/applications/:application_id/",
+                        "api:http:GET:/applications/:application_id/branches/",
                         "api:http:GET:/applications/:application_id/commands/",
                         "api:http:GET:/applications/:application_id/commands/:command_id/",
                         "api:http:GET:/applications/:application_id/entitlements/",

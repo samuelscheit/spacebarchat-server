@@ -1,6 +1,6 @@
 {
-    "missing": 844,
-    "spacebar": 336,
+    "missing": 843,
+    "spacebar": 337,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -1441,13 +1441,6 @@
             "sources": ["userdoccers:interactions/application-commands.mdx"],
             "source_routes": ["/applications/{application_id}/application-command-index"],
             "summaries": ["Get Application Command Index"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/branches",
-            "route_name": "APPLICATION_BRANCH_LIST",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/applications/{application_id}/branches"]
         },
         {
             "method": "GET",

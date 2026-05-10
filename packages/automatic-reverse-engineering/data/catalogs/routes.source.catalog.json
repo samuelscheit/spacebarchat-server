@@ -96,6 +96,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationBranchesResponse"
+		],
+		"route": "/applications/{application_id}/branches",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_BRANCHES",
+		"source": "src/api/routes/applications/#application_id/branches.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/applications/{application_id}/commands",
 		"route_name": "GET_APPLICATIONS_APPLICATION_ID_COMMANDS",
