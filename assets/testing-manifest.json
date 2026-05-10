@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 435,
+        "totalEntries": 438,
         "byService": {
-            "api": 338,
+            "api": 341,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 410,
+            "http-route": 413,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 53,
-            "stateful-domain": 247,
+            "stateful-domain": 250,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 298,
+            "route-class": 301,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -6023,7 +6023,7 @@
             "method": "DELETE",
             "path": "/guilds/:guild_id/auto-moderation/rules/:rule_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/auto-moderation/rules.ts",
-            "line": 129,
+            "line": 155,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -6069,13 +6069,66 @@
             }
         },
         {
+            "id": "api:http:GET:/guilds/:guild_id/auto-moderation/rules/:rule_id",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/auto-moderation/rules/:rule_id",
+            "sourceFile": "src/api/routes/guilds/#guild_id/auto-moderation/rules.ts",
+            "line": 98,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": [
+                    "MANAGE_GUILD"
+                ],
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "AutomodRuleResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "coverage": {
+                "policyId": "api-guild-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "members",
+                    "roles",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:PATCH:/guilds/:guild_id/auto-moderation/rules/:rule_id",
             "type": "http-route",
             "service": "api",
             "method": "PATCH",
             "path": "/guilds/:guild_id/auto-moderation/rules/:rule_id",
             "sourceFile": "src/api/routes/guilds/#guild_id/auto-moderation/rules.ts",
-            "line": 98,
+            "line": 124,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -11815,6 +11868,38 @@
             }
         },
         {
+            "id": "api:http:GET:/users/@me/affinities/channels/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/affinities/channels/",
+            "sourceFile": "src/api/routes/users/@me/affinities/channels.ts",
+            "line": 24,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/affinities/guilds/",
             "type": "http-route",
             "service": "api",
@@ -11894,6 +11979,45 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/users/@me/avatars/:avatar_id",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/users/@me/avatars/:avatar_id",
+            "sourceFile": "src/api/routes/users/@me/avatars.ts",
+            "line": 50,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    404
                 ],
                 "hasQuery": false
             },

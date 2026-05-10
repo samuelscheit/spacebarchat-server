@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 388,
+        "totalCoveredManifestEntries": 391,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 366,
-                "totalCoveredManifestEntries": 366,
-                "totalCoveredRequiredManifestEntries": 366,
+                "totalRequiredManifestEntries": 369,
+                "totalCoveredManifestEntries": 369,
+                "totalCoveredRequiredManifestEntries": 369,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 247,
+            "stateful-domain": 250,
             "contract": 17,
             "auth-scenario": 16,
             "integration": 11,
@@ -63,9 +63,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 366,
-                "totalCoveredManifestEntries": 366,
-                "totalCoveredRequiredManifestEntries": 366,
+                "totalRequiredManifestEntries": 369,
+                "totalCoveredManifestEntries": 369,
+                "totalCoveredRequiredManifestEntries": 369,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -95,6 +95,7 @@
                 "api:http:DELETE:/guilds/:guild_id/roles/:role_id/",
                 "api:http:DELETE:/guilds/:guild_id/stickers/:sticker_id",
                 "api:http:DELETE:/guilds/:guild_id/templates/:code",
+                "api:http:DELETE:/users/@me/avatars/:avatar_id",
                 "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                 "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
                 "api:http:DELETE:/users/@me/guilds/:guild_id",
@@ -151,6 +152,7 @@
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
                 "api:http:GET:/guilds/:guild_id/audit-logs/",
                 "api:http:GET:/guilds/:guild_id/auto-moderation/rules/",
+                "api:http:GET:/guilds/:guild_id/auto-moderation/rules/:rule_id",
                 "api:http:GET:/guilds/:guild_id/bans/",
                 "api:http:GET:/guilds/:guild_id/bans/:user_id",
                 "api:http:GET:/guilds/:guild_id/bans/search",
@@ -201,6 +203,7 @@
                 "api:http:GET:/users/:user_id/relationships/",
                 "api:http:GET:/users/@me/",
                 "api:http:GET:/users/@me/activities/statistics/applications/",
+                "api:http:GET:/users/@me/affinities/channels/",
                 "api:http:GET:/users/@me/affinities/guilds/",
                 "api:http:GET:/users/@me/affinities/users/",
                 "api:http:GET:/users/@me/applications/:application_id/entitlements/",
@@ -463,6 +466,7 @@
                 "api:http:DELETE:/guilds/:guild_id/roles/:role_id/",
                 "api:http:DELETE:/guilds/:guild_id/stickers/:sticker_id",
                 "api:http:DELETE:/guilds/:guild_id/templates/:code",
+                "api:http:DELETE:/users/@me/avatars/:avatar_id",
                 "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                 "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
                 "api:http:DELETE:/users/@me/guilds/:guild_id",
@@ -519,6 +523,7 @@
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
                 "api:http:GET:/guilds/:guild_id/audit-logs/",
                 "api:http:GET:/guilds/:guild_id/auto-moderation/rules/",
+                "api:http:GET:/guilds/:guild_id/auto-moderation/rules/:rule_id",
                 "api:http:GET:/guilds/:guild_id/bans/",
                 "api:http:GET:/guilds/:guild_id/bans/:user_id",
                 "api:http:GET:/guilds/:guild_id/bans/search",
@@ -569,6 +574,7 @@
                 "api:http:GET:/users/:user_id/relationships/",
                 "api:http:GET:/users/@me/",
                 "api:http:GET:/users/@me/activities/statistics/applications/",
+                "api:http:GET:/users/@me/affinities/channels/",
                 "api:http:GET:/users/@me/affinities/guilds/",
                 "api:http:GET:/users/@me/affinities/users/",
                 "api:http:GET:/users/@me/applications/:application_id/entitlements/",
@@ -862,6 +868,7 @@
                     "fixtures": ["users", "sessions", "relationships", "settings"],
                     "checks": ["ownership-boundary", "schema-validation", "db-state", "events"],
                     "manifestIds": [
+                        "api:http:DELETE:/users/@me/avatars/:avatar_id",
                         "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                         "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
                         "api:http:DELETE:/users/@me/guilds/:guild_id",
@@ -873,6 +880,7 @@
                         "api:http:GET:/users/:user_id/relationships/",
                         "api:http:GET:/users/@me/",
                         "api:http:GET:/users/@me/activities/statistics/applications/",
+                        "api:http:GET:/users/@me/affinities/channels/",
                         "api:http:GET:/users/@me/affinities/guilds/",
                         "api:http:GET:/users/@me/affinities/users/",
                         "api:http:GET:/users/@me/applications/:application_id/entitlements/",
@@ -962,6 +970,7 @@
                         "api:http:GET:/guilds/:guild_id/application-command-index/",
                         "api:http:GET:/guilds/:guild_id/audit-logs/",
                         "api:http:GET:/guilds/:guild_id/auto-moderation/rules/",
+                        "api:http:GET:/guilds/:guild_id/auto-moderation/rules/:rule_id",
                         "api:http:GET:/guilds/:guild_id/bans/",
                         "api:http:GET:/guilds/:guild_id/bans/:user_id",
                         "api:http:GET:/guilds/:guild_id/bans/search",
