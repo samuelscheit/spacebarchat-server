@@ -1,6 +1,6 @@
 {
-    "missing": 766,
-    "spacebar": 414,
+    "missing": 765,
+    "spacebar": 415,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -106,7 +106,6 @@
         "/channels/{param}/messages/search/tabs",
         "/channels/{param}/messages/{param}/hide-guild-feed",
         "/channels/{param}/polls/{param}/answers/@me",
-        "/channels/{param}/polls/{param}/answers/{param}",
         "/channels/{param}/polls/{param}/expire",
         "/channels/{param}/recipients/@me",
         "/channels/{param}/safety-warning/report-false-positive",
@@ -1514,14 +1513,6 @@
             "route_name": "CHANNEL_ACK",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/messages/ack"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/polls/{param}/answers/{param}",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_POLLS_MESSAGE_ID_ANSWERS_POLL_ANSWER_ID",
-            "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/polls/{message_id}/answers/{poll_answer_id}", "/channels/{channel_id}/polls/{message_id}/answers/{param}"],
-            "summaries": ["Get Answer Voters"]
         },
         {
             "method": "GET",

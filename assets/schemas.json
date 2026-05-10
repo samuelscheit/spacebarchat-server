@@ -7892,6 +7892,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PollAnswerVotersResponse": {
+        "type": "object",
+        "properties": {
+            "users": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartialUser"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "users"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PartialConnectedAccountResponse": {
         "type": "object",
         "properties": {

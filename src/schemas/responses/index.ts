@@ -90,6 +90,7 @@ export * from "./OAuthAuthorizeResponse";
 export * from "./OAuthAuthorizationResponse";
 export * from "./PasswordValidateResponse";
 export * from "./PinnedMessagesResponse";
+export * from "./PollAnswerVotersResponse";
 export * from "./PartialConnectedAccountResponse";
 export * from "./PaymentSourceResponse";
 export * from "./PreloadMessagesResponseSchema";
