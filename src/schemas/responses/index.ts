@@ -137,6 +137,7 @@ export * from "./UniqueUsernameSuggestionResponse";
 export * from "./UserNoteResponse";
 export * from "./UserProfileEffectsResponse";
 export * from "./UserProfileResponse";
+export * from "./VoiceFiltersCatalogResponse";
 export * from "./UserInviteResponse";
 export * from "./UserGuildsResponse";
 export * from "./UserRelationsResponse";

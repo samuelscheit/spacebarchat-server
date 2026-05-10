@@ -10318,6 +10318,128 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "VoiceFiltersCatalogResponse": {
+        "type": "object",
+        "properties": {
+            "limited_time_voices": {
+                "$ref": "#/definitions/VoiceFiltersCatalogLimitedTimeVoicesResponse"
+            },
+            "models": {
+                "$ref": "#/definitions/VoiceFilterModelsResponse"
+            },
+            "voices": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/VoiceFilterResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "limited_time_voices"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "VoiceFilterModelsResponse": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/VoiceFilterModelResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "VoiceFiltersCatalogLimitedTimeVoicesResponse": {
+        "type": "object",
+        "properties": {
+            "current_set": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "current_set_start": {
+                "type": "string"
+            },
+            "current_set_end": {
+                "type": "string"
+            },
+            "next_set": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "next_set_start": {
+                "type": "string"
+            },
+            "next_set_end": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "current_set",
+            "next_set"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "VoiceFilterModelResponse": {
+        "type": "object",
+        "properties": {
+            "url": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "VoiceFilterResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "models": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "$ref": "#/definitions/VoiceFilterEmptyModelReferencesResponse"
+                    }
+                ]
+            },
+            "requires_premium": {
+                "type": "boolean"
+            },
+            "limited_time_free_ends": {
+                "type": "string"
+            },
+            "limited_time_free_starts": {
+                "type": "string"
+            },
+            "available": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "available",
+            "id",
+            "requires_premium"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "VoiceFilterEmptyModelReferencesResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserRelationResponse": {
         "type": "object",
         "properties": {

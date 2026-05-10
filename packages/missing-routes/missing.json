@@ -1,6 +1,6 @@
 {
-    "missing": 725,
-    "spacebar": 455,
+    "missing": 724,
+    "spacebar": 456,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -561,7 +561,6 @@
         "/users/{param}/sessions/{param}/activities/{param}/metadata",
         "/users/{param}/sessions/{param}/activities/{param}/{param}",
         "/virtual-currency/skus/{param}/redeem",
-        "/voice-filters/catalog",
         "/voice/public-keys",
         "/voice/{param}/match-public-key",
         "/webhooks/{param}/{param}/messages/@original",
@@ -2864,13 +2863,6 @@
             "route": "/users/disable-server-highlight-notifications",
             "route_name": "DISABLE_SERVER_HIGHLIGHT_NOTIFICATIONS",
             "sources": ["xhyrom:data/client/routes.json"]
-        },
-        {
-            "method": "GET",
-            "route": "/voice-filters/catalog",
-            "route_name": "GET_VOICE_FILTERS_CATALOG",
-            "sources": ["userdoccers:resources/voice.mdx"],
-            "summaries": ["Get Voice Filters Catalog"]
         },
         {
             "method": "GET",

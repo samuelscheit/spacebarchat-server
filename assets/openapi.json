@@ -9835,6 +9835,117 @@
                     "user_profile"
                 ]
             },
+            "VoiceFiltersCatalogResponse": {
+                "type": "object",
+                "properties": {
+                    "limited_time_voices": {
+                        "$ref": "#/components/schemas/VoiceFiltersCatalogLimitedTimeVoicesResponse"
+                    },
+                    "models": {
+                        "$ref": "#/components/schemas/VoiceFilterModelsResponse"
+                    },
+                    "voices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/VoiceFilterResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "limited_time_voices"
+                ]
+            },
+            "VoiceFilterModelsResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/VoiceFilterModelResponse"
+                }
+            },
+            "VoiceFiltersCatalogLimitedTimeVoicesResponse": {
+                "type": "object",
+                "properties": {
+                    "current_set": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "current_set_start": {
+                        "type": "string"
+                    },
+                    "current_set_end": {
+                        "type": "string"
+                    },
+                    "next_set": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "next_set_start": {
+                        "type": "string"
+                    },
+                    "next_set_end": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "current_set",
+                    "next_set"
+                ]
+            },
+            "VoiceFilterModelResponse": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "url"
+                ]
+            },
+            "VoiceFilterResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "models": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "$ref": "#/components/schemas/VoiceFilterEmptyModelReferencesResponse"
+                            }
+                        ]
+                    },
+                    "requires_premium": {
+                        "type": "boolean"
+                    },
+                    "limited_time_free_ends": {
+                        "type": "string"
+                    },
+                    "limited_time_free_starts": {
+                        "type": "string"
+                    },
+                    "available": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "available",
+                    "id",
+                    "requires_premium"
+                ]
+            },
+            "VoiceFilterEmptyModelReferencesResponse": {
+                "type": "object"
+            },
             "UserRelationResponse": {
                 "type": "object",
                 "properties": {
@@ -30588,6 +30699,9 @@
             "name": "voice"
         },
         {
+            "name": "voice-filters"
+        },
+        {
             "name": "warp"
         },
         {
@@ -31311,6 +31425,70 @@
                 },
                 "tags": [
                     "warp"
+                ]
+            }
+        },
+        "/voice-filters/catalog/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Voice Filters Catalog",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/VoiceFiltersCatalogResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "vfm_version",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Version of the voice filter native module."
+                    },
+                    {
+                        "name": "models",
+                        "in": "query",
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "ONNX model IDs to include in the response."
+                    }
+                ],
+                "tags": [
+                    "voice-filters"
                 ]
             }
         },

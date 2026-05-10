@@ -4126,6 +4126,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"VoiceFiltersCatalogResponse"
+		],
+		"route": "/voice-filters/catalog",
+		"route_name": "GET_VOICE_FILTERS_CATALOG",
+		"source": "src/api/routes/voice-filters/catalog.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIGuildVoiceRegion"
 		],
 		"route": "/voice/regions",

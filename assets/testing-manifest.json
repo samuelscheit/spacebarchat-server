@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 560,
+        "totalEntries": 561,
         "byService": {
-            "api": 463,
+            "api": 464,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 535,
+            "http-route": 536,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 115,
+            "contract": 116,
             "stateful-domain": 301,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 418,
+            "route-class": 419,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19149,6 +19149,43 @@
                     "ownership-boundary",
                     "schema-validation",
                     "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/voice-filters/catalog/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/voice-filters/catalog/",
+            "sourceFile": "src/api/routes/voice-filters/catalog.ts",
+            "line": 149,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "VoiceFiltersCatalogResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
                 ],
                 "allowMissingRouteMetadata": false
             }
