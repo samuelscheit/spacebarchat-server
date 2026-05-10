@@ -2024,6 +2024,16 @@
 		"source": "src/api/routes/hub-waitlist.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"TenorIntegrationSearchResponse"
+		],
+		"route": "/integrations/tenor/search",
+		"route_name": "GET_INTEGRATIONS_TENOR_SEARCH",
+		"source": "src/api/routes/integrations/tenor/search.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "InteractionSchema",
 		"response_schema_refs": [],

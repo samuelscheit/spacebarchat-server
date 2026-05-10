@@ -6793,6 +6793,34 @@
                     "width"
                 ]
             },
+            "TenorIntegrationGifResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "const": "gif"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "src": {
+                        "type": "string"
+                    },
+                    "width": {
+                        "type": "integer"
+                    },
+                    "height": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "height",
+                    "src",
+                    "type",
+                    "url",
+                    "width"
+                ]
+            },
             "TenorTrendingResponse": {
                 "type": "object",
                 "properties": {
@@ -6848,6 +6876,12 @@
                 "type": "array",
                 "items": {
                     "$ref": "#/components/schemas/TenorGifResponse"
+                }
+            },
+            "TenorIntegrationSearchResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/TenorIntegrationGifResponse"
                 }
             },
             "ThreadSearchResponse": {
@@ -25240,6 +25274,9 @@
             "name": "hub-waitlist"
         },
         {
+            "name": "integrations"
+        },
+        {
             "name": "interactions"
         },
         {
@@ -30896,6 +30933,71 @@
                 ],
                 "tags": [
                     "interactions"
+                ]
+            }
+        },
+        "/integrations/tenor/search/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TenorIntegrationSearchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Search query"
+                    }
+                ],
+                "tags": [
+                    "integrations"
                 ]
             }
         },

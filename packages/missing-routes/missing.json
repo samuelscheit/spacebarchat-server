@@ -1,6 +1,6 @@
 {
-    "missing": 836,
-    "spacebar": 344,
+    "missing": 835,
+    "spacebar": 345,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -338,7 +338,6 @@
         "/guilds/{param}/voice-states/{param}",
         "/hypesquad/online",
         "/initiate-prompts",
-        "/integrations/tenor/search",
         "/integrations/{param}/join",
         "/integrations/{param}/search",
         "/invites/{param}/friend-members",
@@ -2565,13 +2564,6 @@
         },
         { "method": "GET", "route": "/guilds/gravity-join", "route_name": "GRAVITY_JOIN_GUILD", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/integrations/{param}/search", "route_name": "INTEGRATION_SEARCH", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/integrations/tenor/search",
-            "route_name": "GET_INTEGRATIONS_TENOR_SEARCH",
-            "sources": ["userdoccers:resources/integration.mdx"],
-            "summaries": ["Search Tenor GIFs"]
-        },
         {
             "method": "GET",
             "route": "/invites/{param}/friend-members",

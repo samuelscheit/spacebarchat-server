@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 449,
+        "totalEntries": 450,
         "byService": {
-            "api": 352,
+            "api": 353,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 424,
+            "http-route": 425,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 57,
+            "contract": 58,
             "stateful-domain": 257,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 312,
+            "route-class": 313,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -10324,6 +10324,44 @@
                 ],
                 "allowMissingRouteMetadata": true,
                 "notes": "Root, well-known, image proxy, health, and static asset routes are registered outside src/api/routes."
+            }
+        },
+        {
+            "id": "api:http:GET:/integrations/tenor/search/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/integrations/tenor/search/",
+            "sourceFile": "src/api/routes/integrations/tenor/search.ts",
+            "line": 90,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "TenorIntegrationSearchResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    502
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
             }
         },
         {

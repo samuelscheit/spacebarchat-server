@@ -82,9 +82,18 @@ export interface TenorGifResponse {
     preview: string;
 }
 
+export interface TenorIntegrationGifResponse {
+    type: "gif";
+    url: string;
+    src: string;
+    width: number;
+    height: number;
+}
+
 export interface TenorTrendingResponse {
     categories: TenorCategoriesResults;
     gifs: TenorGifResponse[];
 }
 
 export type TenorGifsResponse = TenorGifResponse[];
+export type TenorIntegrationSearchResponse = TenorIntegrationGifResponse[];
