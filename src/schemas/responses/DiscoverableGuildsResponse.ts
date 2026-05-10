@@ -134,6 +134,10 @@ export interface DiscoverableGuildsResponse {
     limit: number;
 }
 
+export interface DiscoveryValidTermResponse {
+    valid: boolean;
+}
+
 export interface CategoryLocalizations {
     [locale: string]: string;
 }

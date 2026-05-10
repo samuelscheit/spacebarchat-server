@@ -1435,6 +1435,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"DiscoveryValidTermResponse"
+		],
+		"route": "/discovery/valid-term",
+		"route_name": "GET_DISCOVERY_VALID_TERM",
+		"source": "src/api/routes/discovery.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/download",

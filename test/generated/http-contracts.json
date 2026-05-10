@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 483,
+        "totalContracts": 484,
         "byService": {
-            "api": 410,
+            "api": 411,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 352,
-        "runtimeMalformedAuthContracts": 352,
-        "runtimeRevokedSessionAuthContracts": 352,
-        "runtimeStaleTokenAuthContracts": 352,
+        "runtimeAuthBoundaryContracts": 353,
+        "runtimeMalformedAuthContracts": 353,
+        "runtimeRevokedSessionAuthContracts": 353,
+        "runtimeStaleTokenAuthContracts": 353,
         "runtimePublicAuthBoundaryContracts": 50,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 63,
@@ -9602,7 +9602,7 @@
             "path": "/discovery/categories",
             "samplePath": "/discovery/categories",
             "sourceFile": "src/api/routes/discovery.ts",
-            "line": 45,
+            "line": 95,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -9611,6 +9611,50 @@
             "routeMetadata": {
                 "responses": ["APIDiscoveryCategoryArray"],
                 "responseStatuses": [200]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/discovery/valid-term",
+            "service": "api",
+            "method": "GET",
+            "path": "/discovery/valid-term",
+            "samplePath": "/discovery/valid-term",
+            "sourceFile": "src/api/routes/discovery.ts",
+            "line": 69,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "DiscoveryValidTermResponse"],
+                "responseStatuses": [200, 400, 401]
             },
             "cases": [
                 {

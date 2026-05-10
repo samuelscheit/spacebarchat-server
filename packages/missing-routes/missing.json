@@ -1,6 +1,6 @@
 {
-    "missing": 777,
-    "spacebar": 403,
+    "missing": 776,
+    "spacebar": 404,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -140,7 +140,6 @@
         "/dev-portal-csat-survey-response",
         "/discoverable-guilds/search",
         "/discovery/search",
-        "/discovery/valid-term",
         "/discovery/{param}",
         "/download/{param}",
         "/downloads/distributions/app/installers/latest",
@@ -1621,13 +1620,6 @@
             "route_name": "GET_DISCOVERY_SEARCH",
             "sources": ["userdoccers:resources/discovery.mdx"],
             "summaries": ["Search Published Guilds"]
-        },
-        {
-            "method": "GET",
-            "route": "/discovery/valid-term",
-            "route_name": "GET_DISCOVERY_VALID_TERM",
-            "sources": ["userdoccers:resources/discovery.mdx"],
-            "summaries": ["Validate Discovery Search Term"]
         },
         {
             "method": "GET",

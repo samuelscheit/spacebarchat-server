@@ -1,7 +1,7 @@
 import { afterEach, describe, test } from "node:test";
 import assert from "node:assert";
 import { Categories } from "@spacebar/util";
-import { getDiscoveryCategories, localizeDiscoveryCategories } from "./discovery";
+import { getDiscoveryCategories, getDiscoveryValidTermResponse, isDiscoverySearchTermValid, localizeDiscoveryCategories, parseDiscoverySearchTerm } from "./discovery";
 
 function category(overrides: Partial<Categories>): Categories {
     return {
@@ -78,5 +78,40 @@ describe("discovery categories", () => {
 
         assert.deepEqual(find.mock.calls[0].arguments, [{ order: { id: "ASC" } }]);
         assert.strictEqual(result[0], categories[0]);
+    });
+});
+
+describe("discovery valid term", () => {
+    test("accepts a non-empty search term within the documented search length", () => {
+        assert.equal(isDiscoverySearchTermValid("spacebar"), true);
+        assert.deepEqual(getDiscoveryValidTermResponse({ term: "spacebar" }), { valid: true });
+    });
+
+    test("rejects empty and overlong search terms without external search infrastructure", () => {
+        assert.equal(isDiscoverySearchTermValid("   "), false);
+        assert.equal(isDiscoverySearchTermValid("a".repeat(101)), false);
+        assert.deepEqual(getDiscoveryValidTermResponse({ term: "   " }), { valid: false });
+        assert.deepEqual(getDiscoveryValidTermResponse({ term: "a".repeat(101) }), { valid: false });
+    });
+
+    test("requires the term query parameter to be a single string", () => {
+        assert.throws(
+            () => parseDiscoverySearchTerm(undefined),
+            (error) => {
+                assert.equal((error as { code?: unknown }).code, 50035);
+                assert.equal((error as { message?: unknown }).message, "Invalid Form Body");
+                assert.ok((error as { errors?: { term?: unknown } }).errors?.term);
+                return true;
+            },
+        );
+
+        assert.throws(
+            () => parseDiscoverySearchTerm(["spacebar"]),
+            (error) => {
+                assert.equal((error as { code?: unknown }).code, 50035);
+                assert.ok((error as { errors?: { term?: unknown } }).errors?.term);
+                return true;
+            },
+        );
     });
 });

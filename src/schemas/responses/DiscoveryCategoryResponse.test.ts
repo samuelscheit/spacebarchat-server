@@ -111,3 +111,29 @@ describe("APIDiscoveryCategoryArray", () => {
         });
     });
 });
+
+describe("DiscoveryValidTermResponse", () => {
+    const validate = ajv.compile({ ...schemas.DiscoveryValidTermResponse, definitions: schemas });
+
+    test("accepts the valid flag response shape", () => {
+        assert.strictEqual(validate({ valid: true }), true);
+        assert.strictEqual(validate({ valid: false }), true);
+    });
+
+    test("requires a boolean valid flag", () => {
+        assert.strictEqual(validate({ valid: "true" }), false);
+        assert.strictEqual(validate({}), false);
+    });
+
+    test("publishes the valid-term response in OpenAPI", () => {
+        assert.deepStrictEqual(openapi.components.schemas.DiscoveryValidTermResponse, {
+            type: "object",
+            properties: {
+                valid: {
+                    type: "boolean",
+                },
+            },
+            required: ["valid"],
+        });
+    });
+});

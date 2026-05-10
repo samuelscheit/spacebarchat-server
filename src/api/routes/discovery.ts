@@ -17,10 +17,12 @@
 */
 
 import { createDiscoveryCategoryFindOptions, route } from "@spacebar/api";
-import { Categories } from "@spacebar/util";
+import { type DiscoveryValidTermResponse } from "@spacebar/schemas";
+import { Categories, FieldErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
+const MAX_DISCOVERY_SEARCH_TERM_LENGTH = 100;
 
 type DiscoveryCategoryResponse = Pick<Categories, "id" | "name" | "localizations" | "is_primary" | "icon">;
 
@@ -41,6 +43,54 @@ export async function getDiscoveryCategories(query: Request["query"]): Promise<D
 
     return localizeDiscoveryCategories(categories, locale);
 }
+
+export function parseDiscoverySearchTerm(term: unknown): string {
+    if (typeof term === "string") return term;
+
+    throw FieldErrors({
+        term: {
+            message: "This field is required",
+        },
+    });
+}
+
+export function isDiscoverySearchTermValid(term: string): boolean {
+    const trimmed = term.trim();
+
+    return trimmed.length > 0 && trimmed.length <= MAX_DISCOVERY_SEARCH_TERM_LENGTH;
+}
+
+export function getDiscoveryValidTermResponse(query: Request["query"]): DiscoveryValidTermResponse {
+    return {
+        valid: isDiscoverySearchTermValid(parseDiscoverySearchTerm(query.term)),
+    };
+}
+
+router.get(
+    "/valid-term",
+    route({
+        summary: "Validate Discovery Search Term",
+        query: {
+            term: {
+                type: "string",
+                required: true,
+                description: "The search term to validate.",
+            },
+        },
+        responses: {
+            200: {
+                body: "DiscoveryValidTermResponse",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (req: Request, res: Response) => res.status(200).json(getDiscoveryValidTermResponse(req.query)),
+);
 
 router.get(
     "/categories",

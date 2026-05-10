@@ -2999,6 +2999,17 @@
                     "total"
                 ]
             },
+            "DiscoveryValidTermResponse": {
+                "type": "object",
+                "properties": {
+                    "valid": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "valid"
+                ]
+            },
             "APIDiscoveryCategory": {
                 "type": "object",
                 "properties": {
@@ -40048,6 +40059,62 @@
                 },
                 "tags": [
                     "download"
+                ]
+            }
+        },
+        "/discovery/valid-term": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Validate Discovery Search Term",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DiscoveryValidTermResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "term",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The search term to validate."
+                    }
+                ],
+                "tags": [
+                    "discovery"
                 ]
             }
         },
