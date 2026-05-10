@@ -1,6 +1,6 @@
 {
-    "missing": 802,
-    "spacebar": 378,
+    "missing": 801,
+    "spacebar": 379,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -166,7 +166,6 @@
         "/games",
         "/games/detectable/exclusions",
         "/games/{param}",
-        "/games/{param}/announcements",
         "/gifs/select",
         "/gifs/suggest",
         "/google-play/downgrade-subscription",
@@ -1760,14 +1759,6 @@
             "sources": ["userdoccers:resources/game.mdx"],
             "source_routes": ["/games/{game_id}"],
             "summaries": ["Get Game"]
-        },
-        {
-            "method": "GET",
-            "route": "/games/{param}/announcements",
-            "route_name": "GET_GAMES_GAME_ID_ANNOUNCEMENTS",
-            "sources": ["userdoccers:resources/game.mdx"],
-            "source_routes": ["/games/{game_id}/announcements"],
-            "summaries": ["Get Game Announcements"]
         },
         {
             "method": "GET",

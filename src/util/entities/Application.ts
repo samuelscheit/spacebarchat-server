@@ -22,6 +22,7 @@ import { BaseClass } from "./BaseClass";
 import { Team } from "./Team";
 import { User } from "./User";
 import { Guild } from "./Guild";
+import { Channel } from "./Channel";
 
 @Entity({
     name: "applications",
@@ -115,6 +116,17 @@ export class Application extends BaseClass {
     @JoinColumn({ name: "guild_id" })
     @ManyToOne(() => Guild)
     guild?: Guild; // guild to which the app is linked, e.g. a developer support server
+
+    @Column({ nullable: true, type: "int8" })
+    @RelationId((application: Application) => application.announcements_channel)
+    announcements_channel_id?: string | null;
+
+    @JoinColumn({ name: "announcements_channel_id" })
+    @ManyToOne(() => Channel, {
+        nullable: true,
+        onDelete: "SET NULL",
+    })
+    announcements_channel?: Channel | null;
 
     @Column({ nullable: true })
     custom_install_url?: string;

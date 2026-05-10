@@ -1403,6 +1403,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GameAnnouncementsResponse"
+		],
+		"route": "/games/{game_id}/announcements",
+		"route_name": "GET_GAMES_GAME_ID_ANNOUNCEMENTS",
+		"source": "src/api/routes/games/#game_id/announcements.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ApplicationDetectableResponse"
 		],
 		"route": "/games/detectable",

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 483,
+        "totalEntries": 484,
         "byService": {
-            "api": 386,
+            "api": 387,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 458,
+            "http-route": 459,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 78,
+            "contract": 79,
             "stateful-domain": 268,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 346,
+            "route-class": 347,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -6949,6 +6949,45 @@
                     501
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/games/:game_id/announcements/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/games/:game_id/announcements/",
+            "sourceFile": "src/api/routes/games/#game_id/announcements.ts",
+            "line": 82,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GameAnnouncementsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404,
+                    422
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",
