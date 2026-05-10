@@ -92,6 +92,7 @@ export * from "./NotificationCenterItemsResponse";
 export * from "./OAuthAuthorizeInfoResponse";
 export * from "./OAuthAuthorizeResponse";
 export * from "./OAuthAuthorizationResponse";
+export * from "./OAuth2KeysResponse";
 export * from "./PasswordValidateResponse";
 export * from "./PinnedMessagesResponse";
 export * from "./PollAnswerVotersResponse";

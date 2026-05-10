@@ -3,16 +3,16 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 510,
+        "totalContracts": 511,
         "byService": {
-            "api": 437,
+            "api": 438,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 375,
         "runtimeMalformedAuthContracts": 375,
         "runtimeRevokedSessionAuthContracts": 375,
         "runtimeStaleTokenAuthContracts": 375,
-        "runtimePublicAuthBoundaryContracts": 54,
+        "runtimePublicAuthBoundaryContracts": 55,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 68,
         "runtimePublicResponseSchemaContracts": 13,
@@ -18728,6 +18728,54 @@
                 {
                     "id": "policy-auth-boundary",
                     "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-redirects",
+                    "checks": ["redirects"]
+                },
+                {
+                    "id": "policy-token-state",
+                    "checks": ["token-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/oauth2/keys/",
+            "service": "api",
+            "method": "GET",
+            "path": "/oauth2/keys/",
+            "samplePath": "/oauth2/keys/",
+            "sourceFile": "src/api/routes/oauth2/keys.ts",
+            "line": 32,
+            "authMode": "public",
+            "testTier": "integration",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "applications", "oauth-clients"],
+            "contractChecks": ["auth-boundary", "schema-validation", "redirects", "token-state"],
+            "routeMetadata": {
+                "responses": ["OAuth2KeysResponse"],
+                "responseStatuses": [200]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
                 },
                 {
                     "id": "policy-redirects",

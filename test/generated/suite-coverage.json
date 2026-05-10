@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 442,
+        "totalCoveredManifestEntries": 443,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 420,
-                "totalCoveredManifestEntries": 420,
-                "totalCoveredRequiredManifestEntries": 420,
+                "totalRequiredManifestEntries": 421,
+                "totalCoveredManifestEntries": 421,
+                "totalCoveredRequiredManifestEntries": 421,
                 "totalSuites": 12
             },
             "protocol": {
@@ -30,7 +30,7 @@
         "byCoveredTestTier": {
             "stateful-domain": 291,
             "cdn-integration": 78,
-            "integration": 13,
+            "integration": 14,
             "contract": 20,
             "auth-scenario": 17,
             "middleware-contract": 1,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 420,
-                "totalCoveredManifestEntries": 420,
-                "totalCoveredRequiredManifestEntries": 420,
+                "totalRequiredManifestEntries": 421,
+                "totalCoveredManifestEntries": 421,
+                "totalCoveredRequiredManifestEntries": 421,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -222,6 +222,7 @@
                 "api:http:GET:/guilds/templates/:template_code",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
+                "api:http:GET:/oauth2/keys/",
                 "api:http:GET:/oauth2/tokens/",
                 "api:http:GET:/oauth2/tokens/:token_id/",
                 "api:http:GET:/policies/instance/",
@@ -644,6 +645,7 @@
                 "api:http:GET:/guilds/templates/:template_code",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
+                "api:http:GET:/oauth2/keys/",
                 "api:http:GET:/oauth2/tokens/",
                 "api:http:GET:/oauth2/tokens/:token_id/",
                 "api:http:GET:/policies/instance/",
@@ -1365,6 +1367,7 @@
                         "api:http:GET:/connections/:connection_name/authorize/",
                         "api:http:GET:/oauth2/applications/@me/",
                         "api:http:GET:/oauth2/authorize/",
+                        "api:http:GET:/oauth2/keys/",
                         "api:http:GET:/oauth2/tokens/",
                         "api:http:GET:/oauth2/tokens/:token_id/",
                         "api:http:POST:/connections/:connection_name/:connection_id/refresh/",

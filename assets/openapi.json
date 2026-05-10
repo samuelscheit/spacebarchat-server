@@ -7747,6 +7747,20 @@
                     "scopes"
                 ]
             },
+            "OAuth2KeysResponse": {
+                "type": "object",
+                "properties": {
+                    "keys": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OAuth2JsonWebKey"
+                        }
+                    }
+                },
+                "required": [
+                    "keys"
+                ]
+            },
             "PasswordValidateResponse": {
                 "type": "object",
                 "properties": {
@@ -26098,6 +26112,79 @@
                     "username"
                 ]
             },
+            "OAuth2JsonWebKey": {
+                "type": "object",
+                "properties": {
+                    "kty": {
+                        "type": "string"
+                    },
+                    "use": {
+                        "enum": [
+                            "enc",
+                            "sig"
+                        ],
+                        "type": "string"
+                    },
+                    "key_ops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OAuth2JsonWebKeyOperation"
+                        }
+                    },
+                    "alg": {
+                        "type": "string"
+                    },
+                    "kid": {
+                        "type": "string"
+                    },
+                    "x5u": {
+                        "type": "string"
+                    },
+                    "x5c": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "x5t": {
+                        "type": "string"
+                    },
+                    "x5t#S256": {
+                        "type": "string"
+                    },
+                    "crv": {
+                        "type": "string"
+                    },
+                    "x": {
+                        "type": "string"
+                    },
+                    "y": {
+                        "type": "string"
+                    },
+                    "n": {
+                        "type": "string"
+                    },
+                    "e": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "kty"
+                ]
+            },
+            "OAuth2JsonWebKeyOperation": {
+                "enum": [
+                    "decrypt",
+                    "deriveBits",
+                    "deriveKey",
+                    "encrypt",
+                    "sign",
+                    "unwrapKey",
+                    "verify",
+                    "wrapKey"
+                ],
+                "type": "string"
+            },
             "PinnedMessageItem": {
                 "type": "object",
                 "properties": {
@@ -34583,6 +34670,27 @@
                         "description": "token_id"
                     }
                 ],
+                "tags": [
+                    "oauth2"
+                ]
+            }
+        },
+        "/oauth2/keys/": {
+            "get": {
+                "description": "Returns the JSON Web Key Set used to verify OpenID Connect ID tokens issued by this instance.",
+                "summary": "Get OpenID Connect Keys",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuth2KeysResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "oauth2"
                 ]

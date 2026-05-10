@@ -40,6 +40,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     // Public information endpoints
     "GET /ping",
     "GET /gateway",
+    "GET /oauth2/keys",
     "GET /applications/non-games/detectable",
     "GET /games/detectable/exclusions",
     "GET /experiments",

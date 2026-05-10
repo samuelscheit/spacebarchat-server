@@ -8099,6 +8099,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "OAuth2KeysResponse": {
+        "type": "object",
+        "properties": {
+            "keys": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/OAuth2JsonWebKey"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "keys"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PasswordValidateResponse": {
         "type": "object",
         "properties": {
@@ -27360,6 +27376,82 @@
             "public_flags",
             "username"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OAuth2JsonWebKey": {
+        "type": "object",
+        "properties": {
+            "kty": {
+                "type": "string"
+            },
+            "use": {
+                "enum": [
+                    "enc",
+                    "sig"
+                ],
+                "type": "string"
+            },
+            "key_ops": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/OAuth2JsonWebKeyOperation"
+                }
+            },
+            "alg": {
+                "type": "string"
+            },
+            "kid": {
+                "type": "string"
+            },
+            "x5u": {
+                "type": "string"
+            },
+            "x5c": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "x5t": {
+                "type": "string"
+            },
+            "x5t#S256": {
+                "type": "string"
+            },
+            "crv": {
+                "type": "string"
+            },
+            "x": {
+                "type": "string"
+            },
+            "y": {
+                "type": "string"
+            },
+            "n": {
+                "type": "string"
+            },
+            "e": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "kty"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OAuth2JsonWebKeyOperation": {
+        "enum": [
+            "decrypt",
+            "deriveBits",
+            "deriveKey",
+            "encrypt",
+            "sign",
+            "unwrapKey",
+            "verify",
+            "wrapKey"
+        ],
+        "type": "string",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "PinnedMessageItem": {

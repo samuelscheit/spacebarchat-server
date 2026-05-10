@@ -1,6 +1,6 @@
 {
-    "missing": 750,
-    "spacebar": 430,
+    "missing": 749,
+    "spacebar": 431,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -313,7 +313,6 @@
         "/oauth2/device/authorize",
         "/oauth2/device/finish",
         "/oauth2/device/verify",
-        "/oauth2/keys",
         "/oauth2/samsung/authorize",
         "/oauth2/samsung/authorize/callback",
         "/oauth2/token",
@@ -2204,7 +2203,6 @@
             "summaries": ["Get Application OAuth2 Authorizations"]
         },
         { "method": "GET", "route": "/oauth2/authorize/webhook-channels", "route_name": "OAUTH2_AUTHORIZE_WEBHOOK_CHANNELS", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "GET", "route": "/oauth2/keys", "route_name": "GET_OAUTH2_KEYS", "sources": ["userdoccers:topics/oauth2.mdx"], "summaries": ["Get OpenID Connect Keys"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize/callback", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
         {
