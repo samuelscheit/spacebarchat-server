@@ -9164,6 +9164,24 @@
                     "token"
                 ]
             },
+            "TutorialResponse": {
+                "type": "object",
+                "properties": {
+                    "indicators_suppressed": {
+                        "type": "boolean"
+                    },
+                    "indicators_confirmed": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "indicators_confirmed",
+                    "indicators_suppressed"
+                ]
+            },
             "UpdatesResponse": {
                 "type": "object",
                 "properties": {
@@ -29937,6 +29955,9 @@
             "name": "track"
         },
         {
+            "name": "tutorial"
+        },
+        {
             "name": "unique-username"
         },
         {
@@ -33650,6 +33671,45 @@
                 },
                 "tags": [
                     "unique-username"
+                ]
+            }
+        },
+        "/tutorial/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the authenticated user's tutorial progress when persisted tutorial state exists; otherwise returns 204 with no body.",
+                "summary": "Get Tutorial",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TutorialResponse"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "tutorial"
                 ]
             }
         },

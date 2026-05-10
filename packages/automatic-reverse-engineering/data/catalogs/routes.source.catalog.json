@@ -3220,6 +3220,16 @@
 		"source": "src/api/routes/track.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"TutorialResponse"
+		],
+		"route": "/tutorial",
+		"route_name": "GET_TUTORIAL",
+		"source": "src/api/routes/tutorial.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "UniqueUsernameAttemptUnauthedSchema",
 		"response_schema_refs": [

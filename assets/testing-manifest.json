@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 542,
+        "totalEntries": 543,
         "byService": {
-            "api": 445,
+            "api": 446,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 517,
+            "http-route": 518,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 106,
+            "contract": 107,
             "stateful-domain": 293,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 400,
+            "route-class": 401,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15356,6 +15356,43 @@
                 "present": true,
                 "responseStatuses": [
                     204
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/tutorial/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/tutorial/",
+            "sourceFile": "src/api/routes/tutorial.ts",
+            "line": 34,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "TutorialResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    204,
+                    401
                 ],
                 "hasQuery": false
             },

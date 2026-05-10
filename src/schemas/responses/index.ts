@@ -116,6 +116,7 @@ export * from "./TeamListResponse";
 export * from "./Tenor";
 export * from "./ThreadSearchResponse";
 export * from "./TokenResponse";
+export * from "./TutorialResponse";
 export * from "./UpdatesResponse";
 export * from "./UploadAttachmentResponseSchema";
 export * from "./UniqueUsernameAttemptResponse";

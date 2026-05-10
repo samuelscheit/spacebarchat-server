@@ -1,6 +1,6 @@
 {
-    "missing": 743,
-    "spacebar": 437,
+    "missing": 742,
+    "spacebar": 438,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -419,7 +419,6 @@
         "/teams/{param}/payouts/onboarding",
         "/teams/{param}/payouts/{param}/report",
         "/teams/{param}/stripe/connect/redirect-url",
-        "/tutorial",
         "/tutorial/indicators/suppress",
         "/tutorial/indicators/{param}",
         "/unfurler/embed-urls",
@@ -2563,7 +2562,6 @@
             "source_routes": ["/teams/{team_id}/payouts/onboarding"],
             "summaries": ["Get Team Payout Onboarding"]
         },
-        { "method": "GET", "route": "/tutorial", "route_name": "GET_TUTORIAL", "sources": ["userdoccers:resources/user.mdx"], "summaries": ["Get Tutorial"] },
         {
             "method": "GET",
             "route": "/updates/{param}",

@@ -9606,6 +9606,26 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "TutorialResponse": {
+        "type": "object",
+        "properties": {
+            "indicators_suppressed": {
+                "type": "boolean"
+            },
+            "indicators_confirmed": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "indicators_confirmed",
+            "indicators_suppressed"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UpdatesResponse": {
         "type": "object",
         "properties": {
