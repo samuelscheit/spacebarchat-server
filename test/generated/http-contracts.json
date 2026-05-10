@@ -3,16 +3,16 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 531,
+        "totalContracts": 532,
         "byService": {
-            "api": 458,
+            "api": 459,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 389,
         "runtimeMalformedAuthContracts": 389,
         "runtimeRevokedSessionAuthContracts": 389,
         "runtimeStaleTokenAuthContracts": 389,
-        "runtimePublicAuthBoundaryContracts": 61,
+        "runtimePublicAuthBoundaryContracts": 62,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 69,
         "runtimePublicResponseSchemaContracts": 16,
@@ -20916,6 +20916,46 @@
                     "id": "authorization-denied",
                     "checks": ["permission-denied", "error-shape"],
                     "right": "OPERATOR"
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/store/eulas/:eula_id/",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/eulas/:eula_id/",
+            "samplePath": "/store/eulas/value/",
+            "sourceFile": "src/api/routes/store/eulas/#eula_id.ts",
+            "line": 62,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "StoreEulaResponse"],
+                "responseStatuses": [200, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
                 },
                 {
                     "id": "policy-auth-boundary",

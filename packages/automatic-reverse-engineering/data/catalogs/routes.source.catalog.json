@@ -3268,6 +3268,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"StoreEulaResponse"
+		],
+		"route": "/store/eulas/{eula_id}",
+		"route_name": "GET_STORE_EULAS_EULA_ID",
+		"source": "src/api/routes/store/eulas/#eula_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"StorePriceTiersResponse"
 		],
 		"route": "/store/price-tiers",

@@ -9276,6 +9276,26 @@
                     "topic"
                 ]
             },
+            "StoreEulaResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "content",
+                    "id",
+                    "name"
+                ]
+            },
             "StorePriceTierResponse": {
                 "type": "object",
                 "additionalProperties": {
@@ -22766,9 +22786,17 @@
                             "$ref": "#/components/schemas/StoreSubscriptionPlanConfiguration"
                         },
                         "default": []
+                    },
+                    "customEulas": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StoreEulaConfiguration"
+                        },
+                        "default": []
                     }
                 },
                 "required": [
+                    "customEulas",
                     "customSubscriptionPlans"
                 ]
             },
@@ -22836,6 +22864,25 @@
                     "price_tier",
                     "sku_id",
                     "tax_inclusive"
+                ]
+            },
+            "StoreEulaConfiguration": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "content": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "content",
+                    "id",
+                    "name"
                 ]
             },
             "LoginConfiguration": {
@@ -34526,6 +34573,48 @@
                             "type": "string"
                         },
                         "description": "price_tier"
+                    }
+                ],
+                "tags": [
+                    "store"
+                ]
+            }
+        },
+        "/store/eulas/{eula_id}/": {
+            "get": {
+                "description": "Returns the EULA object for the given EULA ID.",
+                "summary": "Get EULA",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StoreEulaResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "eula_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "eula_id"
                     }
                 ],
                 "tags": [

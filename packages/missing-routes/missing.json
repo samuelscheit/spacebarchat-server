@@ -1,6 +1,6 @@
 {
-    "missing": 729,
-    "spacebar": 451,
+    "missing": 728,
+    "spacebar": 452,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -373,7 +373,6 @@
         "/store/directory-layouts/{param}",
         "/store/directory/{param}",
         "/store/email/resend-payment-verification",
-        "/store/eulas/{param}",
         "/store/listings",
         "/store/listings/{param}",
         "/store/published-listings/applications",
@@ -2273,14 +2272,6 @@
         },
         { "method": "GET", "route": "/store/directory-layouts/{param}", "route_name": "STORE_DIRECTORY_LAYOUT", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/store/directory/{param}", "route_name": "STORE_DIRECTORY", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/store/eulas/{param}",
-            "route_name": "GET_STORE_EULAS_EULA_ID",
-            "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/store/eulas/{eula_id}"],
-            "summaries": ["Get EULA"]
-        },
         {
             "method": "GET",
             "route": "/store/listings/{param}",

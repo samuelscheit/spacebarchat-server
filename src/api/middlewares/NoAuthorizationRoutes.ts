@@ -55,6 +55,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /download",
     /^(GET|HEAD) \/download\/[^/]+\/?$/,
     "GET /downloads/distributions/app/installers/latest",
+    /^(GET|HEAD) \/store\/eulas\/[^/]+\/?$/,
     /^(GET|HEAD) \/modules\/[^/]+\/versions\.json\/?$/,
     /^(GET|HEAD) \/modules\/[^/]+\/[^/]+\/[^/]+\/?$/,
     "GET /scheduled-maintenances/upcoming.json",

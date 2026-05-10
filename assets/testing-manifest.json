@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 556,
+        "totalEntries": 557,
         "byService": {
-            "api": 459,
+            "api": 460,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 531,
+            "http-route": 532,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 113,
+            "contract": 114,
             "stateful-domain": 299,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 414,
+            "route-class": 415,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15574,6 +15574,42 @@
                 "responseStatuses": [
                     200,
                     403
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/store/eulas/:eula_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/eulas/:eula_id/",
+            "sourceFile": "src/api/routes/store/eulas/#eula_id.ts",
+            "line": 62,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StoreEulaResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    404
                 ],
                 "hasQuery": false
             },
