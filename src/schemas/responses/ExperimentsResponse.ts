@@ -9,7 +9,7 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
@@ -34,4 +34,30 @@ export interface ApexExperimentsResponse {
         };
     };
     installation?: string;
+}
+
+export const enum ApexExperimentVariantType {
+    ACTIVE = 1,
+    UNUSED = 2,
+    BURNED = 3,
+    PRESERVED = 4,
+}
+
+export interface ApexExperimentVariantMetadata {
+    id: number;
+    label: string;
+    type: ApexExperimentVariantType;
+}
+
+export interface ApexExperimentMetadata {
+    id: number;
+    name: string;
+    title: string;
+    revision: number;
+    unit_type: number;
+    variants: ApexExperimentVariantMetadata[];
+}
+
+export interface ApexExperimentsMetadataResponse {
+    experiments: ApexExperimentMetadata[];
 }

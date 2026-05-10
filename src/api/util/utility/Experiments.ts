@@ -9,14 +9,14 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { ApexExperimentsResponse, ExperimentsResponse } from "@spacebar/schemas";
+import type { ApexExperimentsMetadataResponse, ApexExperimentsResponse, ExperimentsResponse } from "@spacebar/schemas";
 import { createClientFingerprint, isClientFingerprint } from "./Fingerprint";
 
 export type ExperimentRequestContext = {
@@ -54,4 +54,10 @@ export function createApexExperimentsResponse(installation?: string): ApexExperi
     }
 
     return response;
+}
+
+export function createApexExperimentsMetadataResponse(): ApexExperimentsMetadataResponse {
+    return {
+        experiments: [],
+    };
 }

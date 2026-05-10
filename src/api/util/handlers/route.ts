@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { DiscordApiErrors, EVENT, FieldError, PermissionResolvable, Permissions, RightResolvable, Rights, SpacebarApiErrors, getPermission, getRights } from "@spacebar/util";
+import { DiscordApiErrors, EVENT, FieldError, PermissionResolvable, Permissions, RightResolvable, SpacebarApiErrors, getPermission, getRights } from "@spacebar/util";
 import { AnyValidateFunction } from "ajv/dist/core";
 import { NextFunction, Request, Response } from "express";
 import { ajv, nonCoercingAjv } from "@spacebar/schemas";
@@ -138,9 +138,8 @@ export function route(opts: RouteOptions) {
         if (opts.permission) {
             let hasAlternativeRight = false;
             if (opts.permissionOrRight) {
-                const requiredRight = new Rights(opts.permissionOrRight);
                 req.rights = req.rights ?? (await getRights(req.user_id));
-                hasAlternativeRight = req.rights.has(requiredRight);
+                hasAlternativeRight = req.rights.has(opts.permissionOrRight);
             }
 
             if (!hasAlternativeRight) {
@@ -158,10 +157,9 @@ export function route(opts: RouteOptions) {
         }
 
         if (opts.right) {
-            const required = new Rights(opts.right);
             req.rights = req.rights ?? (await getRights(req.user_id));
 
-            if (!req.rights || !req.rights.has(required)) {
+            if (!req.rights || !req.rights.has(opts.right)) {
                 throw SpacebarApiErrors.MISSING_RIGHTS.withParams(opts.right as string);
             }
         }

@@ -3574,6 +3574,20 @@
                     "assignments"
                 ]
             },
+            "ApexExperimentsMetadataResponse": {
+                "type": "object",
+                "properties": {
+                    "experiments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApexExperimentMetadata"
+                        }
+                    }
+                },
+                "required": [
+                    "experiments"
+                ]
+            },
             "UserGuildResponse": {
                 "type": "object",
                 "properties": {
@@ -16804,6 +16818,68 @@
                 "required": [
                     "assignments",
                     "evaluation_id"
+                ]
+            },
+            "ApexExperimentMetadata": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "revision": {
+                        "type": "integer"
+                    },
+                    "unit_type": {
+                        "type": "integer"
+                    },
+                    "variants": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApexExperimentVariantMetadata"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "name",
+                    "revision",
+                    "title",
+                    "unit_type",
+                    "variants"
+                ]
+            },
+            "ApexExperimentVariantMetadata": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ApexExperimentVariantType"
+                    }
+                },
+                "required": [
+                    "id",
+                    "label",
+                    "type"
+                ]
+            },
+            "ApexExperimentVariantType": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2,
+                    3,
+                    4
                 ]
             },
             "GuildWelcomeScreen": {
@@ -48293,6 +48369,64 @@
                 },
                 "tags": [
                     "application-identities"
+                ]
+            }
+        },
+        "/apex/experiments/metadata": {
+            "get": {
+                "x-right-required": "OPERATOR",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns Apex experiment metadata for instance operators. Spacebar does not persist Discord's employee-only Apex rollout metadata yet, so this returns an empty metadata list instead of fabricating upstream experiments.",
+                "summary": "Get Metadata for Apex Experiments",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApexExperimentsMetadataResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "surface",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The surface to return Apex experiment metadata for."
+                    }
+                ],
+                "tags": [
+                    "apex"
                 ]
             }
         },

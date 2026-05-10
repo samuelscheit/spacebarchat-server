@@ -1,6 +1,6 @@
 {
-    "missing": 772,
-    "spacebar": 408,
+    "missing": 771,
+    "spacebar": 409,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -13,7 +13,6 @@
         "/ai/summarize-thread/{param}",
         "/ai/title",
         "/ai/translate",
-        "/apex/experiments/metadata",
         "/app-recommendations",
         "/application-directory-static/applications/{param}",
         "/application-directory-static/applications/{param}/similar",
@@ -1208,13 +1207,6 @@
             "sources": ["userdoccers:resources/presence.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/activities/statistics/applications/{application_id}"],
             "summaries": ["Get Application Activity Statistics"]
-        },
-        {
-            "method": "GET",
-            "route": "/apex/experiments/metadata",
-            "route_name": "GET_APEX_EXPERIMENTS_METADATA",
-            "sources": ["userdoccers:topics/experiments.mdx"],
-            "summaries": ["Get Metadata for Apex Experiments"]
         },
         { "method": "GET", "route": "/app-recommendations", "route_name": "APP_RECOMMENDATIONS", "sources": ["xhyrom:data/client/routes.json"] },
         {

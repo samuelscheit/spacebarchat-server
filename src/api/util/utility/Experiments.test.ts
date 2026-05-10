@@ -3,7 +3,7 @@ import { describe, test } from "node:test";
 
 process.env.DATABASE ??= "postgres://user:password@localhost:5432/test";
 
-const { createApexExperimentsResponse, createExperimentsResponse } = require("./Experiments") as typeof import("./Experiments");
+const { createApexExperimentsMetadataResponse, createApexExperimentsResponse, createExperimentsResponse } = require("./Experiments") as typeof import("./Experiments");
 const { CLIENT_FINGERPRINT_PATTERN, createClientFingerprint } = require("./Fingerprint") as typeof import("./Fingerprint");
 
 describe("experiment response helpers", () => {
@@ -63,5 +63,11 @@ describe("experiment response helpers", () => {
         assert.deepEqual(response.assignments, {});
         assert.notEqual(response.installation, "not-a-valid-installation");
         assert.match(response.installation!, CLIENT_FINGERPRINT_PATTERN);
+    });
+
+    test("creates an empty Apex experiment metadata body", () => {
+        assert.deepEqual(createApexExperimentsMetadataResponse(), {
+            experiments: [],
+        });
     });
 });

@@ -3774,6 +3774,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApexExperimentsMetadataResponse": {
+        "type": "object",
+        "properties": {
+            "experiments": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApexExperimentMetadata"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "experiments"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserGuildResponse": {
         "type": "object",
         "properties": {
@@ -17644,6 +17660,73 @@
         "required": [
             "assignments",
             "evaluation_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApexExperimentMetadata": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "name": {
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            },
+            "revision": {
+                "type": "integer"
+            },
+            "unit_type": {
+                "type": "integer"
+            },
+            "variants": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApexExperimentVariantMetadata"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "name",
+            "revision",
+            "title",
+            "unit_type",
+            "variants"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApexExperimentVariantMetadata": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "label": {
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/ApexExperimentVariantType"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "label",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApexExperimentVariantType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3,
+            4
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

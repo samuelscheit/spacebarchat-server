@@ -43,6 +43,16 @@
 		"source": "src/api/routes/apex/experiments.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApexExperimentsMetadataResponse"
+		],
+		"route": "/apex/experiments/metadata",
+		"route_name": "GET_APEX_EXPERIMENTS_METADATA",
+		"source": "src/api/routes/apex/experiments.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "ApplicationIdentitiesSchema",
 		"response_schema_refs": [

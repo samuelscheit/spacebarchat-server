@@ -9,17 +9,48 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { createApexExperimentsResponse, route } from "@spacebar/api";
+import { createApexExperimentsMetadataResponse, createApexExperimentsResponse, route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
+
+router.get(
+    "/metadata",
+    route({
+        summary: "Get Metadata for Apex Experiments",
+        description:
+            "Returns Apex experiment metadata for instance operators. Spacebar does not persist Discord's employee-only Apex rollout metadata yet, so this returns an empty metadata list instead of fabricating upstream experiments.",
+        right: "OPERATOR",
+        query: {
+            surface: {
+                type: "integer",
+                required: true,
+                description: "The surface to return Apex experiment metadata for.",
+            },
+        },
+        responses: {
+            200: {
+                body: "ApexExperimentsMetadataResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (req: Request, res: Response) => {
+        res.json(createApexExperimentsMetadataResponse());
+    },
+);
 
 router.get(
     "/",

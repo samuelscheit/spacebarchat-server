@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 513,
+        "totalEntries": 514,
         "byService": {
-            "api": 416,
+            "api": 417,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 488,
+            "http-route": 489,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 96,
+            "contract": 97,
             "stateful-domain": 277,
             "cdn-integration": 76,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 373,
+            "route-class": 374,
             "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
@@ -361,7 +361,7 @@
             "method": "GET",
             "path": "/apex/experiments/",
             "sourceFile": "src/api/routes/apex/experiments.ts",
-            "line": 24,
+            "line": 55,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -372,6 +372,44 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/apex/experiments/metadata",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/apex/experiments/metadata",
+            "sourceFile": "src/api/routes/apex/experiments.ts",
+            "line": 24,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "right": "OPERATOR",
+                "responseBodies": [
+                    "ApexExperimentsMetadataResponse",
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",
@@ -433,7 +471,7 @@
             "method": "GET",
             "path": "/applications-with-assets/",
             "sourceFile": "src/api/routes/applications-with-assets.ts",
-            "line": 118,
+            "line": 121,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

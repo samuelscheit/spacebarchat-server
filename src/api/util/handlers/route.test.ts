@@ -3,7 +3,7 @@ import http from "node:http";
 import { describe, test } from "node:test";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { BigNumber } from "bignumber.js";
-import { type Permissions } from "@spacebar/util";
+import { Rights, SpacebarApiErrors, type Permissions } from "@spacebar/util";
 import type {} from "../../types/ExpressRequest";
 import { BodyParser, ErrorHandler } from "../../middlewares";
 import { bigNumberToString, route } from "./route";
@@ -264,6 +264,37 @@ describe("route body coercion", () => {
                 },
             },
         } as unknown as Request;
+        let nextCalled = false;
+
+        await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
+
+        assert.equal(nextCalled, true);
+    });
+
+    test("rejects missing operator rights with a 403 API error", async () => {
+        const middleware = route({ right: "OPERATOR" });
+        const req = {
+            body: {},
+            rights: new Rights(0),
+        } as Request;
+
+        await assert.rejects(
+            () => middleware(req, {} as Response, assert.fail as NextFunction),
+            (error: { code?: number; httpStatus?: number; message?: string }) => {
+                assert.equal(error.code, SpacebarApiErrors.MISSING_RIGHTS.code);
+                assert.equal(error.httpStatus, 403);
+                assert.equal(error.message, SpacebarApiErrors.MISSING_RIGHTS.withParams("OPERATOR").message);
+                return true;
+            },
+        );
+    });
+
+    test("allows operator rights before handler execution", async () => {
+        const middleware = route({ right: "OPERATOR" });
+        const req = {
+            body: {},
+            rights: new Rights("OPERATOR"),
+        } as Request;
         let nextCalled = false;
 
         await middleware(req, {} as Response, (() => (nextCalled = true)) as NextFunction);
