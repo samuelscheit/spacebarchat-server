@@ -9276,6 +9276,12 @@
                     "topic"
                 ]
             },
+            "StorePriceTierResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                }
+            },
             "StorePriceTiersResponse": {
                 "type": "array",
                 "items": {
@@ -34463,6 +34469,63 @@
                             "type": "integer"
                         },
                         "description": "Price tier type to retrieve: 1 for guild role subscriptions, 2 for guild products."
+                    }
+                ],
+                "tags": [
+                    "store"
+                ]
+            }
+        },
+        "/store/price-tiers/{price_tier}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns localized currency pricing for a store price tier.",
+                "summary": "Get Store Price Tier",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StorePriceTierResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "price_tier",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "price_tier"
                     }
                 ],
                 "tags": [

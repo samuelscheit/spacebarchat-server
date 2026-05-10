@@ -1,6 +1,6 @@
 {
-    "missing": 730,
-    "spacebar": 450,
+    "missing": 729,
+    "spacebar": 451,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -376,7 +376,6 @@
         "/store/eulas/{param}",
         "/store/listings",
         "/store/listings/{param}",
-        "/store/price-tiers/{param}",
         "/store/published-listings/applications",
         "/store/published-listings/skus",
         "/store/published-listings/skus/subscription-plans",
@@ -2289,14 +2288,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/store/listings/{store_listing_id}"],
             "summaries": ["Get Store Listing"]
-        },
-        {
-            "method": "GET",
-            "route": "/store/price-tiers/{param}",
-            "route_name": "GET_STORE_PRICE_TIERS_PRICE_TIER",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/store/price-tiers/{price_tier}"],
-            "summaries": ["Get Store Price Tier"]
         },
         {
             "method": "GET",

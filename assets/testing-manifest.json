@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 555,
+        "totalEntries": 556,
         "byService": {
-            "api": 458,
+            "api": 459,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 530,
+            "http-route": 531,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 112,
+            "contract": 113,
             "stateful-domain": 299,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 413,
+            "route-class": 414,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15574,6 +15574,43 @@
                 "responseStatuses": [
                     200,
                     403
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/store/price-tiers/:price_tier/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/price-tiers/:price_tier/",
+            "sourceFile": "src/api/routes/store/price-tiers/#price_tier.ts",
+            "line": 53,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StorePriceTierResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
                 ],
                 "hasQuery": false
             },
