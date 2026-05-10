@@ -1,6 +1,6 @@
 {
-    "missing": 789,
-    "spacebar": 391,
+    "missing": 788,
+    "spacebar": 392,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -126,7 +126,6 @@
         "/channels/{param}/voice-channel-effects",
         "/channels/{param}/voice-status",
         "/checkpoint/loot",
-        "/companies",
         "/connections/{param}/callback",
         "/connections/{param}/callback/session-handoff",
         "/connections/{param}/link-dispatch-auth-callback",
@@ -1616,7 +1615,6 @@
             "source_routes": ["/channels/{channel_id}/store-listings/{param}"]
         },
         { "method": "GET", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "GET", "route": "/companies", "route_name": "GET_COMPANIES", "sources": ["userdoccers:resources/team.mdx"], "summaries": ["Search Companies"] },
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback/session-handoff", "route_name": "CONNECTIONS_SESSION_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },
         {

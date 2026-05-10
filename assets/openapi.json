@@ -2710,6 +2710,12 @@
                     "name"
                 ]
             },
+            "CompanySearchResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/CompanyResponse"
+                }
+            },
             "CollectiblesCategoriesResponse": {
                 "type": "array",
                 "items": {
@@ -27714,6 +27720,9 @@
             "name": "collectibles-shop"
         },
         {
+            "name": "companies"
+        },
+        {
             "name": "company"
         },
         {
@@ -39803,6 +39812,54 @@
                 ],
                 "tags": [
                     "company"
+                ]
+            }
+        },
+        "/companies/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Search Companies",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CompanySearchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Query to match company names against."
+                    }
+                ],
+                "tags": [
+                    "companies"
                 ]
             }
         },

@@ -34,6 +34,7 @@ export * from "./ChannelFollowerStatsResponse";
 export * from "./ChannelLinkedAccountsResponse";
 export * from "./CheckpointResponse";
 export * from "./CompanyResponse";
+export * from "./CompanySearchResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";

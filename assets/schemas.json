@@ -2839,6 +2839,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CompanySearchResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/CompanyResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CollectiblesCategoriesResponse": {
         "type": "array",
         "items": {

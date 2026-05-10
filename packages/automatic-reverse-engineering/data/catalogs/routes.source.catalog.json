@@ -1287,6 +1287,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"CompanySearchResponse"
+		],
+		"route": "/companies",
+		"route_name": "GET_COMPANIES",
+		"source": "src/api/routes/companies.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"CompanyResponse"
 		],
 		"route": "/company/{company_id}",
