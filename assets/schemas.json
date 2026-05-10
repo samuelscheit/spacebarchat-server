@@ -9048,6 +9048,29 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ProfileWidgetsSuggestedGamesResponse": {
+        "type": "object",
+        "properties": {
+            "suggested_games": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "suggested_wishlist_games": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "suggested_games",
+            "suggested_wishlist_games"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PromotionMarketingComponentResponse": {
         "type": "object",
         "properties": {

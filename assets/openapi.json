@@ -8646,6 +8646,27 @@
                     "$ref": "#/components/schemas/PublicMessage"
                 }
             },
+            "ProfileWidgetsSuggestedGamesResponse": {
+                "type": "object",
+                "properties": {
+                    "suggested_games": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "suggested_wishlist_games": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "suggested_games",
+                    "suggested_wishlist_games"
+                ]
+            },
             "PromotionMarketingComponentResponse": {
                 "type": "object",
                 "properties": {
@@ -31314,6 +31335,42 @@
                 },
                 "tags": [
                     "voice"
+                ]
+            }
+        },
+        "/users/@me/widgets/suggested-games/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns suggested application IDs for the current user's profile game widgets. Spacebar does not currently persist source-backed profile widget recommendation signals, so this compatibility endpoint returns empty suggestion sets.",
+                "summary": "Get Profile Widgets Suggested Games",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProfileWidgetsSuggestedGamesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
                 ]
             }
         },

@@ -112,6 +112,7 @@ export * from "./PartialConnectedAccountResponse";
 export * from "./PartnerSdkStorefrontConfigResponse";
 export * from "./PaymentSourceResponse";
 export * from "./PreloadMessagesResponseSchema";
+export * from "./ProfileWidgetsSuggestedGamesResponse";
 export * from "./PromotionResponse";
 export * from "./PublicApplicationResponse";
 export * from "./QuestUserStatusResponse";

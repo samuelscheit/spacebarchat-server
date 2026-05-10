@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 453,
+        "totalCoveredManifestEntries": 454,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 431,
-                "totalCoveredManifestEntries": 431,
-                "totalCoveredRequiredManifestEntries": 431,
+                "totalRequiredManifestEntries": 432,
+                "totalCoveredManifestEntries": 432,
+                "totalCoveredRequiredManifestEntries": 432,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 300,
+            "stateful-domain": 301,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 431,
-                "totalCoveredManifestEntries": 431,
-                "totalCoveredRequiredManifestEntries": 431,
+                "totalRequiredManifestEntries": 432,
+                "totalCoveredManifestEntries": 432,
+                "totalCoveredRequiredManifestEntries": 432,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -280,6 +280,7 @@
                 "api:http:GET:/users/@me/settings-proto/2/",
                 "api:http:GET:/users/@me/settings-proto/2/json",
                 "api:http:GET:/users/@me/settings/",
+                "api:http:GET:/users/@me/widgets/suggested-games/",
                 "api:http:GET:/webhooks/:webhook_id/",
                 "api:http:GET:/webhooks/:webhook_id/:token/",
                 "api:http:GET:/webhooks/:webhook_id/:token/messages/:message_id/",
@@ -713,6 +714,7 @@
                 "api:http:GET:/users/@me/settings-proto/2/",
                 "api:http:GET:/users/@me/settings-proto/2/json",
                 "api:http:GET:/users/@me/settings/",
+                "api:http:GET:/users/@me/widgets/suggested-games/",
                 "api:http:GET:/webhooks/:webhook_id/",
                 "api:http:GET:/webhooks/:webhook_id/:token/",
                 "api:http:GET:/webhooks/:webhook_id/:token/messages/:message_id/",
@@ -1043,6 +1045,7 @@
                         "api:http:GET:/users/@me/settings-proto/2/",
                         "api:http:GET:/users/@me/settings-proto/2/json",
                         "api:http:GET:/users/@me/settings/",
+                        "api:http:GET:/users/@me/widgets/suggested-games/",
                         "api:http:PATCH:/users/:user_id/profile/",
                         "api:http:PATCH:/users/@me/",
                         "api:http:PATCH:/users/@me/billing/payment-sources/:payment_source_id",

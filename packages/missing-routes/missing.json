@@ -1,6 +1,6 @@
 {
-    "missing": 726,
-    "spacebar": 454,
+    "missing": 725,
+    "spacebar": 455,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -551,7 +551,6 @@
         "/users/@me/video-filters/assets/{param}/last-used",
         "/users/@me/virtual-currency/balance",
         "/users/@me/widgets",
-        "/users/@me/widgets/suggested-games",
         "/users/@me/{param}/{param}/ack",
         "/users/disable-email-notifications",
         "/users/disable-server-highlight-notifications",
@@ -2858,13 +2857,6 @@
             "route_name": "GET_USERS__ME_VIRTUAL_CURRENCY_BALANCE",
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Virtual Currency Balance"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/widgets/suggested-games",
-            "route_name": "GET_USERS__ME_WIDGETS_SUGGESTED_GAMES",
-            "sources": ["userdoccers:resources/user.mdx"],
-            "summaries": ["Get Profile Widgets Suggested Games"]
         },
         { "method": "GET", "route": "/users/disable-email-notifications", "route_name": "DISABLE_EMAIL_NOTIFICATIONS", "sources": ["xhyrom:data/client/routes.json"] },
         {
