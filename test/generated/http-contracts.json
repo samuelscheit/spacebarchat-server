@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 498,
+        "totalContracts": 499,
         "byService": {
-            "api": 425,
+            "api": 426,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 364,
-        "runtimeMalformedAuthContracts": 364,
-        "runtimeRevokedSessionAuthContracts": 364,
-        "runtimeStaleTokenAuthContracts": 364,
+        "runtimeAuthBoundaryContracts": 365,
+        "runtimeMalformedAuthContracts": 365,
+        "runtimeRevokedSessionAuthContracts": 365,
+        "runtimeStaleTokenAuthContracts": 365,
         "runtimePublicAuthBoundaryContracts": 53,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 63,
@@ -22,7 +22,7 @@
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 176,
+        "runtimeRateLimitHeaderContracts": 177,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -13429,6 +13429,76 @@
                 {
                     "id": "policy-db-state",
                     "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/guilds/:guild_id/game-server-regions/",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/game-server-regions/",
+            "samplePath": "/guilds/100000000000000001/game-server-regions/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/game-server-regions.ts",
+            "line": 55,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "members", "roles", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "GameServerRegionsResponse"],
+                "responseStatuses": [200, 401, 403, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "guild",
+                        "configPath": "limits.rate.routes.guild",
+                        "pathPrefix": "/guilds/:guild_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 218
+                    }
+                },
+                {
+                    "id": "policy-permission-denied",
+                    "checks": ["permission-denied"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
                 }
             ]
         },

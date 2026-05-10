@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 432,
+        "totalCoveredManifestEntries": 433,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 410,
-                "totalCoveredManifestEntries": 410,
-                "totalCoveredRequiredManifestEntries": 410,
+                "totalRequiredManifestEntries": 411,
+                "totalCoveredManifestEntries": 411,
+                "totalCoveredRequiredManifestEntries": 411,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 283,
+            "stateful-domain": 284,
             "cdn-integration": 76,
             "integration": 13,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 410,
-                "totalCoveredManifestEntries": 410,
-                "totalCoveredRequiredManifestEntries": 410,
+                "totalRequiredManifestEntries": 411,
+                "totalCoveredManifestEntries": 411,
+                "totalCoveredRequiredManifestEntries": 411,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -190,6 +190,7 @@
                 "api:http:GET:/guilds/:guild_id/discovery-requirements/",
                 "api:http:GET:/guilds/:guild_id/emojis/",
                 "api:http:GET:/guilds/:guild_id/emojis/:emoji_id",
+                "api:http:GET:/guilds/:guild_id/game-server-regions/",
                 "api:http:GET:/guilds/:guild_id/integrations/",
                 "api:http:GET:/guilds/:guild_id/invites/",
                 "api:http:GET:/guilds/:guild_id/member-verification/",
@@ -602,6 +603,7 @@
                 "api:http:GET:/guilds/:guild_id/discovery-requirements/",
                 "api:http:GET:/guilds/:guild_id/emojis/",
                 "api:http:GET:/guilds/:guild_id/emojis/:emoji_id",
+                "api:http:GET:/guilds/:guild_id/game-server-regions/",
                 "api:http:GET:/guilds/:guild_id/integrations/",
                 "api:http:GET:/guilds/:guild_id/invites/",
                 "api:http:GET:/guilds/:guild_id/member-verification/",
@@ -1067,6 +1069,7 @@
                         "api:http:GET:/guilds/:guild_id/discovery-requirements/",
                         "api:http:GET:/guilds/:guild_id/emojis/",
                         "api:http:GET:/guilds/:guild_id/emojis/:emoji_id",
+                        "api:http:GET:/guilds/:guild_id/game-server-regions/",
                         "api:http:GET:/guilds/:guild_id/integrations/",
                         "api:http:GET:/guilds/:guild_id/invites/",
                         "api:http:GET:/guilds/:guild_id/member-verification/",

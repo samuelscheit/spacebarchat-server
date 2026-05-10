@@ -55,6 +55,7 @@ export * from "./FriendSuggestionsResponse";
 export * from "./GameAnnouncementsResponse";
 export * from "./GameRelationshipsResponse";
 export * from "./GameResponse";
+export * from "./GameServerRegionsResponse";
 export * from "./GatewayResponse";
 export * from "./GenerateRegistrationTokensResponse";
 export * from "./GiftCodeResponse";

@@ -1,6 +1,6 @@
 {
-    "missing": 762,
-    "spacebar": 418,
+    "missing": 761,
+    "spacebar": 419,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -202,7 +202,6 @@
         "/guilds/{param}/discovery-categories/{param}",
         "/guilds/{param}/entitlements",
         "/guilds/{param}/entitlements/{param}",
-        "/guilds/{param}/game-server-regions",
         "/guilds/{param}/game-servers",
         "/guilds/{param}/game-servers/{param}/wake",
         "/guilds/{param}/guild-feed",
@@ -1869,14 +1868,6 @@
             "sources": ["userdoccers:resources/entitlement.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/entitlements"],
             "summaries": ["Get Guild Entitlements"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/game-server-regions",
-            "route_name": "GET_GUILDS_GUILD_ID_GAME_SERVER_REGIONS",
-            "sources": ["userdoccers:resources/guild.mdx"],
-            "source_routes": ["/guilds/{guild_id}/game-server-regions"],
-            "summaries": ["Get Guild Game Server Regions"]
         },
         {
             "method": "GET",

@@ -3997,6 +3997,35 @@
                     "$ref": "#/components/schemas/GameResponse"
                 }
             },
+            "GameServerRegionResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "country_code": {
+                        "type": "string"
+                    },
+                    "ping_url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "country_code",
+                    "id",
+                    "name",
+                    "ping_url"
+                ]
+            },
+            "GameServerRegionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GameServerRegionResponse"
+                }
+            },
             "GatewayResponse": {
                 "type": "object",
                 "properties": {
@@ -21386,12 +21415,20 @@
                     "publicThreadsInvitable": {
                         "type": "boolean",
                         "default": false
+                    },
+                    "gameServerRegions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GameServerRegionConfiguration"
+                        },
+                        "default": []
                     }
                 },
                 "required": [
                     "autoJoin",
                     "defaultFeatures",
                     "discovery",
+                    "gameServerRegions",
                     "publicThreadsInvitable"
                 ]
             },
@@ -21455,6 +21492,29 @@
                     "canLeave",
                     "enabled",
                     "guilds"
+                ]
+            },
+            "GameServerRegionConfiguration": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "country_code": {
+                        "type": "string"
+                    },
+                    "ping_url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "country_code",
+                    "id",
+                    "name",
+                    "ping_url"
                 ]
             },
             "GifConfiguration": {
@@ -37977,6 +38037,72 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GuildCreateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/game-server-regions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Guild Game Server Regions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GameServerRegionsResponse"
                                 }
                             }
                         }

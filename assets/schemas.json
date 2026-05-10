@@ -4216,6 +4216,38 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GameServerRegionResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "country_code": {
+                "type": "string"
+            },
+            "ping_url": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "country_code",
+            "id",
+            "name",
+            "ping_url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GameServerRegionsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GameServerRegionResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GatewayResponse": {
         "type": "object",
         "properties": {
@@ -22454,6 +22486,13 @@
             "publicThreadsInvitable": {
                 "type": "boolean",
                 "default": false
+            },
+            "gameServerRegions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GameServerRegionConfiguration"
+                },
+                "default": []
             }
         },
         "additionalProperties": false,
@@ -22461,6 +22500,7 @@
             "autoJoin",
             "defaultFeatures",
             "discovery",
+            "gameServerRegions",
             "publicThreadsInvitable"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -22528,6 +22568,31 @@
             "canLeave",
             "enabled",
             "guilds"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GameServerRegionConfiguration": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "country_code": {
+                "type": "string"
+            },
+            "ping_url": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "country_code",
+            "id",
+            "name",
+            "ping_url"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

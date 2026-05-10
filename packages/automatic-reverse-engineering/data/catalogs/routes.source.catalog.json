@@ -2072,6 +2072,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GameServerRegionsResponse"
+		],
+		"route": "/guilds/{guild_id}/game-server-regions",
+		"route_name": "GET_GUILDS_GUILD_ID_GAME_SERVER_REGIONS",
+		"source": "src/api/routes/guilds/#guild_id/game-server-regions.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIGuildIntegrationArray"
 		],
 		"route": "/guilds/{guild_id}/integrations",
