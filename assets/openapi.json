@@ -7981,6 +7981,41 @@
                     "verified"
                 ]
             },
+            "XboxPresencesResponse": {
+                "type": "object",
+                "properties": {
+                    "guilds": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/XboxPresenceVoiceGuild"
+                        }
+                    },
+                    "presences": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/XboxPresence"
+                        }
+                    },
+                    "applications": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/XboxPresenceApplication"
+                        }
+                    },
+                    "connected_account_ids": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/XboxPresenceConnectedAccountIds"
+                        }
+                    }
+                },
+                "required": [
+                    "applications",
+                    "connected_account_ids",
+                    "guilds",
+                    "presences"
+                ]
+            },
             "MFAResponse": {
                 "type": "object",
                 "properties": {
@@ -23604,6 +23639,233 @@
                     "id"
                 ]
             },
+            "XboxPresenceVoiceGuild": {
+                "type": "object",
+                "properties": {
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "guild_name": {
+                        "type": "string"
+                    },
+                    "guild_icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "voice_channels": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/XboxPresenceVoiceChannel"
+                        }
+                    }
+                },
+                "required": [
+                    "guild_icon",
+                    "guild_id",
+                    "guild_name",
+                    "voice_channels"
+                ]
+            },
+            "XboxPresenceVoiceChannel": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "channel_name": {
+                        "type": "string"
+                    },
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "streams": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/XboxPresenceVoiceStream"
+                        }
+                    }
+                },
+                "required": [
+                    "channel_id",
+                    "channel_name",
+                    "users"
+                ]
+            },
+            "XboxPresenceVoiceStream": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ]
+            },
+            "XboxPresence": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/XboxPresenceStatus"
+                    },
+                    "activities": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/XboxPresenceActivity"
+                        }
+                    },
+                    "client_status": {
+                        "$ref": "#/components/schemas/XboxPresenceClientStatus"
+                    }
+                },
+                "required": [
+                    "activities",
+                    "client_status",
+                    "status",
+                    "user"
+                ]
+            },
+            "XboxPresenceStatus": {
+                "enum": [
+                    "dnd",
+                    "idle",
+                    "offline",
+                    "online"
+                ],
+                "type": "string"
+            },
+            "XboxPresenceActivity": {
+                "type": "object",
+                "additionalProperties": {},
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ]
+                    },
+                    "session_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "platform": {
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "details": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "state": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "flags": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "type"
+                ]
+            },
+            "XboxPresenceClientStatus": {
+                "type": "object",
+                "properties": {
+                    "desktop": {
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "type": "string"
+                    },
+                    "web": {
+                        "type": "string"
+                    },
+                    "embedded": {
+                        "type": "string"
+                    },
+                    "vr": {
+                        "type": "string"
+                    }
+                }
+            },
+            "XboxPresenceApplication": {
+                "type": "object",
+                "additionalProperties": {},
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                }
+            },
+            "XboxPresenceConnectedAccountIds": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "provider_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "provider_ids",
+                    "user_id"
+                ]
+            },
             "MessageCreateFile": {
                 "type": "object",
                 "properties": {
@@ -36355,6 +36617,51 @@
                 ],
                 "tags": [
                     "discoverable-guilds"
+                ]
+            }
+        },
+        "/consoles/xbox/presences/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Presences for Xbox",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/XboxPresencesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "consoles"
                 ]
             }
         },

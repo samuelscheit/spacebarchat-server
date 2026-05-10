@@ -96,3 +96,4 @@ export * from "./UserRelationshipsResponse";
 export * from "./WebAuthnCreateResponse";
 export * from "./WebhookCreateResponse";
 export * from "./WhoAmIResponse";
+export * from "./XboxPresencesResponse";

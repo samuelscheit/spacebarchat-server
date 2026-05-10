@@ -8335,6 +8335,43 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "XboxPresencesResponse": {
+        "type": "object",
+        "properties": {
+            "guilds": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/XboxPresenceVoiceGuild"
+                }
+            },
+            "presences": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/XboxPresence"
+                }
+            },
+            "applications": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/XboxPresenceApplication"
+                }
+            },
+            "connected_account_ids": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/XboxPresenceConnectedAccountIds"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "applications",
+            "connected_account_ids",
+            "guilds",
+            "presences"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "MFAResponse": {
         "type": "object",
         "properties": {
@@ -24689,6 +24726,248 @@
             "description",
             "icon",
             "id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresenceVoiceGuild": {
+        "type": "object",
+        "properties": {
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_name": {
+                "type": "string"
+            },
+            "guild_icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "voice_channels": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/XboxPresenceVoiceChannel"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild_icon",
+            "guild_id",
+            "guild_name",
+            "voice_channels"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresenceVoiceChannel": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "channel_name": {
+                "type": "string"
+            },
+            "users": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "streams": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/XboxPresenceVoiceStream"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "channel_name",
+            "users"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresenceVoiceStream": {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresence": {
+        "type": "object",
+        "properties": {
+            "user": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "status": {
+                "$ref": "#/definitions/XboxPresenceStatus"
+            },
+            "activities": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/XboxPresenceActivity"
+                }
+            },
+            "client_status": {
+                "$ref": "#/definitions/XboxPresenceClientStatus"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "activities",
+            "client_status",
+            "status",
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresenceStatus": {
+        "enum": [
+            "dnd",
+            "idle",
+            "offline",
+            "online"
+        ],
+        "type": "string",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresenceActivity": {
+        "type": "object",
+        "additionalProperties": {},
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "url": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "created_at": {
+                "type": [
+                    "string",
+                    "integer"
+                ]
+            },
+            "session_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "platform": {
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "details": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "state": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "flags": {
+                "type": [
+                    "string",
+                    "integer"
+                ]
+            }
+        },
+        "required": [
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresenceClientStatus": {
+        "type": "object",
+        "properties": {
+            "desktop": {
+                "type": "string"
+            },
+            "mobile": {
+                "type": "string"
+            },
+            "web": {
+                "type": "string"
+            },
+            "embedded": {
+                "type": "string"
+            },
+            "vr": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresenceApplication": {
+        "type": "object",
+        "additionalProperties": {},
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "XboxPresenceConnectedAccountIds": {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "provider_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "provider_ids",
+            "user_id"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

@@ -1131,6 +1131,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"XboxPresencesResponse"
+		],
+		"route": "/consoles/xbox/presences",
+		"route_name": "GET_CONSOLES_XBOX_PRESENCES",
+		"source": "src/api/routes/consoles/xbox/presences.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"DiscoverableGuildsResponse"
 		],
 		"route": "/discoverable-guilds",

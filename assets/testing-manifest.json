@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 457,
+        "totalEntries": 458,
         "byService": {
-            "api": 360,
+            "api": 361,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 432,
+            "http-route": 433,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 65,
+            "contract": 66,
             "stateful-domain": 257,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 320,
+            "route-class": 321,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -5790,6 +5790,43 @@
                 "responseBodies": [
                     "APIErrorResponse",
                     "ConsoleDevicesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/consoles/xbox/presences/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/consoles/xbox/presences/",
+            "sourceFile": "src/api/routes/consoles/xbox/presences.ts",
+            "line": 222,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "XboxPresencesResponse"
                 ],
                 "responseStatuses": [
                     200,

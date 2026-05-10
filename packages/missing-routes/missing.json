@@ -1,6 +1,6 @@
 {
-    "missing": 828,
-    "spacebar": 352,
+    "missing": 827,
+    "spacebar": 353,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -151,7 +151,6 @@
         "/consoles/connect-request",
         "/consoles/connect-request/{param}",
         "/consoles/xbox-handoff",
-        "/consoles/xbox/presences",
         "/consoles/{param}/devices/{param}/commands",
         "/consoles/{param}/devices/{param}/commands/{param}",
         "/content-inventory/users/@me/applications/{param}",
@@ -1794,13 +1793,6 @@
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback/session-handoff", "route_name": "CONNECTIONS_SESSION_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/consoles/xbox-handoff", "route_name": "XBOX_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/consoles/xbox/presences",
-            "route_name": "GET_CONSOLES_XBOX_PRESENCES",
-            "sources": ["userdoccers:resources/presence.mdx"],
-            "summaries": ["Get Presences for Xbox"]
-        },
         {
             "method": "GET",
             "route": "/content-inventory/users/{param}/outbox",
