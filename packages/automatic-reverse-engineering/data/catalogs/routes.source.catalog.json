@@ -364,6 +364,22 @@
 		"source": "src/api/routes/attachments/refresh-urls.ts"
 	},
 	{
+		"method": "DELETE",
+		"request_schema_ref": "AttachmentFalsePositiveReportSchema",
+		"response_schema_refs": [],
+		"route": "/attachments/report-false-positive",
+		"route_name": "DELETE_ATTACHMENTS_REPORT_FALSE_POSITIVE",
+		"source": "src/api/routes/attachments/report-false-positive.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "AttachmentFalsePositiveReportSchema",
+		"response_schema_refs": [],
+		"route": "/attachments/report-false-positive",
+		"route_name": "POST_ATTACHMENTS_REPORT_FALSE_POSITIVE",
+		"source": "src/api/routes/attachments/report-false-positive.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [
 			"CreateFingerprintResponse"

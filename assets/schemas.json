@@ -589,6 +589,49 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "AttachmentFalsePositiveReportSchema": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "pattern": "^\\d{1,20}$",
+                "type": "string"
+            },
+            "message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "pattern": "^\\d{1,20}$",
+                "type": "string"
+            },
+            "attachment_ids": {
+                "maxItems": 100,
+                "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20,
+                    "pattern": "^\\d{1,20}$"
+                },
+                "type": "array"
+            },
+            "embed_ids": {
+                "maxItems": 100,
+                "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32,
+                    "pattern": "^embed_\\d+$"
+                },
+                "type": "array"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "attachment_ids",
+            "channel_id",
+            "embed_ids",
+            "message_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "AutomodMentionSpamRuleSchema": {
         "type": "object",
         "properties": {

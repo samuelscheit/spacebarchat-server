@@ -1,6 +1,6 @@
 {
-    "missing": 783,
-    "spacebar": 397,
+    "missing": 781,
+    "spacebar": 399,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -67,7 +67,6 @@
         "/applications/{param}/users/{param}/identities/{param}/profile",
         "/applications/{param}/verification",
         "/attachments/refresh-urls",
-        "/attachments/report-false-positive",
         "/attachments/sender-report-false-positive",
         "/attachments/{param}",
         "/auth/authorize-ip",
@@ -717,7 +716,6 @@
             "summaries": ["Delete Attachment"]
         },
         { "method": "DELETE", "route": "/attachments/refresh-urls", "route_name": "ATTACHMENTS_REFRESH_URLS", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "DELETE", "route": "/attachments/report-false-positive", "route_name": "EXPLICIT_MEDIA_REPORT_FALSE_POSITIVE", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "DELETE",
             "route": "/attachments/sender-report-false-positive",
@@ -3919,13 +3917,6 @@
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/applications/{application_id}/transfer"],
             "summaries": ["Transfer Application"]
-        },
-        {
-            "method": "POST",
-            "route": "/attachments/report-false-positive",
-            "route_name": "POST_ATTACHMENTS_REPORT_FALSE_POSITIVE",
-            "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Report Explicit Content False Positive"]
         },
         {
             "method": "POST",

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 502,
+        "totalEntries": 504,
         "byService": {
-            "api": 405,
+            "api": 407,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 477,
+            "http-route": 479,
             "opcode": 21
         },
         "byTestTier": {
@@ -36,7 +36,7 @@
             "app-smoke": 10,
             "contract": 89,
             "stateful-domain": 276,
-            "cdn-integration": 74,
+            "cdn-integration": 76,
             "auth-scenario": 16,
             "integration": 13,
             "tooling-contract": 1,
@@ -47,7 +47,7 @@
             "micro": 2,
             "startup-health": 11,
             "route-class": 365,
-            "hot-path": 29,
+            "hot-path": 31,
             "none": 1,
             "cdn-hot-path": 73,
             "protocol-load": 21
@@ -1702,6 +1702,70 @@
                 "pathPrefix": "/attachments/refresh-urls",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
                 "line": 221
+            },
+            "coverage": {
+                "policyId": "api-attachments",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "users",
+                    "channels",
+                    "messages",
+                    "attachments"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "schema-validation",
+                    "signed-url-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/attachments/report-false-positive/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/attachments/report-false-positive/",
+            "sourceFile": "src/api/routes/attachments/report-false-positive.ts",
+            "line": 115,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "AttachmentFalsePositiveReportSchema",
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-attachments",
+                "testTier": "cdn-integration",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "users",
+                    "channels",
+                    "messages",
+                    "attachments"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "schema-validation",
+                    "signed-url-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/attachments/report-false-positive/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/attachments/report-false-positive/",
+            "sourceFile": "src/api/routes/attachments/report-false-positive.ts",
+            "line": 127,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "AttachmentFalsePositiveReportSchema",
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-attachments",
