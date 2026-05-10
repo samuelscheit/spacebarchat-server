@@ -1,6 +1,6 @@
 {
-    "missing": 779,
-    "spacebar": 401,
+    "missing": 778,
+    "spacebar": 402,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -396,7 +396,6 @@
         "/shop/search",
         "/social-sdk/releases",
         "/social-sdk/releases/{param}",
-        "/soundboard-default-sounds",
         "/soundboard-sounds/{param}/guild/{param}",
         "/sso",
         "/sso-token",
@@ -2527,13 +2526,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/social-sdk/releases/{sdk_release_version}"],
             "summaries": ["Get Social SDK Release"]
-        },
-        {
-            "method": "GET",
-            "route": "/soundboard-default-sounds",
-            "route_name": "GET_SOUNDBOARD_DEFAULT_SOUNDS",
-            "sources": ["userdoccers:resources/soundboard.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Default Soundboard Sounds"]
         },
         {
             "method": "GET",

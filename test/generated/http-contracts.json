@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 481,
+        "totalContracts": 482,
         "byService": {
-            "api": 408,
+            "api": 409,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 350,
-        "runtimeMalformedAuthContracts": 350,
-        "runtimeRevokedSessionAuthContracts": 350,
-        "runtimeStaleTokenAuthContracts": 350,
+        "runtimeAuthBoundaryContracts": 351,
+        "runtimeMalformedAuthContracts": 351,
+        "runtimeRevokedSessionAuthContracts": 351,
+        "runtimeStaleTokenAuthContracts": 351,
         "runtimePublicAuthBoundaryContracts": 50,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 63,
@@ -18245,6 +18245,50 @@
                 {
                     "id": "response-shape",
                     "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/soundboard-default-sounds/",
+            "service": "api",
+            "method": "GET",
+            "path": "/soundboard-default-sounds/",
+            "samplePath": "/soundboard-default-sounds/",
+            "sourceFile": "src/api/routes/soundboard-default-sounds.ts",
+            "line": 32,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "SoundboardDefaultSoundsResponse"],
+                "responseStatuses": [200, 401]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
                 },
                 {
                     "id": "policy-auth-boundary",

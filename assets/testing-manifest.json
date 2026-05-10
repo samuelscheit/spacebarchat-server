@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 506,
+        "totalEntries": 507,
         "byService": {
-            "api": 409,
+            "api": 410,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 481,
+            "http-route": 482,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 90,
+            "contract": 91,
             "stateful-domain": 276,
             "cdn-integration": 76,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 366,
+            "route-class": 367,
             "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
@@ -13526,6 +13526,42 @@
                 "present": true,
                 "responseStatuses": [
                     204
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/soundboard-default-sounds/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/soundboard-default-sounds/",
+            "sourceFile": "src/api/routes/soundboard-default-sounds.ts",
+            "line": 32,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "SoundboardDefaultSoundsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
                 ],
                 "hasQuery": false
             },

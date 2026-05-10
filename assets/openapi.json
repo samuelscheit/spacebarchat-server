@@ -8364,6 +8364,59 @@
                     "settings"
                 ]
             },
+            "SoundboardDefaultSoundsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/SoundboardSoundResponse"
+                }
+            },
+            "SoundboardSoundResponse": {
+                "type": "object",
+                "properties": {
+                    "sound_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "volume": {
+                        "$ref": "#/components/schemas/SoundboardVolume"
+                    },
+                    "emoji_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "emoji_name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "available": {
+                        "type": "boolean"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "available",
+                    "name",
+                    "sound_id",
+                    "volume"
+                ]
+            },
             "StageInstanceResponse": {
                 "type": "object",
                 "properties": {
@@ -25778,6 +25831,9 @@
                     "type"
                 ]
             },
+            "SoundboardVolume": {
+                "type": "number"
+            },
             "TeamListTeam": {
                 "type": "object",
                 "properties": {
@@ -28219,6 +28275,9 @@
         },
         {
             "name": "science"
+        },
+        {
+            "name": "soundboard-default-sounds"
         },
         {
             "name": "stage-instances"
@@ -32343,6 +32402,41 @@
                 ],
                 "tags": [
                     "stage-instances"
+                ]
+            }
+        },
+        "/soundboard-default-sounds/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Default Soundboard Sounds",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SoundboardDefaultSoundsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "soundboard-default-sounds"
                 ]
             }
         },

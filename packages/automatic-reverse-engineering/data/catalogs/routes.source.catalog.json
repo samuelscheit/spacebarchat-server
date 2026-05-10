@@ -2794,6 +2794,16 @@
 		"source": "src/api/routes/science.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"SoundboardDefaultSoundsResponse"
+		],
+		"route": "/soundboard-default-sounds",
+		"route_name": "GET_SOUNDBOARD_DEFAULT_SOUNDS",
+		"source": "src/api/routes/soundboard-default-sounds.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "StageInstanceCreateSchema",
 		"response_schema_refs": [
