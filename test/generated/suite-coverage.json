@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 417,
+        "totalCoveredManifestEntries": 418,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 395,
-                "totalCoveredManifestEntries": 395,
-                "totalCoveredRequiredManifestEntries": 395,
+                "totalRequiredManifestEntries": 396,
+                "totalCoveredManifestEntries": 396,
+                "totalCoveredRequiredManifestEntries": 396,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 272,
+            "stateful-domain": 273,
             "integration": 13,
             "contract": 19,
             "auth-scenario": 16,
@@ -65,9 +65,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 395,
-                "totalCoveredManifestEntries": 395,
-                "totalCoveredRequiredManifestEntries": 395,
+                "totalRequiredManifestEntries": 396,
+                "totalCoveredManifestEntries": 396,
+                "totalCoveredRequiredManifestEntries": 396,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -123,6 +123,7 @@
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
+                "api:http:GET:/applications/:application_id/public/",
                 "api:http:GET:/applications/:application_id/skus/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -520,6 +521,7 @@
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
+                "api:http:GET:/applications/:application_id/public/",
                 "api:http:GET:/applications/:application_id/skus/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -1254,6 +1256,7 @@
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
+                        "api:http:GET:/applications/:application_id/public/",
                         "api:http:GET:/applications/:application_id/skus/",
                         "api:http:GET:/applications/@me/",
                         "api:http:GET:/applications/detectable/",

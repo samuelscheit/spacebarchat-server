@@ -306,6 +306,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"PublicApplicationResponse"
+		],
+		"route": "/applications/{application_id}/public",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_PUBLIC",
+		"source": "src/api/routes/applications/#application_id/public.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ApplicationSkusResponse"
 		],
 		"route": "/applications/{application_id}/skus",

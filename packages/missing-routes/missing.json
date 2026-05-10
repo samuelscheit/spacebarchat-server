@@ -1,6 +1,6 @@
 {
-    "missing": 796,
-    "spacebar": 384,
+    "missing": 795,
+    "spacebar": 385,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -53,7 +53,6 @@
         "/applications/{param}/managed-links/{param}",
         "/applications/{param}/payment-payout-groups",
         "/applications/{param}/proxy-config",
-        "/applications/{param}/public",
         "/applications/{param}/quick-links",
         "/applications/{param}/quick-links/{param}",
         "/applications/{param}/request-additional-intents",
@@ -1450,14 +1449,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/applications/{application_id}/proxy-config"],
             "summaries": ["Get Application Proxy Config"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/public",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_PUBLIC",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/applications/{application_id}/public"],
-            "summaries": ["Get Partial Application"]
         },
         {
             "method": "GET",
