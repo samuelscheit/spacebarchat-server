@@ -38,6 +38,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     /^(POST|HEAD|GET|PATCH|DELETE) \/webhooks\/(?:\d+|\{webhook_id\})\/(?:[A-Za-z0-9_-]+|\{token\})(?:(?:\/messages\/(?:\d+|\{message_id\}))|\/github|\/slack)?\/?$/, // no token requires auth
     /^POST \/interactions\/\d+\/[A-Za-z0-9_-]+\/callback/,
     // Public information endpoints
+    "GET /application-directory-static/categories",
     "GET /ping",
     "GET /gateway",
     "GET /oauth2/keys",

@@ -2796,6 +2796,12 @@
                     "assets"
                 ]
             },
+            "ApplicationDirectoryCategoriesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationDirectoryCategory"
+                }
+            },
             "PartialApplicationIdentityResponse": {
                 "type": "object",
                 "properties": {
@@ -15941,6 +15947,21 @@
                     "id",
                     "name",
                     "type"
+                ]
+            },
+            "ApplicationDirectoryCategory": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
                 ]
             },
             "ChannelLinkedAccount": {
@@ -29331,6 +29352,9 @@
         },
         {
             "name": "apex"
+        },
+        {
+            "name": "application-directory-static"
         },
         {
             "name": "application-identities"
@@ -50906,6 +50930,36 @@
                 },
                 "tags": [
                     "application-identities"
+                ]
+            }
+        },
+        "/application-directory-static/categories": {
+            "get": {
+                "summary": "Get Application Directory Categories",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationDirectoryCategoriesResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to use when selecting localized application directory category names."
+                    }
+                ],
+                "tags": [
+                    "application-directory-static"
                 ]
             }
         },

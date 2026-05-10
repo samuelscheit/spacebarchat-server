@@ -1,6 +1,6 @@
 {
-    "missing": 745,
-    "spacebar": 435,
+    "missing": 744,
+    "spacebar": 436,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -15,7 +15,6 @@
         "/app-recommendations",
         "/application-directory-static/applications/{param}",
         "/application-directory-static/applications/{param}/similar",
-        "/application-directory-static/categories",
         "/application-directory-static/collections",
         "/application-directory-static/search",
         "/application-directory/applications/{param}/embed",
@@ -1162,13 +1161,6 @@
             "sources": ["userdoccers:resources/application-directory.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/application-directory-static/applications/{application_id}/similar"],
             "summaries": ["Get Application Directory Similar Applications"]
-        },
-        {
-            "method": "GET",
-            "route": "/application-directory-static/categories",
-            "route_name": "GET_APPLICATION_DIRECTORY_STATIC_CATEGORIES",
-            "sources": ["userdoccers:resources/application-directory.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Application Directory Categories"]
         },
         {
             "method": "GET",

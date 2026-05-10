@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 540,
+        "totalEntries": 541,
         "byService": {
-            "api": 443,
+            "api": 444,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 515,
+            "http-route": 516,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 104,
+            "contract": 105,
             "stateful-domain": 293,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 398,
+            "route-class": 399,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -444,6 +444,40 @@
                     200,
                     401,
                     403
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/application-directory-static/categories",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/application-directory-static/categories",
+            "sourceFile": "src/api/routes/application-directory-static.ts",
+            "line": 106,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "ApplicationDirectoryCategoriesResponse"
+                ],
+                "responseStatuses": [
+                    200
                 ],
                 "hasQuery": true
             },

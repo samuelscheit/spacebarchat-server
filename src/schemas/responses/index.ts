@@ -21,6 +21,7 @@ export * from "./APIErrorResponse";
 export * from "./AccountStandingResponse";
 export * from "./ActiveThreadsResponse";
 export * from "./ActivityShelfResponse";
+export * from "./ApplicationDirectoryCategoriesResponse";
 export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";
