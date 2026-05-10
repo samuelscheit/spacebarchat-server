@@ -47,6 +47,7 @@ export * from "./ConversationSummariesResponse";
 export * from "./DetectableGameExclusionsResponse";
 export * from "./DiscoverableGuildsResponse";
 export * from "./DmMessagesResponseSchema";
+export * from "./DeviceSyncTokenResponse";
 export * from "./EmailDomainLookupResponse";
 export * from "./EmailDomainLookupVerifyCodeResponse";
 export * from "./EmbeddedActivityInstancesResponse";

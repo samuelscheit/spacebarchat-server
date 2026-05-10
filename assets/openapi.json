@@ -3613,6 +3613,17 @@
                     "$ref": "#/components/schemas/DmChannelDTO"
                 }
             },
+            "DeviceSyncTokenResponse": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "token"
+                ]
+            },
             "EmailDomainLookupResponse": {
                 "type": "object",
                 "properties": {
@@ -31888,6 +31899,42 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/devices/sync-token/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a scoped, expiring push notification sync token for the current user. Spacebar does not currently persist push-device registrations or multi-account device sync state, so this endpoint returns only the source-documented token envelope without fabricating sync state.",
+                "summary": "Get Device Sync Token",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeviceSyncTokenResponse"
                                 }
                             }
                         }

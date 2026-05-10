@@ -1,6 +1,6 @@
 {
-    "missing": 746,
-    "spacebar": 434,
+    "missing": 745,
+    "spacebar": 435,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -488,7 +488,6 @@
         "/users/@me/consent",
         "/users/@me/consumable/hd-streaming",
         "/users/@me/devices/sync",
-        "/users/@me/devices/sync-token",
         "/users/@me/dms/{param}",
         "/users/@me/email",
         "/users/@me/email-settings",
@@ -2805,13 +2804,6 @@
             "route_name": "GET_USERS__ME_CONSUMABLE_HD_STREAMING",
             "sources": ["userdoccers:resources/store.mdx"],
             "summaries": ["Get HD Streaming Consumable"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/devices/sync-token",
-            "route_name": "GET_USERS__ME_DEVICES_SYNC_TOKEN",
-            "sources": ["userdoccers:topics/push-notifications.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Device Sync Token"]
         },
         {
             "method": "GET",

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 539,
+        "totalEntries": 540,
         "byService": {
-            "api": 442,
+            "api": 443,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 514,
+            "http-route": 515,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 104,
-            "stateful-domain": 292,
+            "stateful-domain": 293,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 14,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 397,
+            "route-class": 398,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -16850,6 +16850,46 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/devices/sync-token/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/devices/sync-token/",
+            "sourceFile": "src/api/routes/users/@me/devices/sync-token.ts",
+            "line": 82,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "DeviceSyncTokenResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
                 "hasQuery": false
             },
             "coverage": {

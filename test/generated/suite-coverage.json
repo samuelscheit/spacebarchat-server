@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 444,
+        "totalCoveredManifestEntries": 445,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 422,
-                "totalCoveredManifestEntries": 422,
-                "totalCoveredRequiredManifestEntries": 422,
+                "totalRequiredManifestEntries": 423,
+                "totalCoveredManifestEntries": 423,
+                "totalCoveredRequiredManifestEntries": 423,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 292,
+            "stateful-domain": 293,
             "cdn-integration": 78,
             "integration": 14,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 422,
-                "totalCoveredManifestEntries": 422,
-                "totalCoveredRequiredManifestEntries": 422,
+                "totalRequiredManifestEntries": 423,
+                "totalCoveredManifestEntries": 423,
+                "totalCoveredRequiredManifestEntries": 423,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -255,6 +255,7 @@
                 "api:http:GET:/users/@me/connections/",
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                 "api:http:GET:/users/@me/consumable/confetti/",
+                "api:http:GET:/users/@me/devices/sync-token/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
                 "api:http:GET:/users/@me/game-relationships/",
@@ -679,6 +680,7 @@
                 "api:http:GET:/users/@me/connections/",
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                 "api:http:GET:/users/@me/consumable/confetti/",
+                "api:http:GET:/users/@me/devices/sync-token/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
                 "api:http:GET:/users/@me/game-relationships/",
@@ -1007,6 +1009,7 @@
                         "api:http:GET:/users/@me/connections/",
                         "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                         "api:http:GET:/users/@me/consumable/confetti/",
+                        "api:http:GET:/users/@me/devices/sync-token/",
                         "api:http:GET:/users/@me/email-settings/",
                         "api:http:GET:/users/@me/entitlements/gifts",
                         "api:http:GET:/users/@me/game-relationships/",

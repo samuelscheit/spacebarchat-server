@@ -3564,6 +3564,16 @@
 		"source": "src/api/routes/users/@me/devices.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"DeviceSyncTokenResponse"
+		],
+		"route": "/users/@me/devices/sync-token",
+		"route_name": "GET_USERS__ME_DEVICES_SYNC_TOKEN",
+		"source": "src/api/routes/users/@me/devices/sync-token.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [
 			"APIErrorResponse"

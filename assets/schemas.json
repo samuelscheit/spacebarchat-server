@@ -3810,6 +3810,19 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "DeviceSyncTokenResponse": {
+        "type": "object",
+        "properties": {
+            "token": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "token"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "EmailDomainLookupResponse": {
         "type": "object",
         "properties": {
