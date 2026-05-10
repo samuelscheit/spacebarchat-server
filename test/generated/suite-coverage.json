@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 443,
+        "totalCoveredManifestEntries": 444,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 421,
-                "totalCoveredManifestEntries": 421,
-                "totalCoveredRequiredManifestEntries": 421,
+                "totalRequiredManifestEntries": 422,
+                "totalCoveredManifestEntries": 422,
+                "totalCoveredRequiredManifestEntries": 422,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 291,
+            "stateful-domain": 292,
             "cdn-integration": 78,
             "integration": 14,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 421,
-                "totalCoveredManifestEntries": 421,
-                "totalCoveredRequiredManifestEntries": 421,
+                "totalRequiredManifestEntries": 422,
+                "totalCoveredManifestEntries": 422,
+                "totalCoveredRequiredManifestEntries": 422,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -111,6 +111,7 @@
                 "api:http:DELETE:/users/@me/avatars/:avatar_id",
                 "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                 "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
+                "api:http:DELETE:/users/@me/devices/",
                 "api:http:DELETE:/users/@me/guilds/:guild_id",
                 "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
                 "api:http:DELETE:/users/@me/relationships/:user_id",
@@ -534,6 +535,7 @@
                 "api:http:DELETE:/users/@me/avatars/:avatar_id",
                 "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                 "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
+                "api:http:DELETE:/users/@me/devices/",
                 "api:http:DELETE:/users/@me/guilds/:guild_id",
                 "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
                 "api:http:DELETE:/users/@me/relationships/:user_id",
@@ -979,6 +981,7 @@
                         "api:http:DELETE:/users/@me/avatars/:avatar_id",
                         "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
                         "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
+                        "api:http:DELETE:/users/@me/devices/",
                         "api:http:DELETE:/users/@me/guilds/:guild_id",
                         "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
                         "api:http:DELETE:/users/@me/relationships/:user_id",

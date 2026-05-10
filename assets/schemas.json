@@ -12544,6 +12544,24 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PushNotificationDeviceUnregisterSchema": {
+        "type": "object",
+        "properties": {
+            "provider": {
+                "$ref": "#/definitions/PushNotificationProvider"
+            },
+            "token": {
+                "minLength": 1,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "provider",
+            "token"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "TagCreateSchema": {
         "type": "object",
         "properties": {
@@ -28420,6 +28438,17 @@
             "file_size",
             "filename"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PushNotificationProvider": {
+        "enum": [
+            "apns",
+            "apns_internal",
+            "apns_internal_voip",
+            "apns_voip",
+            "gcm"
+        ],
+        "type": "string",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "SendableApplicationCommandInteractionDataOption": {

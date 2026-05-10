@@ -11936,6 +11936,22 @@
                     "thread_ids"
                 ]
             },
+            "PushNotificationDeviceUnregisterSchema": {
+                "type": "object",
+                "properties": {
+                    "provider": {
+                        "$ref": "#/components/schemas/PushNotificationProvider"
+                    },
+                    "token": {
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "provider",
+                    "token"
+                ]
+            },
             "TagCreateSchema": {
                 "type": "object",
                 "properties": {
@@ -27090,6 +27106,16 @@
                     "filename"
                 ]
             },
+            "PushNotificationProvider": {
+                "enum": [
+                    "apns",
+                    "apns_internal",
+                    "apns_internal_voip",
+                    "apns_voip",
+                    "gcm"
+                ],
+                "type": "string"
+            },
             "SendableApplicationCommandInteractionDataOption": {
                 "type": "object",
                 "properties": {
@@ -31384,6 +31410,53 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Unregisters a GCM/APNs push notification token for the current user's device. Spacebar does not currently persist push-device registrations, so this compatibility endpoint validates the documented unregister payload and acknowledges removal without fabricating device state.",
+                "summary": "Unregister Device",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PushNotificationDeviceUnregisterSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [

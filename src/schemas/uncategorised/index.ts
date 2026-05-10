@@ -121,5 +121,6 @@ export * from "./ThreadCreationSchema";
 export * from "./ThreadMemberSettingsUpdateSchema";
 export * from "./MessageActivity";
 export * from "./PostDataSchema";
+export * from "./PushNotificationDeviceUnregisterSchema";
 export * from "./TagCreateSchema";
 export * from "./ChannelCreateSchema";

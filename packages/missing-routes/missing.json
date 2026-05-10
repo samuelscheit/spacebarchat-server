@@ -1,6 +1,6 @@
 {
-    "missing": 749,
-    "spacebar": 431,
+    "missing": 748,
+    "spacebar": 432,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -489,7 +489,6 @@
         "/users/@me/connections/{param}/{param}/refresh",
         "/users/@me/consent",
         "/users/@me/consumable/hd-streaming",
-        "/users/@me/devices",
         "/users/@me/devices/sync",
         "/users/@me/devices/sync-token",
         "/users/@me/dms/{param}",
@@ -1022,13 +1021,6 @@
             "summaries": ["Delete Subscription"]
         },
         { "method": "DELETE", "route": "/users/@me/billing/subscriptions/preview", "route_name": "BILLING_SUBSCRIPTIONS_PREVIEW", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "DELETE",
-            "route": "/users/@me/devices",
-            "route_name": "DELETE_USERS__ME_DEVICES",
-            "sources": ["userdoccers:topics/push-notifications.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Unregister Device"]
-        },
         {
             "method": "DELETE",
             "route": "/users/@me/entitlements/gift-codes/{param}",

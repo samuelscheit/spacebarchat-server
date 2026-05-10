@@ -3527,6 +3527,16 @@
 		"source": "src/api/routes/users/@me/delete.ts"
 	},
 	{
+		"method": "DELETE",
+		"request_schema_ref": "PushNotificationDeviceUnregisterSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/devices",
+		"route_name": "DELETE_USERS__ME_DEVICES",
+		"source": "src/api/routes/users/@me/devices.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [],
 		"route": "/users/@me/devices",
