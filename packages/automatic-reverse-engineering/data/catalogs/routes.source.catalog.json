@@ -2083,6 +2083,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"NativeModuleVersionsResponse"
+		],
+		"route": "/modules/{release_channel}/versions.json",
+		"route_name": "GET_MODULES_RELEASE_CHANNEL_VERSIONS_JSON",
+		"source": "src/api/routes/modules/#release_channel/versions.json.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"Application"
 		],
 		"route": "/oauth2/applications/@me",

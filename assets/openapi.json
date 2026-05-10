@@ -5800,6 +5800,12 @@
                     "mfa"
                 ]
             },
+            "NativeModuleVersionsResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                }
+            },
             "NotificationCenterItemResponse": {
                 "type": "object",
                 "properties": {
@@ -25243,6 +25249,9 @@
             "name": "mfa"
         },
         {
+            "name": "modules"
+        },
+        {
             "name": "oauth2"
         },
         {
@@ -30561,6 +30570,53 @@
                 },
                 "tags": [
                     "oauth2"
+                ]
+            }
+        },
+        "/modules/{release_channel}/versions.json/": {
+            "get": {
+                "summary": "Get Native Module Versions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NativeModuleVersionsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "release_channel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "release_channel"
+                    },
+                    {
+                        "name": "platform",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Desktop platform to get native module versions for. Defaults to osx."
+                    },
+                    {
+                        "name": "host_version",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Host version to get native module versions for. Defaults to 0."
+                    }
+                ],
+                "tags": [
+                    "modules"
                 ]
             }
         },

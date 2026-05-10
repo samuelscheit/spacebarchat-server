@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 448,
+        "totalEntries": 449,
         "byService": {
-            "api": 351,
+            "api": 352,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 423,
+            "http-route": 424,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 56,
+            "contract": 57,
             "stateful-domain": 257,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 311,
+            "route-class": 312,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -10533,6 +10533,40 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/modules/:release_channel/versions.json/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/modules/:release_channel/versions.json/",
+            "sourceFile": "src/api/routes/modules/#release_channel/versions.json.ts",
+            "line": 29,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "NativeModuleVersionsResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

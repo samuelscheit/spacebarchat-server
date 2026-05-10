@@ -40,6 +40,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /apex/experiments",
     "GET /updates",
     "GET /download",
+    /^(GET|HEAD) \/modules\/[^/]+\/versions\.json\/?$/,
     "GET /scheduled-maintenances/upcoming.json",
     // Public kubernetes integration
     "GET /-/readyz",

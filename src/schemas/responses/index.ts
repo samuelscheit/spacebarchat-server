@@ -63,6 +63,7 @@ export * from "./InviteResponse";
 export * from "./LocationMetadataResponse";
 export * from "./MemberJoinGuildResponse";
 export * from "./MfaRequiredResponse";
+export * from "./NativeModuleVersionsResponse";
 export * from "./NotificationCenterItemsResponse";
 export * from "./OAuthAuthorizeInfoResponse";
 export * from "./OAuthAuthorizeResponse";

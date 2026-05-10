@@ -64,6 +64,13 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/ping/"), true);
     });
 
+    test("allows public native module version routes without authorization", () => {
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/versions.json?platform=osx&host_version=0"), true);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/modules/canary/versions.json/"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/versions.json/extra"), false);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/modules/stable/versions.json"), false);
+    });
+
     test("allows unauthenticated unique username registration suggestions", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/unique-username/username-suggestions-unauthed"), true);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/unique-username/username-suggestions-unauthed?global_name=Gnarp"), true);

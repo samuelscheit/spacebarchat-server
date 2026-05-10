@@ -1,6 +1,6 @@
 {
-    "missing": 837,
-    "spacebar": 343,
+    "missing": 836,
+    "spacebar": 344,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -361,7 +361,6 @@
         "/messages/explicit-media",
         "/metrics",
         "/metrics/v2",
-        "/modules/{param}/versions.json",
         "/modules/{param}/{param}/{param}",
         "/networking/token",
         "/oauth2/@me",
@@ -2628,14 +2627,6 @@
             "sources": ["userdoccers:topics/client-distribution.mdx"],
             "source_routes": ["/modules/{release_channel}/{module_name}/{module_version}"],
             "summaries": ["Get Native Module"]
-        },
-        {
-            "method": "GET",
-            "route": "/modules/{param}/versions.json",
-            "route_name": "GET_MODULES_RELEASE_CHANNEL_VERSIONS_JSON",
-            "sources": ["userdoccers:topics/client-distribution.mdx"],
-            "source_routes": ["/modules/{release_channel}/versions.json"],
-            "summaries": ["Get Native Module Versions"]
         },
         {
             "method": "GET",
