@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 402,
+        "totalCoveredManifestEntries": 405,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 380,
-                "totalCoveredManifestEntries": 380,
-                "totalCoveredRequiredManifestEntries": 380,
+                "totalRequiredManifestEntries": 383,
+                "totalCoveredManifestEntries": 383,
+                "totalCoveredRequiredManifestEntries": 383,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 259,
+            "stateful-domain": 262,
             "contract": 19,
             "auth-scenario": 16,
             "integration": 11,
@@ -65,13 +65,14 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 380,
-                "totalCoveredManifestEntries": 380,
-                "totalCoveredRequiredManifestEntries": 380,
+                "totalRequiredManifestEntries": 383,
+                "totalCoveredManifestEntries": 383,
+                "totalCoveredRequiredManifestEntries": 383,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
                 "api:http:DELETE:/applications/:application_id/commands/:command_id/",
+                "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:DELETE:/channels/:channel_id/",
                 "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
@@ -113,6 +114,7 @@
                 "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
+                "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
                 "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
@@ -251,6 +253,7 @@
                 "api:http:PATCH:/applications/:application_id/",
                 "api:http:PATCH:/applications/:application_id/bot/",
                 "api:http:PATCH:/applications/:application_id/commands/:command_id/",
+                "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:PATCH:/applications/@me/",
                 "api:http:PATCH:/channels/:channel_id/",
@@ -454,6 +457,7 @@
             ],
             "coveredManifestIds": [
                 "api:http:DELETE:/applications/:application_id/commands/:command_id/",
+                "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:DELETE:/channels/:channel_id/",
                 "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
@@ -495,6 +499,7 @@
                 "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
+                "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
                 "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
@@ -633,6 +638,7 @@
                 "api:http:PATCH:/applications/:application_id/",
                 "api:http:PATCH:/applications/:application_id/bot/",
                 "api:http:PATCH:/applications/:application_id/commands/:command_id/",
+                "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:PATCH:/applications/@me/",
                 "api:http:PATCH:/channels/:channel_id/",
@@ -1200,6 +1206,7 @@
                     "checks": ["ownership-boundary", "token-auth-boundary", "schema-validation", "db-state"],
                     "manifestIds": [
                         "api:http:DELETE:/applications/:application_id/commands/:command_id/",
+                        "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:GET:/applications/",
                         "api:http:GET:/applications/:application_id/",
@@ -1207,6 +1214,7 @@
                         "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
                         "api:http:GET:/applications/:application_id/commands/",
                         "api:http:GET:/applications/:application_id/commands/:command_id/",
+                        "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:GET:/applications/:application_id/entitlements/",
                         "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
@@ -1218,6 +1226,7 @@
                         "api:http:PATCH:/applications/:application_id/",
                         "api:http:PATCH:/applications/:application_id/bot/",
                         "api:http:PATCH:/applications/:application_id/commands/:command_id/",
+                        "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:PATCH:/applications/@me/",
                         "api:http:POST:/applications/",

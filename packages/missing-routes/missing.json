@@ -1,6 +1,6 @@
 {
-    "missing": 816,
-    "spacebar": 364,
+    "missing": 813,
+    "spacebar": 367,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -40,7 +40,6 @@
         "/applications/{param}/discoverability-state",
         "/applications/{param}/embedded-activity-config",
         "/applications/{param}/emojis",
-        "/applications/{param}/emojis/{param}",
         "/applications/{param}/entitlements",
         "/applications/{param}/entitlements/{param}",
         "/applications/{param}/entitlements/{param}/consume",
@@ -695,14 +694,6 @@
         "/webhooks/{param}/{param}/slack"
     ],
     "missing_entries": [
-        {
-            "method": "DELETE",
-            "route": "/applications/{param}/emojis/{param}",
-            "route_name": "DELETE_APPLICATIONS_APPLICATION_ID_EMOJIS_EMOJI_ID",
-            "sources": ["userdoccers:resources/emoji.mdx"],
-            "source_routes": ["/applications/{application_id}/emojis/{emoji_id}"],
-            "summaries": ["Delete Application Emoji"]
-        },
         {
             "method": "DELETE",
             "route": "/applications/{param}/entitlements/{param}",
@@ -1432,14 +1423,6 @@
             "sources": ["userdoccers:resources/emoji.mdx"],
             "source_routes": ["/applications/{application_id}/emojis"],
             "summaries": ["Get Application Emojis"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/emojis/{param}",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_EMOJIS_EMOJI_ID",
-            "sources": ["userdoccers:resources/emoji.mdx"],
-            "source_routes": ["/applications/{application_id}/emojis/{emoji_id}"],
-            "summaries": ["Get Application Emoji"]
         },
         {
             "method": "GET",
@@ -3461,14 +3444,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/applications/{application_id}/embedded-activity-config"],
             "summaries": ["Modify Embedded Activity Config"]
-        },
-        {
-            "method": "PATCH",
-            "route": "/applications/{param}/emojis/{param}",
-            "route_name": "PATCH_APPLICATIONS_APPLICATION_ID_EMOJIS_EMOJI_ID",
-            "sources": ["userdoccers:resources/emoji.mdx"],
-            "source_routes": ["/applications/{application_id}/emojis/{emoji_id}"],
-            "summaries": ["Modify Application Emoji"]
         },
         {
             "method": "PATCH",

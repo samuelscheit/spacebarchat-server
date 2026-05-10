@@ -523,6 +523,19 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationEmojiModifySchema": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "minLength": 2,
+                "maxLength": 32,
+                "pattern": "^[A-Za-z0-9_]+$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationIdentitiesSchema": {
         "type": "object",
         "properties": {

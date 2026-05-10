@@ -75,6 +75,10 @@ export function canAccessApplicationBranches(application: ApplicationCommandAuth
     return canAccessApplicationGiftCodeBatches(application, userId);
 }
 
+export function canAccessApplicationEmojis(application: ApplicationCommandAuthorizationTarget, userId: string) {
+    return canManageApplicationCommands(application, userId);
+}
+
 export async function requireApplicationCommandManagement(applicationId: string, userId: string, repository?: ApplicationCommandAuthorizationRepository) {
     const applicationRepository = repository ?? (await getApplicationCommandAuthorizationRepository());
     const application = await applicationRepository.findOne({
@@ -90,6 +94,25 @@ export async function requireApplicationCommandManagement(applicationId: string,
 
     if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
     if (!canManageApplicationCommands(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
+
+    return application;
+}
+
+export async function requireApplicationEmojiAccess(applicationId: string, userId: string, repository?: ApplicationCommandAuthorizationRepository) {
+    const applicationRepository = repository ?? (await getApplicationCommandAuthorizationRepository());
+    const application = await applicationRepository.findOne({
+        where: { id: applicationId },
+        relations: {
+            owner: true,
+            bot: true,
+            team: {
+                members: true,
+            },
+        },
+    });
+
+    if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+    if (!canAccessApplicationEmojis(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
     return application;
 }

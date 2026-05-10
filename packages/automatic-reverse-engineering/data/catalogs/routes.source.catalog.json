@@ -191,6 +191,36 @@
 		"source": "src/api/routes/applications/#application_id/index.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/{application_id}/emojis/{emoji_id}",
+		"route_name": "DELETE_APPLICATIONS_APPLICATION_ID_EMOJIS_EMOJI_ID",
+		"source": "src/api/routes/applications/#application_id/emojis/#emoji_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"EmojiResponse"
+		],
+		"route": "/applications/{application_id}/emojis/{emoji_id}",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_EMOJIS_EMOJI_ID",
+		"source": "src/api/routes/applications/#application_id/emojis/#emoji_id.ts"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "ApplicationEmojiModifySchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"EmojiResponse"
+		],
+		"route": "/applications/{application_id}/emojis/{emoji_id}",
+		"route_name": "PATCH_APPLICATIONS_APPLICATION_ID_EMOJIS_EMOJI_ID",
+		"source": "src/api/routes/applications/#application_id/emojis/#emoji_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"ApplicationEntitlementsResponse"

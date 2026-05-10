@@ -4,10 +4,12 @@ import { TeamMemberRole, TeamMemberState } from "../../../schemas/api/developers
 import { DiscordApiErrors } from "../../../util/util/Constants";
 import {
     canAccessApplicationBranches,
+    canAccessApplicationEmojis,
     canAccessApplicationGiftCodeBatches,
     canManageApplicationCommands,
     requireApplicationBranchAccess,
     requireApplicationCommandManagement,
+    requireApplicationEmojiAccess,
     requireApplicationGiftCodeBatchAccess,
 } from "./ApplicationAuthorization";
 
@@ -371,6 +373,114 @@ describe("application branch authorization", () => {
 
         await assert.rejects(
             () => requireApplicationBranchAccess("app", "attacker", repository),
+            (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
+        );
+    });
+});
+
+describe("application emoji authorization", () => {
+    test("allows the application bot user", () => {
+        assert.equal(
+            canAccessApplicationEmojis(
+                {
+                    owner: { id: "owner" },
+                    bot: { id: "application" },
+                },
+                "application",
+            ),
+            true,
+        );
+    });
+
+    test("allows owners and application-management team members to access application emojis", () => {
+        assert.equal(canAccessApplicationEmojis({ owner: { id: "owner" } }, "owner"), true);
+
+        for (const role of [TeamMemberRole.ADMIN, TeamMemberRole.DEVELOPER]) {
+            assert.equal(
+                canAccessApplicationEmojis(
+                    {
+                        owner: { id: "owner" },
+                        team: {
+                            members: [
+                                {
+                                    user_id: "manager",
+                                    membership_state: TeamMemberState.ACCEPTED,
+                                    role,
+                                },
+                            ],
+                        },
+                    },
+                    "manager",
+                ),
+                true,
+            );
+        }
+    });
+
+    test("rejects non-members, invited team members, and read-only team members", () => {
+        const application = {
+            owner: { id: "owner" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                    {
+                        user_id: "read-only",
+                        membership_state: TeamMemberState.ACCEPTED,
+                        role: TeamMemberRole.READ_ONLY,
+                    },
+                ],
+            },
+        };
+
+        assert.equal(canAccessApplicationEmojis(application, "attacker"), false);
+        assert.equal(canAccessApplicationEmojis(application, "invited"), false);
+        assert.equal(canAccessApplicationEmojis(application, "read-only"), false);
+    });
+
+    test("loads owner, bot, and team members before allowing emoji access", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({
+                owner: { id: "owner" },
+                bot: { id: "app-bot" },
+            })),
+        };
+
+        await requireApplicationEmojiAccess("app", "app-bot", repository);
+
+        assert.deepEqual(repository.findOne.mock.calls[0].arguments[0], {
+            where: { id: "app" },
+            relations: {
+                owner: true,
+                bot: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+    });
+
+    test("throws unknown application for missing applications", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => null),
+        };
+
+        await assert.rejects(
+            () => requireApplicationEmojiAccess("missing-app", "user", repository),
+            (error) => error === DiscordApiErrors.UNKNOWN_APPLICATION,
+        );
+    });
+
+    test("throws the application authorization error for unauthorized callers", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({ owner: { id: "owner" } })),
+        };
+
+        await assert.rejects(
+            () => requireApplicationEmojiAccess("app", "attacker", repository),
             (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
         );
     });

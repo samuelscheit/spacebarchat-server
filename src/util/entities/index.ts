@@ -18,6 +18,7 @@
 
 export * from "./Application";
 export * from "./ApplicationCommand";
+export * from "./ApplicationEmoji";
 export * from "./AdminAuditRecord";
 export * from "./AdminJob";
 export * from "./Attachment";
