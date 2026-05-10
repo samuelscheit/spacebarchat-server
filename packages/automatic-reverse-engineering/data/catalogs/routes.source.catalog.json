@@ -1950,6 +1950,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIApplicationArray",
+			"APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/applications",
+		"route_name": "GET_GUILDS_GUILD_ID_APPLICATIONS",
+		"source": "src/api/routes/guilds/#guild_id/applications.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"AuditLogResponse"
 		],
 		"route": "/guilds/{guild_id}/audit-logs",

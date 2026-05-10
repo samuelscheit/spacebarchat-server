@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 448,
+        "totalCoveredManifestEntries": 449,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 426,
-                "totalCoveredManifestEntries": 426,
-                "totalCoveredRequiredManifestEntries": 426,
+                "totalRequiredManifestEntries": 427,
+                "totalCoveredManifestEntries": 427,
+                "totalCoveredRequiredManifestEntries": 427,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 295,
+            "stateful-domain": 296,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 426,
-                "totalCoveredManifestEntries": 426,
-                "totalCoveredRequiredManifestEntries": 426,
+                "totalRequiredManifestEntries": 427,
+                "totalCoveredManifestEntries": 427,
+                "totalCoveredRequiredManifestEntries": 427,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -184,6 +184,7 @@
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/guilds/:guild_id/",
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
+                "api:http:GET:/guilds/:guild_id/applications/",
                 "api:http:GET:/guilds/:guild_id/audit-logs/",
                 "api:http:GET:/guilds/:guild_id/auto-moderation/rules/",
                 "api:http:GET:/guilds/:guild_id/auto-moderation/rules/:rule_id",
@@ -612,6 +613,7 @@
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/guilds/:guild_id/",
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
+                "api:http:GET:/guilds/:guild_id/applications/",
                 "api:http:GET:/guilds/:guild_id/audit-logs/",
                 "api:http:GET:/guilds/:guild_id/auto-moderation/rules/",
                 "api:http:GET:/guilds/:guild_id/auto-moderation/rules/:rule_id",
@@ -1092,6 +1094,7 @@
                         "api:http:DELETE:/guilds/:guild_id/templates/:code",
                         "api:http:GET:/guilds/:guild_id/",
                         "api:http:GET:/guilds/:guild_id/application-command-index/",
+                        "api:http:GET:/guilds/:guild_id/applications/",
                         "api:http:GET:/guilds/:guild_id/audit-logs/",
                         "api:http:GET:/guilds/:guild_id/auto-moderation/rules/",
                         "api:http:GET:/guilds/:guild_id/auto-moderation/rules/:rule_id",

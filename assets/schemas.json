@@ -2729,6 +2729,13 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "TeamListResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/TeamListTeam"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "OAuthAuthorizeResponse": {
         "type": "object",
         "properties": {
@@ -2794,6 +2801,9 @@
             },
             "owner": {
                 "$ref": "#/definitions/PublicUser"
+            },
+            "team": {
+                "$ref": "#/definitions/TeamListTeam"
             },
             "flags": {
                 "type": "integer"
@@ -9465,13 +9475,6 @@
             "privacy_level",
             "topic"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "TeamListResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/TeamListTeam"
-        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "TenorGifResponse": {
@@ -16415,6 +16418,93 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "TeamListTeam": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "members": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/TeamListTeamMember"
+                }
+            },
+            "name": {
+                "type": "string"
+            },
+            "owner_user_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "members",
+            "name",
+            "owner_user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "TeamListTeamMember": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "membership_state": {
+                "$ref": "#/definitions/TeamMemberState"
+            },
+            "permissions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "role": {
+                "$ref": "#/definitions/TeamMemberRole"
+            },
+            "team_id": {
+                "type": "string"
+            },
+            "user_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "membership_state",
+            "permissions",
+            "role",
+            "team_id",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "TeamMemberState": {
+        "type": "number",
+        "enum": [
+            1,
+            2
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "TeamMemberRole": {
+        "type": "string",
+        "enum": [
+            "admin",
+            "developer",
+            "read_only"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PublicUser": {
         "type": "object",
         "properties": {
@@ -16739,6 +16829,9 @@
             },
             "owner": {
                 "$ref": "#/definitions/PublicUser"
+            },
+            "team": {
+                "$ref": "#/definitions/TeamListTeam"
             },
             "flags": {
                 "type": "integer"
@@ -27105,23 +27198,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "TeamMemberState": {
-        "type": "number",
-        "enum": [
-            1,
-            2
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "TeamMemberRole": {
-        "type": "string",
-        "enum": [
-            "admin",
-            "developer",
-            "read_only"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "Sticker": {
         "type": "object",
         "properties": {
@@ -28855,76 +28931,6 @@
     },
     "SoundboardVolume": {
         "type": "number",
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "TeamListTeam": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "type": "string"
-            },
-            "icon": {
-                "type": [
-                    "null",
-                    "string"
-                ]
-            },
-            "members": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/TeamListTeamMember"
-                }
-            },
-            "name": {
-                "type": "string"
-            },
-            "owner_user_id": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "id",
-            "members",
-            "name",
-            "owner_user_id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "TeamListTeamMember": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "type": "string"
-            },
-            "membership_state": {
-                "$ref": "#/definitions/TeamMemberState"
-            },
-            "permissions": {
-                "type": "array",
-                "items": {
-                    "type": "string"
-                }
-            },
-            "role": {
-                "$ref": "#/definitions/TeamMemberRole"
-            },
-            "team_id": {
-                "type": "string"
-            },
-            "user_id": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "id",
-            "membership_state",
-            "permissions",
-            "role",
-            "team_id",
-            "user_id"
-        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ThreadSearchMember": {

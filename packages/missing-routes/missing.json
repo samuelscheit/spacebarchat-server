@@ -1,6 +1,6 @@
 {
-    "missing": 739,
-    "spacebar": 441,
+    "missing": 738,
+    "spacebar": 442,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -172,7 +172,6 @@
         "/guilds/{param}/analytics/welcome-screen/funnel",
         "/guilds/{param}/analytics/welcome-screen/users",
         "/guilds/{param}/application-commands/{param}",
-        "/guilds/{param}/applications",
         "/guilds/{param}/auto-moderation/alert-action",
         "/guilds/{param}/auto-moderation/clear-mention-raid",
         "/guilds/{param}/auto-moderation/false-alarm",
@@ -1718,14 +1717,6 @@
             "route_name": "GUILD_COMMANDS_FOR_APPLICATION",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/application-commands/{param}"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/applications",
-            "route_name": "GET_GUILDS_GUILD_ID_APPLICATIONS",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/applications"],
-            "summaries": ["Get Guild Applications"]
         },
         {
             "method": "GET",

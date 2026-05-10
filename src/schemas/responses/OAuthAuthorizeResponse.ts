@@ -17,6 +17,7 @@
 */
 
 import type { ApplicationInstallParams, ApplicationType, PublicUser, Snowflake } from "@spacebar/schemas";
+import type { TeamListTeam } from "./TeamListResponse";
 
 export interface OAuthAuthorizeResponse {
     location: string;
@@ -34,6 +35,7 @@ export interface APIApplication {
     bot_require_code_grant?: boolean;
     verify_key?: string;
     owner?: PublicUser;
+    team?: TeamListTeam;
     flags: number;
     redirect_uris?: string[];
     rpc_application_state?: number;

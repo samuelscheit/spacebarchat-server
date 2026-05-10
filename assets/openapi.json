@@ -2619,6 +2619,12 @@
                     }
                 }
             },
+            "TeamListResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/TeamListTeam"
+                }
+            },
             "OAuthAuthorizeResponse": {
                 "type": "object",
                 "properties": {
@@ -2682,6 +2688,9 @@
                     },
                     "owner": {
                         "$ref": "#/components/schemas/PublicUser"
+                    },
+                    "team": {
+                        "$ref": "#/components/schemas/TeamListTeam"
                     },
                     "flags": {
                         "type": "integer"
@@ -9036,12 +9045,6 @@
                     "privacy_level",
                     "topic"
                 ]
-            },
-            "TeamListResponse": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/TeamListTeam"
-                }
             },
             "TenorGifResponse": {
                 "type": "object",
@@ -15625,6 +15628,87 @@
                     "scopes"
                 ]
             },
+            "TeamListTeam": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "members": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TeamListTeamMember"
+                        }
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "owner_user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "members",
+                    "name",
+                    "owner_user_id"
+                ]
+            },
+            "TeamListTeamMember": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "membership_state": {
+                        "$ref": "#/components/schemas/TeamMemberState"
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/TeamMemberRole"
+                    },
+                    "team_id": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "membership_state",
+                    "permissions",
+                    "role",
+                    "team_id",
+                    "user_id"
+                ]
+            },
+            "TeamMemberState": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2
+                ]
+            },
+            "TeamMemberRole": {
+                "type": "string",
+                "enum": [
+                    "admin",
+                    "developer",
+                    "read_only"
+                ]
+            },
             "PublicUser": {
                 "type": "object",
                 "properties": {
@@ -15940,6 +16024,9 @@
                     },
                     "owner": {
                         "$ref": "#/components/schemas/PublicUser"
+                    },
+                    "team": {
+                        "$ref": "#/components/schemas/TeamListTeam"
                     },
                     "flags": {
                         "type": "integer"
@@ -25856,21 +25943,6 @@
                     "user_id"
                 ]
             },
-            "TeamMemberState": {
-                "type": "number",
-                "enum": [
-                    1,
-                    2
-                ]
-            },
-            "TeamMemberRole": {
-                "type": "string",
-                "enum": [
-                    "admin",
-                    "developer",
-                    "read_only"
-                ]
-            },
             "Sticker": {
                 "type": "object",
                 "properties": {
@@ -27514,72 +27586,6 @@
             },
             "SoundboardVolume": {
                 "type": "number"
-            },
-            "TeamListTeam": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "icon": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "members": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/TeamListTeamMember"
-                        }
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "owner_user_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "id",
-                    "members",
-                    "name",
-                    "owner_user_id"
-                ]
-            },
-            "TeamListTeamMember": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "membership_state": {
-                        "$ref": "#/components/schemas/TeamMemberState"
-                    },
-                    "permissions": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "role": {
-                        "$ref": "#/components/schemas/TeamMemberRole"
-                    },
-                    "team_id": {
-                        "type": "string"
-                    },
-                    "user_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "id",
-                    "membership_state",
-                    "permissions",
-                    "role",
-                    "team_id",
-                    "user_id"
-                ]
             },
             "ThreadSearchMember": {
                 "type": "object",
@@ -41255,6 +41261,88 @@
                             "type": "string"
                         },
                         "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/applications/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns application objects attached to the given guild ID. Requires the MANAGE_GUILD permission.",
+                "summary": "Get Guild Applications",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIApplicationArray"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "The type of applications to return."
+                    },
+                    {
+                        "name": "include_team",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include team information for owned applications."
+                    },
+                    {
+                        "name": "channel_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The channel ID to filter by."
                     }
                 ],
                 "tags": [
