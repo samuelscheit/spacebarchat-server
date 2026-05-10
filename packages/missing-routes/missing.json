@@ -1,6 +1,6 @@
 {
-    "missing": 744,
-    "spacebar": 436,
+    "missing": 743,
+    "spacebar": 437,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -15,7 +15,6 @@
         "/app-recommendations",
         "/application-directory-static/applications/{param}",
         "/application-directory-static/applications/{param}/similar",
-        "/application-directory-static/collections",
         "/application-directory-static/search",
         "/application-directory/applications/{param}/embed",
         "/applications/games-supplemental",
@@ -1161,13 +1160,6 @@
             "sources": ["userdoccers:resources/application-directory.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/application-directory-static/applications/{application_id}/similar"],
             "summaries": ["Get Application Directory Similar Applications"]
-        },
-        {
-            "method": "GET",
-            "route": "/application-directory-static/collections",
-            "route_name": "GET_APPLICATION_DIRECTORY_STATIC_COLLECTIONS",
-            "sources": ["userdoccers:resources/application-directory.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Application Directory Collections"]
         },
         {
             "method": "GET",

@@ -2920,6 +2920,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationDirectoryCollectionsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ApplicationDirectoryCollection"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PartialApplicationIdentityResponse": {
         "type": "object",
         "properties": {
@@ -16761,6 +16768,490 @@
         "required": [
             "id",
             "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryCollection": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/ApplicationDirectoryItemType"
+            },
+            "position": {
+                "type": "integer"
+            },
+            "surface": {
+                "enum": [
+                    1,
+                    2,
+                    3
+                ],
+                "type": "number"
+            },
+            "platforms": {
+                "type": "integer"
+            },
+            "active_state": {
+                "$ref": "#/definitions/ApplicationDirectoryActiveState"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "application_directory_collection_items": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationDirectoryCollectionItem"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "active_state",
+            "application_directory_collection_items",
+            "description",
+            "flags",
+            "id",
+            "platforms",
+            "position",
+            "title",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryItemType": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryActiveState": {
+        "type": "number",
+        "enum": [
+            0,
+            1
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryCollectionItem": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "$ref": "#/definitions/ApplicationDirectoryItemType"
+            },
+            "position": {
+                "type": "integer"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "image_hash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "application": {
+                "$ref": "#/definitions/ApplicationDirectoryApplication"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application",
+            "flags",
+            "id",
+            "image_hash",
+            "position",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryApplication": {
+        "type": "object",
+        "additionalProperties": {},
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "description": {
+                "type": "string"
+            },
+            "summary": {
+                "type": "string"
+            },
+            "type": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "is_monetized": {
+                "type": "boolean"
+            },
+            "is_verified": {
+                "type": "boolean"
+            },
+            "is_discoverable": {
+                "type": "boolean"
+            },
+            "cover_image": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "bot": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "hook": {
+                "type": "boolean"
+            },
+            "slug": {
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "storefront_available": {
+                "type": "boolean"
+            },
+            "bot_public": {
+                "type": "boolean"
+            },
+            "bot_require_code_grant": {
+                "type": "boolean"
+            },
+            "terms_of_service_url": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "privacy_policy_url": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "install_params": {
+                "$ref": "#/definitions/ApplicationInstallParams"
+            },
+            "integration_types_config": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/definitions/ApplicationDirectoryIntegrationTypeConfig"
+                }
+            },
+            "verify_key": {
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "flags_new": {
+                "type": "string"
+            },
+            "max_participants": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "embedded_activity_config": {
+                "$ref": "#/definitions/ApplicationDirectoryEmbeddedActivityConfig"
+            },
+            "tags": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "categories": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationDirectoryCategory"
+                }
+            },
+            "directory_entry": {
+                "$ref": "#/definitions/ApplicationDirectoryEntry"
+            }
+        },
+        "required": [
+            "description",
+            "flags",
+            "icon",
+            "id",
+            "name",
+            "type",
+            "verify_key"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryIntegrationTypeConfig": {
+        "type": "object",
+        "properties": {
+            "oauth2_install_params": {
+                "$ref": "#/definitions/ApplicationInstallParams"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryEmbeddedActivityConfig": {
+        "type": "object",
+        "additionalProperties": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryEntry": {
+        "type": "object",
+        "properties": {
+            "guild_count": {
+                "type": "integer"
+            },
+            "carousel_items": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationDirectoryCarouselItem"
+                }
+            },
+            "supported_locales": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "external_urls": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationDirectoryExternalUrl"
+                }
+            },
+            "popular_application_command_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "popular_application_commands": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationCommand"
+                }
+            },
+            "detailed_description": {
+                "type": "string"
+            },
+            "detailed_description_localizations": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "short_description": {
+                "type": "string"
+            },
+            "short_description_localizations": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild_count",
+            "short_description",
+            "supported_locales"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryCarouselItem": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/ApplicationDirectoryCarouselItemType"
+            },
+            "url": {
+                "type": "string"
+            },
+            "proxy_url": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "type",
+            "url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryCarouselItemType": {
+        "type": "number",
+        "enum": [
+            1,
+            2
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryExternalUrl": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "url": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommand": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "application_id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationCommandOption"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "description",
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandOption": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/ApplicationCommandOptionType"
+            },
+            "name": {
+                "type": "string"
+            },
+            "name_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "description": {
+                "type": "string"
+            },
+            "description_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "required": {
+                "type": "boolean"
+            },
+            "choices": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationCommandOptionChoice"
+                }
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationCommandOption"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandOptionChoice": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "name_localizations": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "value": {
+                "type": [
+                    "string",
+                    "integer"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "value"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -30717,80 +31208,6 @@
                 }
             }
         ]
-    },
-    "ApplicationCommandOption": {
-        "type": "object",
-        "properties": {
-            "type": {
-                "$ref": "#/definitions/ApplicationCommandOptionType"
-            },
-            "name": {
-                "type": "string"
-            },
-            "name_localizations": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "string"
-                }
-            },
-            "description": {
-                "type": "string"
-            },
-            "description_localizations": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "string"
-                }
-            },
-            "required": {
-                "type": "boolean"
-            },
-            "choices": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/ApplicationCommandOptionChoice"
-                }
-            },
-            "options": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/ApplicationCommandOption"
-                }
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "description",
-            "name",
-            "type"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationCommandOptionChoice": {
-        "type": "object",
-        "properties": {
-            "name": {
-                "type": "string"
-            },
-            "name_localizations": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "string"
-                }
-            },
-            "value": {
-                "type": [
-                    "string",
-                    "integer"
-                ]
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "name",
-            "value"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "SessionClientStatus": {
         "type": "object",

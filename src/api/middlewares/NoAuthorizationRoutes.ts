@@ -39,6 +39,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     /^POST \/interactions\/\d+\/[A-Za-z0-9_-]+\/callback/,
     // Public information endpoints
     "GET /application-directory-static/categories",
+    "GET /application-directory-static/collections",
     "GET /ping",
     "GET /gateway",
     "GET /oauth2/keys",

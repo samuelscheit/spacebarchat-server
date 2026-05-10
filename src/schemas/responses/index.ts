@@ -22,6 +22,7 @@ export * from "./AccountStandingResponse";
 export * from "./ActiveThreadsResponse";
 export * from "./ActivityShelfResponse";
 export * from "./ApplicationDirectoryCategoriesResponse";
+export * from "./ApplicationDirectoryCollectionsResponse";
 export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";

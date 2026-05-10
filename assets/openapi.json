@@ -2802,6 +2802,12 @@
                     "$ref": "#/components/schemas/ApplicationDirectoryCategory"
                 }
             },
+            "ApplicationDirectoryCollectionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationDirectoryCollection"
+                }
+            },
             "PartialApplicationIdentityResponse": {
                 "type": "object",
                 "properties": {
@@ -15962,6 +15968,467 @@
                 "required": [
                     "id",
                     "name"
+                ]
+            },
+            "ApplicationDirectoryCollection": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryItemType"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "surface": {
+                        "enum": [
+                            1,
+                            2,
+                            3
+                        ],
+                        "type": "number"
+                    },
+                    "platforms": {
+                        "type": "integer"
+                    },
+                    "active_state": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryActiveState"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "application_directory_collection_items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationDirectoryCollectionItem"
+                        }
+                    }
+                },
+                "required": [
+                    "active_state",
+                    "application_directory_collection_items",
+                    "description",
+                    "flags",
+                    "id",
+                    "platforms",
+                    "position",
+                    "title",
+                    "type"
+                ]
+            },
+            "ApplicationDirectoryItemType": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2,
+                    3
+                ]
+            },
+            "ApplicationDirectoryActiveState": {
+                "type": "number",
+                "enum": [
+                    0,
+                    1
+                ]
+            },
+            "ApplicationDirectoryCollectionItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryItemType"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "image_hash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryApplication"
+                    }
+                },
+                "required": [
+                    "application",
+                    "flags",
+                    "id",
+                    "image_hash",
+                    "position",
+                    "type"
+                ]
+            },
+            "ApplicationDirectoryApplication": {
+                "type": "object",
+                "additionalProperties": {},
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "is_monetized": {
+                        "type": "boolean"
+                    },
+                    "is_verified": {
+                        "type": "boolean"
+                    },
+                    "is_discoverable": {
+                        "type": "boolean"
+                    },
+                    "cover_image": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "bot": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "hook": {
+                        "type": "boolean"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "storefront_available": {
+                        "type": "boolean"
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "terms_of_service_url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "privacy_policy_url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "install_params": {
+                        "$ref": "#/components/schemas/ApplicationInstallParams"
+                    },
+                    "integration_types_config": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/ApplicationDirectoryIntegrationTypeConfig"
+                        }
+                    },
+                    "verify_key": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "flags_new": {
+                        "type": "string"
+                    },
+                    "max_participants": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "embedded_activity_config": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryEmbeddedActivityConfig"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationDirectoryCategory"
+                        }
+                    },
+                    "directory_entry": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryEntry"
+                    }
+                },
+                "required": [
+                    "description",
+                    "flags",
+                    "icon",
+                    "id",
+                    "name",
+                    "type",
+                    "verify_key"
+                ]
+            },
+            "ApplicationDirectoryIntegrationTypeConfig": {
+                "type": "object",
+                "properties": {
+                    "oauth2_install_params": {
+                        "$ref": "#/components/schemas/ApplicationInstallParams"
+                    }
+                }
+            },
+            "ApplicationDirectoryEmbeddedActivityConfig": {
+                "type": "object",
+                "additionalProperties": {}
+            },
+            "ApplicationDirectoryEntry": {
+                "type": "object",
+                "properties": {
+                    "guild_count": {
+                        "type": "integer"
+                    },
+                    "carousel_items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationDirectoryCarouselItem"
+                        }
+                    },
+                    "supported_locales": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "external_urls": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationDirectoryExternalUrl"
+                        }
+                    },
+                    "popular_application_command_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "popular_application_commands": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationCommand"
+                        }
+                    },
+                    "detailed_description": {
+                        "type": "string"
+                    },
+                    "detailed_description_localizations": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "short_description": {
+                        "type": "string"
+                    },
+                    "short_description_localizations": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "guild_count",
+                    "short_description",
+                    "supported_locales"
+                ]
+            },
+            "ApplicationDirectoryCarouselItem": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryCarouselItemType"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "proxy_url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "type",
+                    "url"
+                ]
+            },
+            "ApplicationDirectoryCarouselItemType": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2
+                ]
+            },
+            "ApplicationDirectoryExternalUrl": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "url"
+                ]
+            },
+            "ApplicationCommand": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationCommandOption"
+                        }
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "description",
+                    "id",
+                    "name"
+                ]
+            },
+            "ApplicationCommandOption": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/ApplicationCommandOptionType"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "description_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "required": {
+                        "type": "boolean"
+                    },
+                    "choices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationCommandOptionChoice"
+                        }
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationCommandOption"
+                        }
+                    }
+                },
+                "required": [
+                    "description",
+                    "name",
+                    "type"
+                ]
+            },
+            "ApplicationCommandOptionChoice": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "name_localizations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "value": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "value"
                 ]
             },
             "ChannelLinkedAccount": {
@@ -29246,76 +29713,6 @@
                             ]
                         }
                     }
-                ]
-            },
-            "ApplicationCommandOption": {
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "$ref": "#/components/schemas/ApplicationCommandOptionType"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "name_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "description_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "required": {
-                        "type": "boolean"
-                    },
-                    "choices": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationCommandOptionChoice"
-                        }
-                    },
-                    "options": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ApplicationCommandOption"
-                        }
-                    }
-                },
-                "required": [
-                    "description",
-                    "name",
-                    "type"
-                ]
-            },
-            "ApplicationCommandOptionChoice": {
-                "type": "object",
-                "properties": {
-                    "name": {
-                        "type": "string"
-                    },
-                    "name_localizations": {
-                        "type": "object",
-                        "additionalProperties": {
-                            "type": "string"
-                        }
-                    },
-                    "value": {
-                        "type": [
-                            "string",
-                            "integer"
-                        ]
-                    }
-                },
-                "required": [
-                    "name",
-                    "value"
                 ]
             },
             "SessionClientStatus": {
@@ -50956,6 +51353,68 @@
                             "type": "string"
                         },
                         "description": "Locale to use when selecting localized application directory category names."
+                    }
+                ],
+                "tags": [
+                    "application-directory-static"
+                ]
+            }
+        },
+        "/application-directory-static/collections/": {
+            "get": {
+                "summary": "Get Application Directory Collections",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationDirectoryCollectionsResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "surface",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Application directory request surface used by clients for analytics."
+                    },
+                    {
+                        "name": "active_state",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Directory active-state filter. Discord limits this filter to employees."
+                    },
+                    {
+                        "name": "platform",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Application directory platform flag filter."
+                    },
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to return collection text in."
+                    },
+                    {
+                        "name": "cache",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to return cached results. Discord limits this option to employees."
                     }
                 ],
                 "tags": [
