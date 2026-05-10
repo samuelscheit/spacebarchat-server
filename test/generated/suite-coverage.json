@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 407,
+        "totalCoveredManifestEntries": 408,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 385,
-                "totalCoveredManifestEntries": 385,
-                "totalCoveredRequiredManifestEntries": 385,
+                "totalRequiredManifestEntries": 386,
+                "totalCoveredManifestEntries": 386,
+                "totalCoveredRequiredManifestEntries": 386,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 264,
+            "stateful-domain": 265,
             "contract": 19,
             "auth-scenario": 16,
             "integration": 11,
@@ -65,9 +65,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 385,
-                "totalCoveredManifestEntries": 385,
-                "totalCoveredRequiredManifestEntries": 385,
+                "totalRequiredManifestEntries": 386,
+                "totalCoveredManifestEntries": 386,
+                "totalCoveredRequiredManifestEntries": 386,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -88,6 +88,7 @@
                 "api:http:DELETE:/channels/:channel_id/permissions/:overwrite_id",
                 "api:http:DELETE:/channels/:channel_id/pins/:message_id",
                 "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
+                "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                 "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                 "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
                 "api:http:DELETE:/guilds/:guild_id/auto-moderation/rules/:rule_id",
@@ -475,6 +476,7 @@
                 "api:http:DELETE:/channels/:channel_id/permissions/:overwrite_id",
                 "api:http:DELETE:/channels/:channel_id/pins/:message_id",
                 "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
+                "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                 "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                 "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
                 "api:http:DELETE:/guilds/:guild_id/auto-moderation/rules/:rule_id",
@@ -1113,6 +1115,7 @@
                         "api:http:DELETE:/channels/:channel_id/permissions/:overwrite_id",
                         "api:http:DELETE:/channels/:channel_id/pins/:message_id",
                         "api:http:DELETE:/channels/:channel_id/recipients/:user_id",
+                        "api:http:DELETE:/channels/:channel_id/safety-warnings/",
                         "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                         "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
                         "api:http:GET:/channels/:channel_id/",

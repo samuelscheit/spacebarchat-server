@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 476,
+        "totalEntries": 477,
         "byService": {
-            "api": 379,
+            "api": 380,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 451,
+            "http-route": 452,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 77,
-            "stateful-domain": 264,
+            "stateful-domain": 265,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 339,
+            "route-class": 340,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -4944,6 +4944,62 @@
                 "emittedEvents": [
                     "CHANNEL_CREATE",
                     "CHANNEL_RECIPIENT_ADD"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/channels/:channel_id/safety-warnings/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/channels/:channel_id/safety-warnings/",
+            "sourceFile": "src/api/routes/channels/#channel_id/safety-warnings.ts",
+            "line": 52,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "right": "OPERATOR",
+                "event": "CHANNEL_UPDATE",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
                 ]
             },
             "rateLimit": {

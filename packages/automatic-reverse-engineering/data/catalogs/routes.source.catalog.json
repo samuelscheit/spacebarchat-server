@@ -983,6 +983,15 @@
 		"source": "src/api/routes/channels/#channel_id/recipients.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/safety-warnings",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_SAFETY_WARNINGS",
+		"source": "src/api/routes/channels/#channel_id/safety-warnings.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "TagCreateSchema",
 		"response_schema_refs": [
