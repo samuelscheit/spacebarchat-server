@@ -1505,6 +1505,15 @@
 		"response_schema_refs": [
 			"APIErrorResponse"
 		],
+		"route": "/friend-suggestions/{user_id}",
+		"route_name": "DELETE_FRIEND_SUGGESTIONS_USER_ID",
+		"source": "src/api/routes/friend-suggestions.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
 		"route": "/game-invite/@me",
 		"route_name": "DELETE_GAME_INVITE__ME",
 		"source": "src/api/routes/game-invite/@me.ts"

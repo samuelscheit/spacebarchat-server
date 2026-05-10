@@ -698,6 +698,13 @@ export interface RelationshipRemoveEvent extends Event {
     data: Omit<PublicRelationship, "nickname">;
 }
 
+export interface FriendSuggestionDeleteEvent extends Event {
+    event: "FRIEND_SUGGESTION_DELETE";
+    data: {
+        suggested_user_id: Snowflake;
+    };
+}
+
 export interface GatewaySessionClientInfo {
     version: number;
     os: string;
@@ -832,6 +839,7 @@ export type EventData =
     | InteractionSuccessEvent
     | InteractionFailureEvent
     | MessageAckEvent
+    | FriendSuggestionDeleteEvent
     | RelationshipAddEvent
     | RelationshipRemoveEvent
     | ThreadCreateEvent
@@ -897,6 +905,7 @@ export enum EVENTEnum {
     ApplicationCommandCreate = "APPLICATION_COMMAND_CREATE",
     ApplicationCommandUpdate = "APPLICATION_COMMAND_UPDATE",
     ApplicationCommandDelete = "APPLICATION_COMMAND_DELETE",
+    FriendSuggestionDelete = "FRIEND_SUGGESTION_DELETE",
     SessionsReplace = "SESSIONS_REPLACE",
     ThreadCreate = "THREAD_CREATE",
     ThreadUpdate = "THREAD_UPDATE",
@@ -970,6 +979,7 @@ export const EVENT_NAMES = [
     "APPLICATION_COMMAND_UPDATE",
     "APPLICATION_COMMAND_DELETE",
     "MESSAGE_ACK",
+    "FRIEND_SUGGESTION_DELETE",
     "RELATIONSHIP_ADD",
     "RELATIONSHIP_REMOVE",
     "RELATIONSHIP_UPDATE",

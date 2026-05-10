@@ -1,6 +1,6 @@
 {
-    "missing": 778,
-    "spacebar": 402,
+    "missing": 777,
+    "spacebar": 403,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -150,7 +150,6 @@
         "/family-center/more-activity/{param}/{param}/{param}/{param}",
         "/family-center/{param}/activity",
         "/friend-finder/find-friends",
-        "/friend-suggestions/{param}",
         "/gifs/select",
         "/google-play/downgrade-subscription",
         "/google-play/validate-purchase",
@@ -795,14 +794,6 @@
             "route": "/content-inventory/users/@me/outbox/entries/id/{param}/history",
             "route_name": "DELETE_MY_CONTENT_INVENTORY_OUTBOX_ENTRY_HISTORY",
             "sources": ["xhyrom:data/client/routes.json"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/friend-suggestions/{param}",
-            "route_name": "DELETE_FRIEND_SUGGESTIONS_USER_ID",
-            "sources": ["userdoccers:resources/relationships.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/friend-suggestions/{user_id}"],
-            "summaries": ["Remove Friend Suggestion"]
         },
         {
             "method": "DELETE",

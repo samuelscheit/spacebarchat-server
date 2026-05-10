@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 507,
+        "totalEntries": 508,
         "byService": {
-            "api": 410,
+            "api": 411,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 482,
+            "http-route": 483,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 91,
+            "contract": 92,
             "stateful-domain": 276,
             "cdn-integration": 76,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 367,
+            "route-class": 368,
             "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7434,13 +7434,51 @@
             }
         },
         {
+            "id": "api:http:DELETE:/friend-suggestions/:user_id",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/friend-suggestions/:user_id",
+            "sourceFile": "src/api/routes/friend-suggestions.ts",
+            "line": 61,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    401
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "FRIEND_SUGGESTION_DELETE"
+                ]
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/friend-suggestions/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/friend-suggestions/",
             "sourceFile": "src/api/routes/friend-suggestions.ts",
-            "line": 30,
+            "line": 45,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

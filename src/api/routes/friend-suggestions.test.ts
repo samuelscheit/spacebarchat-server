@@ -63,18 +63,70 @@ describe("GET /friend-suggestions", () => {
     });
 });
 
+describe("DELETE /friend-suggestions/:user_id", () => {
+    test("declares authenticated friend suggestion removal metadata", (t) => {
+        const harness = setupFriendSuggestionsRoute(t);
+
+        assert.deepEqual(harness.routeOptions[1], {
+            summary: "Remove Friend Suggestion",
+            responses: {
+                204: {},
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        });
+        assert.equal(harness.isNoAuthorizationRoute("DELETE", "/friend-suggestions/852892297661906993"), false);
+    });
+
+    test("acknowledges deletion and emits the documented client invalidation", async (t) => {
+        const harness = setupFriendSuggestionsRoute(t);
+
+        await harness.routeModule.deleteFriendSuggestion("authorized-user", "852892297661906993", (event) => {
+            harness.emittedEvents.push(event);
+        });
+
+        assert.deepEqual(harness.emittedEvents.pop(), {
+            event: "FRIEND_SUGGESTION_DELETE",
+            user_id: "authorized-user",
+            data: {
+                suggested_user_id: "852892297661906993",
+            },
+        });
+
+        const response = await requestRoute(harness.app, "/friend-suggestions/852892297661906993", "DELETE");
+
+        assert.equal(response.status, 204);
+        assert.equal(response.text, "");
+        assert.deepEqual(harness.emittedEvents, [
+            {
+                event: "FRIEND_SUGGESTION_DELETE",
+                user_id: "authorized-user",
+                data: {
+                    suggested_user_id: "852892297661906993",
+                },
+            },
+        ]);
+    });
+});
+
 function setupFriendSuggestionsRoute(t: TestContext) {
     process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
     const routeHandler = requireModule(distModulePath("api", "util", "handlers", "route.js")) as typeof import("../util/handlers/route");
     const errorHandlerModule = requireModule(distModulePath("api", "middlewares", "ErrorHandler.js")) as typeof import("../middlewares/ErrorHandler");
     const noAuthorizationRoutes = requireModule(distModulePath("api", "middlewares", "NoAuthorizationRoutes.js")) as typeof import("../middlewares/NoAuthorizationRoutes");
+    const eventModule = requireModule(distModulePath("util", "util", "Event.js")) as typeof import("../../util/util/Event");
 
     const routeOptions: unknown[] = [];
+    const emittedEvents: unknown[] = [];
 
     t.mock.method(routeHandler, "route", (options: unknown) => {
         routeOptions.push(options);
         return (_req: express.Request, _res: express.Response, next: express.NextFunction) => next();
+    });
+    t.mock.method(eventModule, "emitEvent", async (event: unknown) => {
+        emittedEvents.push(event);
     });
 
     delete require.cache[routeModulePath];
@@ -91,6 +143,7 @@ function setupFriendSuggestionsRoute(t: TestContext) {
     return {
         app,
         routeModule,
+        emittedEvents,
         isNoAuthorizationRoute: noAuthorizationRoutes.isNoAuthorizationRoute,
         get routeOptions() {
             return routeOptions;
@@ -99,16 +152,25 @@ function setupFriendSuggestionsRoute(t: TestContext) {
 }
 
 async function requestJson(app: express.Express, requestPath: string): Promise<{ status: number; body: unknown }> {
+    const response = await requestRoute(app, requestPath, "GET");
+
+    return {
+        status: response.status,
+        body: response.text ? JSON.parse(response.text) : undefined,
+    };
+}
+
+async function requestRoute(app: express.Express, requestPath: string, method: "DELETE" | "GET"): Promise<{ status: number; text: string }> {
     const server = app.listen(0);
     try {
         const address = server.address() as AddressInfo;
         const response = await fetch(`http://127.0.0.1:${address.port}${requestPath}`, {
-            method: "GET",
+            method,
         });
 
         return {
             status: response.status,
-            body: await response.json(),
+            text: await response.text(),
         };
     } finally {
         await new Promise<void>((resolve, reject) => {

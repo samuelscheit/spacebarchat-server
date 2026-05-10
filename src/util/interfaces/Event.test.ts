@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
-import { EVENTEnum, READY_SESSION_TYPE, type ConversationSummaryUpdateEvent, type EVENT, type MessageReactionAddManyEvent, type ReadyEventData } from "./Event";
+import {
+    EVENTEnum,
+    READY_SESSION_TYPE,
+    type ConversationSummaryUpdateEvent,
+    type EVENT,
+    type FriendSuggestionDeleteEvent,
+    type MessageReactionAddManyEvent,
+    type ReadyEventData,
+} from "./Event";
 
 describe("ReadyEventData", () => {
     test("uses Discord's normal READY session type", () => {
@@ -66,6 +74,29 @@ describe("conversation summary gateway event declarations", () => {
             guild_id: "guild-id",
             channel_id: "channel-id",
             summaries: [],
+        });
+    });
+});
+
+describe("friend suggestion delete gateway event declarations", () => {
+    test("uses the documented friend suggestion delete event name", () => {
+        assert.equal(EVENTEnum.FriendSuggestionDelete, "FRIEND_SUGGESTION_DELETE");
+
+        const eventName: EVENT = "FRIEND_SUGGESTION_DELETE";
+        assert.equal(eventName, "FRIEND_SUGGESTION_DELETE");
+    });
+
+    test("types the documented deleted suggestion payload", () => {
+        const event: FriendSuggestionDeleteEvent = {
+            event: "FRIEND_SUGGESTION_DELETE",
+            user_id: "current-user",
+            data: {
+                suggested_user_id: "852892297661906993",
+            },
+        };
+
+        assert.deepEqual(event.data, {
+            suggested_user_id: "852892297661906993",
         });
     });
 });
