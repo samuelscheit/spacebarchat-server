@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 454,
+        "totalEntries": 455,
         "byService": {
-            "api": 357,
+            "api": 358,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 429,
+            "http-route": 430,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 62,
+            "contract": 63,
             "stateful-domain": 257,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 317,
+            "route-class": 318,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -10717,6 +10717,41 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/modules/:release_channel/:module_name/:module_version/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/modules/:release_channel/:module_name/:module_version/",
+            "sourceFile": "src/api/routes/modules/#release_channel/#module_name/#module_version.ts",
+            "line": 69,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    302,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

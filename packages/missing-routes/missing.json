@@ -1,6 +1,6 @@
 {
-    "missing": 831,
-    "spacebar": 349,
+    "missing": 830,
+    "spacebar": 350,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -356,7 +356,6 @@
         "/messages/explicit-media",
         "/metrics",
         "/metrics/v2",
-        "/modules/{param}/{param}/{param}",
         "/networking/token",
         "/oauth2/@me",
         "/oauth2/allowlist/accept",
@@ -2578,14 +2577,6 @@
             "sources": ["userdoccers:resources/lobby.mdx"],
             "source_routes": ["/lobbies/{lobby_id}/messages"],
             "summaries": ["Get Lobby Messages"]
-        },
-        {
-            "method": "GET",
-            "route": "/modules/{param}/{param}/{param}",
-            "route_name": "GET_MODULES_RELEASE_CHANNEL_MODULE_NAME_MODULE_VERSION",
-            "sources": ["userdoccers:topics/client-distribution.mdx"],
-            "source_routes": ["/modules/{release_channel}/{module_name}/{module_version}"],
-            "summaries": ["Get Native Module"]
         },
         {
             "method": "GET",

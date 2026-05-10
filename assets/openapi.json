@@ -30883,6 +30883,75 @@
                 ]
             }
         },
+        "/modules/{release_channel}/{module_name}/{module_version}/": {
+            "get": {
+                "description": "Redirects to a native module ZIP archive when the server has one available.",
+                "summary": "Get Native Module",
+                "responses": {
+                    "302": {
+                        "description": "No description available"
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "release_channel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "release_channel"
+                    },
+                    {
+                        "name": "module_name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "module_name"
+                    },
+                    {
+                        "name": "module_version",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "module_version"
+                    },
+                    {
+                        "name": "platform",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Desktop platform to get the native module for. Defaults to osx."
+                    },
+                    {
+                        "name": "host_version",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Host version to get the native module for. Defaults to 0."
+                    }
+                ],
+                "tags": [
+                    "modules"
+                ]
+            }
+        },
         "/mfa/finish/": {
             "post": {
                 "requestBody": {

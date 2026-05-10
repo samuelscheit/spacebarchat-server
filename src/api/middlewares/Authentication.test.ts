@@ -67,8 +67,17 @@ describe("unauthenticated route matching", () => {
     test("allows public native module version routes without authorization", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/versions.json?platform=osx&host_version=0"), true);
         assert.equal(isNoAuthorizationRoute("HEAD", "/modules/canary/versions.json/"), true);
-        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/versions.json/extra"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/versions.json/extra/more"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/modules/stable/versions.json"), false);
+    });
+
+    test("allows public native module archive routes without authorization", () => {
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/discord_desktop_core/1?platform=osx&host_version=0"), true);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/modules/canary/discord_voice/2/"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/versions.json/extra"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/discord_voice/not-a-version"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/modules/stable/discord_voice/1/extra"), false);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/modules/stable/discord_voice/1"), false);
     });
 
     test("allows unauthenticated unique username registration suggestions", () => {

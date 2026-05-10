@@ -41,6 +41,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /updates",
     "GET /download",
     /^(GET|HEAD) \/modules\/[^/]+\/versions\.json\/?$/,
+    /^(GET|HEAD) \/modules\/[^/]+\/[^/]+\/[^/]+\/?$/,
     "GET /scheduled-maintenances/upcoming.json",
     // Public kubernetes integration
     "GET /-/readyz",

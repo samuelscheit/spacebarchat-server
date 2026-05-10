@@ -2133,6 +2133,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/modules/{release_channel}/{module_name}/{module_version}",
+		"route_name": "GET_MODULES_RELEASE_CHANNEL_MODULE_NAME_MODULE_VERSION",
+		"source": "src/api/routes/modules/#release_channel/#module_name/#module_version.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"NativeModuleVersionsResponse"
 		],
 		"route": "/modules/{release_channel}/versions.json",
