@@ -1,6 +1,6 @@
 {
-    "missing": 761,
-    "spacebar": 419,
+    "missing": 760,
+    "spacebar": 420,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -133,7 +133,6 @@
         "/discoverable-guilds/search",
         "/discovery/search",
         "/discovery/{param}",
-        "/downloads/distributions/app/installers/latest",
         "/emojis/{param}/guild",
         "/entitlements/gift-codes/{param}/redeem",
         "/entitlements/partner-promotions/{param}",
@@ -1556,13 +1555,6 @@
             "route_name": "GET_DISCOVERY_SEARCH",
             "sources": ["userdoccers:resources/discovery.mdx"],
             "summaries": ["Search Published Guilds"]
-        },
-        {
-            "method": "GET",
-            "route": "/downloads/distributions/app/installers/latest",
-            "route_name": "GET_DOWNLOADS_DISTRIBUTIONS_APP_INSTALLERS_LATEST",
-            "sources": ["userdoccers:topics/client-distribution.mdx"],
-            "summaries": ["Get Latest Distributed Application Installer"]
         },
         {
             "method": "GET",

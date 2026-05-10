@@ -35,6 +35,12 @@ export class ClientRelease extends BaseClass {
     @Column()
     platform: string;
 
+    @Column({ nullable: true })
+    release_channel?: string;
+
+    @Column({ nullable: true })
+    arch?: string;
+
     @Column()
     enabled: boolean;
 

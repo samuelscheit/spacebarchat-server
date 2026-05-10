@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 524,
+        "totalEntries": 525,
         "byService": {
-            "api": 427,
+            "api": 428,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 499,
+            "http-route": 500,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 100,
+            "contract": 101,
             "stateful-domain": 284,
             "cdn-integration": 76,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 384,
+            "route-class": 385,
             "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7739,6 +7739,42 @@
             "path": "/download/",
             "sourceFile": "src/api/routes/download.ts",
             "line": 74,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    302,
+                    400,
+                    404
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/downloads/distributions/app/installers/latest/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/downloads/distributions/app/installers/latest/",
+            "sourceFile": "src/api/routes/downloads/distributions/app/installers/latest.ts",
+            "line": 40,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

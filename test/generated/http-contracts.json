@@ -3,16 +3,16 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 499,
+        "totalContracts": 500,
         "byService": {
-            "api": 426,
+            "api": 427,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 365,
         "runtimeMalformedAuthContracts": 365,
         "runtimeRevokedSessionAuthContracts": 365,
         "runtimeStaleTokenAuthContracts": 365,
-        "runtimePublicAuthBoundaryContracts": 53,
+        "runtimePublicAuthBoundaryContracts": 54,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 63,
         "runtimePublicResponseSchemaContracts": 13,
@@ -10343,6 +10343,46 @@
             "samplePath": "/download/",
             "sourceFile": "src/api/routes/download.ts",
             "line": 74,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [302, 400, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/downloads/distributions/app/installers/latest/",
+            "service": "api",
+            "method": "GET",
+            "path": "/downloads/distributions/app/installers/latest/",
+            "samplePath": "/downloads/distributions/app/installers/latest/",
+            "sourceFile": "src/api/routes/downloads/distributions/app/installers/latest.ts",
+            "line": 40,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",

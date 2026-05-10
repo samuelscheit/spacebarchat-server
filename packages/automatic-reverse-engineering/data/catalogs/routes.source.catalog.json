@@ -1553,6 +1553,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/downloads/distributions/app/installers/latest",
+		"route_name": "GET_DOWNLOADS_DISTRIBUTIONS_APP_INSTALLERS_LATEST",
+		"source": "src/api/routes/downloads/distributions/app/installers/latest.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse",
 			"EmojiSourceResponse"
 		],

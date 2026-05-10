@@ -28617,6 +28617,9 @@
             "name": "download"
         },
         {
+            "name": "downloads"
+        },
+        {
             "name": "emojis"
         },
         {
@@ -40660,6 +40663,69 @@
                 ],
                 "tags": [
                     "emojis"
+                ]
+            }
+        },
+        "/downloads/distributions/app/installers/latest/": {
+            "get": {
+                "description": "Redirects to the latest Windows application installer for the selected release channel, platform, and architecture.",
+                "summary": "Get Latest Distributed Application Installer",
+                "responses": {
+                    "302": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Desktop release channel to get the installer for."
+                    },
+                    {
+                        "name": "platform",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Desktop platform to get the installer for. Distributed installers are currently Windows-only."
+                    },
+                    {
+                        "name": "arch",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Desktop architecture to get the installer for."
+                    }
+                ],
+                "tags": [
+                    "downloads"
                 ]
             }
         },

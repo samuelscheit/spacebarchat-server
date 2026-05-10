@@ -129,6 +129,8 @@ export class initial0 implements MigrationInterface {
 			pub_date timestamp without time zone NOT NULL,
 			url character varying NOT NULL,
 			platform character varying NOT NULL,
+			release_channel character varying,
+			arch character varying,
 			enabled boolean NOT NULL,
 			notes character varying
 		);`);
