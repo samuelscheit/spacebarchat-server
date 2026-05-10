@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 533,
+        "totalEntries": 535,
         "byService": {
-            "api": 436,
+            "api": 438,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 508,
+            "http-route": 510,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 102,
-            "stateful-domain": 289,
+            "stateful-domain": 291,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 13,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 391,
+            "route-class": 393,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -4085,6 +4085,98 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/channels/:channel_id/messages/:message_id/hide-guild-feed/",
+            "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/hide-guild-feed.ts",
+            "line": 126,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_CHANNEL",
+                "event": "MESSAGE_UPDATE",
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_UPDATE"
+                ]
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/channels/:channel_id/messages/:message_id/hide-guild-feed/",
+            "sourceFile": "src/api/routes/channels/#channel_id/messages/#message_id/hide-guild-feed.ts",
+            "line": 138,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_CHANNEL",
+                "event": "MESSAGE_UPDATE",
+                "hasQuery": false,
+                "emittedEvents": [
+                    "MESSAGE_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "channel",

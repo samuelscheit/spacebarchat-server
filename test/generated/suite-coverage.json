@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 440,
+        "totalCoveredManifestEntries": 442,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 418,
-                "totalCoveredManifestEntries": 418,
-                "totalCoveredRequiredManifestEntries": 418,
+                "totalRequiredManifestEntries": 420,
+                "totalCoveredManifestEntries": 420,
+                "totalCoveredRequiredManifestEntries": 420,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 289,
+            "stateful-domain": 291,
             "cdn-integration": 78,
             "integration": 13,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 418,
-                "totalCoveredManifestEntries": 418,
-                "totalCoveredRequiredManifestEntries": 418,
+                "totalRequiredManifestEntries": 420,
+                "totalCoveredManifestEntries": 420,
+                "totalCoveredRequiredManifestEntries": 420,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -80,6 +80,7 @@
                 "api:http:DELETE:/channels/:channel_id/",
                 "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/",
+                "api:http:DELETE:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/:user_id",
@@ -346,6 +347,7 @@
                 "api:http:POST:/channels/:channel_id/messages/",
                 "api:http:POST:/channels/:channel_id/messages/:message_id/ack/",
                 "api:http:POST:/channels/:channel_id/messages/:message_id/crosspost/",
+                "api:http:POST:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                 "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
                 "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
                 "api:http:POST:/channels/:channel_id/pins/ack",
@@ -500,6 +502,7 @@
                 "api:http:DELETE:/channels/:channel_id/",
                 "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/",
+                "api:http:DELETE:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/:user_id",
@@ -766,6 +769,7 @@
                 "api:http:POST:/channels/:channel_id/messages/",
                 "api:http:POST:/channels/:channel_id/messages/:message_id/ack/",
                 "api:http:POST:/channels/:channel_id/messages/:message_id/crosspost/",
+                "api:http:POST:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                 "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
                 "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
                 "api:http:POST:/channels/:channel_id/pins/ack",
@@ -1174,6 +1178,7 @@
                         "api:http:DELETE:/channels/:channel_id/",
                         "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
                         "api:http:DELETE:/channels/:channel_id/messages/:message_id/",
+                        "api:http:DELETE:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                         "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/",
                         "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                         "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/:user_id",
@@ -1235,6 +1240,7 @@
                         "api:http:POST:/channels/:channel_id/messages/",
                         "api:http:POST:/channels/:channel_id/messages/:message_id/ack/",
                         "api:http:POST:/channels/:channel_id/messages/:message_id/crosspost/",
+                        "api:http:POST:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                         "api:http:POST:/channels/:channel_id/messages/:message_id/threads/",
                         "api:http:POST:/channels/:channel_id/messages/bulk-delete/",
                         "api:http:POST:/channels/:channel_id/pins/ack",

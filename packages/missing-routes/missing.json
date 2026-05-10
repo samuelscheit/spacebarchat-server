@@ -1,6 +1,6 @@
 {
-    "missing": 752,
-    "spacebar": 428,
+    "missing": 750,
+    "spacebar": 430,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -102,7 +102,6 @@
         "/channels/{param}/messages/ack",
         "/channels/{param}/messages/search",
         "/channels/{param}/messages/search/tabs",
-        "/channels/{param}/messages/{param}/hide-guild-feed",
         "/channels/{param}/polls/{param}/answers/@me",
         "/channels/{param}/polls/{param}/expire",
         "/channels/{param}/safety-warning/report-false-positive",
@@ -716,14 +715,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/linked-lobby"],
             "summaries": ["Remove Lobby Link"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/channels/{param}/messages/{param}/hide-guild-feed",
-            "route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_HIDE_GUILD_FEED",
-            "sources": ["userdoccers:resources/message.mdx"],
-            "source_routes": ["/channels/{channel_id}/messages/{message_id}/hide-guild-feed"],
-            "summaries": ["Unhide Message from Guild Feed"]
         },
         {
             "method": "DELETE",
@@ -3856,14 +3847,6 @@
             "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/directory-entry/{entity_id}", "/channels/{channel_id}/directory-entry/{param}"],
             "summaries": ["Create Directory Entry"]
-        },
-        {
-            "method": "POST",
-            "route": "/channels/{param}/messages/{param}/hide-guild-feed",
-            "route_name": "POST_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_HIDE_GUILD_FEED",
-            "sources": ["userdoccers:resources/message.mdx"],
-            "source_routes": ["/channels/{channel_id}/messages/{message_id}/hide-guild-feed"],
-            "summaries": ["Hide Message from Guild Feed"]
         },
         {
             "method": "POST",

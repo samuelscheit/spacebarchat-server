@@ -887,6 +887,20 @@
 		"source": "src/api/routes/channels/#channel_id/messages/#message_id/crosspost.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/messages/{message_id}/hide-guild-feed",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_HIDE_GUILD_FEED",
+		"source": "src/api/routes/channels/#channel_id/messages/#message_id/hide-guild-feed.ts"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [],
+		"route": "/channels/{channel_id}/messages/{message_id}/hide-guild-feed",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_MESSAGES_MESSAGE_ID_HIDE_GUILD_FEED",
+		"source": "src/api/routes/channels/#channel_id/messages/#message_id/hide-guild-feed.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
