@@ -2966,6 +2966,38 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationDirectorySearchResponse": {
+        "type": "object",
+        "properties": {
+            "results": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationDirectorySearchResult"
+                }
+            },
+            "num_pages": {
+                "type": "integer"
+            },
+            "counts_by_category": {
+                "$ref": "#/definitions/ApplicationDirectoryCategoryCountMap"
+            },
+            "type": {
+                "$ref": "#/definitions/ApplicationDirectoryItemType"
+            },
+            "load_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "counts_by_category",
+            "load_id",
+            "num_pages",
+            "results",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PartialApplicationIdentityResponse": {
         "type": "object",
         "properties": {
@@ -17585,6 +17617,30 @@
             "name",
             "value"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectorySearchResult": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/ApplicationDirectoryItemType"
+            },
+            "data": {
+                "$ref": "#/definitions/ApplicationDirectoryApplication"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "data",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryCategoryCountMap": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "integer"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ChannelLinkedAccount": {

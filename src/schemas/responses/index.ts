@@ -24,6 +24,7 @@ export * from "./ActivityShelfResponse";
 export * from "./ApplicationCanDeleteResponse";
 export * from "./ApplicationDirectoryCategoriesResponse";
 export * from "./ApplicationDirectoryCollectionsResponse";
+export * from "./ApplicationDirectorySearchResponse";
 export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";

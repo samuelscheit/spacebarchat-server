@@ -69,7 +69,8 @@ describe("GET /application-directory-static/categories", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/categories?locale=de"), true);
         assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/application-directory-static/categories/"), true);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/categories/extra"), false);
-        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/search"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/search"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/application-directory-static/applications/123"), false);
 
         const response = await request(createApp(), "/application-directory-static/categories?locale=de");
 

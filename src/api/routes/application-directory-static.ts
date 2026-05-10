@@ -17,16 +17,40 @@
 */
 
 import { route } from "@spacebar/api";
-import { type ApplicationDirectoryCategoriesResponse, type ApplicationDirectoryCategory } from "@spacebar/schemas";
-import { type Request, type Response, Router } from "express";
-
-const router = Router({ mergeParams: true });
+import {
+    type ApplicationDirectoryCategoriesResponse,
+    type ApplicationDirectoryCategory,
+    ApplicationDirectoryItemType,
+    type ApplicationDirectorySearchResponse,
+} from "@spacebar/schemas";
+import { type Request, type Response, Router, type Router as ExpressRouter } from "express";
 
 export const APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL = "public, max-age=3600, s-maxage=3600";
+export const APPLICATION_DIRECTORY_STATIC_EMPTY_SEARCH_LOAD_ID = "application_directory_search/empty";
 
 type ApplicationDirectoryCategoryDefinition = ApplicationDirectoryCategory & {
     localizations?: Record<string, string>;
 };
+
+export interface ApplicationDirectorySearchQueryOptions {
+    query?: string;
+    guild_id?: string;
+    page?: number;
+    page_size?: number;
+    category_id?: number;
+    locale?: string;
+    min_user_install_command_count?: number;
+    exclude_apps_with_custom_install_url?: boolean;
+    exclude_non_embedded_apps?: boolean;
+    exclude_embedded_apps_without_primary_entry_point_app_command?: boolean;
+    source?: number;
+}
+
+export type ApplicationDirectorySearchProvider = (options: ApplicationDirectorySearchQueryOptions) => ApplicationDirectorySearchResponse;
+
+export interface ApplicationDirectoryStaticRouterOptions {
+    searchProvider?: ApplicationDirectorySearchProvider;
+}
 
 // Application-directory categories are a separate static set from guild discovery categories.
 // Default names are en-US; localized names are included only where source-backed.
@@ -83,10 +107,45 @@ export const APPLICATION_DIRECTORY_CATEGORIES: readonly ApplicationDirectoryCate
     },
 ] as const;
 
+function firstQueryValue(value: unknown): unknown {
+    if (Array.isArray(value)) return value[0];
+    return value;
+}
+
 function firstString(value: unknown): string | undefined {
-    if (typeof value === "string") return value;
-    if (Array.isArray(value)) return value.find((entry): entry is string => typeof entry === "string");
+    const entry = firstQueryValue(value);
+    if (typeof entry === "string") return entry;
     return undefined;
+}
+
+function parseOptionalString(value: unknown, options: { maxLength?: number } = {}): string | undefined {
+    const entry = firstString(value);
+    if (!entry) return undefined;
+    if (options.maxLength !== undefined && entry.length > options.maxLength) return undefined;
+    return entry;
+}
+
+function parseOptionalBoolean(value: unknown): boolean | undefined {
+    const entry = firstQueryValue(value);
+    if (typeof entry === "boolean") return entry;
+    if (entry === "true") return true;
+    if (entry === "false") return false;
+    return undefined;
+}
+
+function parseOptionalInteger(value: unknown, options: { min?: number; max?: number } = {}): number | undefined {
+    const entry = firstQueryValue(value);
+    if (typeof entry === "number" && Number.isSafeInteger(entry)) return integerInRange(entry, options);
+    if (typeof entry !== "string" || !/^-?\d+$/.test(entry)) return undefined;
+
+    const parsed = Number.parseInt(entry, 10);
+    return Number.isSafeInteger(parsed) ? integerInRange(parsed, options) : undefined;
+}
+
+function integerInRange(value: number, options: { min?: number; max?: number }): number | undefined {
+    if (options.min !== undefined && value < options.min) return undefined;
+    if (options.max !== undefined && value > options.max) return undefined;
+    return value;
 }
 
 export function toApplicationDirectoryCategory(category: ApplicationDirectoryCategoryDefinition, locale: unknown): ApplicationDirectoryCategory {
@@ -103,25 +162,121 @@ export function getApplicationDirectoryCategories(query: Request["query"]): Appl
     return APPLICATION_DIRECTORY_CATEGORIES.map((category) => toApplicationDirectoryCategory(category, query.locale));
 }
 
-router.get(
-    "/categories",
-    route({
-        summary: "Get Application Directory Categories",
-        query: {
-            locale: {
-                type: "string",
-                description: "Locale to use when selecting localized application directory category names.",
-            },
-        },
-        responses: {
-            200: {
-                body: "ApplicationDirectoryCategoriesResponse",
-            },
-        },
-    }),
-    (req: Request, res: Response) => {
-        res.set("Cache-Control", APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL).status(200).json(getApplicationDirectoryCategories(req.query));
-    },
-);
+export function parseApplicationDirectorySearchQuery(query: Request["query"]): ApplicationDirectorySearchQueryOptions {
+    return {
+        query: parseOptionalString(query.query, { maxLength: 100 }),
+        guild_id: parseOptionalString(query.guild_id),
+        page: parseOptionalInteger(query.page, { min: 1, max: 1000 }),
+        page_size: parseOptionalInteger(query.page_size, { min: 1, max: 100 }),
+        category_id: parseOptionalInteger(query.category_id),
+        locale: parseOptionalString(query.locale),
+        min_user_install_command_count: parseOptionalInteger(query.min_user_install_command_count, { min: 0, max: 100 }),
+        exclude_apps_with_custom_install_url: parseOptionalBoolean(query.exclude_apps_with_custom_install_url),
+        exclude_non_embedded_apps: parseOptionalBoolean(query.exclude_non_embedded_apps),
+        exclude_embedded_apps_without_primary_entry_point_app_command: parseOptionalBoolean(query.exclude_embedded_apps_without_primary_entry_point_app_command),
+        source: parseOptionalInteger(query.source),
+    };
+}
 
-export default router;
+export function getApplicationDirectorySearchResults(_options: ApplicationDirectorySearchQueryOptions = {}): ApplicationDirectorySearchResponse {
+    return {
+        results: [],
+        num_pages: 0,
+        counts_by_category: {},
+        type: ApplicationDirectoryItemType.APPLICATION,
+        load_id: APPLICATION_DIRECTORY_STATIC_EMPTY_SEARCH_LOAD_ID,
+    };
+}
+
+export function createApplicationDirectoryStaticRouter(options: ApplicationDirectoryStaticRouterOptions = {}): ExpressRouter {
+    const router = Router({ mergeParams: true });
+    const searchProvider = options.searchProvider ?? getApplicationDirectorySearchResults;
+
+    router.get(
+        "/categories",
+        route({
+            summary: "Get Application Directory Categories",
+            query: {
+                locale: {
+                    type: "string",
+                    description: "Locale to use when selecting localized application directory category names.",
+                },
+            },
+            responses: {
+                200: {
+                    body: "ApplicationDirectoryCategoriesResponse",
+                },
+            },
+        }),
+        (req: Request, res: Response) => {
+            res.set("Cache-Control", APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL).status(200).json(getApplicationDirectoryCategories(req.query));
+        },
+    );
+
+    router.get(
+        "/search",
+        route({
+            summary: "Search Applications Directory",
+            query: {
+                query: {
+                    type: "string",
+                    description: "Application directory search text to match. Discord documents a maximum of 100 characters.",
+                },
+                guild_id: {
+                    type: "string",
+                    description: "Guild that originated the application directory search request.",
+                },
+                page: {
+                    type: "integer",
+                    description: "Search result page to return. Discord documents pages from 1 to 1000.",
+                },
+                page_size: {
+                    type: "integer",
+                    description: "Maximum search results per page. Discord documents values from 1 to 100.",
+                },
+                category_id: {
+                    type: "integer",
+                    description: "Application directory category to filter by.",
+                },
+                locale: {
+                    type: "string",
+                    description: "Locale to use when returning application directory search results.",
+                },
+                min_user_install_command_count: {
+                    type: "integer",
+                    description: "Minimum user-install command count to filter by. Discord documents a maximum of 100.",
+                },
+                exclude_apps_with_custom_install_url: {
+                    type: "boolean",
+                    description: "Whether applications with custom install URLs are excluded.",
+                },
+                exclude_non_embedded_apps: {
+                    type: "boolean",
+                    description: "Whether applications without the embedded flag are excluded.",
+                },
+                exclude_embedded_apps_without_primary_entry_point_app_command: {
+                    type: "boolean",
+                    description: "Whether embedded applications without a primary entry point command are excluded.",
+                },
+                source: {
+                    type: "integer",
+                    description: "Application directory request surface that originated the search.",
+                },
+            },
+            responses: {
+                200: {
+                    body: "ApplicationDirectorySearchResponse",
+                },
+            },
+        }),
+        (req: Request, res: Response) => {
+            const response = searchProvider(parseApplicationDirectorySearchQuery(req.query));
+
+            res.set("Cache-Control", APPLICATION_DIRECTORY_STATIC_CACHE_CONTROL).status(200).json(response);
+        },
+    );
+
+    return router;
+}
+
+export default createApplicationDirectoryStaticRouter();

@@ -40,6 +40,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     // Public information endpoints
     "GET /application-directory-static/categories",
     "GET /application-directory-static/collections",
+    "GET /application-directory-static/search",
     "GET /ping",
     "GET /gateway",
     "GET /oauth2/keys",

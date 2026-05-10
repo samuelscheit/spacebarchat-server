@@ -81,6 +81,15 @@
 		"source": "src/api/routes/application-directory-static/collections.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"ApplicationDirectorySearchResponse"
+		],
+		"route": "/application-directory-static/search",
+		"route_name": "GET_APPLICATION_DIRECTORY_STATIC_SEARCH",
+		"source": "src/api/routes/application-directory-static.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "ApplicationIdentitiesSchema",
 		"response_schema_refs": [

@@ -2844,6 +2844,36 @@
                     "$ref": "#/components/schemas/ApplicationDirectoryCollection"
                 }
             },
+            "ApplicationDirectorySearchResponse": {
+                "type": "object",
+                "properties": {
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationDirectorySearchResult"
+                        }
+                    },
+                    "num_pages": {
+                        "type": "integer"
+                    },
+                    "counts_by_category": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryCategoryCountMap"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryItemType"
+                    },
+                    "load_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "counts_by_category",
+                    "load_id",
+                    "num_pages",
+                    "results",
+                    "type"
+                ]
+            },
             "PartialApplicationIdentityResponse": {
                 "type": "object",
                 "properties": {
@@ -16746,6 +16776,27 @@
                     "name",
                     "value"
                 ]
+            },
+            "ApplicationDirectorySearchResult": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryItemType"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ApplicationDirectoryApplication"
+                    }
+                },
+                "required": [
+                    "data",
+                    "type"
+                ]
+            },
+            "ApplicationDirectoryCategoryCountMap": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                }
             },
             "ChannelLinkedAccount": {
                 "type": "object",
@@ -51929,6 +51980,116 @@
                             "type": "string"
                         },
                         "description": "Locale to use when selecting localized application directory category names."
+                    }
+                ],
+                "tags": [
+                    "application-directory-static"
+                ]
+            }
+        },
+        "/application-directory-static/search": {
+            "get": {
+                "summary": "Search Applications Directory",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationDirectorySearchResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Application directory search text to match. Discord documents a maximum of 100 characters."
+                    },
+                    {
+                        "name": "guild_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Guild that originated the application directory search request."
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Search result page to return. Discord documents pages from 1 to 1000."
+                    },
+                    {
+                        "name": "page_size",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Maximum search results per page. Discord documents values from 1 to 100."
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Application directory category to filter by."
+                    },
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to use when returning application directory search results."
+                    },
+                    {
+                        "name": "min_user_install_command_count",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Minimum user-install command count to filter by. Discord documents a maximum of 100."
+                    },
+                    {
+                        "name": "exclude_apps_with_custom_install_url",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether applications with custom install URLs are excluded."
+                    },
+                    {
+                        "name": "exclude_non_embedded_apps",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether applications without the embedded flag are excluded."
+                    },
+                    {
+                        "name": "exclude_embedded_apps_without_primary_entry_point_app_command",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether embedded applications without a primary entry point command are excluded."
+                    },
+                    {
+                        "name": "source",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Application directory request surface that originated the search."
                     }
                 ],
                 "tags": [

@@ -3,19 +3,19 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 523,
+        "totalContracts": 524,
         "byService": {
-            "api": 450,
+            "api": 451,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 384,
         "runtimeMalformedAuthContracts": 384,
         "runtimeRevokedSessionAuthContracts": 384,
         "runtimeStaleTokenAuthContracts": 384,
-        "runtimePublicAuthBoundaryContracts": 58,
+        "runtimePublicAuthBoundaryContracts": 59,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 69,
-        "runtimePublicResponseSchemaContracts": 15,
+        "runtimePublicResponseSchemaContracts": 16,
         "runtimeAuthenticatedResponseSchemaContracts": 21,
         "runtimeRightOnlyDenialContracts": 12,
         "runtimePermissionOnlyDenialContracts": 91,
@@ -530,7 +530,7 @@
             "path": "/application-directory-static/categories",
             "samplePath": "/application-directory-static/categories",
             "sourceFile": "src/api/routes/application-directory-static.ts",
-            "line": 106,
+            "line": 195,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -578,6 +578,46 @@
             "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
             "routeMetadata": {
                 "responses": ["ApplicationDirectoryCollectionsResponse"],
+                "responseStatuses": [200]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/application-directory-static/search",
+            "service": "api",
+            "method": "GET",
+            "path": "/application-directory-static/search",
+            "samplePath": "/application-directory-static/search",
+            "sourceFile": "src/api/routes/application-directory-static.ts",
+            "line": 216,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["ApplicationDirectorySearchResponse"],
                 "responseStatuses": [200]
             },
             "cases": [
