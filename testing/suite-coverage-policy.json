@@ -9,6 +9,7 @@
                 "api:http:GET:/apex/experiments/",
                 "api:http:GET:/discovery/categories",
                 "api:http:GET:/discoverable-guilds/",
+                "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
                 "api:http:GET:/gateway/",
                 "api:http:GET:/gateway/bot/",
@@ -198,6 +199,16 @@
                     "manifestIds": ["api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"],
                     "fixtures": ["config"],
                     "checks": ["response-shape", "no-fabricated-store-data"]
+                },
+                {
+                    "id": "entitlements-gift-codes",
+                    "title": "Entitlements gift code compatibility responses",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["test/scenarios/entitlements-gift-codes.test.ts"],
+                    "manifestIds": ["api:http:GET:/entitlements/gift-codes/:gift_code_code/"],
+                    "fixtures": ["config"],
+                    "checks": ["auth-boundary", "error-semantics", "no-fabricated-commerce-state"]
                 },
                 {
                     "id": "cdn",

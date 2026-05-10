@@ -45,6 +45,7 @@ export * from "./ExperimentsResponse";
 export * from "./FamilyCenterResponse";
 export * from "./GatewayResponse";
 export * from "./GenerateRegistrationTokensResponse";
+export * from "./GiftCodeResponse";
 export * from "./GuildBansResponse";
 export * from "./GuildCreateResponse";
 export * from "./GuildDiscoveryMetadataResponse";

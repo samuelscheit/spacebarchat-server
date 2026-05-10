@@ -3242,6 +3242,158 @@
                     "tokens"
                 ]
             },
+            "GiftCodeResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "sku_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "uses": {
+                        "type": "integer"
+                    },
+                    "max_uses": {
+                        "type": "integer"
+                    },
+                    "redeemed": {
+                        "type": "boolean"
+                    },
+                    "expires_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "batch_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "entitlement_branches": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "gift_style": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "store_listing": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/JsonObject"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/JsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "number",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    },
+                    "subscription_plan_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "subscription_plan": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/JsonObject"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/JsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "number",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    },
+                    "subscription_trial": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/JsonObject"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/JsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "number",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    },
+                    "promotion": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/JsonObject"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/JsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "number",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "code",
+                    "expires_at",
+                    "max_uses",
+                    "redeemed",
+                    "sku_id",
+                    "uses"
+                ]
+            },
             "GuildBansResponse": {
                 "type": "array",
                 "items": {
@@ -14996,6 +15148,33 @@
                     "type": "integer"
                 }
             },
+            "JsonObject": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/JsonValue"
+                }
+            },
+            "JsonValue": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/JsonObject"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "number",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
             "PublicMember": {
                 "type": "object",
                 "properties": {
@@ -22413,33 +22592,6 @@
                     "url"
                 ]
             },
-            "JsonObject": {
-                "type": "object",
-                "additionalProperties": {
-                    "$ref": "#/components/schemas/JsonValue"
-                }
-            },
-            "JsonValue": {
-                "anyOf": [
-                    {
-                        "$ref": "#/components/schemas/JsonObject"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/JsonValue"
-                        }
-                    },
-                    {
-                        "type": [
-                            "null",
-                            "string",
-                            "number",
-                            "boolean"
-                        ]
-                    }
-                ]
-            },
             "ButtonComponent": {
                 "type": "object",
                 "properties": {
@@ -25953,6 +26105,9 @@
         },
         {
             "name": "emojis"
+        },
+        {
+            "name": "entitlements"
         },
         {
             "name": "experiments"
@@ -36643,6 +36798,64 @@
                 },
                 "tags": [
                     "experiments"
+                ]
+            }
+        },
+        "/entitlements/gift-codes/{gift_code_code}/": {
+            "get": {
+                "description": "Returns a gift code object for the given code.",
+                "summary": "Get Gift Code",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GiftCodeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "gift_code_code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "gift_code_code"
+                    },
+                    {
+                        "name": "with_application",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include the application object in the SKU."
+                    },
+                    {
+                        "name": "with_subscription_plan",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include the subscription plan object in the response."
+                    }
+                ],
+                "tags": [
+                    "entitlements"
                 ]
             }
         },

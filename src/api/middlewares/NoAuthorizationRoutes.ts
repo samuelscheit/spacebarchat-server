@@ -30,6 +30,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "POST /auth/reset",
     "POST /auth/fingerprint",
     "GET /invites/",
+    /^(GET|HEAD) \/entitlements\/gift-codes\/[^/]+\/?$/,
     // Routes with a seperate auth system
     /^(POST|HEAD|GET|PATCH|DELETE) \/webhooks\/(?:\d+|\{webhook_id\})\/(?:[A-Za-z0-9_-]+|\{token\})(?:(?:\/messages\/(?:\d+|\{message_id\}))|\/github|\/slack)?\/?$/, // no token requires auth
     /^POST \/interactions\/\d+\/[A-Za-z0-9_-]+\/callback/,

@@ -5,14 +5,14 @@
     "policySource": "testing/suite-coverage-policy.json",
     "summary": {
         "totalGroups": 3,
-        "totalSuites": 14,
-        "totalCoveredManifestEntries": 401,
+        "totalSuites": 15,
+        "totalCoveredManifestEntries": 402,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 379,
-                "totalCoveredManifestEntries": 379,
-                "totalCoveredRequiredManifestEntries": 379,
-                "totalSuites": 11
+                "totalRequiredManifestEntries": 380,
+                "totalCoveredManifestEntries": 380,
+                "totalCoveredRequiredManifestEntries": 380,
+                "totalSuites": 12
             },
             "protocol": {
                 "totalRequiredManifestEntries": 21,
@@ -29,7 +29,7 @@
         },
         "byCoveredTestTier": {
             "stateful-domain": 259,
-            "contract": 18,
+            "contract": 19,
             "auth-scenario": 16,
             "integration": 11,
             "cdn-integration": 74,
@@ -47,6 +47,7 @@
                 "api:http:GET:/apex/experiments/",
                 "api:http:GET:/discovery/categories",
                 "api:http:GET:/discoverable-guilds/",
+                "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
                 "api:http:GET:/gateway/",
                 "api:http:GET:/gateway/bot/",
@@ -64,10 +65,10 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 379,
-                "totalCoveredManifestEntries": 379,
-                "totalCoveredRequiredManifestEntries": 379,
-                "totalSuites": 11
+                "totalRequiredManifestEntries": 380,
+                "totalCoveredManifestEntries": 380,
+                "totalCoveredRequiredManifestEntries": 380,
+                "totalSuites": 12
             },
             "requiredManifestIds": [
                 "api:http:DELETE:/applications/:application_id/commands/:command_id/",
@@ -150,6 +151,7 @@
                 "api:http:GET:/connections/:connection_name/authorize/",
                 "api:http:GET:/discoverable-guilds/",
                 "api:http:GET:/discovery/categories",
+                "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
                 "api:http:GET:/gateway/",
                 "api:http:GET:/gateway/bot/",
@@ -531,6 +533,7 @@
                 "api:http:GET:/connections/:connection_name/authorize/",
                 "api:http:GET:/discoverable-guilds/",
                 "api:http:GET:/discovery/categories",
+                "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
                 "api:http:GET:/gateway/",
                 "api:http:GET:/gateway/bot/",
@@ -1290,6 +1293,16 @@
                     "fixtures": ["config"],
                     "checks": ["response-shape", "no-fabricated-store-data"],
                     "manifestIds": ["api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"]
+                },
+                {
+                    "id": "entitlements-gift-codes",
+                    "title": "Entitlements gift code compatibility responses",
+                    "kind": "stateful-scenario",
+                    "status": "partial-existing-tests",
+                    "testFiles": ["test/scenarios/entitlements-gift-codes.test.ts"],
+                    "fixtures": ["config"],
+                    "checks": ["auth-boundary", "error-semantics", "no-fabricated-commerce-state"],
+                    "manifestIds": ["api:http:GET:/entitlements/gift-codes/:gift_code_code/"]
                 },
                 {
                     "id": "cdn",

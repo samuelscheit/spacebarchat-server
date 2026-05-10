@@ -149,6 +149,13 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("PATCH", "/webhooks/{webhook_id}/{token}/messages/{message_id}/"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/webhooks/{webhook_id}/{token}/slack/"), true);
     });
+
+    test("allows gift code resolution without bearer authorization", () => {
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/entitlements/gift-codes/2CG6SV9QtRxerJTgCYNDnU7M?with_application=true"), true);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v9/entitlements/gift-codes/2CG6SV9QtRxerJTgCYNDnU7M"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/entitlements/gift-codes/2CG6SV9QtRxerJTgCYNDnU7M"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/entitlements/gift-codes/2CG6SV9QtRxerJTgCYNDnU7M/redeem"), false);
+    });
 });
 
 describe("Authentication middleware", () => {

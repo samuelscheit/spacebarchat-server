@@ -1227,6 +1227,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GiftCodeResponse"
+		],
+		"route": "/entitlements/gift-codes/{gift_code_code}",
+		"route_name": "GET_ENTITLEMENTS_GIFT_CODES_GIFT_CODE_CODE",
+		"source": "src/api/routes/entitlements/gift-codes/#gift_code_code.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ExperimentsResponse"
 		],
 		"route": "/experiments",

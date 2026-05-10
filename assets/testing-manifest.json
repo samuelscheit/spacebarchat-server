@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 463,
+        "totalEntries": 464,
         "byService": {
-            "api": 366,
+            "api": 367,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 438,
+            "http-route": 439,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 69,
+            "contract": 70,
             "stateful-domain": 259,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 326,
+            "route-class": 327,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -6173,6 +6173,42 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/entitlements/gift-codes/:gift_code_code/",
+            "sourceFile": "src/api/routes/entitlements/gift-codes/#gift_code_code.ts",
+            "line": 25,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GiftCodeResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",
