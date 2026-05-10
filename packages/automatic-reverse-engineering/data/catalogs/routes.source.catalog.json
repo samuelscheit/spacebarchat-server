@@ -563,6 +563,15 @@
 		"source": "src/api/routes/channels/#channel_id/attachments.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/blocked-user-warning-dismissal",
+		"route_name": "POST_CHANNELS_CHANNEL_ID_BLOCKED_USER_WARNING_DISMISSAL",
+		"source": "src/api/routes/channels/#channel_id/blocked-user-warning-dismissal.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

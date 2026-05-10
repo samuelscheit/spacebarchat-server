@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 484,
+        "totalEntries": 485,
         "byService": {
-            "api": 387,
+            "api": 388,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 459,
+            "http-route": 460,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 79,
-            "stateful-domain": 268,
+            "stateful-domain": 269,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 13,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 347,
+            "route-class": 348,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2571,6 +2571,61 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/channels/:channel_id/blocked-user-warning-dismissal/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/channels/:channel_id/blocked-user-warning-dismissal/",
+            "sourceFile": "src/api/routes/channels/#channel_id/blocked-user-warning-dismissal.ts",
+            "line": 59,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "event": "CHANNEL_UPDATE",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "CHANNEL_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "channel",

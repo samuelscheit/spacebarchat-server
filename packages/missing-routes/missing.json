@@ -1,6 +1,6 @@
 {
-    "missing": 801,
-    "spacebar": 379,
+    "missing": 800,
+    "spacebar": 380,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -99,7 +99,6 @@
         "/channels/{param}/add-safety-warning",
         "/channels/{param}/application-command-index",
         "/channels/{param}/application-commands/search",
-        "/channels/{param}/blocked-user-warning-dismissal",
         "/channels/{param}/call/stop-ringing",
         "/channels/{param}/custom-call-sounds",
         "/channels/{param}/directory-entries/counts",
@@ -4149,14 +4148,6 @@
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/add-safety-warning"],
             "summaries": ["Add Safety Warning"]
-        },
-        {
-            "method": "POST",
-            "route": "/channels/{param}/blocked-user-warning-dismissal",
-            "route_name": "POST_CHANNELS_CHANNEL_ID_BLOCKED_USER_WARNING_DISMISSAL",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/blocked-user-warning-dismissal"],
-            "summaries": ["Acknowledge Blocked User Warning"]
         },
         {
             "method": "POST",

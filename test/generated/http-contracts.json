@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 459,
+        "totalContracts": 460,
         "byService": {
-            "api": 386,
+            "api": 387,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 331,
-        "runtimeMalformedAuthContracts": 331,
-        "runtimeRevokedSessionAuthContracts": 331,
-        "runtimeStaleTokenAuthContracts": 331,
+        "runtimeAuthBoundaryContracts": 332,
+        "runtimeMalformedAuthContracts": 332,
+        "runtimeRevokedSessionAuthContracts": 332,
+        "runtimeStaleTokenAuthContracts": 332,
         "runtimePublicAuthBoundaryContracts": 47,
         "runtimePublicInvalidBodyContracts": 15,
         "runtimeProtectedInvalidBodyContracts": 59,
@@ -22,7 +22,7 @@
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 164,
+        "runtimeRateLimitHeaderContracts": 165,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -3288,6 +3288,79 @@
                 {
                     "id": "policy-events",
                     "checks": ["events"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/channels/:channel_id/blocked-user-warning-dismissal/",
+            "service": "api",
+            "method": "POST",
+            "path": "/channels/:channel_id/blocked-user-warning-dismissal/",
+            "samplePath": "/channels/100000000000000002/blocked-user-warning-dismissal/",
+            "sourceFile": "src/api/routes/channels/#channel_id/blocked-user-warning-dismissal.ts",
+            "line": 59,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "channels", "messages", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [200, 400, 401, 403, 404],
+                "event": "CHANNEL_UPDATE",
+                "emittedEvents": ["CHANNEL_UPDATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["CHANNEL_UPDATE"]
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "channel",
+                        "configPath": "limits.rate.routes.channel",
+                        "pathPrefix": "/channels/:channel_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 220
+                    }
+                },
+                {
+                    "id": "policy-permission-denied",
+                    "checks": ["permission-denied"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
                 }
             ]
         },
