@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 537,
+        "totalEntries": 538,
         "byService": {
-            "api": 440,
+            "api": 441,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 512,
+            "http-route": 513,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 102,
+            "contract": 103,
             "stateful-domain": 292,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 395,
+            "route-class": 396,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -14826,6 +14826,43 @@
                     200,
                     400,
                     403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/sticker-packs/:sticker_pack_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/sticker-packs/:sticker_pack_id/",
+            "sourceFile": "src/api/routes/sticker-packs/#sticker_pack_id/index.ts",
+            "line": 29,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StickerPackResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
                     404
                 ],
                 "hasQuery": false

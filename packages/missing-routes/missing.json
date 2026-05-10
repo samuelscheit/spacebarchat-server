@@ -1,6 +1,6 @@
 {
-    "missing": 748,
-    "spacebar": 432,
+    "missing": 747,
+    "spacebar": 433,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -381,7 +381,6 @@
         "/sso-token",
         "/stage-instances/extra",
         "/sticker-packs/directory-v2/{param}",
-        "/sticker-packs/{param}",
         "/store/applications/{param}/assets",
         "/store/applications/{param}/assets/{param}",
         "/store/consumable/pricing/{param}",
@@ -2380,14 +2379,6 @@
         { "method": "GET", "route": "/sso", "route_name": "SSO", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/sso-token", "route_name": "SSO_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/sticker-packs/{param}",
-            "route_name": "GET_STICKER_PACKS_STICKER_PACK_ID",
-            "sources": ["userdoccers:resources/sticker.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/sticker-packs/{sticker_pack_id}"],
-            "summaries": ["Get Sticker Pack"]
-        },
         { "method": "GET", "route": "/sticker-packs/directory-v2/{param}", "route_name": "STORE_DIRECTORY_LAYOUT_STICKER_PACKS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",

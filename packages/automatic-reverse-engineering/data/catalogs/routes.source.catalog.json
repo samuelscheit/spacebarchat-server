@@ -3093,6 +3093,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"StickerPackResponse"
+		],
+		"route": "/sticker-packs/{sticker_pack_id}",
+		"route_name": "GET_STICKER_PACKS_STICKER_PACK_ID",
+		"source": "src/api/routes/sticker-packs/#sticker_pack_id/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"Sticker"
 		],
 		"route": "/stickers/{sticker_id}",

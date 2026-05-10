@@ -2,6 +2,16 @@ import { Snowflake } from "../../Identifiers";
 import { PartialUser } from "../users";
 
 export type StickersResponse = StickerResponse[];
+export interface StickerPackResponse {
+    id: Snowflake;
+    stickers: StickerResponse[];
+    name: string;
+    sku_id?: Snowflake;
+    cover_sticker_id?: Snowflake;
+    description: string | null;
+    banner_asset_id?: Snowflake;
+}
+
 export interface StickerResponse {
     id: Snowflake;
     pack_id?: Snowflake;
