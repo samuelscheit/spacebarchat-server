@@ -55,6 +55,7 @@ export * from "./GuildTemplateCreateSchema";
 export * from "./GuildUpdateSchema";
 export * from "./GuildUpdateWelcomeScreenSchema";
 export * from "./HubWaitlistSignupSchema";
+export * from "./HypeSquadOnlineCreateSchema";
 export * from "./InviteCreateSchema";
 export * from "./JsonValue";
 export * from "./LoginResponse";

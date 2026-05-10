@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 493,
+        "totalEntries": 495,
         "byService": {
-            "api": 396,
+            "api": 398,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 468,
+            "http-route": 470,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 83,
+            "contract": 85,
             "stateful-domain": 273,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 356,
+            "route-class": 358,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -11882,6 +11882,88 @@
                 "responseStatuses": [
                     200,
                     400
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/hypesquad/online/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/hypesquad/online/",
+            "sourceFile": "src/api/routes/hypesquad/online.ts",
+            "line": 101,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    401,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/hypesquad/online/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/hypesquad/online/",
+            "sourceFile": "src/api/routes/hypesquad/online.ts",
+            "line": 69,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "HypeSquadOnlineCreateSchema",
+                "event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    404
                 ],
                 "hasQuery": false
             },

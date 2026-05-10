@@ -2397,6 +2397,25 @@
 		"source": "src/api/routes/hub-waitlist.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/hypesquad/online",
+		"route_name": "DELETE_HYPESQUAD_ONLINE",
+		"source": "src/api/routes/hypesquad/online.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "HypeSquadOnlineCreateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/hypesquad/online",
+		"route_name": "POST_HYPESQUAD_ONLINE",
+		"source": "src/api/routes/hypesquad/online.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

@@ -2265,6 +2265,19 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "HypeSquadOnlineCreateSchema": {
+        "type": "object",
+        "properties": {
+            "house_id": {
+                "$ref": "#/definitions/HypeSquadOnlineHouse"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "house_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "InviteCreateSchema": {
         "type": "object",
         "properties": {
@@ -14728,6 +14741,15 @@
             }
         },
         "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "HypeSquadOnlineHouse": {
+        "type": "number",
+        "enum": [
+            1,
+            2,
+            3
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "Classification": {

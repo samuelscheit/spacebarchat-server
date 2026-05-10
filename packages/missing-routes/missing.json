@@ -1,6 +1,6 @@
 {
-    "missing": 792,
-    "spacebar": 388,
+    "missing": 790,
+    "spacebar": 390,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -302,7 +302,6 @@
         "/guilds/{param}/top-read-channels",
         "/guilds/{param}/voice-states/@me",
         "/guilds/{param}/voice-states/{param}",
-        "/hypesquad/online",
         "/initiate-prompts",
         "/integrations/{param}/join",
         "/integrations/{param}/search",
@@ -1002,13 +1001,6 @@
             "summaries": ["Delete Guild Soundboard Sound"]
         },
         { "method": "DELETE", "route": "/guilds/gravity-join", "route_name": "GRAVITY_JOIN_GUILD", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "DELETE",
-            "route": "/hypesquad/online",
-            "route_name": "DELETE_HYPESQUAD_ONLINE",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Leave HypeSquad Online"]
-        },
         {
             "method": "DELETE",
             "route": "/lobbies/{param}",
@@ -4521,13 +4513,6 @@
         },
         { "method": "POST", "route": "/guilds/automations/email-domain-lookup/verify", "route_name": "HUB_EMAIL_VERIFY", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/guilds/gravity-join", "route_name": "GRAVITY_JOIN_GUILD", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/hypesquad/online",
-            "route_name": "POST_HYPESQUAD_ONLINE",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Join HypeSquad Online"]
-        },
         { "method": "POST", "route": "/initiate-prompts", "route_name": "INITIATE_CHANNEL_PROMPTS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "POST",

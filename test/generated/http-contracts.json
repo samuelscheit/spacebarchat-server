@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 468,
+        "totalContracts": 470,
         "byService": {
-            "api": 395,
+            "api": 397,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 338,
-        "runtimeMalformedAuthContracts": 338,
-        "runtimeRevokedSessionAuthContracts": 338,
-        "runtimeStaleTokenAuthContracts": 338,
+        "runtimeAuthBoundaryContracts": 340,
+        "runtimeMalformedAuthContracts": 340,
+        "runtimeRevokedSessionAuthContracts": 340,
+        "runtimeStaleTokenAuthContracts": 340,
         "runtimePublicAuthBoundaryContracts": 49,
         "runtimePublicInvalidBodyContracts": 15,
-        "runtimeProtectedInvalidBodyContracts": 60,
+        "runtimeProtectedInvalidBodyContracts": 61,
         "runtimePublicResponseSchemaContracts": 11,
         "runtimeAuthenticatedResponseSchemaContracts": 20,
         "runtimeRightOnlyDenialContracts": 11,
@@ -16153,6 +16153,108 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "HubWaitlistSignupSchema"
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:DELETE:/hypesquad/online/",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/hypesquad/online/",
+            "samplePath": "/hypesquad/online/",
+            "sourceFile": "src/api/routes/hypesquad/online.ts",
+            "line": 101,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [204, 401, 404],
+                "event": ["USER_UPDATE", "GUILD_MEMBER_UPDATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["GUILD_MEMBER_UPDATE", "USER_UPDATE"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/hypesquad/online/",
+            "service": "api",
+            "method": "POST",
+            "path": "/hypesquad/online/",
+            "samplePath": "/hypesquad/online/",
+            "sourceFile": "src/api/routes/hypesquad/online.ts",
+            "line": 69,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "requestBody": "HypeSquadOnlineCreateSchema",
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [204, 400, 401, 404],
+                "event": ["USER_UPDATE", "GUILD_MEMBER_UPDATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "HypeSquadOnlineCreateSchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["GUILD_MEMBER_UPDATE", "USER_UPDATE"]
                 },
                 {
                     "id": "policy-auth-boundary",

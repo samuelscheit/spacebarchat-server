@@ -2183,6 +2183,17 @@
                     "school"
                 ]
             },
+            "HypeSquadOnlineCreateSchema": {
+                "type": "object",
+                "properties": {
+                    "house_id": {
+                        "$ref": "#/components/schemas/HypeSquadOnlineHouse"
+                    }
+                },
+                "required": [
+                    "house_id"
+                ]
+            },
             "InviteCreateSchema": {
                 "type": "object",
                 "properties": {
@@ -14045,6 +14056,14 @@
                         "type": "boolean"
                     }
                 }
+            },
+            "HypeSquadOnlineHouse": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2,
+                    3
+                ]
             },
             "Classification": {
                 "type": "object",
@@ -27279,6 +27298,9 @@
             "name": "hub-waitlist"
         },
         {
+            "name": "hypesquad"
+        },
+        {
             "name": "integrations"
         },
         {
@@ -33312,6 +33334,110 @@
                 ],
                 "tags": [
                     "integrations"
+                ]
+            }
+        },
+        "/hypesquad/online/": {
+            "post": {
+                "x-fires-event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Joins a HypeSquad house and applies the matching house badge flags to the current user.",
+                "summary": "Join HypeSquad Online",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/HypeSquadOnlineCreateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "hypesquad"
+                ]
+            },
+            "delete": {
+                "x-fires-event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Leaves the current user's HypeSquad house and removes HypeSquad house badge flags.",
+                "summary": "Leave HypeSquad Online",
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "hypesquad"
                 ]
             }
         },
