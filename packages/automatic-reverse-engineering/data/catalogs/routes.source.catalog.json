@@ -2996,6 +2996,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"UserProfileEffectsResponse"
+		],
+		"route": "/user-profile-effects",
+		"route_name": "GET_USER_PROFILE_EFFECTS",
+		"source": "src/api/routes/user-profile-effects.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIPublicUser"
 		],
 		"route": "/users/{user_id}",

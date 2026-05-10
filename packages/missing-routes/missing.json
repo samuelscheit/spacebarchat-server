@@ -1,6 +1,6 @@
 {
-    "missing": 776,
-    "spacebar": 404,
+    "missing": 775,
+    "spacebar": 405,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -450,7 +450,6 @@
         "/unverified-applications/icons",
         "/updates/distributions/app/manifests/latest",
         "/updates/{param}",
-        "/user-profile-effects",
         "/users/@me",
         "/users/@me/account",
         "/users/@me/activities/subscribe",
@@ -2753,13 +2752,6 @@
             "route_name": "GET_UPDATES_DISTRIBUTIONS_APP_MANIFESTS_LATEST",
             "sources": ["userdoccers:topics/client-distribution.mdx"],
             "summaries": ["Get Latest Distributed Application Manifest"]
-        },
-        {
-            "method": "GET",
-            "route": "/user-profile-effects",
-            "route_name": "GET_USER_PROFILE_EFFECTS",
-            "sources": ["userdoccers:resources/collectibles.mdx"],
-            "summaries": ["Get Profile Effects"]
         },
         {
             "method": "GET",

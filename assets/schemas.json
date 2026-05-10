@@ -9229,6 +9229,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserProfileEffectsResponse": {
+        "type": "object",
+        "properties": {
+            "profile_effect_configs": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/UserProfileEffectConfig"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "profile_effect_configs"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserProfileResponse": {
         "type": "object",
         "properties": {
@@ -27199,6 +27215,144 @@
             }
         },
         "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserProfileEffectConfig": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "type": "integer"
+            },
+            "id": {
+                "type": "string"
+            },
+            "sku_id": {
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "accessibilityLabel": {
+                "type": "string"
+            },
+            "animationType": {
+                "type": "integer"
+            },
+            "thumbnailPreviewSrc": {
+                "type": "string"
+            },
+            "reducedMotionSrc": {
+                "type": "string"
+            },
+            "staticFrameSrc": {
+                "type": "string"
+            },
+            "effects": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/UserProfileEffectAnimation"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "accessibilityLabel",
+            "animationType",
+            "description",
+            "effects",
+            "id",
+            "reducedMotionSrc",
+            "sku_id",
+            "staticFrameSrc",
+            "thumbnailPreviewSrc",
+            "title",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserProfileEffectAnimation": {
+        "type": "object",
+        "properties": {
+            "src": {
+                "type": "string"
+            },
+            "loop": {
+                "type": "boolean"
+            },
+            "height": {
+                "type": "integer"
+            },
+            "width": {
+                "type": "integer"
+            },
+            "duration": {
+                "type": "integer"
+            },
+            "start": {
+                "type": "integer"
+            },
+            "loopDelay": {
+                "type": "integer"
+            },
+            "position": {
+                "$ref": "#/definitions/UserProfileEffectPosition"
+            },
+            "zIndex": {
+                "type": "integer"
+            },
+            "randomizedSources": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/UserProfileEffectSource"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "duration",
+            "height",
+            "loop",
+            "loopDelay",
+            "position",
+            "randomizedSources",
+            "src",
+            "start",
+            "width",
+            "zIndex"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserProfileEffectPosition": {
+        "type": "object",
+        "properties": {
+            "x": {
+                "type": "integer"
+            },
+            "y": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "x",
+            "y"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserProfileEffectSource": {
+        "type": "object",
+        "properties": {
+            "src": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "src"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "UserProfile": {
