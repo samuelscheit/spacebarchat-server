@@ -1,6 +1,6 @@
 {
-    "missing": 813,
-    "spacebar": 367,
+    "missing": 812,
+    "spacebar": 368,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -9,7 +9,6 @@
         "/activities/{param}/test-mode",
         "/activities/{param}/{param}",
         "/age-verification/test",
-        "/age-verification/verify",
         "/ai/fix-grammar",
         "/ai/summarize-thread/{param}",
         "/ai/title",
@@ -3917,13 +3916,6 @@
         },
         { "method": "POST", "route": "/activities/{param}/test-mode", "route_name": "ACTIVITY_TEST_MODE", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/age-verification/test", "route_name": "AGE_ASSURANCE_TEST", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/age-verification/verify",
-            "route_name": "POST_AGE_VERIFICATION_VERIFY",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Verify Age"]
-        },
         { "method": "POST", "route": "/ai/fix-grammar", "route_name": "POST_AI_FIX_GRAMMAR", "sources": ["userdoccers:resources/ai.mdx"], "summaries": ["Fix Grammar"] },
         {
             "method": "POST",

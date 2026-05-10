@@ -24,6 +24,16 @@
 		"source": "src/api/routes/activities/#application_id/instances/#channel_id/index.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "AgeVerificationVerifySchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/age-verification/verify",
+		"route_name": "POST_AGE_VERIFICATION_VERIFY",
+		"source": "src/api/routes/age-verification/verify.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"ApexExperimentsResponse"
