@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 539,
+        "totalContracts": 540,
         "byService": {
-            "api": 466,
+            "api": 467,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 396,
-        "runtimeMalformedAuthContracts": 396,
-        "runtimeRevokedSessionAuthContracts": 396,
-        "runtimeStaleTokenAuthContracts": 396,
+        "runtimeAuthBoundaryContracts": 397,
+        "runtimeMalformedAuthContracts": 397,
+        "runtimeRevokedSessionAuthContracts": 397,
+        "runtimeStaleTokenAuthContracts": 397,
         "runtimePublicAuthBoundaryContracts": 62,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 69,
@@ -20323,6 +20323,50 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "PremiumReferralResponse"],
                 "responseStatuses": [200, 401, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/report/options/",
+            "service": "api",
+            "method": "GET",
+            "path": "/report/options/",
+            "samplePath": "/report/options/",
+            "sourceFile": "src/api/routes/report/options.ts",
+            "line": 29,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "ReportOptionsResponse"],
+                "responseStatuses": [200, 401]
             },
             "cases": [
                 {

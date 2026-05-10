@@ -9816,6 +9816,55 @@
                     "refreshed_urls"
                 ]
             },
+            "ReportOptionSubTypeResponse": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "label",
+                    "value"
+                ]
+            },
+            "ReportOptionResponse": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "sub_question": {
+                        "type": "string"
+                    },
+                    "sub_types": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ReportOptionSubTypeResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "description",
+                    "label",
+                    "value"
+                ]
+            },
+            "ReportOptionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ReportOptionResponse"
+                }
+            },
             "ReportingMenuTypesResponse": {
                 "type": "array",
                 "items": {
@@ -31363,6 +31412,9 @@
             "name": "referrals"
         },
         {
+            "name": "report"
+        },
+        {
             "name": "reporting"
         },
         {
@@ -37025,6 +37077,42 @@
                 },
                 "tags": [
                     "reporting"
+                ]
+            }
+        },
+        "/report/options/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns report option objects that can be used when creating a staged message report.",
+                "summary": "Get Report Options",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportOptionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "report"
                 ]
             }
         },

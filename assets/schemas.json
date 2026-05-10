@@ -10284,6 +10284,60 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ReportOptionSubTypeResponse": {
+        "type": "object",
+        "properties": {
+            "value": {
+                "type": "string"
+            },
+            "label": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "label",
+            "value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ReportOptionResponse": {
+        "type": "object",
+        "properties": {
+            "value": {
+                "type": "string"
+            },
+            "label": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "sub_question": {
+                "type": "string"
+            },
+            "sub_types": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ReportOptionSubTypeResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "label",
+            "value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ReportOptionsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ReportOptionResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ReportingMenuTypesResponse": {
         "type": "array",
         "items": {
