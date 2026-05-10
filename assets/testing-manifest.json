@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 459,
+        "totalEntries": 460,
         "byService": {
-            "api": 362,
+            "api": 363,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 434,
+            "http-route": 435,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 67,
-            "stateful-domain": 257,
+            "stateful-domain": 258,
             "cdn-integration": 74,
             "auth-scenario": 16,
             "integration": 11,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 322,
+            "route-class": 323,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -534,6 +534,48 @@
                     400
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications/:application_id/branches/:branch_id/builds/live/",
+            "sourceFile": "src/api/routes/applications/#application_id/branches/#branch_id/builds/live.ts",
+            "line": 72,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationLiveBuildResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-applications",

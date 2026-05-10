@@ -116,6 +116,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationLiveBuildResponse"
+		],
+		"route": "/applications/{application_id}/branches/{branch_id}/builds/live",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_BRANCHES_BRANCH_ID_BUILDS_LIVE",
+		"source": "src/api/routes/applications/#application_id/branches/#branch_id/builds/live.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/applications/{application_id}/commands",
 		"route_name": "GET_APPLICATIONS_APPLICATION_ID_COMMANDS",

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 14,
-        "totalCoveredManifestEntries": 399,
+        "totalCoveredManifestEntries": 400,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 377,
-                "totalCoveredManifestEntries": 377,
-                "totalCoveredRequiredManifestEntries": 377,
+                "totalRequiredManifestEntries": 378,
+                "totalCoveredManifestEntries": 378,
+                "totalCoveredRequiredManifestEntries": 378,
                 "totalSuites": 11
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 257,
+            "stateful-domain": 258,
             "contract": 18,
             "auth-scenario": 16,
             "integration": 11,
@@ -64,9 +64,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 377,
-                "totalCoveredManifestEntries": 377,
-                "totalCoveredRequiredManifestEntries": 377,
+                "totalRequiredManifestEntries": 378,
+                "totalCoveredManifestEntries": 378,
+                "totalCoveredRequiredManifestEntries": 378,
                 "totalSuites": 11
             },
             "requiredManifestIds": [
@@ -109,6 +109,7 @@
                 "api:http:GET:/applications/",
                 "api:http:GET:/applications/:application_id/",
                 "api:http:GET:/applications/:application_id/branches/",
+                "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
@@ -488,6 +489,7 @@
                 "api:http:GET:/applications/",
                 "api:http:GET:/applications/:application_id/",
                 "api:http:GET:/applications/:application_id/branches/",
+                "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
@@ -1197,6 +1199,7 @@
                         "api:http:GET:/applications/",
                         "api:http:GET:/applications/:application_id/",
                         "api:http:GET:/applications/:application_id/branches/",
+                        "api:http:GET:/applications/:application_id/branches/:branch_id/builds/live/",
                         "api:http:GET:/applications/:application_id/commands/",
                         "api:http:GET:/applications/:application_id/commands/:command_id/",
                         "api:http:GET:/applications/:application_id/entitlements/",

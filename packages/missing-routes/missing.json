@@ -1,6 +1,6 @@
 {
-    "missing": 826,
-    "spacebar": 354,
+    "missing": 825,
+    "spacebar": 355,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -35,7 +35,6 @@
         "/applications/{param}/attachment",
         "/applications/{param}/auto-verification",
         "/applications/{param}/branches",
-        "/applications/{param}/branches/{param}/builds/live",
         "/applications/{param}/branches/{param}/builds/{param}/size",
         "/applications/{param}/can-delete",
         "/applications/{param}/disclosures",
@@ -1416,13 +1415,6 @@
             "sources": ["userdoccers:interactions/application-commands.mdx"],
             "source_routes": ["/applications/{application_id}/application-command-index"],
             "summaries": ["Get Application Command Index"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/branches/{param}/builds/live",
-            "route_name": "APPLICATION_LIVE_BUILD",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/applications/{application_id}/branches/{param}/builds/live"]
         },
         {
             "method": "GET",
