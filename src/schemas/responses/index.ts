@@ -39,6 +39,7 @@ export * from "./CompanySearchResponse";
 export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";
+export * from "./ConfettiConsumableResponse";
 export * from "./ContentInventoryOutboxResponse";
 export * from "./ConsoleDevicesResponse";
 export * from "./ConversationSummariesResponse";

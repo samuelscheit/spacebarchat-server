@@ -53,6 +53,7 @@
         "src/api/util/ChannelModifyTypeConversion.test.ts",
         "src/api/util/utility/captcha.test.ts",
         "src/api/util/utility/ChannelFollowers.test.ts",
+        "src/api/util/utility/ConfettiConsumable.test.ts",
         "src/api/util/utility/PostData.test.ts",
         "src/api/util/utility/passwordStrength.test.ts",
         "src/api/util/utility/MessagePayloadLimits.test.ts",

@@ -1,6 +1,6 @@
 {
-    "missing": 757,
-    "spacebar": 423,
+    "missing": 755,
+    "spacebar": 425,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -491,7 +491,6 @@
         "/users/@me/connections/{param}/{param}",
         "/users/@me/connections/{param}/{param}/refresh",
         "/users/@me/consent",
-        "/users/@me/consumable/confetti",
         "/users/@me/consumable/hd-streaming",
         "/users/@me/devices",
         "/users/@me/devices/sync",
@@ -2847,13 +2846,6 @@
         },
         {
             "method": "GET",
-            "route": "/users/@me/consumable/confetti",
-            "route_name": "GET_USERS__ME_CONSUMABLE_CONFETTI",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "summaries": ["Get Confetti Consumable"]
-        },
-        {
-            "method": "GET",
             "route": "/users/@me/consumable/hd-streaming",
             "route_name": "GET_USERS__ME_CONSUMABLE_HD_STREAMING",
             "sources": ["userdoccers:resources/store.mdx"],
@@ -4910,13 +4902,6 @@
             "route_name": "POST_USERS__ME_CONSENT",
             "sources": ["userdoccers:resources/user-settings.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Modify User Consents"]
-        },
-        {
-            "method": "POST",
-            "route": "/users/@me/consumable/confetti",
-            "route_name": "POST_USERS__ME_CONSUMABLE_CONFETTI",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "summaries": ["Apply Confetti Consumable"]
         },
         {
             "method": "POST",

@@ -3443,6 +3443,26 @@
 		"source": "src/api/routes/users/@me/connections/#connection_name/#connection_id/access-token.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ConfettiConsumableResponse"
+		],
+		"route": "/users/@me/consumable/confetti",
+		"route_name": "GET_USERS__ME_CONSUMABLE_CONFETTI",
+		"source": "src/api/routes/users/@me/consumable/confetti.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "ConfettiConsumableApplySchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/consumable/confetti",
+		"route_name": "POST_USERS__ME_CONSUMABLE_CONFETTI",
+		"source": "src/api/routes/users/@me/consumable/confetti.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [
 			"APIErrorResponse"

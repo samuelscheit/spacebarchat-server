@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 435,
+        "totalCoveredManifestEntries": 437,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 413,
-                "totalCoveredManifestEntries": 413,
-                "totalCoveredRequiredManifestEntries": 413,
+                "totalRequiredManifestEntries": 415,
+                "totalCoveredManifestEntries": 415,
+                "totalCoveredRequiredManifestEntries": 415,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 284,
+            "stateful-domain": 286,
             "cdn-integration": 78,
             "integration": 13,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 413,
-                "totalCoveredManifestEntries": 413,
-                "totalCoveredRequiredManifestEntries": 413,
+                "totalRequiredManifestEntries": 415,
+                "totalCoveredManifestEntries": 415,
+                "totalCoveredRequiredManifestEntries": 415,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -250,6 +250,7 @@
                 "api:http:GET:/users/@me/collectibles-purchases/",
                 "api:http:GET:/users/@me/connections/",
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
+                "api:http:GET:/users/@me/consumable/confetti/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
                 "api:http:GET:/users/@me/game-relationships/",
@@ -377,6 +378,7 @@
                 "api:http:POST:/users/:user_id/messages/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
+                "api:http:POST:/users/@me/consumable/confetti/",
                 "api:http:POST:/users/@me/delete/",
                 "api:http:POST:/users/@me/devices/",
                 "api:http:POST:/users/@me/disable/",
@@ -665,6 +667,7 @@
                 "api:http:GET:/users/@me/collectibles-purchases/",
                 "api:http:GET:/users/@me/connections/",
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
+                "api:http:GET:/users/@me/consumable/confetti/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
                 "api:http:GET:/users/@me/game-relationships/",
@@ -792,6 +795,7 @@
                 "api:http:POST:/users/:user_id/messages/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
+                "api:http:POST:/users/@me/consumable/confetti/",
                 "api:http:POST:/users/@me/delete/",
                 "api:http:POST:/users/@me/devices/",
                 "api:http:POST:/users/@me/disable/",
@@ -987,6 +991,7 @@
                         "api:http:GET:/users/@me/collectibles-purchases/",
                         "api:http:GET:/users/@me/connections/",
                         "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
+                        "api:http:GET:/users/@me/consumable/confetti/",
                         "api:http:GET:/users/@me/email-settings/",
                         "api:http:GET:/users/@me/entitlements/gifts",
                         "api:http:GET:/users/@me/game-relationships/",
@@ -1018,6 +1023,7 @@
                         "api:http:POST:/users/:user_id/messages/",
                         "api:http:POST:/users/@me/billing/payment-sources/",
                         "api:http:POST:/users/@me/channels/",
+                        "api:http:POST:/users/@me/consumable/confetti/",
                         "api:http:POST:/users/@me/delete/",
                         "api:http:POST:/users/@me/devices/",
                         "api:http:POST:/users/@me/disable/",
