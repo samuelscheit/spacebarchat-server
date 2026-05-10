@@ -1,6 +1,6 @@
 {
-    "missing": 763,
-    "spacebar": 417,
+    "missing": 762,
+    "spacebar": 418,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -21,7 +21,6 @@
         "/application-directory-static/search",
         "/application-directory/applications/{param}/embed",
         "/applications/games-supplemental",
-        "/applications/non-games/detectable",
         "/applications/public",
         "/applications/shelf",
         "/applications/storefront/interactions/premium-button/{param}",
@@ -1427,13 +1426,6 @@
             "summaries": ["Get Application Verification Eligibility"]
         },
         { "method": "GET", "route": "/applications/games-supplemental", "route_name": "APPLICATIONS_GAMES_SUPPLEMENTAL", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/applications/non-games/detectable",
-            "route_name": "GET_APPLICATIONS_NON_GAMES_DETECTABLE",
-            "sources": ["userdoccers:resources/game.mdx"],
-            "summaries": ["Get Detectable Non Game Applications"]
-        },
         {
             "method": "GET",
             "route": "/applications/public",

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 522,
+        "totalEntries": 523,
         "byService": {
-            "api": 425,
+            "api": 426,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 497,
+            "http-route": 498,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 99,
+            "contract": 100,
             "stateful-domain": 283,
             "cdn-integration": 76,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 382,
+            "route-class": 383,
             "hot-path": 32,
             "none": 1,
             "cdn-hot-path": 73,
@@ -1746,6 +1746,43 @@
                     "db-state"
                 ],
                 "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/applications/non-games/detectable/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications/non-games/detectable/",
+            "sourceFile": "src/api/routes/applications/non-games/detectable.ts",
+            "line": 81,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationDetectableResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    502
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-applications-non-games-detectable",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false,
+                "notes": "Public Discord compatibility endpoint for detectable non-game applications."
             }
         },
         {

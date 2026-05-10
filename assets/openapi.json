@@ -47404,6 +47404,36 @@
                 ]
             }
         },
+        "/applications/non-games/detectable/": {
+            "get": {
+                "summary": "Get Detectable Non Game Applications",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationDetectableResponse"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
         "/applications/": {
             "get": {
                 "security": [

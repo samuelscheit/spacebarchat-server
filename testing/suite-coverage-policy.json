@@ -140,7 +140,7 @@
                     ],
                     "manifestIds": ["api:http:GET:/applications-with-assets/"],
                     "selectors": [
-                        { "service": "api", "type": "http-route", "pathPrefix": "/applications" },
+                        { "service": "api", "type": "http-route", "testTier": "stateful-domain", "pathPrefix": "/applications" },
                         { "service": "api", "type": "http-route", "pathPrefix": "/interactions" }
                     ],
                     "fixtures": ["users", "applications", "guilds", "commands", "interactions"],

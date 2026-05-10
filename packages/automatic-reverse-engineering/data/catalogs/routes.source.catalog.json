@@ -373,6 +373,16 @@
 		"source": "src/api/routes/applications/detectable.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationDetectableResponse"
+		],
+		"route": "/applications/non-games/detectable",
+		"route_name": "GET_APPLICATIONS_NON_GAMES_DETECTABLE",
+		"source": "src/api/routes/applications/non-games/detectable.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "RefreshUrlsRequestSchema",
 		"response_schema_refs": [

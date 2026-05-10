@@ -85,6 +85,18 @@
             "contractChecks": ["token-auth-boundary", "schema-validation", "response-shape", "db-state", "events"]
         },
         {
+            "id": "api-public-applications-non-games-detectable",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "pathPrefix": "/applications/non-games/detectable",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "notes": "Public Discord compatibility endpoint for detectable non-game applications."
+        },
+        {
             "id": "api-applications",
             "type": "http-route",
             "service": "api",
