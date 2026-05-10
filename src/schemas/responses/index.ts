@@ -38,6 +38,7 @@ export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";
 export * from "./ConsoleDevicesResponse";
 export * from "./ConversationSummariesResponse";
+export * from "./DetectableGameExclusionsResponse";
 export * from "./DiscoverableGuildsResponse";
 export * from "./DmMessagesResponseSchema";
 export * from "./EmailDomainLookupResponse";

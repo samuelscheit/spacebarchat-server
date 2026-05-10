@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 490,
+        "totalEntries": 491,
         "byService": {
-            "api": 393,
+            "api": 394,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 465,
+            "http-route": 466,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 80,
+            "contract": 81,
             "stateful-domain": 273,
             "cdn-integration": 74,
             "auth-scenario": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 353,
+            "route-class": 354,
             "hot-path": 29,
             "none": 1,
             "cdn-hot-path": 73,
@@ -1402,7 +1402,7 @@
             "method": "GET",
             "path": "/applications/:application_id/public/",
             "sourceFile": "src/api/routes/applications/#application_id/public.ts",
-            "line": 101,
+            "line": 100,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -7276,6 +7276,42 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/games/detectable/exclusions/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/games/detectable/exclusions/",
+            "sourceFile": "src/api/routes/games/detectable/exclusions.ts",
+            "line": 93,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "DetectableGameExclusionsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    502
                 ],
                 "hasQuery": false
             },

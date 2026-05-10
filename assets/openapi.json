@@ -2819,6 +2819,27 @@
                     "summaries"
                 ]
             },
+            "DetectableGameExclusionsResponse": {
+                "type": "object",
+                "properties": {
+                    "executables": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "patterns": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "executables",
+                    "patterns"
+                ]
+            },
             "DiscoverableGuildsResponse": {
                 "type": "object",
                 "properties": {
@@ -37708,6 +37729,36 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ApplicationDetectableResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "games"
+                ]
+            }
+        },
+        "/games/detectable/exclusions/": {
+            "get": {
+                "summary": "Get Detectable Game Exclusions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DetectableGameExclusionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "502": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }

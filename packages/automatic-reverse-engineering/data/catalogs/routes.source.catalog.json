@@ -1469,6 +1469,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"DetectableGameExclusionsResponse"
+		],
+		"route": "/games/detectable/exclusions",
+		"route_name": "GET_GAMES_DETECTABLE_EXCLUSIONS",
+		"source": "src/api/routes/games/detectable/exclusions.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"GatewayResponse"
 		],
 		"route": "/gateway",

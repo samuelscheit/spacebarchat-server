@@ -37,6 +37,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     // Public information endpoints
     "GET /ping",
     "GET /gateway",
+    "GET /games/detectable/exclusions",
     "GET /experiments",
     "GET /apex/experiments",
     "GET /updates",

@@ -1,6 +1,6 @@
 {
-    "missing": 795,
-    "spacebar": 385,
+    "missing": 794,
+    "spacebar": 386,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -159,7 +159,6 @@
         "/friend-suggestions",
         "/friend-suggestions/{param}",
         "/games",
-        "/games/detectable/exclusions",
         "/games/{param}",
         "/gifs/select",
         "/gifs/suggest",
@@ -1721,13 +1720,6 @@
             "sources": ["userdoccers:resources/game.mdx"],
             "source_routes": ["/games/{game_id}"],
             "summaries": ["Get Game"]
-        },
-        {
-            "method": "GET",
-            "route": "/games/detectable/exclusions",
-            "route_name": "GET_GAMES_DETECTABLE_EXCLUSIONS",
-            "sources": ["userdoccers:resources/game.mdx"],
-            "summaries": ["Get Detectable Game Exclusions"]
         },
         {
             "method": "GET",
