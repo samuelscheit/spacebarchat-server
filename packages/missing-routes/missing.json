@@ -1,6 +1,6 @@
 {
-    "missing": 685,
-    "spacebar": 495,
+    "missing": 684,
+    "spacebar": 496,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -230,7 +230,6 @@
         "/guilds/{param}/skus/{param}",
         "/guilds/{param}/soundboard-sounds",
         "/guilds/{param}/soundboard-sounds/{param}",
-        "/guilds/{param}/top-read-channels",
         "/guilds/{param}/voice-states/@me",
         "/initiate-prompts",
         "/integrations/{param}/join",
@@ -1680,14 +1679,6 @@
             "sources": ["userdoccers:resources/soundboard.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/soundboard-sounds/{sound_id}", "/guilds/{guild_id}/soundboard-sounds/{param}"],
             "summaries": ["Get Guild Soundboard Sound"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/top-read-channels",
-            "route_name": "GET_GUILDS_GUILD_ID_TOP_READ_CHANNELS",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/top-read-channels"],
-            "summaries": ["Get Guild Top Read Channels"]
         },
         {
             "method": "GET",

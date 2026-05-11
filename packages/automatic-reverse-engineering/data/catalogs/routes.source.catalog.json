@@ -3003,6 +3003,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildTopReadChannelsResponse"
+		],
+		"route": "/guilds/{guild_id}/top-read-channels",
+		"route_name": "GET_GUILDS_GUILD_ID_TOP_READ_CHANNELS",
+		"source": "src/api/routes/guilds/#guild_id/top-read-channels.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildVanityUrlResponse"
 		],
 		"route": "/guilds/{guild_id}/vanity-url",

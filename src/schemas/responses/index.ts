@@ -113,6 +113,7 @@ export * from "./GuildRecommendationsResponse";
 export * from "./GuildScheduledEventResponse";
 export * from "./GuildTopEmojisResponse";
 export * from "./GuildTopGamesResponse";
+export * from "./GuildTopReadChannelsResponse";
 export * from "./GuildVanityUrl";
 export * from "./GuildVoiceRegionsResponse";
 export * from "./GuildWidgetJsonResponse";

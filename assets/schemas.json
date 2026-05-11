@@ -7565,6 +7565,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildTopReadChannelsResponse": {
+        "type": "array",
+        "items": {
+            "type": "string"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildVanityUrlResponse": {
         "anyOf": [
             {
