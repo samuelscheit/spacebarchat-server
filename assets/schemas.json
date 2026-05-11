@@ -5245,6 +5245,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildAudienceParticipatorsByRegCountryResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildAudienceParticipatorsByRegCountryBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildBasicResponse": {
         "type": "object",
         "properties": {
@@ -23623,6 +23630,27 @@
             "day_pt",
             "participators",
             "platform"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildAudienceParticipatorsByRegCountryBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "country_code": {
+                "type": "string"
+            },
+            "participators": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "country_code",
+            "day_pt",
+            "participators"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

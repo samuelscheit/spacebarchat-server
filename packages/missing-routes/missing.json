@@ -1,6 +1,6 @@
 {
-    "missing": 686,
-    "spacebar": 494,
+    "missing": 685,
+    "spacebar": 495,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -133,7 +133,6 @@
         "/guilds/{param}/ack/{param}/{param}",
         "/guilds/{param}/active-channels",
         "/guilds/{param}/admin-server-eligibility",
-        "/guilds/{param}/analytics/audience/participators-by-reg-country",
         "/guilds/{param}/analytics/growth-activation/overview",
         "/guilds/{param}/analytics/growth-activation/retention",
         "/guilds/{param}/analytics/welcome-screen/users",
@@ -1365,14 +1364,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/admin-server-eligibility"],
             "summaries": ["Get Admin Community Eligibility"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/audience/participators-by-reg-country",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_AUDIENCE_PARTICIPATORS_BY_REG_COUNTRY",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/audience/participators-by-reg-country"],
-            "summaries": ["Get Guild Audience Participators by Registration Country"]
         },
         {
             "method": "GET",

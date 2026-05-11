@@ -4969,6 +4969,12 @@
                     "$ref": "#/components/schemas/GuildAudienceParticipatorsByPlatformBucket"
                 }
             },
+            "GuildAudienceParticipatorsByRegCountryResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildAudienceParticipatorsByRegCountryBucket"
+                }
+            },
             "GuildBasicResponse": {
                 "type": "object",
                 "properties": {
@@ -22444,6 +22450,25 @@
                     "day_pt",
                     "participators",
                     "platform"
+                ]
+            },
+            "GuildAudienceParticipatorsByRegCountryBucket": {
+                "type": "object",
+                "properties": {
+                    "day_pt": {
+                        "type": "string"
+                    },
+                    "country_code": {
+                        "type": "string"
+                    },
+                    "participators": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "country_code",
+                    "day_pt",
+                    "participators"
                 ]
             },
             "GuildChannelFollowingAnnouncementsByChannelBucket": {
@@ -46519,6 +46544,98 @@
                             "type": "integer"
                         },
                         "description": "Aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly."
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/analytics/audience/participators-by-reg-country/": {
+            "get": {
+                "x-permission-required": "VIEW_GUILD_INSIGHTS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns member statistics categorized by account registration country per aggregation interval.",
+                "summary": "Get Guild Audience Participators by Registration Country",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildAudienceParticipatorsByRegCountryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO8601 start timestamp for the insights data"
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO8601 end timestamp for the insights data"
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Data aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly"
                     }
                 ],
                 "tags": [

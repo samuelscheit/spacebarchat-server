@@ -78,6 +78,7 @@ export * from "./GlobalActivityStatisticsResponse";
 export * from "./GuildAudienceNewMembersByDiscordTenureResponse";
 export * from "./GuildAudienceParticipatorsByGuildTenureResponse";
 export * from "./GuildAudienceParticipatorsByPlatformResponse";
+export * from "./GuildAudienceParticipatorsByRegCountryResponse";
 export * from "./GuildBasicResponse";
 export * from "./GuildBansResponse";
 export * from "./GuildChannelFollowingAnnouncementsByChannelResponse";

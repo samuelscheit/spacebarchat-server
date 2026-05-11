@@ -2111,6 +2111,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildAudienceParticipatorsByRegCountryResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/audience/participators-by-reg-country",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_AUDIENCE_PARTICIPATORS_BY_REG_COUNTRY",
+		"source": "src/api/routes/guilds/#guild_id/analytics/audience/participators-by-reg-country.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildChannelFollowingAnnouncementsByChannelResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/channel-following/announcements-by-channel",
