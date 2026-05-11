@@ -47,6 +47,24 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/activities/{application_id}/test-mode",
+		"route_name": "GET_ACTIVITIES_APPLICATION_ID_TEST_MODE",
+		"source": "src/api/routes/activities/#application_id/test-mode.ts"
+	},
+	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/activities/{application_id}/test-mode",
+		"route_name": "POST_ACTIVITIES_APPLICATION_ID_TEST_MODE",
+		"source": "src/api/routes/activities/#application_id/test-mode.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse",
 			"ActivityShelfResponse"
 		],

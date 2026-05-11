@@ -1,9 +1,8 @@
 {
-    "missing": 714,
-    "spacebar": 466,
+    "missing": 712,
+    "spacebar": 468,
     "discord": 1128,
     "routes": [
-        "/activities/{param}/test-mode",
         "/activities/{param}/{param}",
         "/age-verification/test",
         "/ai/fix-grammar",
@@ -1092,14 +1091,6 @@
             "sources": ["userdoccers:interactions/receiving-and-responding.mdx"],
             "source_routes": ["/webhooks/{application_id}/{interaction_token}/messages/@original"],
             "summaries": ["Delete Original Interaction Response"]
-        },
-        {
-            "method": "GET",
-            "route": "/activities/{param}/test-mode",
-            "route_name": "GET_ACTIVITIES_APPLICATION_ID_TEST_MODE",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/activities/{application_id}/test-mode"],
-            "summaries": ["Query Application Test Mode"]
         },
         {
             "method": "GET",
@@ -3267,7 +3258,6 @@
             "source_routes": ["/activities/{channel_id}/{application_id}"],
             "summaries": ["Launch Embedded Activity"]
         },
-        { "method": "POST", "route": "/activities/{param}/test-mode", "route_name": "ACTIVITY_TEST_MODE", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/age-verification/test", "route_name": "AGE_ASSURANCE_TEST", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/ai/fix-grammar", "route_name": "POST_AI_FIX_GRAMMAR", "sources": ["userdoccers:resources/ai.mdx"], "summaries": ["Fix Grammar"] },
         {

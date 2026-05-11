@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 571,
+        "totalEntries": 573,
         "byService": {
-            "api": 474,
+            "api": 476,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 546,
+            "http-route": 548,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 123,
+            "contract": 125,
             "stateful-domain": 304,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 429,
+            "route-class": 431,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -298,6 +298,80 @@
                     400,
                     401,
                     403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/activities/:application_id/test-mode/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/activities/:application_id/test-mode/",
+            "sourceFile": "src/api/routes/activities/#application_id/test-mode.ts",
+            "line": 93,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/activities/:application_id/test-mode/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/activities/:application_id/test-mode/",
+            "sourceFile": "src/api/routes/activities/#application_id/test-mode.ts",
+            "line": 118,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
                     404
                 ],
                 "hasQuery": false
