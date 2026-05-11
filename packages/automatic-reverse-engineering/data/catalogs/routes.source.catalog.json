@@ -76,6 +76,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"AppRecommendationsResponse"
+		],
+		"route": "/app-recommendations",
+		"route_name": "GET_APP_RECOMMENDATIONS",
+		"source": "src/api/routes/app-recommendations.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ApplicationDirectoryApplication"
 		],
 		"route": "/application-directory-static/applications/{application_id}",

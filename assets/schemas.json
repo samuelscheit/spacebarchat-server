@@ -2923,6 +2923,27 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationDirectoryCategoriesResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ApplicationDirectoryCategory"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationDirectoryCollectionsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ApplicationDirectoryCollection"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AppRecommendationsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ApplicationDirectoryApplication"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationActivityStatisticsResponse": {
         "type": "array",
         "items": {
@@ -2957,20 +2978,6 @@
             }
         },
         "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationDirectoryCategoriesResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/ApplicationDirectoryCategory"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "ApplicationDirectoryCollectionsResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/ApplicationDirectoryCollection"
-        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ApplicationDirectorySearchResponse": {
@@ -18294,28 +18301,6 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
-    "ApplicationActivityStatistics": {
-        "type": "object",
-        "properties": {
-            "user_id": {
-                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                "type": "string"
-            },
-            "last_played_at": {
-                "type": "string"
-            },
-            "total_duration": {
-                "type": "integer"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "last_played_at",
-            "total_duration",
-            "user_id"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
     "ApplicationDirectoryCategory": {
         "type": "object",
         "properties": {
@@ -18814,6 +18799,28 @@
         "required": [
             "name",
             "value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationActivityStatistics": {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "last_played_at": {
+                "type": "string"
+            },
+            "total_duration": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "last_played_at",
+            "total_duration",
+            "user_id"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

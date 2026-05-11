@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 566,
+        "totalEntries": 567,
         "byService": {
-            "api": 469,
+            "api": 470,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 541,
+            "http-route": 542,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 120,
+            "contract": 121,
             "stateful-domain": 302,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 424,
+            "route-class": 425,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -482,6 +482,42 @@
                     403
                 ],
                 "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/app-recommendations/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/app-recommendations/",
+            "sourceFile": "src/api/routes/app-recommendations.ts",
+            "line": 30,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "AppRecommendationsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-public-contract",

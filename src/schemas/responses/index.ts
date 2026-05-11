@@ -21,6 +21,7 @@ export * from "./APIErrorResponse";
 export * from "./AccountStandingResponse";
 export * from "./ActiveThreadsResponse";
 export * from "./ActivityShelfResponse";
+export * from "./AppRecommendationsResponse";
 export * from "./ApplicationActivityStatisticsResponse";
 export * from "./ApplicationCanDeleteResponse";
 export * from "./ApplicationDirectoryCategoriesResponse";

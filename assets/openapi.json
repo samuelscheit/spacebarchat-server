@@ -2805,6 +2805,24 @@
                     "assets"
                 ]
             },
+            "ApplicationDirectoryCategoriesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationDirectoryCategory"
+                }
+            },
+            "ApplicationDirectoryCollectionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationDirectoryCollection"
+                }
+            },
+            "AppRecommendationsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationDirectoryApplication"
+                }
+            },
             "ApplicationActivityStatisticsResponse": {
                 "type": "array",
                 "items": {
@@ -2836,18 +2854,6 @@
                             }
                         ]
                     }
-                }
-            },
-            "ApplicationDirectoryCategoriesResponse": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/ApplicationDirectoryCategory"
-                }
-            },
-            "ApplicationDirectoryCollectionsResponse": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/ApplicationDirectoryCollection"
                 }
             },
             "ApplicationDirectorySearchResponse": {
@@ -17403,26 +17409,6 @@
                     "type"
                 ]
             },
-            "ApplicationActivityStatistics": {
-                "type": "object",
-                "properties": {
-                    "user_id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    },
-                    "last_played_at": {
-                        "type": "string"
-                    },
-                    "total_duration": {
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "last_played_at",
-                    "total_duration",
-                    "user_id"
-                ]
-            },
             "ApplicationDirectoryCategory": {
                 "type": "object",
                 "properties": {
@@ -17897,6 +17883,26 @@
                 "required": [
                     "name",
                     "value"
+                ]
+            },
+            "ApplicationActivityStatistics": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "last_played_at": {
+                        "type": "string"
+                    },
+                    "total_duration": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "last_played_at",
+                    "total_duration",
+                    "user_id"
                 ]
             },
             "ApplicationDirectorySearchResult": {
@@ -31254,6 +31260,9 @@
         },
         {
             "name": "apex"
+        },
+        {
+            "name": "app-recommendations"
         },
         {
             "name": "application-directory-static"
@@ -54272,6 +54281,42 @@
                 ],
                 "tags": [
                     "application-directory-static"
+                ]
+            }
+        },
+        "/app-recommendations/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns application recommendations for the current user. Spacebar does not currently persist source-backed application recommendation signals, so this compatibility endpoint returns an empty recommendation list.",
+                "summary": "Get App Recommendations",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AppRecommendationsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "app-recommendations"
                 ]
             }
         },
