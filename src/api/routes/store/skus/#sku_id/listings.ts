@@ -17,23 +17,42 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 */
 
 import { route } from "@spacebar/api";
+import type { StoreSkuListingsResponse } from "@spacebar/schemas";
 import { DiscordApiErrors } from "@spacebar/util";
 import { Router as createRouter, type Request, type Response, type Router } from "express";
-import { getStoreSku, parseStoreSkuQuery, type StoreSkuRouteDependencies } from "../../../util/utility/StoreSkuRoute";
+import type { ApplicationCommandAuthorizationRepository } from "../../../../util/utility/ApplicationAuthorization";
+import { getStoreSku, parseStoreSkuQuery, type StoreSkuProvider, type StoreSkuQueryOptions } from "../../../../util/utility/StoreSkuRoute";
 
-export {
-    getConfiguredStoreSku,
-    getStoreSku,
-    isStoreSkuRouteSnowflake,
-    parseStoreSkuQuery,
-    toStoreSkuResponse,
-    UNKNOWN_STORE_SKU_ERROR,
-    type StoreSkuProvider,
-    type StoreSkuProviderOptions,
-    type StoreSkuQueryOptions,
-    type StoreSkuRouteDependencies,
-    type StoreSkuSource,
-} from "../../../util/utility/StoreSkuRoute";
+const emptyStoreSkuListings: readonly unknown[] = [];
+
+export interface StoreSkuListingsProviderOptions extends StoreSkuQueryOptions {
+    sku_id: string;
+}
+
+export type StoreSkuListingsProvider = (options: StoreSkuListingsProviderOptions) => readonly unknown[] | Promise<readonly unknown[]>;
+
+export type StoreSkuListingsRouteDependencies = {
+    applicationRepository?: ApplicationCommandAuthorizationRepository;
+    skuProvider?: StoreSkuProvider;
+    listingProvider?: StoreSkuListingsProvider;
+};
+
+export function getConfiguredStoreSkuListings(_options: StoreSkuListingsProviderOptions): readonly unknown[] {
+    // Spacebar does not currently persist Discord SKU store listing catalogs.
+    return emptyStoreSkuListings;
+}
+
+export async function listStoreSkuListings(
+    skuId: string,
+    userId: string,
+    options: StoreSkuQueryOptions,
+    dependencies: StoreSkuListingsRouteDependencies = {},
+): Promise<StoreSkuListingsResponse> {
+    await getStoreSku(skuId, userId, options, dependencies);
+
+    const provider = dependencies.listingProvider ?? getConfiguredStoreSkuListings;
+    return Array.from(await provider({ sku_id: skuId, ...options }));
+}
 
 function sendApplicationAuthorizationError(res: Response) {
     return res.status(403).json({
@@ -46,14 +65,14 @@ function isApplicationAuthorizationError(error: unknown) {
     return (error as { code?: unknown })?.code === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.code;
 }
 
-export function createStoreSkuRouter(dependencies: StoreSkuRouteDependencies = {}) {
+export function createStoreSkuListingsRouter(dependencies: StoreSkuListingsRouteDependencies = {}) {
     const router: Router = createRouter({ mergeParams: true });
 
     router.get(
         "/",
         route({
-            summary: "Get SKU",
-            description: "Returns the SKU object for the given SKU ID when it is backed by local store data and the current user can access the owning application.",
+            summary: "Get SKU Store Listings",
+            description: "Returns locally backed store listing objects for the given SKU ID after verifying the current user can access the SKU's owning application.",
             query: {
                 country_code: {
                     type: "string",
@@ -61,12 +80,12 @@ export function createStoreSkuRouter(dependencies: StoreSkuRouteDependencies = {
                 },
                 localize: {
                     type: "boolean",
-                    description: "Whether to localize the SKU for the viewer's location (default true).",
+                    description: "Whether to localize listings for the viewer's location (default true).",
                 },
             },
             responses: {
                 200: {
-                    body: "StoreSkuResponse",
+                    body: "StoreSkuListingsResponse",
                 },
                 400: {
                     body: "APIErrorResponse",
@@ -85,9 +104,9 @@ export function createStoreSkuRouter(dependencies: StoreSkuRouteDependencies = {
         async (req: Request, res: Response) => {
             try {
                 const query = parseStoreSkuQuery(req.query);
-                const sku = await getStoreSku(req.params.sku_id as string, req.user_id, query, dependencies);
+                const listings = await listStoreSkuListings(req.params.sku_id as string, req.user_id, query, dependencies);
 
-                return res.status(200).json(sku);
+                return res.status(200).json(listings);
             } catch (error) {
                 if (isApplicationAuthorizationError(error)) return sendApplicationAuthorizationError(res);
                 throw error;
@@ -98,4 +117,4 @@ export function createStoreSkuRouter(dependencies: StoreSkuRouteDependencies = {
     return router;
 }
 
-export default createStoreSkuRouter();
+export default createStoreSkuListingsRouter();

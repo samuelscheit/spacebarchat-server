@@ -1,6 +1,6 @@
 {
-    "missing": 640,
-    "spacebar": 540,
+    "missing": 639,
+    "spacebar": 541,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -317,7 +317,6 @@
         "/store/listings/{param}",
         "/store/skus",
         "/store/skus/{param}",
-        "/store/skus/{param}/listings",
         "/store/skus/{param}/purchase",
         "/storefront/collections/{param}",
         "/storefront/products/sku/{param}",
@@ -1667,14 +1666,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/store/listings/{store_listing_id}"],
             "summaries": ["Get Store Listing"]
-        },
-        {
-            "method": "GET",
-            "route": "/store/skus/{param}/listings",
-            "route_name": "GET_STORE_SKUS_SKU_ID_LISTINGS",
-            "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/store/skus/{sku_id}/listings"],
-            "summaries": ["Get SKU Store Listings"]
         },
         {
             "method": "GET",

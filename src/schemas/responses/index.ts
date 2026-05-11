@@ -175,6 +175,7 @@ export * from "./SocialSDKReleasesResponse";
 export * from "./StageInstanceResponse";
 export * from "./StoreEulaResponse";
 export * from "./StoreSkuResponse";
+export * from "./StoreSkuListingsResponse";
 export * from "./StorePublishedListingsApplicationsResponse";
 export * from "./StorePublishedListingsSkusResponse";
 export * from "./StorePublishedListingsSkusSubscriptionPlansResponse";

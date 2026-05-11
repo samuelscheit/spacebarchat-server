@@ -4084,6 +4084,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"StoreSkuListingsResponse"
+		],
+		"route": "/store/skus/{sku_id}/listings",
+		"route_name": "GET_STORE_SKUS_SKU_ID_LISTINGS",
+		"source": "src/api/routes/store/skus/#sku_id/listings.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"StorePublishedListingsSkusSubscriptionPlansResponse"
 		],
 		"route": "/store/skus/{sku_id}/plans",

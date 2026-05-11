@@ -12204,6 +12204,11 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StoreSkuListingsResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StorePublishedListingsApplicationsResponse": {
         "type": "array",
         "items": {},
