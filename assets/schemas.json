@@ -6837,6 +6837,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildGrowthActivationJoinsBySourceResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildGrowthActivationJoinsBySourceBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPreviewResponse": {
         "type": "object",
         "properties": {
@@ -23979,6 +23986,51 @@
             "day_pt",
             "joins",
             "referring_domain"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildGrowthActivationJoinsBySourceBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "discovery_joins": {
+                "type": "integer"
+            },
+            "invites": {
+                "type": "integer"
+            },
+            "vanity_joins": {
+                "type": "integer"
+            },
+            "hubs_joins": {
+                "type": "integer"
+            },
+            "bot_joins": {
+                "type": "integer"
+            },
+            "integration_joins": {
+                "type": "integer"
+            },
+            "other_joins": {
+                "type": "integer"
+            },
+            "total_joins": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "bot_joins",
+            "day_pt",
+            "discovery_joins",
+            "hubs_joins",
+            "integration_joins",
+            "invites",
+            "other_joins",
+            "total_joins",
+            "vanity_joins"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
