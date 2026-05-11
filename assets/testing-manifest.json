@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 646,
+        "totalEntries": 647,
         "byService": {
-            "api": 549,
+            "api": 550,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 621,
+            "http-route": 622,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 151,
-            "stateful-domain": 345,
+            "stateful-domain": 346,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 21,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 504,
+            "route-class": 505,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -20230,6 +20230,38 @@
             "method": "GET",
             "path": "/users/@me/affinities/users/",
             "sourceFile": "src/api/routes/users/@me/affinities/users.ts",
+            "line": 24,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/affinities/v2/users/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/affinities/v2/users/",
+            "sourceFile": "src/api/routes/users/@me/affinities/v2/users.ts",
             "line": 24,
             "authMode": "bearer",
             "routeMetadata": {

@@ -4330,6 +4330,13 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [],
+		"route": "/users/@me/affinities/v2/users",
+		"route_name": "GET_USERS__ME_AFFINITIES_V2_USERS",
+		"source": "src/api/routes/users/@me/affinities/v2/users.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
 			"ApplicationCommandIndexResponse"

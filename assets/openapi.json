@@ -37379,6 +37379,25 @@
                 ]
             }
         },
+        "/users/@me/affinities/v2/users/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's locally backed v2 user affinity data. Spacebar does not persist the client-ranking signals needed to compute Discord affinity scores, so the compatible response is empty.",
+                "summary": "Get User Affinities v2",
+                "responses": {
+                    "default": {
+                        "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/affinities/users/": {
             "get": {
                 "security": [

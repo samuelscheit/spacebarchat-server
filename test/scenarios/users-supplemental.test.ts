@@ -38,6 +38,7 @@ const coveredManifestIds = [
     "api:http:GET:/users/@me/activities/statistics/applications/",
     "api:http:GET:/users/@me/affinities/guilds/",
     "api:http:GET:/users/@me/affinities/users/",
+    "api:http:GET:/users/@me/affinities/v2/users/",
     "api:http:GET:/users/@me/applications/:application_id/entitlements/",
     "api:http:GET:/users/@me/billing/country-code/",
     "api:http:GET:/users/@me/billing/location-info/",
@@ -90,6 +91,7 @@ test(
             "api:http:GET:/users/@me/activities/statistics/applications/",
             "api:http:GET:/users/@me/affinities/guilds/",
             "api:http:GET:/users/@me/affinities/users/",
+            "api:http:GET:/users/@me/affinities/v2/users/",
             "api:http:GET:/users/@me/applications/:application_id/entitlements/",
             "api:http:GET:/users/@me/billing/country-code/",
             "api:http:GET:/users/@me/billing/location-info/",
@@ -302,6 +304,7 @@ test(
                 user_affinities: [],
                 inverse_user_affinities: [],
             });
+            assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/affinities/v2/users`, ownerToken)), { user_affinities: [] });
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/applications/100000000000000001/entitlements`, ownerToken);
             assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/billing/country-code`, ownerToken)), {});
             assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/billing/location-info`, ownerToken)), {});
