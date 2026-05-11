@@ -1391,6 +1391,16 @@
 		"source": "src/api/routes/channels/#channel_id/polls/#message_id/answers/#poll_answer_id.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"PollAnswersResponse"
+		],
+		"route": "/channels/{channel_id}/polls/{message_id}/answers/@me",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_POLLS_MESSAGE_ID_ANSWERS__ME",
+		"source": "src/api/routes/channels/#channel_id/polls/#message_id/answers/@me.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "PostDataSchema",
 		"response_schema_refs": [],

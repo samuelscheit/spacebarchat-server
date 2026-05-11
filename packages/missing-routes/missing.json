@@ -1,6 +1,6 @@
 {
-    "missing": 614,
-    "spacebar": 566,
+    "missing": 613,
+    "spacebar": 567,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1147,13 +1147,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/media-post-preview"],
             "summaries": ["Get Channel Media Preview"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/polls/{param}/answers/@me",
-            "route_name": "POLL_ANSWERS",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/polls/{message_id}/answers/@me"]
         },
         {
             "method": "GET",

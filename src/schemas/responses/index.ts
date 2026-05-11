@@ -155,6 +155,7 @@ export * from "./OAuth2KeysResponse";
 export * from "./OAuthUserInfoResponse";
 export * from "./PasswordValidateResponse";
 export * from "./PinnedMessagesResponse";
+export * from "./PollAnswersResponse";
 export * from "./PollAnswerVotersResponse";
 export * from "./PartialConnectedAccountResponse";
 export * from "./PartnerSdkStorefrontConfigResponse";

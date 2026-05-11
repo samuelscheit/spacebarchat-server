@@ -10131,6 +10131,23 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PollAnswersResponse": {
+        "type": "object",
+        "properties": {
+            "answer_ids": {
+                "description": "Selected answer IDs for the current user.",
+                "items": {
+                    "type": "integer"
+                },
+                "type": "array"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "answer_ids"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PollAnswerVotersResponse": {
         "type": "object",
         "properties": {
