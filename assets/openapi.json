@@ -38361,6 +38361,60 @@
                 ]
             }
         },
+        "/reporting/unauthenticated/menu/{type}": {
+            "get": {
+                "description": "Get reporting menu options for the requested unauthenticated report type.",
+                "summary": "Get Unauthenticated Report Menu",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportingMenuResponse"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "type"
+                    },
+                    {
+                        "name": "variant",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Version variant of the menu to retrieve (max 256 characters, default latest)"
+                    }
+                ],
+                "tags": [
+                    "reporting"
+                ]
+            }
+        },
         "/reporting/": {
             "get": {
                 "security": [

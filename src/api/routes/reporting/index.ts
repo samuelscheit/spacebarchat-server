@@ -245,6 +245,11 @@ export function getUnauthenticatedReportCapabilities(): UnauthenticatedReportCap
     };
 }
 
+function loadUnauthenticatedReportMenu(type: string): ReportingMenuResponse {
+    if (!getUnauthenticatedReportCapabilities().capabilities.includes(type)) throw new HTTPError("Unknown unauthenticated report menu type", 400);
+    return loadReportMenu(type);
+}
+
 router.get(
     "/unauthenticated/capabilities",
     route({
@@ -261,6 +266,38 @@ router.get(
         res.json(getUnauthenticatedReportCapabilities());
     },
 );
+
+router.get(
+    "/unauthenticated/menu/:type",
+    route({
+        summary: "Get Unauthenticated Report Menu",
+        description: "Get reporting menu options for the requested unauthenticated report type.",
+        query: {
+            variant: { type: "string", required: false, description: "Version variant of the menu to retrieve (max 256 characters, default latest)" },
+        },
+        responses: {
+            200: {
+                body: "ReportingMenuResponse",
+            },
+            204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+        },
+        spacebarOnly: false,
+    }),
+    (req: Request, res: Response) => {
+        const type = req.params.type;
+        if (Array.isArray(type)) throw new HTTPError("Unknown unauthenticated report menu type", 400);
+
+        const menu = loadUnauthenticatedReportMenu(type);
+        const variant = getReportMenuVariant(req.query);
+        if (variant && variant !== menu.variant) return res.status(204).send();
+
+        res.status(200).json(menu);
+    },
+);
+if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /reporting/unauthenticated/menu/:type registered (reports).");
 
 router.get(
     "/",

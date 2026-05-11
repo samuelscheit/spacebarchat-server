@@ -3,16 +3,16 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 594,
+        "totalContracts": 595,
         "byService": {
-            "api": 521,
+            "api": 522,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 448,
         "runtimeMalformedAuthContracts": 448,
         "runtimeRevokedSessionAuthContracts": 448,
         "runtimeStaleTokenAuthContracts": 448,
-        "runtimePublicAuthBoundaryContracts": 65,
+        "runtimePublicAuthBoundaryContracts": 66,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
         "runtimePublicResponseSchemaContracts": 19,
@@ -23174,7 +23174,7 @@
             "path": "/reporting/",
             "samplePath": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 265,
+            "line": 302,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -23218,7 +23218,7 @@
             "path": "/reporting/menu/:type",
             "samplePath": "/reporting/menu/value",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 299,
+            "line": 336,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -23262,7 +23262,7 @@
             "path": "/reporting/unauthenticated/capabilities",
             "samplePath": "/reporting/unauthenticated/capabilities",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 248,
+            "line": 253,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -23311,6 +23311,46 @@
             "routeMetadata": {
                 "responses": ["ReportingUnauthenticatedExperimentResponse"],
                 "responseStatuses": [200]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/reporting/unauthenticated/menu/:type",
+            "service": "api",
+            "method": "GET",
+            "path": "/reporting/unauthenticated/menu/:type",
+            "samplePath": "/reporting/unauthenticated/menu/value",
+            "sourceFile": "src/api/routes/reporting/index.ts",
+            "line": 270,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "ReportingMenuResponse"],
+                "responseStatuses": [200, 204, 400]
             },
             "cases": [
                 {
@@ -23642,7 +23682,7 @@
             "path": "/soundboard-sounds/:sound_id/guild/:guild_id/",
             "samplePath": "/soundboard-sounds/value/guild/100000000000000001/",
             "sourceFile": "src/api/routes/soundboard-sounds/#sound_id/guild/#guild_id.ts",
-            "line": 84,
+            "line": 83,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",

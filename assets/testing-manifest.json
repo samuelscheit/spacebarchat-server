@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 619,
+        "totalEntries": 620,
         "byService": {
-            "api": 522,
+            "api": 523,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 594,
+            "http-route": 595,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 140,
+            "contract": 141,
             "stateful-domain": 335,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 477,
+            "route-class": 478,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -17298,7 +17298,7 @@
             "method": "GET",
             "path": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 265,
+            "line": 302,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -17332,7 +17332,7 @@
             "method": "GET",
             "path": "/reporting/menu/:type",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 299,
+            "line": 336,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -17369,7 +17369,7 @@
             "method": "GET",
             "path": "/reporting/unauthenticated/capabilities",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 248,
+            "line": 253,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -17414,6 +17414,43 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/reporting/unauthenticated/menu/:type",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/reporting/unauthenticated/menu/:type",
+            "sourceFile": "src/api/routes/reporting/index.ts",
+            "line": 270,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ReportingMenuResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    204,
+                    400
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",
@@ -17677,7 +17714,7 @@
             "method": "GET",
             "path": "/soundboard-sounds/:sound_id/guild/:guild_id/",
             "sourceFile": "src/api/routes/soundboard-sounds/#sound_id/guild/#guild_id.ts",
-            "line": 84,
+            "line": 83,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

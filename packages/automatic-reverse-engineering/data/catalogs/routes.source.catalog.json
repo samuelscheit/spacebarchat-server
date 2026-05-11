@@ -3640,6 +3640,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ReportingMenuResponse"
+		],
+		"route": "/reporting/unauthenticated/menu/{type}",
+		"route_name": "GET_REPORTING_UNAUTHENTICATED_MENU_TYPE",
+		"source": "src/api/routes/reporting/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"AccountStandingResponse"
 		],
 		"route": "/safety-hub/@me",

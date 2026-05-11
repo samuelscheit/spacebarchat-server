@@ -53,12 +53,15 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/apex/experiments/metadata?surface=2"), false);
     });
 
-    test("allows only the implemented unauthenticated reporting experiment GET route without bearer auth", () => {
+    test("allows implemented unauthenticated reporting GET routes without bearer auth", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/reporting/unauthenticated/experiment"), true);
         assert.equal(isNoAuthorizationRoute("HEAD", "/api/v9/reporting/unauthenticated/experiment"), true);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/reporting/unauthenticated/menu/message"), true);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v9/reporting/unauthenticated/menu/message/"), true);
 
-        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/reporting/unauthenticated/menu/message"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/reporting/unauthenticated/experiment"), false);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/reporting/unauthenticated/menu/message"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/reporting/unauthenticated/menu/message/extra"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/reporting/unauthenticated/message"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/reporting/unauthenticated/message/code"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/reporting/unauthenticated/message/verify"), false);

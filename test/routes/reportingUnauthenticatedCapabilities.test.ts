@@ -95,6 +95,80 @@ describe("GET /reporting/unauthenticated/capabilities", () => {
     });
 });
 
+describe("GET /reporting/unauthenticated/menu/:type", () => {
+    test("is public but does not serve menus when unauthenticated reporting has no advertised capabilities", async () => {
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/reporting/unauthenticated/menu/message"), true);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v9/reporting/unauthenticated/menu/message/"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/reporting/unauthenticated/menu/message"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/reporting/unauthenticated/menu/message/extra"), false);
+        assert.deepEqual(getUnauthenticatedReportCapabilities(), {
+            capabilities: [],
+        });
+
+        const response = await requestJson<{ code?: number; message?: string }>(createRouteApp(), "/reporting/unauthenticated/menu/message");
+
+        assert.equal(response.status, 400);
+        assert.equal(response.body.code, 400);
+        assert.match(response.body.message ?? "", /Unknown unauthenticated report menu type/);
+    });
+
+    test("declares public reporting menu metadata in generated route artifacts", () => {
+        const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
+            paths?: Record<
+                string,
+                {
+                    get?: {
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                        security?: unknown;
+                        parameters?: { name?: string; in?: string }[];
+                    };
+                }
+            >;
+        };
+        const manifest = JSON.parse(readFileSync(join(process.cwd(), "assets", "testing-manifest.json"), "utf8")) as {
+            entries?: {
+                id?: string;
+                authMode?: string;
+                routeMetadata?: {
+                    responseBodies?: string[];
+                    responseStatuses?: number[];
+                    hasQuery?: boolean;
+                };
+            }[];
+        };
+        const sourceCatalog = JSON.parse(
+            readFileSync(join(process.cwd(), "packages", "automatic-reverse-engineering", "data", "catalogs", "routes.source.catalog.json"), "utf8"),
+        ) as {
+            method?: string;
+            route?: string;
+            route_name?: string;
+            response_schema_refs?: string[];
+        }[];
+
+        const route = openapi.paths?.["/reporting/unauthenticated/menu/{type}"]?.get;
+        assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/ReportingMenuResponse");
+        assert.notEqual(route?.responses?.["204"], undefined);
+        assert.equal(route?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(route?.responses?.["401"], undefined);
+        assert.equal(route?.security, undefined);
+        assert.equal(
+            route?.parameters?.some((parameter) => parameter.name === "variant" && parameter.in === "query"),
+            true,
+        );
+
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === "api:http:GET:/reporting/unauthenticated/menu/:type");
+        assert.equal(manifestEntry?.authMode, "public");
+        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("ReportingMenuResponse"), true);
+        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [200, 204, 400]);
+        assert.equal(manifestEntry?.routeMetadata?.hasQuery, true);
+
+        const sourceCatalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/reporting/unauthenticated/menu/{type}");
+        assert.equal(sourceCatalogEntry?.route_name, "GET_REPORTING_UNAUTHENTICATED_MENU_TYPE");
+        assert.deepEqual(sourceCatalogEntry?.response_schema_refs, ["APIErrorResponse", "ReportingMenuResponse"]);
+    });
+});
+
 function createRouteApp() {
     const app = express();
     app.use(Authentication);
