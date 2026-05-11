@@ -14,6 +14,7 @@ type StartedApi = Awaited<ReturnType<typeof startApi>>;
 const coveredManifestIds = [
     "api:http:GET:/apex/experiments/",
     "api:http:GET:/discovery/categories",
+    "api:http:GET:/discovery/search",
     "api:http:GET:/discoverable-guilds/",
     "api:http:GET:/discoverable-guilds/search",
     "api:http:GET:/experiments/",
@@ -50,6 +51,7 @@ test(
         assert.deepEqual(coveredManifestIds, [
             "api:http:GET:/apex/experiments/",
             "api:http:GET:/discovery/categories",
+            "api:http:GET:/discovery/search",
             "api:http:GET:/discoverable-guilds/",
             "api:http:GET:/discoverable-guilds/search",
             "api:http:GET:/experiments/",
@@ -282,6 +284,22 @@ async function coverDiscoveryRoutes(api: StartedApi, token: string) {
     assert.equal(guilds[0].name, "Discoverable Scenario");
     assert.equal("discovery_weight" in guilds[0], false);
     assert.equal("discovery_splash" in guilds[0], false);
+
+    const searchedPublished = await getJson(`${api.apiBaseUrl}/discovery/search?query=Discoverable&limit=1`);
+    await assertStatus(searchedPublished, 200);
+    const searchedPublishedBody = await assertJsonObject(searchedPublished);
+    assert.equal(searchedPublishedBody.nbHits, 1);
+    assert.equal(searchedPublishedBody.offset, 0);
+    assert.equal(searchedPublishedBody.length, 1);
+    const publishedHits = searchedPublishedBody.hits as Array<Record<string, unknown>>;
+    assert.equal(publishedHits.length, 1);
+    assert.equal(publishedHits[0].name, "Discoverable Scenario");
+    assert.equal(publishedHits[0].objectID, "100000000000002001");
+    assert.equal(publishedHits[0].approximate_member_count, 250);
+    assert.equal(publishedHits[0].approximate_presence_count, 5);
+    assert.equal((publishedHits[0].primary_category as Record<string, unknown>).name, "Gaming");
+    assert.equal("discovery_weight" in publishedHits[0], false);
+    assert.equal("member_count" in publishedHits[0], false);
 
     await assertJsonError(await getJson(`${api.apiBaseUrl}/discoverable-guilds/search?query=Discoverable&category_id=1&limit=50`), 401);
     const searchedDiscoverable = await getJson(`${api.apiBaseUrl}/discoverable-guilds/search?query=Discoverable&category_id=1&limit=50`, token);

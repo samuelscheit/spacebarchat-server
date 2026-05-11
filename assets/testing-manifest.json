@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 609,
+        "totalEntries": 610,
         "byService": {
-            "api": 512,
+            "api": 513,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 584,
+            "http-route": 585,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 132,
+            "contract": 133,
             "stateful-domain": 333,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 467,
+            "route-class": 468,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -8716,7 +8716,7 @@
             "method": "GET",
             "path": "/discovery/categories",
             "sourceFile": "src/api/routes/discovery.ts",
-            "line": 95,
+            "line": 289,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8744,13 +8744,49 @@
             }
         },
         {
+            "id": "api:http:GET:/discovery/search",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/discovery/search",
+            "sourceFile": "src/api/routes/discovery.ts",
+            "line": 231,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "DiscoverySearchResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/discovery/valid-term",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/discovery/valid-term",
             "sourceFile": "src/api/routes/discovery.ts",
-            "line": 69,
+            "line": 263,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

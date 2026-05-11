@@ -81,6 +81,13 @@ describe("unauthenticated route matching", () => {
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/modules/stable/discord_voice/1"), false);
     });
 
+    test("allows published discovery search without authorization", () => {
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/discovery/search?query=spacebar&limit=1"), true);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v9/discovery/search/?query=spacebar"), true);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v9/discovery/search"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/discovery/search/extra"), false);
+    });
+
     test("allows unauthenticated unique username registration suggestions", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/unique-username/username-suggestions-unauthed"), true);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/unique-username/username-suggestions-unauthed?global_name=Gnarp"), true);

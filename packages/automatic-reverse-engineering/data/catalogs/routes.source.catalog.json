@@ -1783,6 +1783,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"DiscoverySearchResponse"
+		],
+		"route": "/discovery/search",
+		"route_name": "GET_DISCOVERY_SEARCH",
+		"source": "src/api/routes/discovery.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"DiscoveryValidTermResponse"
 		],
 		"route": "/discovery/valid-term",

@@ -3975,6 +3975,72 @@
                     "$ref": "#/components/schemas/APIDiscoveryCategory"
                 }
             },
+            "DiscoverySearchResponse": {
+                "type": "object",
+                "properties": {
+                    "hits": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DiscoverySearchGuild"
+                        }
+                    },
+                    "nbHits": {
+                        "type": "integer"
+                    },
+                    "offset": {
+                        "type": "integer"
+                    },
+                    "length": {
+                        "type": "integer"
+                    },
+                    "exhaustiveNbHits": {
+                        "type": "boolean"
+                    },
+                    "exhaustiveTypo": {
+                        "type": "boolean"
+                    },
+                    "exhaustive": {
+                        "$ref": "#/components/schemas/DiscoverySearchExhaustive"
+                    },
+                    "query": {
+                        "type": "string"
+                    },
+                    "params": {
+                        "type": "string"
+                    },
+                    "processingTimeMS": {
+                        "type": "integer"
+                    },
+                    "processingTimingsMS": {
+                        "$ref": "#/components/schemas/DiscoverySearchProcessingTimings"
+                    },
+                    "serverTimeMS": {
+                        "type": "integer"
+                    },
+                    "aggregateFacets": {
+                        "$ref": "#/components/schemas/DiscoverySearchAggregateFacets"
+                    },
+                    "totalNbHits": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "aggregateFacets",
+                    "exhaustive",
+                    "exhaustiveNbHits",
+                    "exhaustiveTypo",
+                    "hits",
+                    "length",
+                    "nbHits",
+                    "offset",
+                    "params",
+                    "processingTimeMS",
+                    "processingTimingsMS",
+                    "query",
+                    "serverTimeMS",
+                    "totalNbHits"
+                ]
+            },
             "CreateDMChannelResponse": {
                 "type": "object",
                 "properties": {
@@ -19753,6 +19819,192 @@
                 "type": "object",
                 "additionalProperties": {
                     "type": "string"
+                }
+            },
+            "DiscoverySearchGuild": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "banner": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "approximate_presence_count": {
+                        "type": "integer"
+                    },
+                    "approximate_member_count": {
+                        "type": "integer"
+                    },
+                    "premium_subscription_count": {
+                        "type": "integer"
+                    },
+                    "preferred_locale": {
+                        "type": "string"
+                    },
+                    "auto_removed": {
+                        "type": "boolean"
+                    },
+                    "discovery_splash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "primary_category_id": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "vanity_url_code": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "is_published": {
+                        "type": "boolean"
+                    },
+                    "keywords": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "nsfw_properties": {
+                        "type": "null"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DiscoverySearchCategory"
+                        }
+                    },
+                    "primary_category": {
+                        "$ref": "#/components/schemas/DiscoverySearchCategory"
+                    },
+                    "objectID": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "approximate_member_count",
+                    "approximate_presence_count",
+                    "auto_removed",
+                    "banner",
+                    "categories",
+                    "description",
+                    "discovery_splash",
+                    "features",
+                    "icon",
+                    "id",
+                    "is_published",
+                    "keywords",
+                    "name",
+                    "nsfw_properties",
+                    "objectID",
+                    "preferred_locale",
+                    "premium_subscription_count",
+                    "primary_category_id",
+                    "splash",
+                    "vanity_url_code"
+                ]
+            },
+            "DiscoverySearchCategory": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "is_primary": {
+                        "type": "boolean"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "name_localizations": {
+                        "$ref": "#/components/schemas/CategoryLocalizations"
+                    }
+                },
+                "required": [
+                    "id",
+                    "is_primary",
+                    "name",
+                    "name_localizations"
+                ]
+            },
+            "DiscoverySearchExhaustive": {
+                "type": "object",
+                "properties": {
+                    "nbHits": {
+                        "type": "boolean"
+                    },
+                    "typo": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "nbHits",
+                    "typo"
+                ]
+            },
+            "DiscoverySearchProcessingTimings": {
+                "type": "object",
+                "properties": {
+                    "total": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "total"
+                ]
+            },
+            "DiscoverySearchAggregateFacets": {
+                "type": "object",
+                "properties": {
+                    "categories.id": {
+                        "$ref": "#/components/schemas/DiscoverySearchCategoryFacetCounts"
+                    }
+                },
+                "required": [
+                    "categories.id"
+                ]
+            },
+            "DiscoverySearchCategoryFacetCounts": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
                 }
             },
             "ErrorList": {
@@ -48917,6 +49169,62 @@
                 ],
                 "tags": [
                     "download"
+                ]
+            }
+        },
+        "/discovery/search": {
+            "get": {
+                "summary": "Search Published Guilds",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DiscoverySearchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The search query to match against published discoverable guilds."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "The maximum number of published guilds to return, between 1 and 48."
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "The number of published guilds to skip before returning results, up to 2999."
+                    }
+                ],
+                "tags": [
+                    "discovery"
                 ]
             }
         },

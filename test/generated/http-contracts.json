@@ -3,19 +3,19 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 584,
+        "totalContracts": 585,
         "byService": {
-            "api": 511,
+            "api": 512,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 440,
         "runtimeMalformedAuthContracts": 440,
         "runtimeRevokedSessionAuthContracts": 440,
         "runtimeStaleTokenAuthContracts": 440,
-        "runtimePublicAuthBoundaryContracts": 63,
+        "runtimePublicAuthBoundaryContracts": 64,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
-        "runtimePublicResponseSchemaContracts": 17,
+        "runtimePublicResponseSchemaContracts": 18,
         "runtimeAuthenticatedResponseSchemaContracts": 21,
         "runtimeRightOnlyDenialContracts": 12,
         "runtimePermissionOnlyDenialContracts": 115,
@@ -11565,7 +11565,7 @@
             "path": "/discovery/categories",
             "samplePath": "/discovery/categories",
             "sourceFile": "src/api/routes/discovery.ts",
-            "line": 95,
+            "line": 289,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -11603,13 +11603,53 @@
             ]
         },
         {
+            "manifestId": "api:http:GET:/discovery/search",
+            "service": "api",
+            "method": "GET",
+            "path": "/discovery/search",
+            "samplePath": "/discovery/search",
+            "sourceFile": "src/api/routes/discovery.ts",
+            "line": 231,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "DiscoverySearchResponse"],
+                "responseStatuses": [200, 400]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/discovery/valid-term",
             "service": "api",
             "method": "GET",
             "path": "/discovery/valid-term",
             "samplePath": "/discovery/valid-term",
             "sourceFile": "src/api/routes/discovery.ts",
-            "line": 69,
+            "line": 263,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",

@@ -4189,6 +4189,74 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "DiscoverySearchResponse": {
+        "type": "object",
+        "properties": {
+            "hits": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/DiscoverySearchGuild"
+                }
+            },
+            "nbHits": {
+                "type": "integer"
+            },
+            "offset": {
+                "type": "integer"
+            },
+            "length": {
+                "type": "integer"
+            },
+            "exhaustiveNbHits": {
+                "type": "boolean"
+            },
+            "exhaustiveTypo": {
+                "type": "boolean"
+            },
+            "exhaustive": {
+                "$ref": "#/definitions/DiscoverySearchExhaustive"
+            },
+            "query": {
+                "type": "string"
+            },
+            "params": {
+                "type": "string"
+            },
+            "processingTimeMS": {
+                "type": "integer"
+            },
+            "processingTimingsMS": {
+                "$ref": "#/definitions/DiscoverySearchProcessingTimings"
+            },
+            "serverTimeMS": {
+                "type": "integer"
+            },
+            "aggregateFacets": {
+                "$ref": "#/definitions/DiscoverySearchAggregateFacets"
+            },
+            "totalNbHits": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "aggregateFacets",
+            "exhaustive",
+            "exhaustiveNbHits",
+            "exhaustiveTypo",
+            "hits",
+            "length",
+            "nbHits",
+            "offset",
+            "params",
+            "processingTimeMS",
+            "processingTimingsMS",
+            "query",
+            "serverTimeMS",
+            "totalNbHits"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CreateDMChannelResponse": {
         "type": "object",
         "properties": {
@@ -20801,6 +20869,203 @@
         "type": "object",
         "additionalProperties": {
             "type": "string"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DiscoverySearchGuild": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "banner": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "approximate_presence_count": {
+                "type": "integer"
+            },
+            "approximate_member_count": {
+                "type": "integer"
+            },
+            "premium_subscription_count": {
+                "type": "integer"
+            },
+            "preferred_locale": {
+                "type": "string"
+            },
+            "auto_removed": {
+                "type": "boolean"
+            },
+            "discovery_splash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "primary_category_id": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "vanity_url_code": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "is_published": {
+                "type": "boolean"
+            },
+            "keywords": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "nsfw_properties": {
+                "type": "null"
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "categories": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/DiscoverySearchCategory"
+                }
+            },
+            "primary_category": {
+                "$ref": "#/definitions/DiscoverySearchCategory"
+            },
+            "objectID": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "approximate_member_count",
+            "approximate_presence_count",
+            "auto_removed",
+            "banner",
+            "categories",
+            "description",
+            "discovery_splash",
+            "features",
+            "icon",
+            "id",
+            "is_published",
+            "keywords",
+            "name",
+            "nsfw_properties",
+            "objectID",
+            "preferred_locale",
+            "premium_subscription_count",
+            "primary_category_id",
+            "splash",
+            "vanity_url_code"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DiscoverySearchCategory": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "integer"
+            },
+            "is_primary": {
+                "type": "boolean"
+            },
+            "name": {
+                "type": "string"
+            },
+            "name_localizations": {
+                "$ref": "#/definitions/CategoryLocalizations"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "is_primary",
+            "name",
+            "name_localizations"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DiscoverySearchExhaustive": {
+        "type": "object",
+        "properties": {
+            "nbHits": {
+                "type": "boolean"
+            },
+            "typo": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "nbHits",
+            "typo"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DiscoverySearchProcessingTimings": {
+        "type": "object",
+        "properties": {
+            "total": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "total"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DiscoverySearchAggregateFacets": {
+        "type": "object",
+        "properties": {
+            "categories.id": {
+                "$ref": "#/definitions/DiscoverySearchCategoryFacetCounts"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "categories.id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "DiscoverySearchCategoryFacetCounts": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "integer"
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

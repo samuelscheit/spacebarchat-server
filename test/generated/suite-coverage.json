@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 487,
+        "totalCoveredManifestEntries": 488,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 465,
-                "totalCoveredManifestEntries": 465,
-                "totalCoveredRequiredManifestEntries": 465,
+                "totalRequiredManifestEntries": 466,
+                "totalCoveredManifestEntries": 466,
+                "totalCoveredRequiredManifestEntries": 466,
                 "totalSuites": 12
             },
             "protocol": {
@@ -31,7 +31,7 @@
             "stateful-domain": 333,
             "cdn-integration": 78,
             "integration": 15,
-            "contract": 21,
+            "contract": 22,
             "auth-scenario": 17,
             "middleware-contract": 1,
             "protocol-integration": 21,
@@ -46,6 +46,7 @@
             "additionalRequiredManifestIds": [
                 "api:http:GET:/apex/experiments/",
                 "api:http:GET:/discovery/categories",
+                "api:http:GET:/discovery/search",
                 "api:http:GET:/discoverable-guilds/",
                 "api:http:GET:/discoverable-guilds/search",
                 "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
@@ -67,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 465,
-                "totalCoveredManifestEntries": 465,
-                "totalCoveredRequiredManifestEntries": 465,
+                "totalRequiredManifestEntries": 466,
+                "totalCoveredManifestEntries": 466,
+                "totalCoveredRequiredManifestEntries": 466,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -179,6 +180,7 @@
                 "api:http:GET:/discoverable-guilds/",
                 "api:http:GET:/discoverable-guilds/search",
                 "api:http:GET:/discovery/categories",
+                "api:http:GET:/discovery/search",
                 "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
                 "api:http:GET:/gateway/",
@@ -646,6 +648,7 @@
                 "api:http:GET:/discoverable-guilds/",
                 "api:http:GET:/discoverable-guilds/search",
                 "api:http:GET:/discovery/categories",
+                "api:http:GET:/discovery/search",
                 "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
                 "api:http:GET:/gateway/",
@@ -1520,6 +1523,7 @@
                         "api:http:GET:/discoverable-guilds/",
                         "api:http:GET:/discoverable-guilds/search",
                         "api:http:GET:/discovery/categories",
+                        "api:http:GET:/discovery/search",
                         "api:http:GET:/experiments/",
                         "api:http:GET:/gateway/",
                         "api:http:GET:/gateway/bot/",

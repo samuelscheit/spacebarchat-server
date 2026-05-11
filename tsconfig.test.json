@@ -180,6 +180,7 @@
         "src/schemas/responses/UserProfileResponse.test.ts",
         "src/schemas/responses/OAuthAuthorizeInfoResponse.test.ts",
         "src/schemas/responses/DiscoverableGuildsResponse.test.ts",
+        "src/schemas/responses/DiscoverySearchResponse.test.ts",
         "src/schemas/responses/CurrentGuildMemberResponse.test.ts",
         "src/schemas/responses/GuildScheduledEventResponse.test.ts",
         "src/schemas/responses/GuildRecommendationsResponse.test.ts",

@@ -1,6 +1,6 @@
 {
-    "missing": 676,
-    "spacebar": 504,
+    "missing": 675,
+    "spacebar": 505,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -111,7 +111,6 @@
         "/debug-logs/multi/{param}",
         "/debug-logs/{param}/{param}",
         "/dev-portal-csat-survey-response",
-        "/discovery/search",
         "/discovery/{param}",
         "/entitlements/gift-codes/{param}/redeem",
         "/entitlements/partner-promotions/{param}",
@@ -1312,13 +1311,6 @@
             "sources": ["userdoccers:resources/discovery.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/discovery/{guild_id}"],
             "summaries": ["Get Discovery Slug"]
-        },
-        {
-            "method": "GET",
-            "route": "/discovery/search",
-            "route_name": "GET_DISCOVERY_SEARCH",
-            "sources": ["userdoccers:resources/discovery.mdx"],
-            "summaries": ["Search Published Guilds"]
         },
         { "method": "GET", "route": "/family-center/{param}/activity", "route_name": "FAMILY_CENTER_TEEN_ACTIVITY", "sources": ["xhyrom:data/client/routes.json"] },
         {
