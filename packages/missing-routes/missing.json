@@ -1,6 +1,6 @@
 {
-    "missing": 634,
-    "spacebar": 546,
+    "missing": 633,
+    "spacebar": 547,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1344,14 +1344,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/new-member-actions"],
             "summaries": ["Get Guild New Member Actions"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/new-member-welcome",
-            "route_name": "GET_GUILDS_GUILD_ID_NEW_MEMBER_WELCOME",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/new-member-welcome"],
-            "summaries": ["Get Guild New Member Welcome"]
         },
         {
             "method": "GET",

@@ -2819,6 +2819,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildNewMemberWelcomeResponse"
+		],
+		"route": "/guilds/{guild_id}/new-member-welcome",
+		"route_name": "GET_GUILDS_GUILD_ID_NEW_MEMBER_WELCOME",
+		"source": "src/api/routes/guilds/#guild_id/new-member-welcome.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/premium/subscriptions",
 		"route_name": "GET_GUILDS_GUILD_ID_PREMIUM_SUBSCRIPTIONS",

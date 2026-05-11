@@ -116,6 +116,7 @@ export * from "./GravityCustomChannelScoresResponse";
 export * from "./GravityRecommendedGuildsResponse";
 export * from "./GuildIntegrationResponse";
 export * from "./GuildMessagesSearchResponse";
+export * from "./GuildNewMemberWelcomeResponse";
 export * from "./GuildPruneResponse";
 export * from "./GuildRecommendationsResponse";
 export * from "./GuildScheduledEventResponse";

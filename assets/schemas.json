@@ -7994,6 +7994,42 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildNewMemberWelcomeResponse": {
+        "type": "object",
+        "properties": {
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "welcome_message": {
+                "$ref": "#/definitions/GuildNewMemberWelcomeMessage"
+            },
+            "new_member_actions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildNewMemberAction"
+                }
+            },
+            "resource_channels": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildNewMemberResourceChannel"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "enabled",
+            "guild_id",
+            "new_member_actions",
+            "resource_channels",
+            "welcome_message"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPruneResponse": {
         "type": "object",
         "properties": {
@@ -26126,6 +26162,112 @@
             "timestamp",
             "tts",
             "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildNewMemberWelcomeMessage": {
+        "type": "object",
+        "properties": {
+            "author_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "message": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "author_ids",
+            "message"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildNewMemberAction": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "action_type": {
+                "enum": [
+                    0,
+                    1
+                ],
+                "type": "number"
+            },
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "emoji": {
+                "$ref": "#/definitions/GuildNewMemberWelcomeEmoji"
+            },
+            "icon": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "action_type",
+            "channel_id",
+            "description",
+            "title"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildNewMemberWelcomeEmoji": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "animated": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildNewMemberResourceChannel": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "emoji": {
+                "$ref": "#/definitions/GuildNewMemberWelcomeEmoji"
+            },
+            "icon": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "description",
+            "title"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

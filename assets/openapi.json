@@ -7606,6 +7606,40 @@
                     "total_results"
                 ]
             },
+            "GuildNewMemberWelcomeResponse": {
+                "type": "object",
+                "properties": {
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "welcome_message": {
+                        "$ref": "#/components/schemas/GuildNewMemberWelcomeMessage"
+                    },
+                    "new_member_actions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GuildNewMemberAction"
+                        }
+                    },
+                    "resource_channels": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GuildNewMemberResourceChannel"
+                        }
+                    }
+                },
+                "required": [
+                    "enabled",
+                    "guild_id",
+                    "new_member_actions",
+                    "resource_channels",
+                    "welcome_message"
+                ]
+            },
             "GuildPruneResponse": {
                 "type": "object",
                 "properties": {
@@ -24810,6 +24844,104 @@
                     "timestamp",
                     "tts",
                     "type"
+                ]
+            },
+            "GuildNewMemberWelcomeMessage": {
+                "type": "object",
+                "properties": {
+                    "author_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "author_ids",
+                    "message"
+                ]
+            },
+            "GuildNewMemberAction": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "action_type": {
+                        "enum": [
+                            0,
+                            1
+                        ],
+                        "type": "number"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "emoji": {
+                        "$ref": "#/components/schemas/GuildNewMemberWelcomeEmoji"
+                    },
+                    "icon": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "action_type",
+                    "channel_id",
+                    "description",
+                    "title"
+                ]
+            },
+            "GuildNewMemberWelcomeEmoji": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "animated": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "GuildNewMemberResourceChannel": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "emoji": {
+                        "$ref": "#/components/schemas/GuildNewMemberWelcomeEmoji"
+                    },
+                    "icon": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "channel_id",
+                    "description",
+                    "title"
                 ]
             },
             "GuildScheduledEventPrivacyLevel": {
@@ -45707,6 +45839,77 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/new-member-welcome/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the guild's new member welcome configuration when persisted state exists; otherwise returns 204 with no body. Spacebar currently has no durable new member welcome store, so disabled or absent state requires MANAGE_GUILD.",
+                "summary": "Get Guild New Member Welcome",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildNewMemberWelcomeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [
