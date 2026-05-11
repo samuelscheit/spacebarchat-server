@@ -34,12 +34,16 @@ import {
     UNKNOWN_APPLICATION_ASSET,
     type ApplicationAssetDeleteDependencies,
 } from "../../src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id";
+import { createOAuth2ApplicationAssetsRouter, getApplicationAssets, type ApplicationAssetListDependencies } from "../../src/api/routes/oauth2/applications/#application_id/assets";
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
-const coveredManifestId = "api:http:DELETE:/oauth2/applications/:application_id/assets/:application_asset_id/";
-const assignedPath = "/oauth2/applications/{application_id}/assets/{application_asset_id}";
-const assignedRouteName = "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS_APPLICATION_ASSET_ID";
+const getManifestId = "api:http:GET:/oauth2/applications/:application_id/assets/";
+const getAssignedPath = "/oauth2/applications/{application_id}/assets";
+const getAssignedRouteName = "GET_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS";
+const deleteManifestId = "api:http:DELETE:/oauth2/applications/:application_id/assets/:application_asset_id/";
+const deleteAssignedPath = "/oauth2/applications/{application_id}/assets/{application_asset_id}";
+const deleteAssignedRouteName = "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS_APPLICATION_ASSET_ID";
 const applicationId = "100000000000000001";
 const missingApplicationId = "100000000000000002";
 const applicationAssetId = "100000000000000003";
@@ -51,7 +55,8 @@ type JsonSchema = {
     type?: string;
 };
 
-type ApplicationAuthorizationTarget = Awaited<ReturnType<NonNullable<ApplicationAssetDeleteDependencies["applicationRepository"]>["findOne"]>>;
+type ApplicationAssetRouteDependencies = ApplicationAssetDeleteDependencies & ApplicationAssetListDependencies;
+type ApplicationAuthorizationTarget = Awaited<ReturnType<NonNullable<ApplicationAssetRouteDependencies["applicationRepository"]>["findOne"]>>;
 
 function createApplicationRepository(t: TestContext, application: ApplicationAuthorizationTarget = { owner: { id: "owner" } }) {
     return {
@@ -59,13 +64,14 @@ function createApplicationRepository(t: TestContext, application: ApplicationAut
     };
 }
 
-function createRouteApp(userId: string, dependencies: ApplicationAssetDeleteDependencies) {
+function createRouteApp(userId: string, dependencies: ApplicationAssetRouteDependencies) {
     const app = express();
     app.use((req, _res, next) => {
         req.user_id = userId;
         req.t = ((key: string) => key) as express.Request["t"];
         next();
     });
+    app.use("/oauth2/applications/:application_id/assets", createOAuth2ApplicationAssetsRouter(dependencies));
     app.use("/oauth2/applications/:application_id/assets/:application_asset_id", createOAuth2ApplicationAssetRouter(dependencies));
     app.use((error: { code?: number | string; httpStatus?: number; message?: string }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
         res.status(error.httpStatus ?? 400).json({ code: error.code, message: error.message });
@@ -98,13 +104,96 @@ async function requestRaw(app: express.Express, path: string, method = "DELETE")
     }
 }
 
-describe("DELETE /oauth2/applications/:application_id/assets/:application_asset_id", () => {
-    test("declares authenticated developer-owned behavior for only the assigned OAuth2 asset route", () => {
+describe("OAuth2 application asset routes", () => {
+    test("declares authenticated developer-owned behavior for only the assigned OAuth2 asset routes", () => {
+        assert.equal(isNoAuthorizationRoute("GET", `/oauth2/applications/${applicationId}/assets`), false);
+        assert.equal(isNoAuthorizationRoute("GET", `/api/v10/oauth2/applications/${applicationId}/assets?nocache=true`), false);
         assert.equal(isNoAuthorizationRoute("DELETE", `/oauth2/applications/${applicationId}/assets/${applicationAssetId}`), false);
         assert.equal(isNoAuthorizationRoute("DELETE", `/api/v10/oauth2/applications/${applicationId}/assets/${applicationAssetId}`), false);
-        assert.equal(isNoAuthorizationRoute("GET", `/oauth2/applications/${applicationId}/assets`), false);
         assert.equal(isNoAuthorizationRoute("POST", `/oauth2/applications/${applicationId}/assets`), false);
         assert.equal(isNoAuthorizationRoute("DELETE", `/store/applications/${applicationId}/assets/${applicationAssetId}`), false);
+    });
+
+    test("returns a conservative empty application asset list for accepted owning-team members", async (t) => {
+        const applicationRepository = createApplicationRepository(t, {
+            owner: { id: "owner" },
+            team: {
+                members: [
+                    {
+                        user_id: "read-only",
+                        membership_state: TeamMemberState.ACCEPTED,
+                        role: TeamMemberRole.READ_ONLY,
+                    },
+                ],
+            },
+        });
+
+        assert.deepEqual(await getApplicationAssets(applicationId, "read-only", { applicationRepository }), []);
+        assert.deepEqual(applicationRepository.findOne.mock.calls[0].arguments[0], {
+            where: { id: applicationId },
+            relations: {
+                owner: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+
+        const response = await requestRaw(createRouteApp("read-only", { applicationRepository }), `/oauth2/applications/${applicationId}/assets?nocache=true`, "GET");
+
+        assert.equal(response.status, 200);
+        assert.deepEqual(response.body, []);
+    });
+
+    test("returns 403 before listing assets for callers outside the owning application or team", async (t) => {
+        const applicationRepository = createApplicationRepository(t, {
+            owner: { id: "owner" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                ],
+            },
+        });
+
+        const response = await requestRaw(createRouteApp("invited", { applicationRepository }), `/oauth2/applications/${applicationId}/assets`, "GET");
+
+        assert.equal(response.status, 403);
+        assert.deepEqual(response.body, {
+            code: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.code,
+            message: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.message,
+        });
+    });
+
+    test("returns 404 for unknown or malformed applications before listing assets", async (t) => {
+        const missingApplicationRepository = createApplicationRepository(t, null);
+        const unknownApplicationResponse = await requestRaw(
+            createRouteApp("owner", { applicationRepository: missingApplicationRepository }),
+            `/oauth2/applications/${missingApplicationId}/assets`,
+            "GET",
+        );
+
+        const malformedApplicationRepository = createApplicationRepository(t, { owner: { id: "owner" } });
+        const malformedApplicationResponse = await requestRaw(
+            createRouteApp("owner", { applicationRepository: malformedApplicationRepository }),
+            "/oauth2/applications/not-a-snowflake/assets",
+            "GET",
+        );
+
+        assert.equal(unknownApplicationResponse.status, 404);
+        assert.deepEqual(unknownApplicationResponse.body, {
+            code: DiscordApiErrors.UNKNOWN_APPLICATION.code,
+            message: DiscordApiErrors.UNKNOWN_APPLICATION.message,
+        });
+        assert.equal(malformedApplicationResponse.status, 404);
+        assert.deepEqual(malformedApplicationResponse.body, {
+            code: DiscordApiErrors.UNKNOWN_APPLICATION.code,
+            message: DiscordApiErrors.UNKNOWN_APPLICATION.message,
+        });
+        assert.equal(malformedApplicationRepository.findOne.mock.callCount(), 0);
     });
 
     test("deletes an application asset from CDN storage and accepts extension-style CDN ids", async (t) => {
@@ -250,12 +339,20 @@ describe("DELETE /oauth2/applications/:application_id/assets/:application_asset_
         assert.equal(deleteAssetFile.mock.callCount(), 0);
     });
 
-    test("declares generated artifacts for the exact assigned route and removes the missing entry", () => {
-        const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "oauth2", "applications", "#application_id", "assets", "#application_asset_id.ts"), "utf8");
+    test("declares generated artifacts for the exact assigned routes and removes the GET and DELETE missing entries", () => {
+        const getRouteSource = readFileSync(join(process.cwd(), "src", "api", "routes", "oauth2", "applications", "#application_id", "assets", "index.ts"), "utf8");
+        const deleteRouteSource = readFileSync(
+            join(process.cwd(), "src", "api", "routes", "oauth2", "applications", "#application_id", "assets", "#application_asset_id.ts"),
+            "utf8",
+        );
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
             paths?: Record<
                 string,
                 {
+                    get?: {
+                        security?: unknown;
+                        responses?: Record<string, { content?: Record<string, { schema?: JsonSchema }> }>;
+                    };
                     delete?: {
                         security?: unknown;
                         responses?: Record<string, { content?: Record<string, { schema?: JsonSchema }> }>;
@@ -298,33 +395,62 @@ describe("DELETE /oauth2/applications/:application_id/assets/:application_asset_
             }[];
         };
 
-        assert.match(routeSource, /summary:\s*"Delete Application Asset"/);
-        assert.match(routeSource, /204:\s*\{\}/);
-        assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.match(routeSource, /403:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.match(routeSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(getRouteSource, /summary:\s*"Get Application Assets"/);
+        assert.match(getRouteSource, /nocache:\s*\{\s*type:\s*"boolean"/s);
+        assert.match(getRouteSource, /200:\s*\{\s*body:\s*"ApplicationAssetsResponse"/s);
+        assert.match(getRouteSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(getRouteSource, /403:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(getRouteSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
 
-        const route = openapi.paths?.["/oauth2/applications/{application_id}/assets/{application_asset_id}/"]?.delete;
-        assert.deepEqual(route?.security, [{ bearer: [] }]);
-        assert.equal(route?.responses?.["204"]?.content, undefined);
-        assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.match(deleteRouteSource, /summary:\s*"Delete Application Asset"/);
+        assert.match(deleteRouteSource, /204:\s*\{\}/);
+        assert.match(deleteRouteSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(deleteRouteSource, /403:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(deleteRouteSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
-        assert.equal(manifestEntry?.path, "/oauth2/applications/:application_id/assets/:application_asset_id/");
-        assert.equal(manifestEntry?.sourceFile, "src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id.ts");
-        assert.equal(manifestEntry?.authMode, "bearer");
-        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        const getRoute = openapi.paths?.["/oauth2/applications/{application_id}/assets/"]?.get;
+        assert.deepEqual(getRoute?.security, [{ bearer: [] }]);
+        assert.equal(getRoute?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/ApplicationAssetsResponse");
+        assert.equal(getRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(getRoute?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(getRoute?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+
+        const deleteRoute = openapi.paths?.["/oauth2/applications/{application_id}/assets/{application_asset_id}/"]?.delete;
+        assert.deepEqual(deleteRoute?.security, [{ bearer: [] }]);
+        assert.equal(deleteRoute?.responses?.["204"]?.content, undefined);
+        assert.equal(deleteRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(deleteRoute?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(deleteRoute?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+
+        const getManifestEntry = manifest.entries?.find((entry) => entry.id === getManifestId);
+        assert.equal(getManifestEntry?.path, "/oauth2/applications/:application_id/assets/");
+        assert.equal(getManifestEntry?.sourceFile, "src/api/routes/oauth2/applications/#application_id/assets/index.ts");
+        assert.equal(getManifestEntry?.authMode, "bearer");
+        assert.deepEqual(getManifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse", "ApplicationAssetsResponse"]);
         assert.deepEqual(
-            manifestEntry?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
+            getManifestEntry?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
+            [200, 401, 403, 404],
+        );
+
+        const deleteManifestEntry = manifest.entries?.find((entry) => entry.id === deleteManifestId);
+        assert.equal(deleteManifestEntry?.path, "/oauth2/applications/:application_id/assets/:application_asset_id/");
+        assert.equal(deleteManifestEntry?.sourceFile, "src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id.ts");
+        assert.equal(deleteManifestEntry?.authMode, "bearer");
+        assert.deepEqual(deleteManifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(
+            deleteManifestEntry?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
             [204, 401, 403, 404],
         );
 
-        const catalogEntry = sourceCatalog.find((entry) => entry.method === "DELETE" && entry.route === assignedPath);
-        assert.equal(catalogEntry?.route_name, assignedRouteName);
-        assert.equal(catalogEntry?.source, "src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id.ts");
-        assert.deepEqual(catalogEntry?.response_schema_refs, ["APIErrorResponse"]);
+        const getCatalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === getAssignedPath);
+        assert.equal(getCatalogEntry?.route_name, getAssignedRouteName);
+        assert.equal(getCatalogEntry?.source, "src/api/routes/oauth2/applications/#application_id/assets/index.ts");
+        assert.deepEqual(getCatalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "ApplicationAssetsResponse"]);
+
+        const deleteCatalogEntry = sourceCatalog.find((entry) => entry.method === "DELETE" && entry.route === deleteAssignedPath);
+        assert.equal(deleteCatalogEntry?.route_name, deleteAssignedRouteName);
+        assert.equal(deleteCatalogEntry?.source, "src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id.ts");
+        assert.deepEqual(deleteCatalogEntry?.response_schema_refs, ["APIErrorResponse"]);
 
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "DELETE" && entry.route === "/oauth2/applications/{param}/assets/{param}"),
@@ -332,7 +458,7 @@ describe("DELETE /oauth2/applications/:application_id/assets/:application_asset_
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/oauth2/applications/{param}/assets"),
-            true,
+            false,
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "POST" && entry.route === "/oauth2/applications/{param}/assets"),
@@ -343,9 +469,14 @@ describe("DELETE /oauth2/applications/:application_id/assets/:application_asset_
             false,
         );
 
-        const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestId);
-        assert.equal(contract?.authMode, "bearer");
-        assert.deepEqual(contract?.routeMetadata?.responses, ["APIErrorResponse"]);
-        assert.deepEqual(contract?.routeMetadata?.responseStatuses, [204, 401, 403, 404]);
+        const getContract = contractTests.contracts?.find((entry) => entry.manifestId === getManifestId);
+        assert.equal(getContract?.authMode, "bearer");
+        assert.deepEqual(getContract?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "ApplicationAssetsResponse"]);
+        assert.deepEqual(getContract?.routeMetadata?.responseStatuses, [200, 401, 403, 404]);
+
+        const deleteContract = contractTests.contracts?.find((entry) => entry.manifestId === deleteManifestId);
+        assert.equal(deleteContract?.authMode, "bearer");
+        assert.deepEqual(deleteContract?.routeMetadata?.responses, ["APIErrorResponse"]);
+        assert.deepEqual(deleteContract?.routeMetadata?.responseStatuses, [204, 401, 403, 404]);
     });
 });

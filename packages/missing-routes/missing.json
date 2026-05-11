@@ -1,6 +1,6 @@
 {
-    "missing": 654,
-    "spacebar": 526,
+    "missing": 653,
+    "spacebar": 527,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1586,14 +1586,6 @@
             "sources": ["userdoccers:resources/lobby.mdx"],
             "source_routes": ["/lobbies/{lobby_id}/messages"],
             "summaries": ["Get Lobby Messages"]
-        },
-        {
-            "method": "GET",
-            "route": "/oauth2/applications/{param}/assets",
-            "route_name": "GET_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/oauth2/applications/{application_id}/assets"],
-            "summaries": ["Get Application Assets"]
         },
         {
             "method": "GET",

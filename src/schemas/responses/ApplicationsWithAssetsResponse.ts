@@ -24,6 +24,8 @@ export interface ApplicationAssetResponse {
     name: string;
 }
 
+export type ApplicationAssetsResponse = ApplicationAssetResponse[];
+
 export interface ApplicationsWithAssetsResponse {
     applications: APIApplication[];
     assets: {

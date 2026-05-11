@@ -3318,6 +3318,12 @@
                     "type"
                 ]
             },
+            "ApplicationAssetsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationAssetResponse"
+                }
+            },
             "ApplicationsWithAssetsResponse": {
                 "type": "object",
                 "properties": {
@@ -40065,6 +40071,81 @@
                             "type": "string"
                         },
                         "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "oauth2"
+                ]
+            }
+        },
+        "/oauth2/applications/{application_id}/assets/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the persisted application asset catalog for the given application.",
+                "summary": "Get Application Assets",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationAssetsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "nocache",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to bypass cache for the response."
                     }
                 ],
                 "tags": [

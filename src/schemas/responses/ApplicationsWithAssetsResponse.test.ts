@@ -43,5 +43,7 @@ test("ApplicationsWithAssetsResponse schema matches the documented application a
     assert.equal(response.properties?.assets?.type, "object");
     assert.equal(response.properties?.assets?.additionalProperties?.type, "array");
     assert.equal(response.properties?.assets?.additionalProperties?.items?.$ref, "#/definitions/ApplicationAssetResponse");
+    assert.equal(schemas.ApplicationAssetsResponse.type, "array");
+    assert.equal(schemas.ApplicationAssetsResponse.items?.$ref, "#/definitions/ApplicationAssetResponse");
     assert.deepEqual(schemas.ApplicationAssetResponse.required?.sort(), ["id", "name", "type"]);
 });

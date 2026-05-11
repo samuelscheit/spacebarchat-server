@@ -3,12 +3,14 @@ import assert from "node:assert/strict";
 import { TeamMemberRole, TeamMemberState } from "../../../schemas/api/developers/Team";
 import { DiscordApiErrors } from "../../../util/util/Constants";
 import {
+    canAccessApplicationAssets,
     canAccessApplicationBranches,
     canAccessApplicationEmojis,
     canAccessApplicationGiftCodeBatches,
     canAccessApplicationOAuth2Authorizations,
     canManageApplicationAssets,
     canManageApplicationCommands,
+    requireApplicationAssetAccess,
     requireApplicationAssetManagement,
     requireApplicationBranchAccess,
     requireApplicationCommandManagement,
@@ -473,6 +475,66 @@ describe("application OAuth2 authorization access", () => {
 });
 
 describe("application asset authorization", () => {
+    test("allows owners, team owners, and accepted team members to access application assets", async (t) => {
+        const application = {
+            owner: { id: "owner" },
+            team: {
+                owner_user_id: "team-owner",
+                members: [
+                    {
+                        user_id: "read-only",
+                        membership_state: TeamMemberState.ACCEPTED,
+                        role: TeamMemberRole.READ_ONLY,
+                    },
+                ],
+            },
+        };
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => application),
+        };
+
+        assert.equal(canAccessApplicationAssets(application, "owner"), true);
+        assert.equal(canAccessApplicationAssets(application, "team-owner"), true);
+        assert.equal(canAccessApplicationAssets(application, "read-only"), true);
+        await requireApplicationAssetAccess("app", "read-only", repository);
+
+        assert.deepEqual(repository.findOne.mock.calls[0].arguments[0], {
+            where: { id: "app" },
+            relations: {
+                owner: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+    });
+
+    test("rejects invited members, non-members, and unknown applications for asset access", async (t) => {
+        const application = {
+            owner: { id: "owner" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                ],
+            },
+        };
+
+        assert.equal(canAccessApplicationAssets(application, "invited"), false);
+        assert.equal(canAccessApplicationAssets(application, "attacker"), false);
+        await assert.rejects(
+            () => requireApplicationAssetAccess("app", "attacker", { findOne: t.mock.fn(async (_options: unknown) => application) }),
+            (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
+        );
+        await assert.rejects(
+            () => requireApplicationAssetAccess("missing-app", "owner", { findOne: t.mock.fn(async (_options: unknown) => null) }),
+            (error) => error === DiscordApiErrors.UNKNOWN_APPLICATION,
+        );
+    });
+
     test("allows owners and application-management team members to manage application assets", () => {
         assert.equal(canManageApplicationAssets({ owner: { id: "owner" } }, "owner"), true);
 

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 498,
+        "totalCoveredManifestEntries": 499,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 476,
-                "totalCoveredManifestEntries": 476,
-                "totalCoveredRequiredManifestEntries": 476,
+                "totalRequiredManifestEntries": 477,
+                "totalCoveredManifestEntries": 477,
+                "totalCoveredRequiredManifestEntries": 477,
                 "totalSuites": 12
             },
             "protocol": {
@@ -30,7 +30,7 @@
         "byCoveredTestTier": {
             "stateful-domain": 338,
             "cdn-integration": 78,
-            "integration": 20,
+            "integration": 21,
             "contract": 22,
             "auth-scenario": 17,
             "middleware-contract": 1,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 476,
-                "totalCoveredManifestEntries": 476,
-                "totalCoveredRequiredManifestEntries": 476,
+                "totalRequiredManifestEntries": 477,
+                "totalCoveredManifestEntries": 477,
+                "totalCoveredRequiredManifestEntries": 477,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -270,6 +270,7 @@
                 "api:http:GET:/guilds/templates/:template_code",
                 "api:http:GET:/oauth2/@me/",
                 "api:http:GET:/oauth2/applications/:application_id/allowlist/",
+                "api:http:GET:/oauth2/applications/:application_id/assets/",
                 "api:http:GET:/oauth2/applications/:application_id/tokens/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
@@ -748,6 +749,7 @@
                 "api:http:GET:/guilds/templates/:template_code",
                 "api:http:GET:/oauth2/@me/",
                 "api:http:GET:/oauth2/applications/:application_id/allowlist/",
+                "api:http:GET:/oauth2/applications/:application_id/assets/",
                 "api:http:GET:/oauth2/applications/:application_id/tokens/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
@@ -1528,6 +1530,7 @@
                         "api:http:GET:/connections/:connection_name/authorize/",
                         "api:http:GET:/oauth2/@me/",
                         "api:http:GET:/oauth2/applications/:application_id/allowlist/",
+                        "api:http:GET:/oauth2/applications/:application_id/assets/",
                         "api:http:GET:/oauth2/applications/:application_id/tokens/",
                         "api:http:GET:/oauth2/applications/@me/",
                         "api:http:GET:/oauth2/authorize/",

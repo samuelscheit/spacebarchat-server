@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 606,
+        "totalContracts": 607,
         "byService": {
-            "api": 533,
+            "api": 534,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 459,
-        "runtimeMalformedAuthContracts": 459,
-        "runtimeRevokedSessionAuthContracts": 459,
-        "runtimeStaleTokenAuthContracts": 459,
+        "runtimeAuthBoundaryContracts": 460,
+        "runtimeMalformedAuthContracts": 460,
+        "runtimeRevokedSessionAuthContracts": 460,
+        "runtimeStaleTokenAuthContracts": 460,
         "runtimePublicAuthBoundaryContracts": 66,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
@@ -22445,6 +22445,58 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [204, 401, 403, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-redirects",
+                    "checks": ["redirects"]
+                },
+                {
+                    "id": "policy-token-state",
+                    "checks": ["token-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/oauth2/applications/:application_id/assets/",
+            "service": "api",
+            "method": "GET",
+            "path": "/oauth2/applications/:application_id/assets/",
+            "samplePath": "/oauth2/applications/100000000000000007/assets/",
+            "sourceFile": "src/api/routes/oauth2/applications/#application_id/assets/index.ts",
+            "line": 62,
+            "authMode": "bearer",
+            "testTier": "integration",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "applications", "oauth-clients"],
+            "contractChecks": ["auth-boundary", "schema-validation", "redirects", "token-state"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "ApplicationAssetsResponse"],
+                "responseStatuses": [200, 401, 403, 404]
             },
             "cases": [
                 {

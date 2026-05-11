@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 631,
+        "totalEntries": 632,
         "byService": {
-            "api": 534,
+            "api": 535,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 606,
+            "http-route": 607,
             "opcode": 21
         },
         "byTestTier": {
@@ -38,7 +38,7 @@
             "stateful-domain": 338,
             "cdn-integration": 78,
             "auth-scenario": 17,
-            "integration": 20,
+            "integration": 21,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 489,
+            "route-class": 490,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -16722,6 +16722,47 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/oauth2/applications/:application_id/assets/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/oauth2/applications/:application_id/assets/",
+            "sourceFile": "src/api/routes/oauth2/applications/#application_id/assets/index.ts",
+            "line": 62,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationAssetsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-oauth-connections",

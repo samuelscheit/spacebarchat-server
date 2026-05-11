@@ -3440,6 +3440,16 @@
 		"source": "src/api/routes/oauth2/applications/#application_id/allowlist/#user_id.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationAssetsResponse"
+		],
+		"route": "/oauth2/applications/{application_id}/assets",
+		"route_name": "GET_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS",
+		"source": "src/api/routes/oauth2/applications/#application_id/assets/index.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"
