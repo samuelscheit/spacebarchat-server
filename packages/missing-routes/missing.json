@@ -1,6 +1,6 @@
 {
-    "missing": 648,
-    "spacebar": 532,
+    "missing": 647,
+    "spacebar": 533,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1061,17 +1061,6 @@
             "sources": ["userdoccers:resources/game.mdx"],
             "source_routes": ["/applications/{application_id}/game-claims/{game_claim_id}"],
             "summaries": ["Get Application Game Claim"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/guilds/{param}/commands/{param}/permissions",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS_COMMAND_ID_PERMISSIONS",
-            "sources": ["userdoccers:interactions/application-commands.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": [
-                "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
-                "/applications/{application_id}/guilds/{guild_id}/commands/{param}/permissions"
-            ],
-            "summaries": ["Get Application Command Permissions"]
         },
         {
             "method": "GET",

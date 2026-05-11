@@ -29,6 +29,7 @@ const coveredManifestIds = [
     "api:http:POST:/applications/:application_id/guilds/:guild_id/commands/",
     "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
     "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
+    "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions/",
     "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
     "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
     "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
@@ -70,6 +71,7 @@ test(
             "api:http:POST:/applications/:application_id/guilds/:guild_id/commands/",
             "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
             "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/permissions/",
+            "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions/",
             "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
             "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
             "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
@@ -381,6 +383,34 @@ test(
                     },
                 ].sort((a, b) => a.id.localeCompare(b.id)),
             );
+            const guildCommandPermissionDetail = await getJson(
+                `${api.apiBaseUrl}/applications/${applicationId}/guilds/${guildId}/commands/${guildCommand.id}/permissions`,
+                ownerToken,
+            );
+            await assertStatus(guildCommandPermissionDetail, 200);
+            assert.deepEqual(await assertJsonObject(guildCommandPermissionDetail), {
+                id: guildCommand.id,
+                application_id: applicationId,
+                guild_id: guildId,
+                permissions: [
+                    { id: guildId, type: 1, permission: true },
+                    { id: owner.id, type: 2, permission: true },
+                    { id: channelId, type: 3, permission: false },
+                ],
+            });
+            const guildBulkCommandId = guildBulkBody.find((command) => command.name === "scenario-guild-bulk")?.id;
+            assert.equal(typeof guildBulkCommandId, "string");
+            const emptyGuildCommandPermissionDetail = await getJson(
+                `${api.apiBaseUrl}/applications/${applicationId}/guilds/${guildId}/commands/${guildBulkCommandId}/permissions`,
+                ownerToken,
+            );
+            await assertStatus(emptyGuildCommandPermissionDetail, 200);
+            assert.deepEqual(await assertJsonObject(emptyGuildCommandPermissionDetail), {
+                id: guildBulkCommandId,
+                application_id: applicationId,
+                guild_id: guildId,
+                permissions: [],
+            });
 
             const commandIndex = await getJson(`${api.apiBaseUrl}/guilds/${guildId}/application-command-index`, ownerToken);
             await assertStatus(commandIndex, 200);

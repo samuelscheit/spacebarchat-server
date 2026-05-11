@@ -276,6 +276,21 @@ describe("application command helpers", () => {
 
         assert.equal(serializeGuildApplicationCommandPermissions(command, "guild"), undefined);
     });
+
+    test("can serialize an empty command permissions object for detail fetches", () => {
+        const command = applicationCommand({
+            id: "command",
+            application_id: "app",
+            permissions: null as unknown as ApplicationCommand["permissions"],
+        });
+
+        assert.deepEqual(serializeGuildApplicationCommandPermissions(command, "guild", { includeEmpty: true }), {
+            id: "command",
+            application_id: "app",
+            guild_id: "guild",
+            permissions: [],
+        });
+    });
 });
 
 describe("application command localization helpers", () => {

@@ -99,6 +99,10 @@ type ApplicationCommandPermissionSource = Pick<ApplicationCommand, "id" | "appli
     permissions?: ApplicationCommandPermissionStorage | null;
 };
 
+type GuildApplicationCommandPermissionsSerializationOptions = {
+    includeEmpty?: boolean;
+};
+
 function firstLocaleValue(locale: ApplicationCommandLocaleSource) {
     const localeValue = Array.isArray(locale) ? locale[0] : locale;
 
@@ -255,14 +259,18 @@ function serializeApplicationCommandPermissionMap(map: Record<string, boolean> |
         }));
 }
 
-export function serializeGuildApplicationCommandPermissions(command: ApplicationCommandPermissionSource, guildId: string): GuildApplicationCommandPermissions | undefined {
+export function serializeGuildApplicationCommandPermissions(
+    command: ApplicationCommandPermissionSource,
+    guildId: string,
+    options: GuildApplicationCommandPermissionsSerializationOptions = {},
+): GuildApplicationCommandPermissions | undefined {
     const permissions = [
         ...serializeApplicationCommandPermissionMap(command.permissions?.roles, ApplicationCommandPermissionType.ROLE),
         ...serializeApplicationCommandPermissionMap(command.permissions?.users, ApplicationCommandPermissionType.USER),
         ...serializeApplicationCommandPermissionMap(command.permissions?.channels, ApplicationCommandPermissionType.CHANNEL),
     ];
 
-    if (!permissions.length) return undefined;
+    if (!permissions.length && !options.includeEmpty) return undefined;
 
     return {
         id: command.id,

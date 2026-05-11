@@ -483,6 +483,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildApplicationCommandPermissions"
+		],
+		"route": "/applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_GUILDS_GUILD_ID_COMMANDS_COMMAND_ID_PERMISSIONS",
+		"source": "src/api/routes/applications/#application_id/guilds/#guild_id/commands/#command_id/permissions.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildApplicationCommandPermissionsResponse"
 		],
 		"route": "/applications/{application_id}/guilds/{guild_id}/commands/permissions",

@@ -35,6 +35,7 @@
         "src/api/util/utility/OAuth2Authorization.test.ts",
         "src/api/routes/applications/#application_id/branches.test.ts",
         "src/api/routes/applications/@me.test.ts",
+        "src/api/routes/applications/#application_id/guilds/#guild_id/commands/#command_id/permissions.test.ts",
         "src/api/util/utility/Experiments.test.ts",
         "src/api/util/utility/Fingerprint.test.ts",
         "src/api/middlewares/Authentication.test.ts",
