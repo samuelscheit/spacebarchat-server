@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 481,
+        "totalCoveredManifestEntries": 482,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 459,
-                "totalCoveredManifestEntries": 459,
-                "totalCoveredRequiredManifestEntries": 459,
+                "totalRequiredManifestEntries": 460,
+                "totalCoveredManifestEntries": 460,
+                "totalCoveredRequiredManifestEntries": 460,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 328,
+            "stateful-domain": 329,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 459,
-                "totalCoveredManifestEntries": 459,
-                "totalCoveredRequiredManifestEntries": 459,
+                "totalRequiredManifestEntries": 460,
+                "totalCoveredManifestEntries": 460,
+                "totalCoveredRequiredManifestEntries": 460,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -205,6 +205,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-invite-link/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-referrer/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-source/",
+                "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/leavers/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/membership/",
                 "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/funnel/",
@@ -666,6 +667,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-invite-link/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-referrer/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-source/",
+                "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/leavers/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/membership/",
                 "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/funnel/",
@@ -1178,6 +1180,7 @@
                         "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-invite-link/",
                         "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-referrer/",
                         "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins-by-source/",
+                        "api:http:GET:/guilds/:guild_id/analytics/growth-activation/joins/",
                         "api:http:GET:/guilds/:guild_id/analytics/growth-activation/leavers/",
                         "api:http:GET:/guilds/:guild_id/analytics/growth-activation/membership/",
                         "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/funnel/",

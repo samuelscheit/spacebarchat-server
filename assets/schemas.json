@@ -6823,6 +6823,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildGrowthActivationJoinsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildGrowthActivationJoinsBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildGrowthActivationJoinsByInviteLinkResponse": {
         "type": "array",
         "items": {
@@ -23958,6 +23965,26 @@
         "required": [
             "day_pt",
             "new_members"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildGrowthActivationJoinsBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "joins": {
+                "type": "integer"
+            },
+            "all_time_joins": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "joins"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

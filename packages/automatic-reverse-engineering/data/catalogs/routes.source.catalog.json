@@ -2231,6 +2231,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildGrowthActivationJoinsResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/growth-activation/joins",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_GROWTH_ACTIVATION_JOINS",
+		"source": "src/api/routes/guilds/#guild_id/analytics/growth-activation/joins.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildGrowthActivationJoinsByInviteLinkResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/growth-activation/joins-by-invite-link",

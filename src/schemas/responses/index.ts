@@ -95,6 +95,7 @@ export * from "./GuildEngagementPruneableMembersResponse";
 export * from "./GuildEngagementTextChannelsResponse";
 export * from "./GuildEngagementVoiceChannelsResponse";
 export * from "./GuildGrowthActivationActivationResponse";
+export * from "./GuildGrowthActivationJoinsResponse";
 export * from "./GuildGrowthActivationJoinsByInviteLinkResponse";
 export * from "./GuildGrowthActivationJoinsByReferrerResponse";
 export * from "./GuildGrowthActivationJoinsBySourceResponse";
