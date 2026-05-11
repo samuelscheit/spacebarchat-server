@@ -1,6 +1,6 @@
 {
-    "missing": 650,
-    "spacebar": 530,
+    "missing": 649,
+    "spacebar": 531,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1681,14 +1681,6 @@
         { "method": "GET", "route": "/sso-token", "route_name": "SSO_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/sticker-packs/directory-v2/{param}", "route_name": "STORE_DIRECTORY_LAYOUT_STICKER_PACKS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/store/applications/{param}/assets",
-            "route_name": "GET_STORE_APPLICATIONS_APPLICATION_ID_ASSETS",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/store/applications/{application_id}/assets"],
-            "summaries": ["Get Application Store Assets"]
-        },
         {
             "method": "GET",
             "route": "/store/consumable/pricing/{param}",

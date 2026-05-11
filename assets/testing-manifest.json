@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 635,
+        "totalEntries": 636,
         "byService": {
-            "api": 538,
+            "api": 539,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 610,
+            "http-route": 611,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 145,
+            "contract": 146,
             "stateful-domain": 340,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 493,
+            "route-class": 494,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18662,6 +18662,44 @@
                 ],
                 "responseStatuses": [
                     204,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/store/applications/:application_id/assets/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/applications/:application_id/assets/",
+            "sourceFile": "src/api/routes/store/applications/#application_id/assets/index.ts",
+            "line": 101,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationStoreAssetsResponse"
+                ],
+                "responseStatuses": [
+                    200,
                     401,
                     403,
                     404

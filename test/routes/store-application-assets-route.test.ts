@@ -35,12 +35,21 @@ import {
     type ApplicationStoreAssetDeleteDependencies,
     type ApplicationStoreAssetRecord,
 } from "../../src/api/routes/store/applications/#application_id/assets/#asset_id";
+import {
+    createApplicationStoreAssetsRouter,
+    getApplicationStoreAssets,
+    type ApplicationStoreAssetListDependencies,
+    type ApplicationStoreAssetListRecord,
+} from "../../src/api/routes/store/applications/#application_id/assets";
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
-const coveredManifestId = "api:http:DELETE:/store/applications/:application_id/assets/:asset_id/";
-const assignedPath = "/store/applications/{application_id}/assets/{asset_id}";
-const assignedRouteName = "DELETE_STORE_APPLICATIONS_APPLICATION_ID_ASSETS_ASSET_ID";
+const getCoveredManifestId = "api:http:GET:/store/applications/:application_id/assets/";
+const getAssignedPath = "/store/applications/{application_id}/assets";
+const getAssignedRouteName = "GET_STORE_APPLICATIONS_APPLICATION_ID_ASSETS";
+const deleteCoveredManifestId = "api:http:DELETE:/store/applications/:application_id/assets/:asset_id/";
+const deleteAssignedPath = "/store/applications/{application_id}/assets/{asset_id}";
+const deleteAssignedRouteName = "DELETE_STORE_APPLICATIONS_APPLICATION_ID_ASSETS_ASSET_ID";
 const applicationId = "100000000000000001";
 const missingApplicationId = "100000000000000002";
 const assetId = "100000000000000003";
@@ -48,10 +57,19 @@ const missingAssetId = "100000000000000004";
 
 type JsonSchema = {
     $ref?: string;
+    items?: JsonSchema;
+    properties?: Record<string, JsonSchema>;
+    required?: string[];
     type?: string;
 };
 
-type ApplicationAuthorizationTarget = Awaited<ReturnType<NonNullable<ApplicationStoreAssetDeleteDependencies["applicationRepository"]>["findOne"]>>;
+type ApplicationStoreAssetRouteDependencies = {
+    applicationRepository?: ApplicationStoreAssetDeleteDependencies["applicationRepository"];
+    assetRepository?: ApplicationStoreAssetDeleteDependencies["assetRepository"] | ApplicationStoreAssetListDependencies["assetRepository"];
+    deleteAssetFile?: ApplicationStoreAssetDeleteDependencies["deleteAssetFile"];
+};
+
+type ApplicationAuthorizationTarget = Awaited<ReturnType<NonNullable<ApplicationStoreAssetRouteDependencies["applicationRepository"]>["findOne"]>>;
 
 function createApplicationRepository(t: TestContext, application: ApplicationAuthorizationTarget = { owner: { id: "owner" } }) {
     return {
@@ -73,14 +91,21 @@ function createAssetRepository(t: TestContext, initialAsset: ApplicationStoreAss
     };
 }
 
-function createRouteApp(userId: string, dependencies: ApplicationStoreAssetDeleteDependencies) {
+function createAssetListRepository(t: TestContext, assets: ApplicationStoreAssetListRecord[]) {
+    return {
+        find: t.mock.fn(async (_options: unknown) => assets.map((asset) => ({ ...asset }))),
+    };
+}
+
+function createRouteApp(userId: string, dependencies: ApplicationStoreAssetRouteDependencies) {
     const app = express();
     app.use((req, _res, next) => {
         req.user_id = userId;
         req.t = ((key: string) => key) as express.Request["t"];
         next();
     });
-    app.use("/store/applications/:application_id/assets/:asset_id", createApplicationStoreAssetRouter(dependencies));
+    app.use("/store/applications/:application_id/assets", createApplicationStoreAssetsRouter(dependencies as ApplicationStoreAssetListDependencies));
+    app.use("/store/applications/:application_id/assets/:asset_id", createApplicationStoreAssetRouter(dependencies as ApplicationStoreAssetDeleteDependencies));
     app.use((error: { code?: number | string; httpStatus?: number; message?: string }, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
         res.status(error.httpStatus ?? 400).json({ code: error.code, message: error.message });
     });
@@ -112,13 +137,146 @@ async function requestRaw(app: express.Express, path: string, method = "DELETE")
     }
 }
 
-describe("DELETE /store/applications/:application_id/assets/:asset_id", () => {
+describe("application store asset routes", () => {
     test("declares authenticated ownership-scoped behavior for only the assigned store asset route", () => {
         assert.equal(isNoAuthorizationRoute("DELETE", `/store/applications/${applicationId}/assets/${assetId}`), false);
         assert.equal(isNoAuthorizationRoute("DELETE", `/api/v10/store/applications/${applicationId}/assets/${assetId}.png`), false);
         assert.equal(isNoAuthorizationRoute("GET", `/store/applications/${applicationId}/assets`), false);
         assert.equal(isNoAuthorizationRoute("POST", `/store/applications/${applicationId}/assets`), false);
         assert.equal(isNoAuthorizationRoute("DELETE", `/oauth2/applications/${applicationId}/assets/${assetId}`), false);
+    });
+
+    test("returns persisted store assets for accepted owning-team members without application IDs", async (t) => {
+        const applicationRepository = createApplicationRepository(t, {
+            owner: { id: "owner" },
+            team: {
+                members: [
+                    {
+                        user_id: "team-member",
+                        membership_state: TeamMemberState.ACCEPTED,
+                        role: TeamMemberRole.READ_ONLY,
+                    },
+                ],
+            },
+        });
+        const assetRepository = createAssetListRepository(t, [
+            {
+                id: assetId,
+                application_id: applicationId,
+                size: 4161529,
+                mime_type: "image/gif",
+                filename: "kitties.gif",
+                width: 464,
+                height: 512,
+            },
+            {
+                id: missingAssetId,
+                application_id: applicationId,
+                size: 9240,
+                mime_type: "image/png",
+                filename: "cover.png",
+                width: 1920,
+                height: 1080,
+            },
+        ]);
+        const expectedAssets = [
+            {
+                id: assetId,
+                size: 4161529,
+                mime_type: "image/gif",
+                filename: "kitties.gif",
+                width: 464,
+                height: 512,
+            },
+            {
+                id: missingAssetId,
+                size: 9240,
+                mime_type: "image/png",
+                filename: "cover.png",
+                width: 1920,
+                height: 1080,
+            },
+        ];
+
+        assert.deepEqual(await getApplicationStoreAssets(applicationId, "team-member", { applicationRepository, assetRepository }), expectedAssets);
+        assert.deepEqual(assetRepository.find.mock.calls[0].arguments[0], {
+            where: {
+                application_id: applicationId,
+            },
+            order: {
+                id: "ASC",
+            },
+        });
+
+        const response = await requestRaw(createRouteApp("team-member", { applicationRepository, assetRepository }), `/store/applications/${applicationId}/assets`, "GET");
+
+        assert.equal(response.status, 200);
+        assert.deepEqual(response.body, expectedAssets);
+        assert.equal("application_id" in ((response.body as Record<string, unknown>[])[0] ?? {}), false);
+    });
+
+    test("returns 403 before listing assets for callers outside the owning application or team", async (t) => {
+        const applicationRepository = createApplicationRepository(t, {
+            owner: { id: "owner" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                ],
+            },
+        });
+        const assetRepository = createAssetListRepository(t, []);
+
+        const response = await requestRaw(createRouteApp("invited", { applicationRepository, assetRepository }), `/store/applications/${applicationId}/assets`, "GET");
+
+        assert.equal(response.status, 403);
+        assert.deepEqual(response.body, {
+            code: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.code,
+            message: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.message,
+        });
+        assert.equal(assetRepository.find.mock.callCount(), 0);
+    });
+
+    test("returns 404 for unknown or malformed applications before listing assets", async (t) => {
+        const missingApplicationRepository = createApplicationRepository(t, null);
+        const unknownApplicationAssetRepository = createAssetListRepository(t, []);
+        const unknownApplicationResponse = await requestRaw(
+            createRouteApp("owner", {
+                applicationRepository: missingApplicationRepository,
+                assetRepository: unknownApplicationAssetRepository,
+            }),
+            `/store/applications/${missingApplicationId}/assets`,
+            "GET",
+        );
+
+        const malformedApplicationRepository = createApplicationRepository(t);
+        const malformedApplicationAssetRepository = createAssetListRepository(t, []);
+        const malformedApplicationResponse = await requestRaw(
+            createRouteApp("owner", {
+                applicationRepository: malformedApplicationRepository,
+                assetRepository: malformedApplicationAssetRepository,
+            }),
+            "/store/applications/not-a-snowflake/assets",
+            "GET",
+        );
+
+        assert.equal(unknownApplicationResponse.status, 404);
+        assert.deepEqual(unknownApplicationResponse.body, {
+            code: DiscordApiErrors.UNKNOWN_APPLICATION.code,
+            message: DiscordApiErrors.UNKNOWN_APPLICATION.message,
+        });
+        assert.equal(unknownApplicationAssetRepository.find.mock.callCount(), 0);
+
+        assert.equal(malformedApplicationResponse.status, 404);
+        assert.deepEqual(malformedApplicationResponse.body, {
+            code: DiscordApiErrors.UNKNOWN_APPLICATION.code,
+            message: DiscordApiErrors.UNKNOWN_APPLICATION.message,
+        });
+        assert.equal(malformedApplicationRepository.findOne.mock.callCount(), 0);
+        assert.equal(malformedApplicationAssetRepository.find.mock.callCount(), 0);
     });
 
     test("deletes a stored application store asset, accepts xHyroM extension-style IDs, and removes the backing file", async (t) => {
@@ -266,12 +424,18 @@ describe("DELETE /store/applications/:application_id/assets/:asset_id", () => {
         assert.equal(deleteAssetFile.mock.callCount(), 0);
     });
 
-    test("declares generated artifacts for the exact assigned route and removes the missing entry", () => {
-        const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "store", "applications", "#application_id", "assets", "#asset_id.ts"), "utf8");
+    test("declares generated artifacts for the exact assigned routes and removes the GET and DELETE missing entries", () => {
+        const getRouteSource = readFileSync(join(process.cwd(), "src", "api", "routes", "store", "applications", "#application_id", "assets", "index.ts"), "utf8");
+        const deleteRouteSource = readFileSync(join(process.cwd(), "src", "api", "routes", "store", "applications", "#application_id", "assets", "#asset_id.ts"), "utf8");
+        const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonSchema>;
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
             paths?: Record<
                 string,
                 {
+                    get?: {
+                        security?: unknown;
+                        responses?: Record<string, { content?: Record<string, { schema?: JsonSchema }> }>;
+                    };
                     delete?: {
                         security?: unknown;
                         responses?: Record<string, { content?: Record<string, { schema?: JsonSchema }> }>;
@@ -314,56 +478,94 @@ describe("DELETE /store/applications/:application_id/assets/:asset_id", () => {
             }[];
         };
 
-        assert.match(routeSource, /summary:\s*"Delete Application Store Asset"/);
-        assert.match(routeSource, /204:\s*\{\}/);
-        assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.match(routeSource, /403:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.match(routeSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(getRouteSource, /summary:\s*"Get Application Store Assets"/);
+        assert.match(getRouteSource, /200:\s*\{\s*body:\s*"ApplicationStoreAssetsResponse"/s);
+        assert.match(getRouteSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(getRouteSource, /403:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(getRouteSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
 
-        const route = openapi.paths?.["/store/applications/{application_id}/assets/{asset_id}/"]?.delete;
-        assert.deepEqual(route?.security, [{ bearer: [] }]);
-        assert.equal(route?.responses?.["204"]?.content, undefined);
-        assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.match(deleteRouteSource, /summary:\s*"Delete Application Store Asset"/);
+        assert.match(deleteRouteSource, /204:\s*\{\}/);
+        assert.match(deleteRouteSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(deleteRouteSource, /403:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(deleteRouteSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
-        assert.equal(manifestEntry?.path, "/store/applications/:application_id/assets/:asset_id/");
-        assert.equal(manifestEntry?.sourceFile, "src/api/routes/store/applications/#application_id/assets/#asset_id.ts");
-        assert.equal(manifestEntry?.authMode, "bearer");
-        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.equal(schemas.ApplicationStoreAssetResponse.type, "object");
+        assert.deepEqual(schemas.ApplicationStoreAssetResponse.required?.sort(), ["filename", "height", "id", "mime_type", "size", "width"]);
+        assert.equal(schemas.ApplicationStoreAssetsResponse.type, "array");
+        assert.equal(schemas.ApplicationStoreAssetsResponse.items?.$ref, "#/definitions/ApplicationStoreAssetResponse");
+
+        const getRoute = openapi.paths?.["/store/applications/{application_id}/assets/"]?.get;
+        assert.deepEqual(getRoute?.security, [{ bearer: [] }]);
+        assert.equal(getRoute?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/ApplicationStoreAssetsResponse");
+        assert.equal(getRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(getRoute?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(getRoute?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+
+        const deleteRoute = openapi.paths?.["/store/applications/{application_id}/assets/{asset_id}/"]?.delete;
+        assert.deepEqual(deleteRoute?.security, [{ bearer: [] }]);
+        assert.equal(deleteRoute?.responses?.["204"]?.content, undefined);
+        assert.equal(deleteRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(deleteRoute?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(deleteRoute?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+
+        const getManifestEntry = manifest.entries?.find((entry) => entry.id === getCoveredManifestId);
+        assert.equal(getManifestEntry?.path, "/store/applications/:application_id/assets/");
+        assert.equal(getManifestEntry?.sourceFile, "src/api/routes/store/applications/#application_id/assets/index.ts");
+        assert.equal(getManifestEntry?.authMode, "bearer");
+        assert.deepEqual(getManifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse", "ApplicationStoreAssetsResponse"]);
         assert.deepEqual(
-            manifestEntry?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
+            getManifestEntry?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
+            [200, 401, 403, 404],
+        );
+
+        const deleteManifestEntry = manifest.entries?.find((entry) => entry.id === deleteCoveredManifestId);
+        assert.equal(deleteManifestEntry?.path, "/store/applications/:application_id/assets/:asset_id/");
+        assert.equal(deleteManifestEntry?.sourceFile, "src/api/routes/store/applications/#application_id/assets/#asset_id.ts");
+        assert.equal(deleteManifestEntry?.authMode, "bearer");
+        assert.deepEqual(deleteManifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(
+            deleteManifestEntry?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
             [204, 401, 403, 404],
         );
 
-        const catalogEntry = sourceCatalog.find((entry) => entry.method === "DELETE" && entry.route === assignedPath);
-        assert.equal(catalogEntry?.route_name, assignedRouteName);
-        assert.equal(catalogEntry?.source, "src/api/routes/store/applications/#application_id/assets/#asset_id.ts");
-        assert.deepEqual(catalogEntry?.response_schema_refs, ["APIErrorResponse"]);
+        const getCatalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === getAssignedPath);
+        assert.equal(getCatalogEntry?.route_name, getAssignedRouteName);
+        assert.equal(getCatalogEntry?.source, "src/api/routes/store/applications/#application_id/assets/index.ts");
+        assert.deepEqual(getCatalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "ApplicationStoreAssetsResponse"]);
+
+        const deleteCatalogEntry = sourceCatalog.find((entry) => entry.method === "DELETE" && entry.route === deleteAssignedPath);
+        assert.equal(deleteCatalogEntry?.route_name, deleteAssignedRouteName);
+        assert.equal(deleteCatalogEntry?.source, "src/api/routes/store/applications/#application_id/assets/#asset_id.ts");
+        assert.deepEqual(deleteCatalogEntry?.response_schema_refs, ["APIErrorResponse"]);
 
         assert.equal(
             missingRoutes.missing_entries?.some(
-                (entry) => entry.method === "DELETE" && entry.route === "/store/applications/{param}/assets/{param}" && entry.route_name === assignedRouteName,
+                (entry) => entry.method === "DELETE" && entry.route === "/store/applications/{param}/assets/{param}" && entry.route_name === deleteAssignedRouteName,
             ),
             false,
         );
         assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.route === "/oauth2/applications/{param}/assets/{param}"),
+            missingRoutes.missing_entries?.some((entry) => entry.method === "POST" && entry.route === "/oauth2/applications/{param}/assets"),
             true,
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/store/applications/{param}/assets"),
-            true,
+            false,
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "POST" && entry.route === "/store/applications/{param}/assets"),
             true,
         );
 
-        const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestId);
-        assert.equal(contract?.authMode, "bearer");
-        assert.deepEqual(contract?.routeMetadata?.responses, ["APIErrorResponse"]);
-        assert.deepEqual(contract?.routeMetadata?.responseStatuses, [204, 401, 403, 404]);
+        const getContract = contractTests.contracts?.find((entry) => entry.manifestId === getCoveredManifestId);
+        assert.equal(getContract?.authMode, "bearer");
+        assert.deepEqual(getContract?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "ApplicationStoreAssetsResponse"]);
+        assert.deepEqual(getContract?.routeMetadata?.responseStatuses, [200, 401, 403, 404]);
+
+        const deleteContract = contractTests.contracts?.find((entry) => entry.manifestId === deleteCoveredManifestId);
+        assert.equal(deleteContract?.authMode, "bearer");
+        assert.deepEqual(deleteContract?.routeMetadata?.responses, ["APIErrorResponse"]);
+        assert.deepEqual(deleteContract?.routeMetadata?.responseStatuses, [204, 401, 403, 404]);
     });
 });

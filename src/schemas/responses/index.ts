@@ -36,6 +36,7 @@ export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";
 export * from "./ApplicationRpcResponse";
+export * from "./ApplicationStoreAssetsResponse";
 export * from "./ApplicationTestersResponse";
 export * from "./ApplicationsWithAssetsResponse";
 export * from "./ArchivedThreadsResponse";

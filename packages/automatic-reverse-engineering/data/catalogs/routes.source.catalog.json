@@ -3934,6 +3934,16 @@
 		"source": "src/api/routes/stop.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationStoreAssetsResponse"
+		],
+		"route": "/store/applications/{application_id}/assets",
+		"route_name": "GET_STORE_APPLICATIONS_APPLICATION_ID_ASSETS",
+		"source": "src/api/routes/store/applications/#application_id/assets/index.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"
