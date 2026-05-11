@@ -18,20 +18,11 @@
 
 import { route } from "@spacebar/api";
 import type { LobbyResponse } from "@spacebar/schemas";
-import { ApiError, DiscordApiErrors } from "@spacebar/util";
+import { DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { assertLobbyId, UNKNOWN_LOBBY } from "../../../util/utility/Lobbies";
 
-const lobbyIdPattern = /^[1-9]\d{16,19}$/;
-
-export const UNKNOWN_LOBBY = new ApiError(DiscordApiErrors.UNKNOWN_LOBBY.message, DiscordApiErrors.UNKNOWN_LOBBY.code, 404);
-
-export function isLobbyId(value: unknown): value is string {
-    return typeof value === "string" && lobbyIdPattern.test(value);
-}
-
-export function assertLobbyId(value: unknown): asserts value is string {
-    if (!isLobbyId(value)) throw UNKNOWN_LOBBY;
-}
+export { assertLobbyId, isLobbyId, UNKNOWN_LOBBY } from "../../../util/utility/Lobbies";
 
 export async function getLobby(lobbyId: string, userId: string): Promise<LobbyResponse | null> {
     assertLobbyId(lobbyId);

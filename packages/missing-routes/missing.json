@@ -1,6 +1,6 @@
 {
-    "missing": 636,
-    "spacebar": 544,
+    "missing": 635,
+    "spacebar": 545,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1528,14 +1528,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/join-requests/{guild_join_request_id}"],
             "summaries": ["Get Guild Join Request"]
-        },
-        {
-            "method": "GET",
-            "route": "/lobbies/{param}/messages",
-            "route_name": "GET_LOBBIES_LOBBY_ID_MESSAGES",
-            "sources": ["userdoccers:resources/lobby.mdx"],
-            "source_routes": ["/lobbies/{lobby_id}/messages"],
-            "summaries": ["Get Lobby Messages"]
         },
         {
             "method": "GET",

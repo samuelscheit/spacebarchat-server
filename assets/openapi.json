@@ -8948,6 +8948,12 @@
                     "metadata"
                 ]
             },
+            "LobbyMessagesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/PartialMessage"
+                }
+            },
             "MemberJoinGuildResponse": {
                 "type": "object",
                 "properties": {
@@ -42085,6 +42091,80 @@
                 },
                 "tags": [
                     "mfa"
+                ]
+            }
+        },
+        "/lobbies/{lobby_id}/messages/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Lobby Messages",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LobbyMessagesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "Max number of messages to return (1-200, default 50)"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
                 ]
             }
         },

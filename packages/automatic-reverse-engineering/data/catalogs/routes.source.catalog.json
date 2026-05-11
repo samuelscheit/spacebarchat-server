@@ -3432,6 +3432,16 @@
 		"source": "src/api/routes/lobbies/#lobby_id/index.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"LobbyMessagesResponse"
+		],
+		"route": "/lobbies/{lobby_id}/messages",
+		"route_name": "GET_LOBBIES_LOBBY_ID_MESSAGES",
+		"source": "src/api/routes/lobbies/#lobby_id/messages.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "MfaFinishSchema",
 		"response_schema_refs": [

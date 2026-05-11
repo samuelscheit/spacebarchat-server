@@ -16,36 +16,16 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import type { Snowflake } from "../Identifiers";
-import type { PublicChannel } from "../api/channels";
-import type { PartialMessage } from "../api/messages";
+import { ApiError, DiscordApiErrors } from "@spacebar/util";
 
-export interface LobbyMetadata {
-    [key: string]: string;
+const lobbyIdPattern = /^[1-9]\d{16,19}$/;
+
+export const UNKNOWN_LOBBY = new ApiError(DiscordApiErrors.UNKNOWN_LOBBY.message, DiscordApiErrors.UNKNOWN_LOBBY.code, 404);
+
+export function isLobbyId(value: unknown): value is string {
+    return typeof value === "string" && lobbyIdPattern.test(value);
 }
 
-export enum LobbyFlags {
-    REQUIRE_APPLICATION_AUTHORIZATION = 1 << 0,
+export function assertLobbyId(value: unknown): asserts value is string {
+    if (!isLobbyId(value)) throw UNKNOWN_LOBBY;
 }
-
-export enum LobbyMemberFlags {
-    CAN_LINK_LOBBY = 1 << 0,
-}
-
-export interface LobbyMemberResponse {
-    id: Snowflake;
-    metadata?: LobbyMetadata | null;
-    flags?: number;
-    connected?: boolean;
-}
-
-export interface LobbyResponse {
-    id: Snowflake;
-    application_id: Snowflake;
-    metadata: LobbyMetadata | null;
-    members: LobbyMemberResponse[];
-    flags: number;
-    linked_channel?: PublicChannel;
-}
-
-export type LobbyMessagesResponse = PartialMessage[];

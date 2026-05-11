@@ -51,3 +51,14 @@ test("lobby member response schema documents member metadata and transient conne
 test("lobby GET route OpenAPI response uses LobbyResponse", () => {
     assert.equal(openapi.paths["/lobbies/{lobby_id}/"].get.responses["200"].content["application/json"].schema.$ref, "#/components/schemas/LobbyResponse");
 });
+
+test("lobby messages response schema is an array of partial message objects", () => {
+    const schema = schemas.LobbyMessagesResponse;
+
+    assert.equal(schema.type, "array");
+    assert.equal(schema.items.$ref, "#/definitions/PartialMessage");
+});
+
+test("lobby messages GET route OpenAPI response uses LobbyMessagesResponse", () => {
+    assert.equal(openapi.paths["/lobbies/{lobby_id}/messages/"].get.responses["200"].content["application/json"].schema.$ref, "#/components/schemas/LobbyMessagesResponse");
+});

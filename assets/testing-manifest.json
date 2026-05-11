@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 649,
+        "totalEntries": 650,
         "byService": {
-            "api": 552,
+            "api": 553,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 624,
+            "http-route": 625,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 152,
+            "contract": 153,
             "stateful-domain": 347,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 507,
+            "route-class": 508,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -16681,7 +16681,7 @@
             "method": "GET",
             "path": "/lobbies/:lobby_id/",
             "sourceFile": "src/api/routes/lobbies/#lobby_id/index.ts",
-            "line": 55,
+            "line": 46,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -16696,6 +16696,44 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/lobbies/:lobby_id/messages/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/lobbies/:lobby_id/messages/",
+            "sourceFile": "src/api/routes/lobbies/#lobby_id/messages.ts",
+            "line": 97,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "LobbyMessagesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

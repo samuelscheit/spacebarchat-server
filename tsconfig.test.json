@@ -33,6 +33,7 @@
         "src/api/routes/oauth2/applications/#application_id/tokens.test.ts",
         "src/api/routes/oauth2/tokens/#token_id.test.ts",
         "src/api/routes/lobbies/#lobby_id/index.test.ts",
+        "src/api/routes/lobbies/#lobby_id/messages.test.ts",
         "src/api/util/utility/OAuthAuthorize.test.ts",
         "src/api/util/utility/OAuthAuthorizeResponse.test.ts",
         "src/api/util/utility/OAuthAuthorizeApplication.test.ts",
