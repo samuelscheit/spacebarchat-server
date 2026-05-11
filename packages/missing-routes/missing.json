@@ -1,6 +1,6 @@
 {
-    "missing": 705,
-    "spacebar": 475,
+    "missing": 704,
+    "spacebar": 476,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -9,7 +9,6 @@
         "/ai/summarize-thread/{param}",
         "/ai/title",
         "/ai/translate",
-        "/application-directory/applications/{param}/embed",
         "/applications/games-supplemental",
         "/applications/public",
         "/applications/shelf",
@@ -1084,14 +1083,6 @@
             "sources": ["userdoccers:interactions/receiving-and-responding.mdx"],
             "source_routes": ["/webhooks/{application_id}/{interaction_token}/messages/@original"],
             "summaries": ["Delete Original Interaction Response"]
-        },
-        {
-            "method": "GET",
-            "route": "/application-directory/applications/{param}/embed",
-            "route_name": "GET_APPLICATION_DIRECTORY_APPLICATIONS_APPLICATION_ID_EMBED",
-            "sources": ["userdoccers:resources/application-directory.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/application-directory/applications/{application_id}/embed"],
-            "summaries": ["Get Application Directory Application Embed"]
         },
         {
             "method": "GET",

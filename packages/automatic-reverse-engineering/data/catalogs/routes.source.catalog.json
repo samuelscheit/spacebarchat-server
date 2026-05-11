@@ -169,6 +169,16 @@
 		"source": "src/api/routes/application-directory-static.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationDirectoryApplication"
+		],
+		"route": "/application-directory/applications/{application_id}/embed",
+		"route_name": "GET_APPLICATION_DIRECTORY_APPLICATIONS_APPLICATION_ID_EMBED",
+		"source": "src/api/routes/application-directory/applications/#application_id.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "ApplicationIdentitiesSchema",
 		"response_schema_refs": [
