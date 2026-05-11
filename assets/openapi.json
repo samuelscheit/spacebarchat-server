@@ -38318,45 +38318,6 @@
                 ]
             }
         },
-        "/reporting/menu/guild": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for guild reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
         "/reporting/guild": {
             "post": {
                 "security": [
@@ -38380,45 +38341,6 @@
                         "description": "No description available"
                     }
                 },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/menu/guild_discovery": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for guild_discovery reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
                 "tags": [
                     "reporting"
                 ]
@@ -38452,45 +38374,6 @@
                 ]
             }
         },
-        "/reporting/menu/guild_directory_entry": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for guild_directory_entry reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
         "/reporting/guild_directory_entry": {
             "post": {
                 "security": [
@@ -38514,45 +38397,6 @@
                         "description": "No description available"
                     }
                 },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/menu/guild_scheduled_event": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for guild_scheduled_event reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
                 "tags": [
                     "reporting"
                 ]
@@ -38586,45 +38430,6 @@
                 ]
             }
         },
-        "/reporting/menu/message": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for message reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
         "/reporting/message": {
             "post": {
                 "security": [
@@ -38648,45 +38453,6 @@
                         "description": "No description available"
                     }
                 },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/menu/stage_channel": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for stage_channel reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
                 "tags": [
                     "reporting"
                 ]
@@ -38720,45 +38486,6 @@
                 ]
             }
         },
-        "/reporting/menu/first_dm": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for first_dm reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
         "/reporting/first_dm": {
             "post": {
                 "security": [
@@ -38782,45 +38509,6 @@
                         "description": "No description available"
                     }
                 },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/menu/user": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for user reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
                 "tags": [
                     "reporting"
                 ]
@@ -38854,45 +38542,6 @@
                 ]
             }
         },
-        "/reporting/menu/application": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for application reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
         "/reporting/application": {
             "post": {
                 "security": [
@@ -38921,45 +38570,6 @@
                 ]
             }
         },
-        "/reporting/menu/widget": {
-            "get": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Get reporting menu options for widget reports.",
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReportingMenuResponse"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "parameters": [
-                    {
-                        "name": "variant",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Version variant of the menu to retrieve (max 256 characters, default active)"
-                    }
-                ],
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
         "/reporting/widget": {
             "post": {
                 "security": [
@@ -38983,6 +38593,65 @@
                         "description": "No description available"
                     }
                 },
+                "tags": [
+                    "reporting"
+                ]
+            }
+        },
+        "/reporting/menu/{type}": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Get reporting menu options for the requested report type.",
+                "summary": "Get Report Menu",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportingMenuResponse"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "type"
+                    },
+                    {
+                        "name": "variant",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Version variant of the menu to retrieve (max 256 characters, default latest)"
+                    }
+                ],
                 "tags": [
                     "reporting"
                 ]

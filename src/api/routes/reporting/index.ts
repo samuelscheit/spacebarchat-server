@@ -60,9 +60,38 @@ function getReportMenuType(type: string): ReportMenuType {
     return reportType;
 }
 
+function getReportMenuPath(type: string): string {
+    getReportMenuType(type);
+    return path.join(reportMenuDirectory, `${type}.json`);
+}
+
 function loadReportMenu(type: string): ReportingMenuResponse {
-    const menuPath = path.join(reportMenuDirectory, `${type}.json`);
-    return JSON.parse(fs.readFileSync(menuPath, "utf-8")) as ReportingMenuResponse;
+    return JSON.parse(fs.readFileSync(getReportMenuPath(type), "utf-8")) as ReportingMenuResponse;
+}
+
+function getReportMenuVariant(query: Request["query"]): string | undefined {
+    const variant = query.variant;
+    if (variant === undefined) return undefined;
+
+    if (typeof variant !== "string") {
+        throw FieldErrors({
+            variant: {
+                message: "Query parameter variant must be a string.",
+                code: "BASE_TYPE_REQUIRED",
+            },
+        });
+    }
+
+    if (variant.length > 256) {
+        throw FieldErrors({
+            variant: {
+                message: "Query parameter variant must be 256 characters or fewer.",
+                code: "BASE_TYPE_MAX_LENGTH",
+            },
+        });
+    }
+
+    return variant;
 }
 
 function assertRequiredFields(obj: CreateReportSchema, fields: (keyof CreateReportSchema)[]) {
@@ -249,26 +278,6 @@ router.get(
 );
 
 for (const type of Object.values(ReportMenuTypeNames)) {
-    router.get(
-        `/menu/${type}`,
-        route({
-            description: `Get reporting menu options for ${type} reports.`,
-            query: {
-                variant: { type: "string", required: false, description: "Version variant of the menu to retrieve (max 256 characters, default active)" },
-            },
-            responses: {
-                200: {
-                    body: "ReportingMenuResponse",
-                },
-                204: {},
-            },
-            spacebarOnly: false, // Maps to /reporting/menu/:id
-        }),
-        (req: Request, res: Response) => {
-            res.sendFile(path.join(reportMenuDirectory, `${type}.json`));
-        },
-    );
-    if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/menu/${type} registered (reports).`);
     router.post(
         `/${type}`,
         route({
@@ -286,4 +295,36 @@ for (const type of Object.values(ReportMenuTypeNames)) {
     );
     if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/${type} registered (reports).`);
 }
+
+router.get(
+    "/menu/:type",
+    route({
+        summary: "Get Report Menu",
+        description: "Get reporting menu options for the requested report type.",
+        query: {
+            variant: { type: "string", required: false, description: "Version variant of the menu to retrieve (max 256 characters, default latest)" },
+        },
+        responses: {
+            200: {
+                body: "ReportingMenuResponse",
+            },
+            204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+        },
+        spacebarOnly: false,
+    }),
+    (req: Request, res: Response) => {
+        const type = req.params.type;
+        if (Array.isArray(type)) throw new HTTPError("Unknown report menu type", 400);
+
+        const menu = loadReportMenu(type);
+        const variant = getReportMenuVariant(req.query);
+        if (variant && variant !== menu.variant) return res.status(204).send();
+
+        res.status(200).json(menu);
+    },
+);
+if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /reporting/menu/:type registered (reports).");
 export default router;

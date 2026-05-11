@@ -9,6 +9,7 @@ import path from "node:path";
 import express from "express";
 import reportingRouter, { validateCreateReport } from "../../routes/reporting/index";
 import { CreateReportSchema, ReportingMenuResponse } from "@spacebar/schemas";
+import { ErrorHandler } from "../../middlewares";
 
 function readMenu(type: string): ReportingMenuResponse {
     return JSON.parse(fs.readFileSync(path.join(process.cwd(), "assets", "temp_report_menu_responses", `${type}.json`), "utf-8")) as ReportingMenuResponse;
@@ -83,6 +84,70 @@ async function postMessageReport(body: CreateReportSchema) {
         });
     }
 }
+
+async function getReportingMenu(pathname: string) {
+    const app = express();
+    app.use("/", reportingRouter);
+    app.use(ErrorHandler);
+
+    const server = http.createServer(app);
+    await new Promise<void>((resolve) => {
+        server.listen(0, "127.0.0.1", () => resolve());
+    });
+
+    const address = server.address();
+    if (!address || typeof address === "string") throw new Error("Expected HTTP server to listen on a TCP port");
+    const port = (address as AddressInfo).port;
+
+    try {
+        const response = await fetch(`http://127.0.0.1:${port}${pathname}`);
+        const text = await response.text();
+
+        return {
+            response,
+            body: text ? (JSON.parse(text) as unknown) : null,
+            text,
+        };
+    } finally {
+        await new Promise<void>((resolve, reject) => {
+            server.close((error) => (error ? reject(error) : resolve()));
+        });
+    }
+}
+
+describe("GET /reporting/menu/:type", () => {
+    test("returns the requested report menu from the parameterized route", async () => {
+        const expectedMenu = readMenu("message");
+        const { response, body } = await getReportingMenu("/menu/message");
+
+        assert.equal(response.status, 200);
+        assert.match(response.headers.get("content-type") ?? "", /^application\/json\b/);
+        assert.deepEqual(body, expectedMenu);
+    });
+
+    test("returns no content when the requested variant is unavailable", async () => {
+        const { response, text } = await getReportingMenu("/menu/message?variant=missing");
+
+        assert.equal(response.status, 204);
+        assert.equal(text, "");
+    });
+
+    test("rejects unknown report menu types before building a file path", async () => {
+        const { response, body } = await getReportingMenu("/menu/not_a_report_type");
+
+        assert.equal(response.status, 400);
+        assert.equal((body as { code?: number }).code, 400);
+        assert.match((body as { message?: string }).message ?? "", /Unknown report menu type/);
+    });
+
+    test("rejects non-string variant query values", async () => {
+        const { response, body } = await getReportingMenu("/menu/message?variant=1&variant=2");
+
+        assert.equal(response.status, 400);
+        assert.equal((body as { code?: number }).code, 50035);
+        assert.equal((body as { errors?: Record<string, { _errors?: { code: string }[] }> }).errors?.variant?._errors?.[0]?.code, "BASE_TYPE_REQUIRED");
+    });
+});
 
 describe("validateCreateReport", () => {
     test("accepts a report payload matching the served menu", () => {

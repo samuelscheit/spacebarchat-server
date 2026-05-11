@@ -1,6 +1,6 @@
 {
-    "missing": 670,
-    "spacebar": 510,
+    "missing": 669,
+    "spacebar": 511,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -301,7 +301,6 @@
         "/quests/{param}/reward-code",
         "/quests/{param}/video-progress",
         "/report",
-        "/reporting/menu/{param}",
         "/reporting/review",
         "/reporting/unauthenticated/experiment",
         "/reporting/unauthenticated/menu/{param}",
@@ -1809,14 +1808,6 @@
             "route_name": "QUEST_FETCH_QUEST_TO_DELIVER",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/quests/decision?placement=:param&client_heartbeat_session_id=:param"]
-        },
-        {
-            "method": "GET",
-            "route": "/reporting/menu/{param}",
-            "route_name": "GET_REPORTING_MENU_TYPE",
-            "sources": ["userdoccers:topics/reports.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/reporting/menu/{type}"],
-            "summaries": ["Get Report Menu"]
         },
         {
             "method": "GET",

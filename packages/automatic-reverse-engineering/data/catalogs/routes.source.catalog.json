@@ -3583,11 +3583,20 @@
 		"method": "GET",
 		"request_schema_ref": "CreateReportSchema",
 		"response_schema_refs": [
-			"ReportingMenuResponse",
 			"ReportingMenuTypesResponse"
 		],
 		"route": "/reporting",
 		"route_name": "GET_REPORTING",
+		"source": "src/api/routes/reporting/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ReportingMenuResponse"
+		],
+		"route": "/reporting/menu/{type}",
+		"route_name": "GET_REPORTING_MENU_TYPE",
 		"source": "src/api/routes/reporting/index.ts"
 	},
 	{

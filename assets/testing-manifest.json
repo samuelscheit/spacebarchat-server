@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 615,
+        "totalEntries": 616,
         "byService": {
-            "api": 518,
+            "api": 519,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 590,
+            "http-route": 591,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 137,
+            "contract": 138,
             "stateful-domain": 334,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 473,
+            "route-class": 474,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -17210,7 +17210,7 @@
             "method": "GET",
             "path": "/reporting/",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 236,
+            "line": 265,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -17238,13 +17238,50 @@
             }
         },
         {
+            "id": "api:http:GET:/reporting/menu/:type",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/reporting/menu/:type",
+            "sourceFile": "src/api/routes/reporting/index.ts",
+            "line": 299,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ReportingMenuResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    204,
+                    400
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/reporting/unauthenticated/capabilities",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/reporting/unauthenticated/capabilities",
             "sourceFile": "src/api/routes/reporting/index.ts",
-            "line": 219,
+            "line": 248,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
