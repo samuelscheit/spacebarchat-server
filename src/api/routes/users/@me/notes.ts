@@ -23,6 +23,39 @@ import { Request, Response, Router } from "express";
 const router: Router = Router({ mergeParams: true });
 
 router.get(
+    "/",
+    route({
+        responses: {
+            200: {
+                body: "UserNotesResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const notes = await Note.find({
+            where: {
+                owner: { id: req.user_id },
+            },
+            relations: {
+                target: true,
+            },
+        });
+
+        const response = notes
+            .sort((a, b) => a.target.id.localeCompare(b.target.id))
+            .reduce<Record<string, string>>((result, note) => {
+                result[note.target.id] = note.content;
+                return result;
+            }, {});
+
+        return res.json(response);
+    },
+);
+
+router.get(
     "/:user_id",
     route({
         responses: {

@@ -21,3 +21,7 @@ export interface UserNoteResponse {
     note_user_id: string;
     user_id: string;
 }
+
+export interface UserNotesResponse {
+    [user_id: string]: string;
+}

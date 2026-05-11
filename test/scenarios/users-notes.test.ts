@@ -9,7 +9,7 @@ import { createDisposablePostgresDatabase, hasPostgresAdminUrl } from "../fixtur
 import { captureEvents } from "../fixtures/events";
 import { startApi } from "../server/startApi";
 
-const coveredManifestIds = ["api:http:GET:/users/@me/notes/:user_id", "api:http:PUT:/users/@me/notes/:user_id"];
+const coveredManifestIds = ["api:http:GET:/users/@me/notes/", "api:http:GET:/users/@me/notes/:user_id", "api:http:PUT:/users/@me/notes/:user_id"];
 
 test(
     "user notes upsert, fetch, update, and delete persist state and emit note events",
@@ -18,7 +18,7 @@ test(
         timeout: 180_000,
     },
     async () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:GET:/users/@me/notes/:user_id", "api:http:PUT:/users/@me/notes/:user_id"]);
+        assert.deepEqual(coveredManifestIds, ["api:http:GET:/users/@me/notes/", "api:http:GET:/users/@me/notes/:user_id", "api:http:PUT:/users/@me/notes/:user_id"]);
 
         const database = await createDisposablePostgresDatabase({ prefix: "spacebar_users_notes" });
         const tempCwd = await mkdtemp(path.join(tmpdir(), "spacebar-users-notes-"));
@@ -52,6 +52,10 @@ test(
             assert.ok(token, "token generation should return a bearer token");
             noteEvents = await captureEvents(owner.id);
 
+            const emptyNotes = await getJson(`${api.apiBaseUrl}/users/@me/notes`, token);
+            await assertStatus(emptyNotes, 200);
+            assert.deepEqual(await assertJsonObject(emptyNotes), {});
+
             await assertJsonError(await getJson(`${api.apiBaseUrl}/users/@me/notes/${target.id}`, token), 404);
 
             const createdNote = "first scenario note";
@@ -60,6 +64,12 @@ test(
             assert.equal(createEvent.data.note, createdNote);
             const persistedCreatedNote = await Note.findOneOrFail({ where: { owner: { id: owner.id }, target: { id: target.id } } });
             assert.equal(persistedCreatedNote.content, createdNote);
+
+            const createdNotes = await getJson(`${api.apiBaseUrl}/users/@me/notes`, token);
+            await assertStatus(createdNotes, 200);
+            assert.deepEqual(await assertJsonObject(createdNotes), {
+                [target.id]: createdNote,
+            });
 
             const fetchedNote = await getJson(`${api.apiBaseUrl}/users/@me/notes/${target.id}`, token);
             await assertStatus(fetchedNote, 200);
@@ -85,6 +95,9 @@ test(
             );
             assert.equal(deleteEvent.data.note, "");
             assert.equal(await Note.countBy({ owner: { id: owner.id }, target: { id: target.id } }), 0);
+            const deletedNotes = await getJson(`${api.apiBaseUrl}/users/@me/notes`, token);
+            await assertStatus(deletedNotes, 200);
+            assert.deepEqual(await assertJsonObject(deletedNotes), {});
             await assertJsonError(await getJson(`${api.apiBaseUrl}/users/@me/notes/${target.id}`, token), 404);
         } finally {
             if (noteEvents) await noteEvents.stop();

@@ -1,6 +1,6 @@
 {
-    "missing": 628,
-    "spacebar": 552,
+    "missing": 627,
+    "spacebar": 553,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -435,7 +435,6 @@
         "/users/@me/mfa/sms/disable",
         "/users/@me/mfa/sms/enable",
         "/users/@me/mfa/webauthn/credentials/{param}",
-        "/users/@me/notes",
         "/users/@me/notification-center/items/bulk-ack",
         "/users/@me/notification-center/items/{param}",
         "/users/@me/notification-center/items/{param}/ack",
@@ -1979,13 +1978,6 @@
             "route_name": "GET_USERS__ME_MESSAGE_REQUESTS_SUPPLEMENTAL_DATA",
             "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Supplemental Message Request Data"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/notes",
-            "route_name": "GET_USERS__ME_NOTES",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Notes"]
         },
         {
             "method": "GET",

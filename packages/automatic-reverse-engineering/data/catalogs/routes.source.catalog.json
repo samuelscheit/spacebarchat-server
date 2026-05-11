@@ -4863,6 +4863,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"UserNotesResponse"
+		],
+		"route": "/users/@me/notes",
+		"route_name": "GET_USERS__ME_NOTES",
+		"source": "src/api/routes/users/@me/notes.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"UserNoteResponse"
 		],
 		"route": "/users/@me/notes/{user_id}",

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 513,
+        "totalCoveredManifestEntries": 514,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 491,
-                "totalCoveredManifestEntries": 491,
-                "totalCoveredRequiredManifestEntries": 491,
+                "totalRequiredManifestEntries": 492,
+                "totalCoveredManifestEntries": 492,
+                "totalCoveredRequiredManifestEntries": 492,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 351,
+            "stateful-domain": 352,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 491,
-                "totalCoveredManifestEntries": 491,
-                "totalCoveredRequiredManifestEntries": 491,
+                "totalRequiredManifestEntries": 492,
+                "totalCoveredManifestEntries": 492,
+                "totalCoveredRequiredManifestEntries": 492,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -330,6 +330,7 @@
                 "api:http:GET:/users/@me/library/",
                 "api:http:GET:/users/@me/linked-connections/",
                 "api:http:GET:/users/@me/mfa/webauthn/credentials/",
+                "api:http:GET:/users/@me/notes/",
                 "api:http:GET:/users/@me/notes/:user_id",
                 "api:http:GET:/users/@me/notification-center/items/",
                 "api:http:GET:/users/@me/pomelo-suggestions/",
@@ -823,6 +824,7 @@
                 "api:http:GET:/users/@me/library/",
                 "api:http:GET:/users/@me/linked-connections/",
                 "api:http:GET:/users/@me/mfa/webauthn/credentials/",
+                "api:http:GET:/users/@me/notes/",
                 "api:http:GET:/users/@me/notes/:user_id",
                 "api:http:GET:/users/@me/notification-center/items/",
                 "api:http:GET:/users/@me/pomelo-suggestions/",
@@ -1163,6 +1165,7 @@
                         "api:http:GET:/users/@me/library/",
                         "api:http:GET:/users/@me/linked-connections/",
                         "api:http:GET:/users/@me/mfa/webauthn/credentials/",
+                        "api:http:GET:/users/@me/notes/",
                         "api:http:GET:/users/@me/notes/:user_id",
                         "api:http:GET:/users/@me/notification-center/items/",
                         "api:http:GET:/users/@me/pomelo-suggestions/",

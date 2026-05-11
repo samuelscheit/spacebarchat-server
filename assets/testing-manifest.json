@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 657,
+        "totalEntries": 658,
         "byService": {
-            "api": 560,
+            "api": 561,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 632,
+            "http-route": 633,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 155,
-            "stateful-domain": 351,
+            "stateful-domain": 352,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 22,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 515,
+            "route-class": 516,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -22475,7 +22475,7 @@
             "method": "GET",
             "path": "/users/@me/notes/:user_id",
             "sourceFile": "src/api/routes/users/@me/notes.ts",
-            "line": 25,
+            "line": 58,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -22515,7 +22515,7 @@
             "method": "PUT",
             "path": "/users/@me/notes/:user_id",
             "sourceFile": "src/api/routes/users/@me/notes.ts",
-            "line": 55,
+            "line": 88,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -22531,6 +22531,46 @@
                 "emittedEvents": [
                     "USER_NOTE_UPDATE"
                 ]
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/notes/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/notes/",
+            "sourceFile": "src/api/routes/users/@me/notes.ts",
+            "line": 25,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UserNotesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-user-state",

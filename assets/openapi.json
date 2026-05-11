@@ -12195,6 +12195,12 @@
                     "user_id"
                 ]
             },
+            "UserNotesResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
             "UserProfileEffectsResponse": {
                 "type": "object",
                 "properties": {
@@ -35793,6 +35799,40 @@
                         "description": "Max number of notification center items to return, from 1 to 100."
                     }
                 ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/notes/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserNotesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "users"
                 ]
