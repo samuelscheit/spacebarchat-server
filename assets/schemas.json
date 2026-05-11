@@ -6760,6 +6760,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildEngagementVoiceChannelsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildEngagementVoiceChannelBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPreviewResponse": {
         "type": "object",
         "properties": {
@@ -23603,6 +23610,48 @@
         "additionalProperties": false,
         "required": [
             "channel_id",
+            "communicators",
+            "day_pt",
+            "messages_sent",
+            "participators"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildEngagementVoiceChannelBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "channel_name": {
+                "type": "string"
+            },
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "participators": {
+                "type": "integer"
+            },
+            "communicators": {
+                "type": "integer"
+            },
+            "messages_sent": {
+                "type": "integer"
+            },
+            "pct_participated_in_channel": {
+                "description": "Discord documents channel participation percentages as floats.",
+                "type": "number"
+            },
+            "pct_communicated_in_channel": {
+                "description": "Discord documents channel participation percentages as floats.",
+                "type": "number"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "channel_name",
             "communicators",
             "day_pt",
             "messages_sent",

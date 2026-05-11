@@ -17,26 +17,23 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 */
 
 import { route } from "@spacebar/api";
-import type { GuildEngagementBaseResponse } from "@spacebar/schemas";
+import type { GuildEngagementVoiceChannelsResponse } from "@spacebar/schemas";
 import { Guild } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { parseGuildAnalyticsInsightsQuery } from "./query";
 
 const router: Router = Router({ mergeParams: true });
 
-export { parseGuildAnalyticsInsightsQuery as parseGuildEngagementBaseQuery } from "./query";
-export type { GuildAnalyticsAggregationInterval, GuildAnalyticsInsightsQuery as GuildEngagementBaseQuery } from "./query";
-
-export function createGuildEngagementBaseResponse(): GuildEngagementBaseResponse {
-    // Spacebar does not persist Discord's guild engagement analytics buckets yet.
+export function createGuildEngagementVoiceChannelsResponse(): GuildEngagementVoiceChannelsResponse {
+    // Spacebar does not persist Discord's per-voice-channel engagement analytics buckets yet.
     return [];
 }
 
 router.get(
     "/",
     route({
-        summary: "Get Guild Engagement Base",
-        description: "Returns base guild engagement analytics buckets for the requested aggregation interval.",
+        summary: "Get Guild Engagement Voice Channels",
+        description: "Returns voice channel engagement analytics buckets for the requested aggregation interval.",
         permission: "VIEW_GUILD_INSIGHTS",
         query: {
             start: {
@@ -55,7 +52,7 @@ router.get(
         },
         responses: {
             200: {
-                body: "GuildEngagementBaseResponse",
+                body: "GuildEngagementVoiceChannelsResponse",
             },
             401: {
                 body: "APIErrorResponse",
@@ -80,7 +77,7 @@ router.get(
             select: { id: true },
         });
 
-        return res.json(createGuildEngagementBaseResponse());
+        return res.json(createGuildEngagementVoiceChannelsResponse());
     },
 );
 

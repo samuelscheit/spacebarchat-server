@@ -86,6 +86,7 @@ export * from "./GuildDiscoveryRequirements";
 export * from "./GuildEngagementBaseResponse";
 export * from "./GuildEngagementMutersResponse";
 export * from "./GuildEngagementTextChannelsResponse";
+export * from "./GuildEngagementVoiceChannelsResponse";
 export * from "./GuildPreviewResponse";
 export * from "./GravityCustomChannelScoresResponse";
 export * from "./GravityRecommendedGuildsResponse";

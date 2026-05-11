@@ -1,6 +1,6 @@
 {
-    "missing": 702,
-    "spacebar": 478,
+    "missing": 701,
+    "spacebar": 479,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -141,7 +141,6 @@
         "/guilds/{param}/analytics/channel-following/reach",
         "/guilds/{param}/analytics/engagement/overview",
         "/guilds/{param}/analytics/engagement/pruneable-members",
-        "/guilds/{param}/analytics/engagement/voice-channels",
         "/guilds/{param}/analytics/growth-activation/activation",
         "/guilds/{param}/analytics/growth-activation/joins",
         "/guilds/{param}/analytics/growth-activation/joins-by-invite-link",
@@ -1445,14 +1444,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx"],
             "source_routes": ["/guilds/{guild_id}/analytics/engagement/pruneable-members"],
             "summaries": ["Get Guild Engagement Pruneable Members"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/engagement/voice-channels",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_ENGAGEMENT_VOICE_CHANNELS",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/engagement/voice-channels"],
-            "summaries": ["Get Guild Engagement Voice Channels"]
         },
         {
             "method": "GET",
