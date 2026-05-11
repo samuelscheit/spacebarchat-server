@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 568,
+        "totalEntries": 569,
         "byService": {
-            "api": 471,
+            "api": 472,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 543,
+            "http-route": 544,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 121,
-            "stateful-domain": 303,
+            "stateful-domain": 304,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 15,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 426,
+            "route-class": 427,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -9548,6 +9548,58 @@
                     "CHANNEL_CREATE",
                     "GUILD_UPDATE"
                 ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "coverage": {
+                "policyId": "api-guild-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "members",
+                    "roles",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/analytics/audience/new-members-by-discord-tenure.ts",
+            "line": 30,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_GUILD_INSIGHTS",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GuildAudienceNewMembersByDiscordTenureResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": true
             },
             "rateLimit": {
                 "group": "guild",

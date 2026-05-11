@@ -2010,6 +2010,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildAudienceNewMembersByDiscordTenureResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/audience/new-members-by-discord-tenure",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_AUDIENCE_NEW_MEMBERS_BY_DISCORD_TENURE",
+		"source": "src/api/routes/guilds/#guild_id/analytics/audience/new-members-by-discord-tenure.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/application-command-index",
 		"route_name": "GET_GUILDS_GUILD_ID_APPLICATION_COMMAND_INDEX",

@@ -1,6 +1,6 @@
 {
-    "missing": 717,
-    "spacebar": 463,
+    "missing": 716,
+    "spacebar": 464,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -138,7 +138,6 @@
         "/guilds/{param}/ack/{param}/{param}",
         "/guilds/{param}/active-channels",
         "/guilds/{param}/admin-server-eligibility",
-        "/guilds/{param}/analytics/audience/new-members-by-discord-tenure",
         "/guilds/{param}/analytics/audience/participators-by-guild-tenure",
         "/guilds/{param}/analytics/audience/participators-by-platform",
         "/guilds/{param}/analytics/audience/participators-by-reg-country",
@@ -1433,14 +1432,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/admin-server-eligibility"],
             "summaries": ["Get Admin Community Eligibility"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/audience/new-members-by-discord-tenure",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_AUDIENCE_NEW_MEMBERS_BY_DISCORD_TENURE",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/audience/new-members-by-discord-tenure"],
-            "summaries": ["Get Guild Audience New Members by Discord Tenure"]
         },
         {
             "method": "GET",

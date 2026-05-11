@@ -71,6 +71,7 @@ export * from "./GameServerRegionsResponse";
 export * from "./GatewayResponse";
 export * from "./GenerateRegistrationTokensResponse";
 export * from "./GiftCodeResponse";
+export * from "./GuildAudienceNewMembersByDiscordTenureResponse";
 export * from "./GuildBasicResponse";
 export * from "./GuildBansResponse";
 export * from "./GuildCreateResponse";

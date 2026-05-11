@@ -5060,6 +5060,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildAudienceNewMembersByDiscordTenureResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildAudienceNewMembersByDiscordTenureBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildBasicResponse": {
         "type": "object",
         "properties": {
@@ -23151,6 +23158,27 @@
                     "boolean"
                 ]
             }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildAudienceNewMembersByDiscordTenureBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "tenure": {
+                "type": "string"
+            },
+            "new_members": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "new_members",
+            "tenure"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
