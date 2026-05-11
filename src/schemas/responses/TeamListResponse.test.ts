@@ -39,11 +39,16 @@ function readAssetJson<T>(name: string): T {
 test("TeamListResponse schema describes the teams route DTO instead of the Team entity", () => {
     const schemas = readAssetJson<Record<string, JsonShape>>("schemas.json");
     const teamListResponse = schemas.TeamListResponse;
+    const teamResponse = schemas.TeamResponse;
     const team = schemas.TeamListTeam;
     const member = schemas.TeamListTeamMember;
     assert.ok(team.properties?.members.items);
     assert.ok(member.properties);
 
+    assert.equal(teamResponse.type, "object");
+    assert.equal(teamResponse.properties?.owner_user, undefined);
+    assert.equal(teamResponse.properties?.members.items.$ref, "#/definitions/TeamListTeamMember");
+    assert.deepEqual(teamResponse.required, ["id", "members", "name", "owner_user_id"]);
     assert.equal(teamListResponse.type, "array");
     assert.equal(teamListResponse.items?.$ref, "#/definitions/TeamListTeam");
     assert.notEqual(teamListResponse.items?.$ref, "#/definitions/Team");
@@ -56,7 +61,7 @@ test("TeamListResponse schema describes the teams route DTO instead of the Team 
     assert.deepEqual(member.required, ["id", "membership_state", "permissions", "role", "team_id", "user_id"]);
 });
 
-test("TeamListResponse remains wired to GET /teams/ in OpenAPI", () => {
+test("Team responses remain wired to the teams routes in OpenAPI", () => {
     const openapi = readAssetJson<{
         components: { schemas: Record<string, JsonShape> };
         paths: Record<
@@ -69,6 +74,9 @@ test("TeamListResponse remains wired to GET /teams/ in OpenAPI", () => {
         >;
     }>("openapi.json");
 
+    assert.deepEqual(openapi.paths["/teams/{team_id}/"].get.responses["200"].content["application/json"].schema, { $ref: "#/components/schemas/TeamResponse" });
+    assert.equal(openapi.components.schemas.TeamResponse.properties?.owner_user, undefined);
+    assert.equal(openapi.components.schemas.TeamResponse.properties?.members.items.$ref, "#/components/schemas/TeamListTeamMember");
     assert.deepEqual(openapi.paths["/teams/"].get.responses["200"].content["application/json"].schema, { $ref: "#/components/schemas/TeamListResponse" });
     assert.equal(openapi.components.schemas.TeamListResponse.items?.$ref, "#/components/schemas/TeamListTeam");
     assert.notEqual(openapi.components.schemas.TeamListResponse.items?.$ref, "#/components/schemas/Team");

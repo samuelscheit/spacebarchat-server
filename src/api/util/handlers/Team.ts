@@ -16,12 +16,13 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { type TeamListResponse, type TeamListTeamMember } from "@spacebar/schemas";
+import { type TeamListResponse, type TeamListTeamMember, type TeamResponse } from "@spacebar/schemas";
 import { type Team, type TeamMember } from "@spacebar/util";
 
 type TeamListSerializableMember = Pick<TeamMember, "id" | "membership_state" | "permissions" | "role" | "team_id" | "user_id">;
 
-type TeamListSerializableTeam = Pick<Team, "id" | "icon" | "name" | "owner_user_id"> & {
+type TeamListSerializableTeam = Pick<Team, "id" | "name" | "owner_user_id"> & {
+    icon?: string | null;
     members: TeamListSerializableMember[];
 };
 
@@ -36,12 +37,16 @@ function serializeTeamListMember(member: TeamListSerializableMember): TeamListTe
     };
 }
 
-export function serializeTeamListResponse(teams: TeamListSerializableTeam[]): TeamListResponse {
-    return teams.map((team) => ({
+export function serializeTeamResponse(team: TeamListSerializableTeam): TeamResponse {
+    return {
         id: team.id,
         icon: team.icon ?? null,
         members: team.members.map(serializeTeamListMember),
         name: team.name,
         owner_user_id: team.owner_user_id,
-    }));
+    };
+}
+
+export function serializeTeamListResponse(teams: TeamListSerializableTeam[]): TeamListResponse {
+    return teams.map(serializeTeamResponse);
 }

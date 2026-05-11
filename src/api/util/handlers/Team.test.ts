@@ -19,7 +19,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { TeamMemberRole, TeamMemberState } from "../../../schemas/api/developers/Team";
-import { serializeTeamListResponse } from "./Team";
+import { serializeTeamListResponse, serializeTeamResponse } from "./Team";
 
 test("serializeTeamListResponse returns the GET /teams/ DTO without unloaded relations", () => {
     const teamsWithRelations = [
@@ -64,4 +64,43 @@ test("serializeTeamListResponse returns the GET /teams/ DTO without unloaded rel
             owner_user_id: "200",
         },
     ]);
+});
+
+test("serializeTeamResponse returns the GET /teams/:team_id DTO without unloaded relations", () => {
+    const teamWithRelations = {
+        id: "100",
+        icon: "team-icon",
+        members: [
+            {
+                id: "101",
+                membership_state: TeamMemberState.ACCEPTED,
+                permissions: ["*"],
+                role: TeamMemberRole.ADMIN,
+                team: { id: "100" },
+                team_id: "100",
+                user: { id: "200" },
+                user_id: "200",
+            },
+        ],
+        name: "Example Team",
+        owner_user: { id: "200" },
+        owner_user_id: "200",
+    } as unknown as Parameters<typeof serializeTeamResponse>[0];
+
+    assert.deepEqual(serializeTeamResponse(teamWithRelations), {
+        id: "100",
+        icon: "team-icon",
+        members: [
+            {
+                id: "101",
+                membership_state: TeamMemberState.ACCEPTED,
+                permissions: ["*"],
+                role: TeamMemberRole.ADMIN,
+                team_id: "100",
+                user_id: "200",
+            },
+        ],
+        name: "Example Team",
+        owner_user_id: "200",
+    });
 });

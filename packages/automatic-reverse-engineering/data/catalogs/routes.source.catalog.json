@@ -4042,6 +4042,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"TeamResponse"
+		],
+		"route": "/teams/{team_id}",
+		"route_name": "GET_TEAMS_TEAM_ID",
+		"source": "src/api/routes/teams/#team_id/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIApplicationArray",
 			"APIErrorResponse"
 		],

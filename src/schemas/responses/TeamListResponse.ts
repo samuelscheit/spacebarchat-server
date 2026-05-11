@@ -35,4 +35,5 @@ export interface TeamListTeam {
     owner_user_id: string;
 }
 
+export type TeamResponse = TeamListTeam;
 export type TeamListResponse = TeamListTeam[];

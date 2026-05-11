@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 633,
+        "totalEntries": 634,
         "byService": {
-            "api": 536,
+            "api": 537,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 608,
+            "http-route": 609,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 144,
+            "contract": 145,
             "stateful-domain": 339,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 491,
+            "route-class": 492,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18945,6 +18945,44 @@
                     200,
                     400,
                     401
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/teams/:team_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/teams/:team_id/",
+            "sourceFile": "src/api/routes/teams/#team_id/index.ts",
+            "line": 82,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "TeamResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
                 ],
                 "hasQuery": true
             },
