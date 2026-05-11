@@ -96,6 +96,7 @@ export * from "./GuildEngagementTextChannelsResponse";
 export * from "./GuildEngagementVoiceChannelsResponse";
 export * from "./GuildGrowthActivationActivationResponse";
 export * from "./GuildGrowthActivationJoinsByInviteLinkResponse";
+export * from "./GuildGrowthActivationJoinsByReferrerResponse";
 export * from "./GuildPreviewResponse";
 export * from "./GuildWelcomeScreenFunnelResponse";
 export * from "./GravityCustomChannelScoresResponse";
