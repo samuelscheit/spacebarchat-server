@@ -24,13 +24,31 @@ import { join } from "node:path";
 import { describe, test } from "node:test";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "@spacebar/api";
 import express from "express";
-import socialSDKReleasesRouter, { getSocialSDKReleases } from "../../src/api/routes/social-sdk/releases";
+import socialSDKReleasesRouter, {
+    UNKNOWN_SOCIAL_SDK_RELEASE,
+    createSocialSDKReleasesRouter,
+    getSocialSDKRelease,
+    getSocialSDKReleases,
+} from "../../src/api/routes/social-sdk/releases";
 
-const coveredManifestId = "api:http:GET:/social-sdk/releases/";
+const collectionManifestId = "api:http:GET:/social-sdk/releases/";
+const detailManifestId = "api:http:GET:/social-sdk/releases/:sdk_release_version";
+const sdkRelease = {
+    version: "1.2.8730",
+    release_date_time: "2025-05-08T12:00:00+00:00",
+    artifacts: [
+        {
+            download_url: "https://example.invalid/social-sdk-1.2.8730.zip",
+            filename: "social-sdk-1.2.8730.zip",
+            size_bytes: 12345,
+        },
+    ],
+};
 
 describe("GET /social-sdk/releases", () => {
     test("declares the assigned manifest route id", () => {
-        assert.equal(coveredManifestId, "api:http:GET:/social-sdk/releases/");
+        assert.equal(collectionManifestId, "api:http:GET:/social-sdk/releases/");
+        assert.equal(detailManifestId, "api:http:GET:/social-sdk/releases/:sdk_release_version");
     });
 
     test("returns a conservative empty Social SDK release catalog", () => {
@@ -39,6 +57,25 @@ describe("GET /social-sdk/releases", () => {
             latest_version: "",
         });
         assert.notEqual(getSocialSDKReleases().releases, getSocialSDKReleases().releases, "callers should receive a fresh releases array");
+        assert.equal(getSocialSDKRelease("1.2.8730"), null);
+    });
+
+    test("maps provider-backed release data into list and detail response shapes", () => {
+        const catalogProvider = () => ({
+            releases: [sdkRelease],
+            latest_version: sdkRelease.version,
+        });
+
+        assert.deepEqual(getSocialSDKReleases(catalogProvider), {
+            releases: [
+                {
+                    version: sdkRelease.version,
+                    release_date_time: sdkRelease.release_date_time,
+                },
+            ],
+            latest_version: sdkRelease.version,
+        });
+        assert.deepEqual(getSocialSDKRelease(sdkRelease.version, catalogProvider), sdkRelease);
     });
 
     test("returns the documented empty response for authenticated requests", async () => {
@@ -52,15 +89,45 @@ describe("GET /social-sdk/releases", () => {
         assert.match(response.headers.get("content-type") ?? "", /^application\/json\b/);
     });
 
+    test("returns a provider-backed release detail for authenticated requests", async () => {
+        const response = await requestJson(
+            createAuthenticatedRouteApp(
+                createSocialSDKReleasesRouter(() => ({
+                    releases: [sdkRelease],
+                    latest_version: sdkRelease.version,
+                })),
+            ),
+            `/social-sdk/releases/${sdkRelease.version}`,
+        );
+
+        assert.equal(response.status, 200);
+        assert.deepEqual(response.body, sdkRelease);
+        assert.match(response.headers.get("content-type") ?? "", /^application\/json\b/);
+    });
+
+    test("returns 404 instead of fabricated release metadata without durable release storage", async () => {
+        const response = await requestJson(createAuthenticatedRouteApp(), "/social-sdk/releases/1.2.8730");
+
+        assert.equal(response.status, 404);
+        assert.deepEqual(response.body, {
+            code: UNKNOWN_SOCIAL_SDK_RELEASE.code,
+            message: UNKNOWN_SOCIAL_SDK_RELEASE.message,
+        });
+    });
+
     test("stays behind bearer authentication", async () => {
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/social-sdk/releases"), false);
         assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/social-sdk/releases/"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/social-sdk/releases/1.2.8730"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v10/social-sdk/releases"), false);
 
         const response = await requestJson(createAuthenticationBoundaryApp(), "/social-sdk/releases");
+        const detailResponse = await requestJson(createAuthenticationBoundaryApp(), "/social-sdk/releases/1.2.8730");
 
         assert.equal(response.status, 401);
         assert.equal((response.body as { code?: unknown }).code, 401);
+        assert.equal(detailResponse.status, 401);
+        assert.equal((detailResponse.body as { code?: unknown }).code, 401);
     });
 
     test("declares source-backed route metadata", () => {
@@ -71,6 +138,11 @@ describe("GET /social-sdk/releases", () => {
         assert.match(routeSource, /description:\s*"Returns the currently available social SDK releases\."/);
         assert.match(routeSource, /200:\s*\{\s*body:\s*"SocialSDKReleasesResponse"/s);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(routeSource, /router\.get\(\s*"\/:sdk_release_version"/);
+        assert.match(routeSource, /summary:\s*"Get Social SDK Release"/);
+        assert.match(routeSource, /description:\s*"Returns a social SDK release object for the given version\."/);
+        assert.match(routeSource, /200:\s*\{\s*body:\s*"SocialSDKRelease"/s);
+        assert.match(routeSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
     });
 
     test("generates schema, source catalog, OpenAPI, manifest, and contract artifacts", () => {
@@ -81,6 +153,7 @@ describe("GET /social-sdk/releases", () => {
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as OpenApiDocument;
         const manifest = JSON.parse(readFileSync(join(process.cwd(), "assets", "testing-manifest.json"), "utf8")) as TestingManifest;
         const contracts = JSON.parse(readFileSync(join(process.cwd(), "test", "generated", "http-contracts.json"), "utf8")) as ContractMatrix;
+        const missingRoutes = JSON.parse(readFileSync(join(process.cwd(), "packages", "missing-routes", "missing.json"), "utf8")) as MissingRouteReport;
 
         const responseSchema = schemas.SocialSDKReleasesResponse;
         assert.deepEqual(responseSchema.required?.sort(), ["latest_version", "releases"]);
@@ -105,12 +178,33 @@ describe("GET /social-sdk/releases", () => {
         assert.equal(catalogEntry?.source, "src/api/routes/social-sdk/releases.ts");
         assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "SocialSDKReleasesResponse"]);
 
-        const route = openapi.paths?.["/social-sdk/releases/"]?.get;
-        assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/SocialSDKReleasesResponse");
-        assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.deepEqual(route?.security, [{ bearer: [] }]);
+        const detailCatalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/social-sdk/releases/{sdk_release_version}");
+        assert.equal(detailCatalogEntry?.route_name, "GET_SOCIAL_SDK_RELEASES_SDK_RELEASE_VERSION");
+        assert.equal(detailCatalogEntry?.source, "src/api/routes/social-sdk/releases.ts");
+        assert.deepEqual(detailCatalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "SocialSDKRelease"]);
+        assert.equal(
+            missingRoutes.missing_entries?.some(
+                (entry) => entry.method === "GET" && entry.route === "/social-sdk/releases/{param}" && entry.route_name === "GET_SOCIAL_SDK_RELEASES_SDK_RELEASE_VERSION",
+            ),
+            false,
+        );
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
+        const collectionRoute = openapi.paths?.["/social-sdk/releases/"]?.get;
+        assert.equal(collectionRoute?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/SocialSDKReleasesResponse");
+        assert.equal(collectionRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(collectionRoute?.security, [{ bearer: [] }]);
+
+        const detailRoute = openapi.paths?.["/social-sdk/releases/{sdk_release_version}"]?.get;
+        assert.equal(
+            detailRoute?.parameters?.some((parameter) => parameter.name === "sdk_release_version" && parameter.in === "path" && parameter.required === true),
+            true,
+        );
+        assert.equal(detailRoute?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/SocialSDKRelease");
+        assert.equal(detailRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(detailRoute?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(detailRoute?.security, [{ bearer: [] }]);
+
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === collectionManifestId);
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.sourceFile, "src/api/routes/social-sdk/releases.ts");
         assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("SocialSDKReleasesResponse"), true);
@@ -120,7 +214,17 @@ describe("GET /social-sdk/releases", () => {
             [200, 401],
         );
 
-        const contract = contracts.contracts?.find((entry) => entry.manifestId === coveredManifestId);
+        const detailManifestEntry = manifest.entries?.find((entry) => entry.id === detailManifestId);
+        assert.equal(detailManifestEntry?.authMode, "bearer");
+        assert.equal(detailManifestEntry?.sourceFile, "src/api/routes/social-sdk/releases.ts");
+        assert.equal(detailManifestEntry?.routeMetadata?.responseBodies?.includes("SocialSDKRelease"), true);
+        assert.equal(detailManifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.deepEqual(
+            detailManifestEntry?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
+            [200, 401, 404],
+        );
+
+        const contract = contracts.contracts?.find((entry) => entry.manifestId === collectionManifestId);
         assert.equal(contract?.authMode, "bearer");
         assert.equal(contract?.routeMetadata?.responses?.includes("SocialSDKReleasesResponse"), true);
         assert.equal(contract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
@@ -128,17 +232,26 @@ describe("GET /social-sdk/releases", () => {
             contract?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
             [200, 401],
         );
+
+        const detailContract = contracts.contracts?.find((entry) => entry.manifestId === detailManifestId);
+        assert.equal(detailContract?.authMode, "bearer");
+        assert.equal(detailContract?.routeMetadata?.responses?.includes("SocialSDKRelease"), true);
+        assert.equal(detailContract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
+        assert.deepEqual(
+            detailContract?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
+            [200, 401, 404],
+        );
     });
 });
 
-function createAuthenticatedRouteApp() {
+function createAuthenticatedRouteApp(router: express.Router = socialSDKReleasesRouter) {
     const app = express();
 
     app.use((req, _res, next) => {
         req.user_id = "viewer";
         next();
     });
-    app.use("/social-sdk/releases", socialSDKReleasesRouter);
+    app.use("/social-sdk/releases", router);
     app.use(ErrorHandler);
 
     return app;
@@ -202,6 +315,7 @@ type OpenApiDocument = {
         string,
         {
             get?: {
+                parameters?: { name?: string; in?: string; required?: boolean; schema?: JsonSchema }[];
                 responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
                 security?: unknown;
             };
@@ -219,6 +333,10 @@ type TestingManifest = {
             responseStatuses?: number[];
         };
     }[];
+};
+
+type MissingRouteReport = {
+    missing_entries?: { method?: string; route?: string; route_name?: string }[];
 };
 
 type ContractMatrix = {

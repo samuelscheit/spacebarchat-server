@@ -1,6 +1,6 @@
 {
-    "missing": 681,
-    "spacebar": 499,
+    "missing": 680,
+    "spacebar": 500,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -323,7 +323,6 @@
         "/safety-hub/suspended/request-verification",
         "/search/favorites",
         "/shop/search",
-        "/social-sdk/releases/{param}",
         "/soundboard-sounds/{param}/guild/{param}",
         "/sso",
         "/sso-token",
@@ -1897,14 +1896,6 @@
         },
         { "method": "GET", "route": "/search/favorites", "route_name": "SEARCH_FAVORITES", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/shop/search", "route_name": "GET_SHOP_SEARCH", "sources": ["userdoccers:resources/collectibles.mdx"], "summaries": ["Search Collectibles"] },
-        {
-            "method": "GET",
-            "route": "/social-sdk/releases/{param}",
-            "route_name": "GET_SOCIAL_SDK_RELEASES_SDK_RELEASE_VERSION",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/social-sdk/releases/{sdk_release_version}"],
-            "summaries": ["Get Social SDK Release"]
-        },
         {
             "method": "GET",
             "route": "/soundboard-sounds/{param}/guild/{param}",

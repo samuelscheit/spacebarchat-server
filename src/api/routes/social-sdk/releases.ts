@@ -17,33 +17,85 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 */
 
 import { route } from "@spacebar/api";
-import type { SocialSDKReleasesResponse } from "@spacebar/schemas";
+import type { SocialSDKRelease, SocialSDKReleasesResponse } from "@spacebar/schemas";
+import { ApiError } from "@spacebar/util";
 import { type Request, type Response, Router } from "express";
 
-const router: Router = Router({ mergeParams: true });
+export const UNKNOWN_SOCIAL_SDK_RELEASE = new ApiError("Unknown Social SDK release", 404, 404);
 
-export function getSocialSDKReleases(): SocialSDKReleasesResponse {
+export interface SocialSDKReleaseCatalog {
+    releases: readonly SocialSDKRelease[];
+    latest_version?: string;
+}
+
+export type SocialSDKReleaseCatalogProvider = () => SocialSDKReleaseCatalog;
+
+export function getSocialSDKReleaseCatalog(): SocialSDKReleaseCatalog {
     return {
         releases: [],
         latest_version: "",
     };
 }
 
-router.get(
-    "/",
-    route({
-        summary: "Get Social SDK Releases",
-        description: "Returns the currently available social SDK releases.",
-        responses: {
-            200: {
-                body: "SocialSDKReleasesResponse",
-            },
-            401: {
-                body: "APIErrorResponse",
-            },
-        },
-    }),
-    (_req: Request, res: Response) => res.status(200).json(getSocialSDKReleases()),
-);
+export function getSocialSDKReleases(releaseCatalogProvider: SocialSDKReleaseCatalogProvider = getSocialSDKReleaseCatalog): SocialSDKReleasesResponse {
+    const catalog = releaseCatalogProvider();
 
-export default router;
+    return {
+        releases: catalog.releases.map(({ version, release_date_time }) => ({ version, release_date_time })),
+        latest_version: catalog.latest_version ?? catalog.releases[0]?.version ?? "",
+    };
+}
+
+export function getSocialSDKRelease(sdkReleaseVersion: string, releaseCatalogProvider: SocialSDKReleaseCatalogProvider = getSocialSDKReleaseCatalog): SocialSDKRelease | null {
+    return releaseCatalogProvider().releases.find((release) => release.version === sdkReleaseVersion) ?? null;
+}
+
+export function createSocialSDKReleasesRouter(releaseCatalogProvider: SocialSDKReleaseCatalogProvider = getSocialSDKReleaseCatalog) {
+    const router: Router = Router({ mergeParams: true });
+
+    router.get(
+        "/",
+        route({
+            summary: "Get Social SDK Releases",
+            description: "Returns the currently available social SDK releases.",
+            responses: {
+                200: {
+                    body: "SocialSDKReleasesResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        (_req: Request, res: Response) => res.status(200).json(getSocialSDKReleases(releaseCatalogProvider)),
+    );
+
+    router.get(
+        "/:sdk_release_version",
+        route({
+            summary: "Get Social SDK Release",
+            description: "Returns a social SDK release object for the given version.",
+            responses: {
+                200: {
+                    body: "SocialSDKRelease",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        (req: Request, res: Response) => {
+            const release = getSocialSDKRelease(req.params.sdk_release_version as string, releaseCatalogProvider);
+            if (!release) throw UNKNOWN_SOCIAL_SDK_RELEASE;
+
+            return res.status(200).json(release);
+        },
+    );
+
+    return router;
+}
+
+export default createSocialSDKReleasesRouter();
