@@ -2221,6 +2221,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildGrowthActivationActivationResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/growth-activation/activation",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_GROWTH_ACTIVATION_ACTIVATION",
+		"source": "src/api/routes/guilds/#guild_id/analytics/growth-activation/activation.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildWelcomeScreenFunnelResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/welcome-screen/funnel",

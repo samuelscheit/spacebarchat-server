@@ -6816,6 +6816,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildGrowthActivationActivationResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildGrowthActivationActivationBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPreviewResponse": {
         "type": "object",
         "properties": {
@@ -23891,6 +23898,31 @@
             "day_pt",
             "messages_sent",
             "participators"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildGrowthActivationActivationBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "new_members": {
+                "type": "integer"
+            },
+            "pct_communicated": {
+                "description": "Discord documents growth activation percentages as floats.",
+                "type": "number"
+            },
+            "pct_opened_channels": {
+                "description": "Discord documents growth activation percentages as floats.",
+                "type": "number"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "new_members"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

@@ -1,6 +1,6 @@
 {
-    "missing": 693,
-    "spacebar": 487,
+    "missing": 692,
+    "spacebar": 488,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -134,7 +134,6 @@
         "/guilds/{param}/active-channels",
         "/guilds/{param}/admin-server-eligibility",
         "/guilds/{param}/analytics/audience/participators-by-reg-country",
-        "/guilds/{param}/analytics/growth-activation/activation",
         "/guilds/{param}/analytics/growth-activation/joins",
         "/guilds/{param}/analytics/growth-activation/joins-by-invite-link",
         "/guilds/{param}/analytics/growth-activation/joins-by-referrer",
@@ -1380,14 +1379,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx"],
             "source_routes": ["/guilds/{guild_id}/analytics/audience/participators-by-reg-country"],
             "summaries": ["Get Guild Audience Participators by Registration Country"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/growth-activation/activation",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_GROWTH_ACTIVATION_ACTIVATION",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/growth-activation/activation"],
-            "summaries": ["Get Guild Growth Activation Percentages"]
         },
         {
             "method": "GET",
