@@ -8475,6 +8475,64 @@
                     "promotional_email_opt_in"
                 ]
             },
+            "LinkedConnectionResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "verified": {
+                        "type": "boolean"
+                    },
+                    "metadata": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "metadata_visibility": {
+                        "type": "integer"
+                    },
+                    "revoked": {
+                        "type": "boolean"
+                    },
+                    "friend_sync": {
+                        "type": "boolean"
+                    },
+                    "show_activity": {
+                        "type": "boolean"
+                    },
+                    "two_way_link": {
+                        "type": "boolean"
+                    },
+                    "visibility": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "friend_sync",
+                    "id",
+                    "metadata_visibility",
+                    "name",
+                    "revoked",
+                    "show_activity",
+                    "two_way_link",
+                    "type",
+                    "verified",
+                    "visibility"
+                ]
+            },
+            "LinkedConnectionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/LinkedConnectionResponse"
+                }
+            },
             "MemberJoinGuildResponse": {
                 "type": "object",
                 "properties": {
@@ -35551,6 +35609,51 @@
                         }
                     },
                     "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/linked-connections/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get User Linked Connections",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LinkedConnectionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
                         "description": "",
                         "content": {
                             "application/json": {

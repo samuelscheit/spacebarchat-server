@@ -8900,6 +8900,67 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "LinkedConnectionResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "type": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "verified": {
+                "type": "boolean"
+            },
+            "metadata": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "metadata_visibility": {
+                "type": "integer"
+            },
+            "revoked": {
+                "type": "boolean"
+            },
+            "friend_sync": {
+                "type": "boolean"
+            },
+            "show_activity": {
+                "type": "boolean"
+            },
+            "two_way_link": {
+                "type": "boolean"
+            },
+            "visibility": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "friend_sync",
+            "id",
+            "metadata_visibility",
+            "name",
+            "revoked",
+            "show_activity",
+            "two_way_link",
+            "type",
+            "verified",
+            "visibility"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "LinkedConnectionsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/LinkedConnectionResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "MemberJoinGuildResponse": {
         "type": "object",
         "properties": {

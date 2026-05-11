@@ -4619,6 +4619,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"LinkedConnectionsResponse"
+		],
+		"route": "/users/@me/linked-connections",
+		"route_name": "GET_USERS__ME_LINKED_CONNECTIONS",
+		"source": "src/api/routes/users/@me/linked-connections.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"APIMessageArray"
 		],
 		"route": "/users/@me/mentions",

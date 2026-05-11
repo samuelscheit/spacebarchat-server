@@ -134,6 +134,7 @@ export * from "./InstanceStatsResponse";
 export * from "./InviteResponse";
 export * from "./InviteFriendMembersResponse";
 export * from "./LocationMetadataResponse";
+export * from "./LinkedConnectionsResponse";
 export * from "./MemberJoinGuildResponse";
 export * from "./MessageInteractionDataResponse";
 export * from "./MfaRequiredResponse";
