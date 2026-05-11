@@ -6633,6 +6633,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildEngagementBaseResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildEngagementBaseBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPreviewResponse": {
         "type": "object",
         "properties": {
@@ -23363,6 +23370,42 @@
             "day_pt",
             "participators",
             "platform"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildEngagementBaseBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "visitors": {
+                "type": "integer"
+            },
+            "communicators": {
+                "type": "integer"
+            },
+            "pct_communicators": {
+                "type": "integer"
+            },
+            "messages": {
+                "type": "integer"
+            },
+            "messages_per_communicator": {
+                "type": "integer"
+            },
+            "speaking_minutes": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "communicators",
+            "day_pt",
+            "messages",
+            "messages_per_communicator",
+            "speaking_minutes",
+            "visitors"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

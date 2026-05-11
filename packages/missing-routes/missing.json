@@ -1,6 +1,6 @@
 {
-    "missing": 709,
-    "spacebar": 471,
+    "missing": 708,
+    "spacebar": 472,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -143,7 +143,6 @@
         "/guilds/{param}/analytics/channel-following/following-guild-size-by-channel",
         "/guilds/{param}/analytics/channel-following/overview",
         "/guilds/{param}/analytics/channel-following/reach",
-        "/guilds/{param}/analytics/engagement/base",
         "/guilds/{param}/analytics/engagement/muters",
         "/guilds/{param}/analytics/engagement/overview",
         "/guilds/{param}/analytics/engagement/pruneable-members",
@@ -1468,14 +1467,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx"],
             "source_routes": ["/guilds/{guild_id}/analytics/channel-following/reach"],
             "summaries": ["Get Guild Channel Following Reach"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/engagement/base",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_ENGAGEMENT_BASE",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/engagement/base"],
-            "summaries": ["Get Guild Engagement Base"]
         },
         {
             "method": "GET",

@@ -80,6 +80,7 @@ export * from "./GuildBansResponse";
 export * from "./GuildCreateResponse";
 export * from "./GuildDiscoveryMetadataResponse";
 export * from "./GuildDiscoveryRequirements";
+export * from "./GuildEngagementBaseResponse";
 export * from "./GuildPreviewResponse";
 export * from "./GravityCustomChannelScoresResponse";
 export * from "./GravityRecommendedGuildsResponse";
