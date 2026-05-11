@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 620,
+        "totalEntries": 621,
         "byService": {
-            "api": 523,
+            "api": 524,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 595,
+            "http-route": 596,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 141,
+            "contract": 142,
             "stateful-domain": 335,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 478,
+            "route-class": 479,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -8509,6 +8509,41 @@
                 "responseStatuses": [
                     200,
                     400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/consoles/connect-request/:nonce/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/consoles/connect-request/:nonce/",
+            "sourceFile": "src/api/routes/consoles/connect-request/#nonce.ts",
+            "line": 24,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
                     401
                 ],
                 "hasQuery": false

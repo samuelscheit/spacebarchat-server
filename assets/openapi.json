@@ -49865,6 +49865,45 @@
                 ]
             }
         },
+        "/consoles/connect-request/{nonce}/": {
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Cancel Console Connection Request",
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "nonce",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "nonce"
+                    }
+                ],
+                "tags": [
+                    "consoles"
+                ]
+            }
+        },
         "/consoles/{connection_type}/devices/": {
             "get": {
                 "security": [

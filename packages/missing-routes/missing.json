@@ -1,6 +1,6 @@
 {
-    "missing": 665,
-    "spacebar": 515,
+    "missing": 664,
+    "spacebar": 516,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -100,7 +100,6 @@
         "/connections/{param}/callback/session-handoff",
         "/connections/{param}/link-dispatch-auth-callback",
         "/consoles/connect-request",
-        "/consoles/connect-request/{param}",
         "/consoles/{param}/devices/{param}/commands",
         "/consoles/{param}/devices/{param}/commands/{param}",
         "/content-inventory/users/@me/applications/{param}",
@@ -652,14 +651,6 @@
             "sources": ["userdoccers:resources/connected-accounts.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/consoles/{connection_type}/devices/{device_id}/commands/{command_id}"],
             "summaries": ["Cancel Console Command"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/consoles/connect-request/{param}",
-            "route_name": "DELETE_CONSOLES_CONNECT_REQUEST_NONCE",
-            "sources": ["userdoccers:resources/connected-accounts.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/consoles/connect-request/{nonce}"],
-            "summaries": ["Cancel Console Connection Request"]
         },
         {
             "method": "DELETE",

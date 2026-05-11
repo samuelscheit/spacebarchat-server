@@ -1723,6 +1723,15 @@
 		"source": "src/api/routes/consoles/#connection_type/devices.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/consoles/connect-request/{nonce}",
+		"route_name": "DELETE_CONSOLES_CONNECT_REQUEST_NONCE",
+		"source": "src/api/routes/consoles/connect-request/#nonce.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse"
