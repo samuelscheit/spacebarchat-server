@@ -10490,6 +10490,9 @@
                     "version"
                 ]
             },
+            "ReportingUnauthenticatedExperimentResponse": {
+                "type": "object"
+            },
             "SettingsProtoResponse": {
                 "type": "object",
                 "properties": {
@@ -38209,6 +38212,27 @@
                 },
                 "tags": [
                     "safety-hub"
+                ]
+            }
+        },
+        "/reporting/unauthenticated/experiment/": {
+            "get": {
+                "description": "Query unauthenticated report eligibility.",
+                "summary": "Query Unauthenticated Report Eligibility",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportingUnauthenticatedExperimentResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "reporting"
                 ]
             }
         },

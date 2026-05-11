@@ -1,6 +1,6 @@
 {
-    "missing": 675,
-    "spacebar": 505,
+    "missing": 674,
+    "spacebar": 506,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1844,13 +1844,6 @@
             "sources": ["userdoccers:topics/reports.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/reporting/menu/{type}"],
             "summaries": ["Get Report Menu"]
-        },
-        {
-            "method": "GET",
-            "route": "/reporting/unauthenticated/experiment",
-            "route_name": "GET_REPORTING_UNAUTHENTICATED_EXPERIMENT",
-            "sources": ["userdoccers:topics/reports.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Query Unauthenticated Report Eligibility"]
         },
         {
             "method": "GET",

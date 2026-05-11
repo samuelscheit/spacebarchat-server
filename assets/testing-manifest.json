@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 610,
+        "totalEntries": 611,
         "byService": {
-            "api": 513,
+            "api": 514,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 585,
+            "http-route": 586,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 133,
+            "contract": 134,
             "stateful-domain": 333,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 468,
+            "route-class": 469,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -17088,6 +17088,40 @@
                 "present": true,
                 "responseBodies": [
                     "UnauthenticatedReportCapabilitiesResponse"
+                ],
+                "responseStatuses": [
+                    200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/reporting/unauthenticated/experiment/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/reporting/unauthenticated/experiment/",
+            "sourceFile": "src/api/routes/reporting/unauthenticated/experiment.ts",
+            "line": 26,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "ReportingUnauthenticatedExperimentResponse"
                 ],
                 "responseStatuses": [
                     200

@@ -158,6 +158,7 @@ export * from "./RecentAvatarsResponse";
 export * from "./RefreshUrlsResponse";
 export * from "./ReportOptionsResponse";
 export * from "./ReportingMenuResponse";
+export * from "./ReportingUnauthenticatedExperimentResponse";
 export * from "./SettingsProtoUpdateResponse";
 export * from "./SoundboardDefaultSoundsResponse";
 export * from "./SocialSDKReleasesResponse";
