@@ -6871,6 +6871,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildDirectoryBroadcastInfoResponse": {
+        "type": "object",
+        "properties": {
+            "can_broadcast": {
+                "type": "boolean"
+            },
+            "has_broadcast": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "can_broadcast"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildDiscoveryMetadataResponse": {
         "type": "object",
         "properties": {

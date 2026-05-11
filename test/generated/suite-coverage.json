@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 499,
+        "totalCoveredManifestEntries": 500,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 477,
-                "totalCoveredManifestEntries": 477,
-                "totalCoveredRequiredManifestEntries": 477,
+                "totalRequiredManifestEntries": 478,
+                "totalCoveredManifestEntries": 478,
+                "totalCoveredRequiredManifestEntries": 478,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 338,
+            "stateful-domain": 339,
             "cdn-integration": 78,
             "integration": 21,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 477,
-                "totalCoveredManifestEntries": 477,
-                "totalCoveredRequiredManifestEntries": 477,
+                "totalRequiredManifestEntries": 478,
+                "totalCoveredManifestEntries": 478,
+                "totalCoveredRequiredManifestEntries": 478,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -231,6 +231,7 @@
                 "api:http:GET:/guilds/:guild_id/bans/search",
                 "api:http:GET:/guilds/:guild_id/basic/",
                 "api:http:GET:/guilds/:guild_id/channels/",
+                "api:http:GET:/guilds/:guild_id/directory-entries/broadcast/",
                 "api:http:GET:/guilds/:guild_id/discovery-metadata/",
                 "api:http:GET:/guilds/:guild_id/discovery-requirements/",
                 "api:http:GET:/guilds/:guild_id/emojis/",
@@ -710,6 +711,7 @@
                 "api:http:GET:/guilds/:guild_id/bans/search",
                 "api:http:GET:/guilds/:guild_id/basic/",
                 "api:http:GET:/guilds/:guild_id/channels/",
+                "api:http:GET:/guilds/:guild_id/directory-entries/broadcast/",
                 "api:http:GET:/guilds/:guild_id/discovery-metadata/",
                 "api:http:GET:/guilds/:guild_id/discovery-requirements/",
                 "api:http:GET:/guilds/:guild_id/emojis/",
@@ -1233,6 +1235,7 @@
                         "api:http:GET:/guilds/:guild_id/bans/search",
                         "api:http:GET:/guilds/:guild_id/basic/",
                         "api:http:GET:/guilds/:guild_id/channels/",
+                        "api:http:GET:/guilds/:guild_id/directory-entries/broadcast/",
                         "api:http:GET:/guilds/:guild_id/discovery-metadata/",
                         "api:http:GET:/guilds/:guild_id/discovery-requirements/",
                         "api:http:GET:/guilds/:guild_id/emojis/",

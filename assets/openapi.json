@@ -6544,6 +6544,20 @@
                     "widget_enabled"
                 ]
             },
+            "GuildDirectoryBroadcastInfoResponse": {
+                "type": "object",
+                "properties": {
+                    "can_broadcast": {
+                        "type": "boolean"
+                    },
+                    "has_broadcast": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "can_broadcast"
+                ]
+            },
             "GuildDiscoveryMetadataResponse": {
                 "type": "object",
                 "properties": {
@@ -45186,6 +45200,100 @@
                             "type": "string"
                         },
                         "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/directory-entries/broadcast/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns whether the current guild member can broadcast a directory entry in linked directory channels.",
+                "summary": "Get Directory Broadcast Info",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildDirectoryBroadcastInfoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Directory entry type to check for broadcast eligibility."
+                    },
+                    {
+                        "name": "entity_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Directory entry entity ID to check for an existing broadcast."
                     }
                 ],
                 "tags": [

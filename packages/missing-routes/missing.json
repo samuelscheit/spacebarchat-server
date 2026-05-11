@@ -1,6 +1,6 @@
 {
-    "missing": 653,
-    "spacebar": 527,
+    "missing": 652,
+    "spacebar": 528,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -144,7 +144,6 @@
         "/guilds/{param}/creator-monetization/remove-monetization",
         "/guilds/{param}/creator-monetization/requirements",
         "/guilds/{param}/creator-monetization/restrictions",
-        "/guilds/{param}/directory-entries/broadcast",
         "/guilds/{param}/discovery-categories/{param}",
         "/guilds/{param}/entitlements",
         "/guilds/{param}/entitlements/{param}",
@@ -1303,14 +1302,6 @@
             "route_name": "CREATOR_MONETIZATION_RESTRICTIONS",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/creator-monetization/restrictions"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/directory-entries/broadcast",
-            "route_name": "GET_GUILDS_GUILD_ID_DIRECTORY_ENTRIES_BROADCAST",
-            "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/directory-entries/broadcast"],
-            "summaries": ["Get Directory Broadcast Info"]
         },
         {
             "method": "GET",

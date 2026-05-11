@@ -92,6 +92,7 @@ export * from "./GuildChannelFollowingGuildSizeResponse";
 export * from "./GuildChannelFollowingOverviewResponse";
 export * from "./GuildChannelFollowingReachResponse";
 export * from "./GuildCreateResponse";
+export * from "./GuildDirectoryBroadcastInfoResponse";
 export * from "./GuildDiscoveryMetadataResponse";
 export * from "./GuildDiscoveryRequirements";
 export * from "./GuildEngagementBaseResponse";

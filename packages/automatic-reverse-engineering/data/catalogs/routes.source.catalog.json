@@ -2586,6 +2586,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildDirectoryBroadcastInfoResponse"
+		],
+		"route": "/guilds/{guild_id}/directory-entries/broadcast",
+		"route_name": "GET_GUILDS_GUILD_ID_DIRECTORY_ENTRIES_BROADCAST",
+		"source": "src/api/routes/guilds/#guild_id/directory-entries/broadcast.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildDiscoveryMetadataResponse"
 		],
 		"route": "/guilds/{guild_id}/discovery-metadata",
