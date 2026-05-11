@@ -1,6 +1,6 @@
 {
-    "missing": 677,
-    "spacebar": 503,
+    "missing": 676,
+    "spacebar": 504,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -446,7 +446,6 @@
         "/users/@me/guilds/premium/subscriptions",
         "/users/@me/guilds/premium/subscriptions/cooldown",
         "/users/@me/guilds/settings",
-        "/users/@me/guilds/{param}/member",
         "/users/@me/guilds/{param}/member/ack-dm-upsell-settings",
         "/users/@me/harvest",
         "/users/@me/headless-sessions",
@@ -2296,14 +2295,6 @@
         },
         { "method": "GET", "route": "/users/@me/gravity-attachments", "route_name": "GRAVITY_ATTACHMENTS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/users/@me/gravity-icymi", "route_name": "GRAVITY_ITEMS_DEHYDRATED", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/users/@me/guilds/{param}/member",
-            "route_name": "GET_USERS__ME_GUILDS_GUILD_ID_MEMBER",
-            "sources": ["userdoccers:resources/guild.mdx"],
-            "source_routes": ["/users/@me/guilds/{guild_id}/member"],
-            "summaries": ["Get Current Guild Member"]
-        },
         {
             "method": "GET",
             "route": "/users/@me/guilds/integration-application-ids",

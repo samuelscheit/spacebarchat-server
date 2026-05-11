@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 583,
+        "totalContracts": 584,
         "byService": {
-            "api": 510,
+            "api": 511,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 439,
-        "runtimeMalformedAuthContracts": 439,
-        "runtimeRevokedSessionAuthContracts": 439,
-        "runtimeStaleTokenAuthContracts": 439,
+        "runtimeAuthBoundaryContracts": 440,
+        "runtimeMalformedAuthContracts": 440,
+        "runtimeRevokedSessionAuthContracts": 440,
+        "runtimeStaleTokenAuthContracts": 440,
         "runtimePublicAuthBoundaryContracts": 63,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
@@ -26476,6 +26476,54 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GameRelationshipsResponse"],
                 "responseStatuses": [200, 401]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/users/@me/guilds/:guild_id/member/",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/guilds/:guild_id/member/",
+            "samplePath": "/users/@me/guilds/100000000000000001/member/",
+            "sourceFile": "src/api/routes/users/@me/guilds/#guild_id/member.ts",
+            "line": 25,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "CurrentGuildMemberResponse"],
+                "responseStatuses": [200, 401, 404]
             },
             "cases": [
                 {

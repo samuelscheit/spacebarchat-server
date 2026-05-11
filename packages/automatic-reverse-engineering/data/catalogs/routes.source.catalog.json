@@ -4265,6 +4265,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"CurrentGuildMemberResponse"
+		],
+		"route": "/users/@me/guilds/{guild_id}/member",
+		"route_name": "GET_USERS__ME_GUILDS_GUILD_ID_MEMBER",
+		"source": "src/api/routes/users/@me/guilds/#guild_id/member.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/users/@me/guilds/{guild_id}/settings",
 		"route_name": "GET_USERS__ME_GUILDS_GUILD_ID_SETTINGS",

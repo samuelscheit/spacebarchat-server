@@ -56,6 +56,7 @@ export * from "./ConfettiConsumableResponse";
 export * from "./ContentInventoryOutboxResponse";
 export * from "./ConsoleDevicesResponse";
 export * from "./ConversationSummariesResponse";
+export * from "./CurrentGuildMemberResponse";
 export * from "./DetectableGameExclusionsResponse";
 export * from "./DiscoverableGuildsResponse";
 export * from "./DmMessagesResponseSchema";
