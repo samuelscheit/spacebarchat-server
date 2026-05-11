@@ -8799,6 +8799,155 @@
                     "$ref": "#/components/schemas/LinkedConnectionResponse"
                 }
             },
+            "APIWebhook": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/WebhookType"
+                    },
+                    "guild_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "user": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PartialUser"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "avatar": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "token": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "application_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "source_guild_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "source_channel_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "avatar",
+                    "id",
+                    "name",
+                    "type"
+                ]
+            },
+            "LobbyMemberResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LobbyMetadata"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "connected": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "LobbyResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/LobbyMetadata"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "members": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LobbyMemberResponse"
+                        }
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "linked_channel": {
+                        "$ref": "#/components/schemas/PublicChannel"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "flags",
+                    "id",
+                    "members",
+                    "metadata"
+                ]
+            },
             "MemberJoinGuildResponse": {
                 "type": "object",
                 "properties": {
@@ -15907,85 +16056,6 @@
                     "token",
                     "type",
                     "version"
-                ]
-            },
-            "APIWebhook": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    },
-                    "type": {
-                        "$ref": "#/components/schemas/WebhookType"
-                    },
-                    "guild_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "channel_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "user": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/PartialUser"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "name": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "avatar": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "token": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "application_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "source_guild_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "source_channel_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "url": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "avatar",
-                    "id",
-                    "name",
-                    "type"
                 ]
             },
             "ApplicationCreateSchema": {
@@ -27274,6 +27344,20 @@
                     "webhook"
                 ]
             },
+            "WebhookType": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2,
+                    3
+                ]
+            },
+            "LobbyMetadata": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
             "Emoji": {
                 "type": "object",
                 "properties": {
@@ -29370,14 +29454,6 @@
                     "url",
                     "user",
                     "user_id"
-                ]
-            },
-            "WebhookType": {
-                "type": "number",
-                "enum": [
-                    1,
-                    2,
-                    3
                 ]
             },
             "Application": {
@@ -33754,6 +33830,9 @@
         },
         {
             "name": "invites"
+        },
+        {
+            "name": "lobbies"
         },
         {
             "name": "mfa"
@@ -41787,6 +41866,72 @@
                 },
                 "tags": [
                     "mfa"
+                ]
+            }
+        },
+        "/lobbies/{lobby_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Lobby",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LobbyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "lobby_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "lobby_id"
+                    }
+                ],
+                "tags": [
+                    "lobbies"
                 ]
             }
         },

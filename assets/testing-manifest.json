@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 644,
+        "totalEntries": 645,
         "byService": {
-            "api": 547,
+            "api": 548,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 619,
+            "http-route": 620,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 149,
+            "contract": 150,
             "stateful-domain": 345,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 502,
+            "route-class": 503,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -16658,6 +16658,44 @@
                     "GUILD_UPDATE",
                     "INVITE_DELETE"
                 ]
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/lobbies/:lobby_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/lobbies/:lobby_id/",
+            "sourceFile": "src/api/routes/lobbies/#lobby_id/index.ts",
+            "line": 55,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "LobbyResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-public-contract",
