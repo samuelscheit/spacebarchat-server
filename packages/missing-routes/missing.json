@@ -1,6 +1,6 @@
 {
-    "missing": 660,
-    "spacebar": 520,
+    "missing": 659,
+    "spacebar": 521,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1623,14 +1623,6 @@
             "sources": ["userdoccers:resources/lobby.mdx"],
             "source_routes": ["/lobbies/{lobby_id}/messages"],
             "summaries": ["Get Lobby Messages"]
-        },
-        {
-            "method": "GET",
-            "route": "/oauth2/applications/{param}/allowlist",
-            "route_name": "GET_OAUTH2_APPLICATIONS_APPLICATION_ID_ALLOWLIST",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/oauth2/applications/{application_id}/allowlist"],
-            "summaries": ["Get Application Testers"]
         },
         {
             "method": "GET",

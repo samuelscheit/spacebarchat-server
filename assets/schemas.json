@@ -3432,6 +3432,30 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationTesterResponse": {
+        "type": "object",
+        "properties": {
+            "user": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "state": {
+                "$ref": "#/definitions/ApplicationTesterState"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "state",
+            "user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationTestersResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ApplicationTesterResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationAssetResponse": {
         "type": "object",
         "properties": {
@@ -19621,6 +19645,14 @@
         "additionalProperties": {
             "type": "integer"
         },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationTesterState": {
+        "type": "number",
+        "enum": [
+            1,
+            2
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ChannelLinkedAccount": {
