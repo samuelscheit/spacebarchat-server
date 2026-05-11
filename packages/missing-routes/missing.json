@@ -1,6 +1,6 @@
 {
-    "missing": 646,
-    "spacebar": 534,
+    "missing": 645,
+    "spacebar": 535,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1679,14 +1679,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/store/listings/{store_listing_id}"],
             "summaries": ["Get Store Listing"]
-        },
-        {
-            "method": "GET",
-            "route": "/store/skus/{param}",
-            "route_name": "GET_STORE_SKUS_SKU_ID",
-            "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/store/skus/{sku_id}"],
-            "summaries": ["Get SKU"]
         },
         {
             "method": "GET",

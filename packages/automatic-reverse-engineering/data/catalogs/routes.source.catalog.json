@@ -4063,6 +4063,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"StoreSkuResponse"
+		],
+		"route": "/store/skus/{sku_id}",
+		"route_name": "GET_STORE_SKUS_SKU_ID",
+		"source": "src/api/routes/store/skus/#sku_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"TeamListResponse"
 		],
 		"route": "/teams",

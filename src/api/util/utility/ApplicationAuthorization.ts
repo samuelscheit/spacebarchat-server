@@ -85,6 +85,11 @@ export function canAccessApplicationStoreAssets(application: ApplicationCommandA
     return canAccessApplicationGiftCodeBatches(application, userId);
 }
 
+export function canAccessApplicationStore(application: ApplicationCommandAuthorizationTarget, userId: string) {
+    if (application.bot?.id === userId) return true;
+    return canAccessApplicationGiftCodeBatches(application, userId);
+}
+
 export function canAccessApplicationAssets(application: ApplicationCommandAuthorizationTarget, userId: string) {
     return canAccessApplicationGiftCodeBatches(application, userId);
 }
@@ -213,6 +218,25 @@ export async function requireApplicationStoreAssetAccess(applicationId: string, 
 
     if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
     if (!canAccessApplicationStoreAssets(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
+
+    return application;
+}
+
+export async function requireApplicationStoreAccess(applicationId: string, userId: string, repository?: ApplicationCommandAuthorizationRepository) {
+    const applicationRepository = repository ?? (await getApplicationCommandAuthorizationRepository());
+    const application = await applicationRepository.findOne({
+        where: { id: applicationId },
+        relations: {
+            owner: true,
+            bot: true,
+            team: {
+                members: true,
+            },
+        },
+    });
+
+    if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+    if (!canAccessApplicationStore(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
     return application;
 }

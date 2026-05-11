@@ -11457,6 +11457,253 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StoreSkuResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "product_line": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "product_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "name": {
+                "$ref": "#/definitions/StoreSkuLocalizedString"
+            },
+            "summary": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            },
+            "description": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            },
+            "legal_notice": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            },
+            "slug": {
+                "type": "string"
+            },
+            "thumbnail_asset_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "dependent_sku_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "bundled_skus": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StoreSkuResponse"
+                }
+            },
+            "bundled_sku_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "access_type": {
+                "type": "integer"
+            },
+            "manifest_labels": {
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "features": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "locales": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "genres": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "available_regions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "content_rating": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "content_rating_agency": {
+                "type": "integer"
+            },
+            "content_ratings": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "system_requirements": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "price": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "price_tier": {
+                "type": "integer"
+            },
+            "sale_price_tier": {
+                "type": "integer"
+            },
+            "sale_price": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "created_at": {
+                "type": "string"
+            },
+            "updated_at": {
+                "type": "string"
+            },
+            "release_date": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "preorder_approximate_release_date": {
+                "type": "string"
+            },
+            "preorder_released_at": {
+                "type": "string"
+            },
+            "external_purchase_url": {
+                "type": "string"
+            },
+            "external_sku_strategies": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "eligible_payment_gateways": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "premium": {
+                "type": "boolean"
+            },
+            "show_age_gate": {
+                "type": "boolean"
+            },
+            "restricted": {
+                "type": "boolean"
+            },
+            "exclusive": {
+                "type": "boolean"
+            },
+            "deleted": {
+                "type": "boolean"
+            },
+            "tenant_metadata": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "powerup_metadata": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            "orbs_reward": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "access_type",
+            "application_id",
+            "features",
+            "flags",
+            "id",
+            "name",
+            "premium",
+            "product_line",
+            "show_age_gate",
+            "slug",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StorePublishedListingsApplicationsResponse": {
         "type": "array",
         "items": {},
@@ -32339,6 +32586,19 @@
             "download_url",
             "filename",
             "size_bytes"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StoreSkuLocalizedString": {
+        "anyOf": [
+            {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            },
+            {
+                "type": "string"
+            }
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
