@@ -6972,6 +6972,20 @@
                     "items"
                 ]
             },
+            "GuildTopGamesResponse": {
+                "type": "object",
+                "properties": {
+                    "top_games": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GuildTopGameActivity"
+                        }
+                    }
+                },
+                "required": [
+                    "top_games"
+                ]
+            },
             "GuildVanityUrlResponse": {
                 "anyOf": [
                     {
@@ -22793,6 +22807,25 @@
                 "required": [
                     "emoji_id",
                     "emoji_rank"
+                ]
+            },
+            "GuildTopGameActivity": {
+                "type": "object",
+                "properties": {
+                    "game_application_id": {
+                        "type": "string"
+                    },
+                    "activity_level": {
+                        "type": "integer"
+                    },
+                    "activity_score": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "activity_level",
+                    "activity_score",
+                    "game_application_id"
                 ]
             },
             "GuildVanityUrl": {
@@ -39754,6 +39787,64 @@
                         }
                     },
                     "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/top-games/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns up to 20 of the top most played games for the guild. Requires the MANAGE_GUILD permission.",
+                "summary": "Get Guild Top Games",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildTopGamesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
                         "description": "",
                         "content": {
                             "application/json": {

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 459,
+        "totalCoveredManifestEntries": 460,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 437,
-                "totalCoveredManifestEntries": 437,
-                "totalCoveredRequiredManifestEntries": 437,
+                "totalRequiredManifestEntries": 438,
+                "totalCoveredManifestEntries": 438,
+                "totalCoveredRequiredManifestEntries": 438,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 306,
+            "stateful-domain": 307,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 437,
-                "totalCoveredManifestEntries": 437,
-                "totalCoveredRequiredManifestEntries": 437,
+                "totalRequiredManifestEntries": 438,
+                "totalCoveredManifestEntries": 438,
+                "totalCoveredRequiredManifestEntries": 438,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -223,6 +223,7 @@
                 "api:http:GET:/guilds/:guild_id/templates/",
                 "api:http:GET:/guilds/:guild_id/threads/active/",
                 "api:http:GET:/guilds/:guild_id/top-emojis/",
+                "api:http:GET:/guilds/:guild_id/top-games/",
                 "api:http:GET:/guilds/:guild_id/vanity-url/",
                 "api:http:GET:/guilds/:guild_id/voice-states/:user_id/",
                 "api:http:GET:/guilds/:guild_id/webhooks/",
@@ -662,6 +663,7 @@
                 "api:http:GET:/guilds/:guild_id/templates/",
                 "api:http:GET:/guilds/:guild_id/threads/active/",
                 "api:http:GET:/guilds/:guild_id/top-emojis/",
+                "api:http:GET:/guilds/:guild_id/top-games/",
                 "api:http:GET:/guilds/:guild_id/vanity-url/",
                 "api:http:GET:/guilds/:guild_id/voice-states/:user_id/",
                 "api:http:GET:/guilds/:guild_id/webhooks/",
@@ -1154,6 +1156,7 @@
                         "api:http:GET:/guilds/:guild_id/templates/",
                         "api:http:GET:/guilds/:guild_id/threads/active/",
                         "api:http:GET:/guilds/:guild_id/top-emojis/",
+                        "api:http:GET:/guilds/:guild_id/top-games/",
                         "api:http:GET:/guilds/:guild_id/vanity-url/",
                         "api:http:GET:/guilds/:guild_id/voice-states/:user_id/",
                         "api:http:GET:/guilds/:guild_id/webhooks/",

@@ -2753,6 +2753,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildTopGamesResponse"
+		],
+		"route": "/guilds/{guild_id}/top-games",
+		"route_name": "GET_GUILDS_GUILD_ID_TOP_GAMES",
+		"source": "src/api/routes/guilds/#guild_id/top-games.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildVanityUrlResponse"
 		],
 		"route": "/guilds/{guild_id}/vanity-url",

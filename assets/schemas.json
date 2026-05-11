@@ -7303,6 +7303,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildTopGamesResponse": {
+        "type": "object",
+        "properties": {
+            "top_games": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildTopGameActivity"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "top_games"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildVanityUrlResponse": {
         "anyOf": [
             {
@@ -23965,6 +23981,27 @@
         "required": [
             "emoji_id",
             "emoji_rank"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildTopGameActivity": {
+        "type": "object",
+        "properties": {
+            "game_application_id": {
+                "type": "string"
+            },
+            "activity_level": {
+                "type": "integer"
+            },
+            "activity_score": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "activity_level",
+            "activity_score",
+            "game_application_id"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
