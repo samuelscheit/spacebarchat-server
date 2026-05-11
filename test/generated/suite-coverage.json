@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 496,
+        "totalCoveredManifestEntries": 497,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 474,
-                "totalCoveredManifestEntries": 474,
-                "totalCoveredRequiredManifestEntries": 474,
+                "totalRequiredManifestEntries": 475,
+                "totalCoveredManifestEntries": 475,
+                "totalCoveredRequiredManifestEntries": 475,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 336,
+            "stateful-domain": 337,
             "cdn-integration": 78,
             "integration": 20,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 474,
-                "totalCoveredManifestEntries": 474,
-                "totalCoveredRequiredManifestEntries": 474,
+                "totalRequiredManifestEntries": 475,
+                "totalCoveredManifestEntries": 475,
+                "totalCoveredRequiredManifestEntries": 475,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -154,6 +154,7 @@
                 "api:http:GET:/channels/:channel_id/call/",
                 "api:http:GET:/channels/:channel_id/directory-entries/",
                 "api:http:GET:/channels/:channel_id/directory-entries/counts",
+                "api:http:GET:/channels/:channel_id/directory-entries/search",
                 "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                 "api:http:GET:/channels/:channel_id/follower-message-stats/",
                 "api:http:GET:/channels/:channel_id/follower-stats/",
@@ -630,6 +631,7 @@
                 "api:http:GET:/channels/:channel_id/call/",
                 "api:http:GET:/channels/:channel_id/directory-entries/",
                 "api:http:GET:/channels/:channel_id/directory-entries/counts",
+                "api:http:GET:/channels/:channel_id/directory-entries/search",
                 "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                 "api:http:GET:/channels/:channel_id/follower-message-stats/",
                 "api:http:GET:/channels/:channel_id/follower-stats/",
@@ -1349,6 +1351,7 @@
                         "api:http:GET:/channels/:channel_id/call/",
                         "api:http:GET:/channels/:channel_id/directory-entries/",
                         "api:http:GET:/channels/:channel_id/directory-entries/counts",
+                        "api:http:GET:/channels/:channel_id/directory-entries/search",
                         "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                         "api:http:GET:/channels/:channel_id/follower-message-stats/",
                         "api:http:GET:/channels/:channel_id/follower-stats/",

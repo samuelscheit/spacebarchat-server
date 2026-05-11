@@ -1,6 +1,6 @@
 {
-    "missing": 656,
-    "spacebar": 524,
+    "missing": 655,
+    "spacebar": 525,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -76,7 +76,6 @@
         "/channels/{param}/application-command-index",
         "/channels/{param}/application-commands/search",
         "/channels/{param}/directory-entries/list",
-        "/channels/{param}/directory-entries/search",
         "/channels/{param}/directory-entry/{param}",
         "/channels/{param}/explicit-media",
         "/channels/{param}/integrations/{param}",
@@ -1185,14 +1184,6 @@
             "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/directory-entries/list"],
             "summaries": ["Get Partial Directory Entries"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/directory-entries/search",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES_SEARCH",
-            "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/directory-entries/search"],
-            "summaries": ["Search Directory Entries"]
         },
         {
             "method": "GET",
