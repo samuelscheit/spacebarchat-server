@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 462,
+        "totalCoveredManifestEntries": 463,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 440,
-                "totalCoveredManifestEntries": 440,
-                "totalCoveredRequiredManifestEntries": 440,
+                "totalRequiredManifestEntries": 441,
+                "totalCoveredManifestEntries": 441,
+                "totalCoveredRequiredManifestEntries": 441,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 309,
+            "stateful-domain": 310,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 440,
-                "totalCoveredManifestEntries": 440,
-                "totalCoveredRequiredManifestEntries": 440,
+                "totalRequiredManifestEntries": 441,
+                "totalCoveredManifestEntries": 441,
+                "totalCoveredRequiredManifestEntries": 441,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -127,6 +127,7 @@
                 "api:http:GET:/applications/:application_id/can-delete/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
+                "api:http:GET:/applications/:application_id/discoverability-state/",
                 "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
                 "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
@@ -569,6 +570,7 @@
                 "api:http:GET:/applications/:application_id/can-delete/",
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
+                "api:http:GET:/applications/:application_id/discoverability-state/",
                 "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
                 "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
@@ -1374,6 +1376,7 @@
                         "api:http:GET:/applications/:application_id/can-delete/",
                         "api:http:GET:/applications/:application_id/commands/",
                         "api:http:GET:/applications/:application_id/commands/:command_id/",
+                        "api:http:GET:/applications/:application_id/discoverability-state/",
                         "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:GET:/applications/:application_id/entitlements/",
                         "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",

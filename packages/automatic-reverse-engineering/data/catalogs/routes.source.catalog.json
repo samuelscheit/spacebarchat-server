@@ -347,6 +347,16 @@
 		"source": "src/api/routes/applications/#application_id/index.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationDiscoverabilityStateResponse"
+		],
+		"route": "/applications/{application_id}/discoverability-state",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_DISCOVERABILITY_STATE",
+		"source": "src/api/routes/applications/#application_id/discoverability-state.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"

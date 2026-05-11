@@ -2910,6 +2910,28 @@
                     }
                 }
             },
+            "ApplicationDiscoverabilityStateResponse": {
+                "type": "object",
+                "properties": {
+                    "discoverability_state": {
+                        "type": "integer"
+                    },
+                    "discovery_eligibility_flags": {
+                        "type": "integer"
+                    },
+                    "bad_commands": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationCommandSchema"
+                        }
+                    }
+                },
+                "required": [
+                    "bad_commands",
+                    "discoverability_state",
+                    "discovery_eligibility_flags"
+                ]
+            },
             "ApplicationDirectorySearchResponse": {
                 "type": "object",
                 "properties": {
@@ -54142,6 +54164,72 @@
                             "type": "string"
                         },
                         "description": "emoji_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
+        "/applications/{application_id}/discoverability-state/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Application Discoverability State",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationDiscoverabilityStateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
                     }
                 ],
                 "tags": [

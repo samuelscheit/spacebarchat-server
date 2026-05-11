@@ -1,6 +1,6 @@
 {
-    "missing": 707,
-    "spacebar": 473,
+    "missing": 706,
+    "spacebar": 474,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -22,7 +22,6 @@
         "/applications/{param}/branches",
         "/applications/{param}/branches/{param}/builds/{param}/size",
         "/applications/{param}/disclosures",
-        "/applications/{param}/discoverability-state",
         "/applications/{param}/embedded-activity-config",
         "/applications/{param}/emojis",
         "/applications/{param}/entitlements",
@@ -1118,14 +1117,6 @@
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/applications/{application_id}/disclosures"],
             "summaries": ["Get Application Disclosures"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/discoverability-state",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_DISCOVERABILITY_STATE",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/discoverability-state"],
-            "summaries": ["Get Application Discoverability State"]
         },
         {
             "method": "GET",
