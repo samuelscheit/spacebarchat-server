@@ -4073,6 +4073,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"StorePublishedListingsSkusSubscriptionPlansResponse"
+		],
+		"route": "/store/skus/{sku_id}/plans",
+		"route_name": "GET_STORE_SKUS_SKU_ID_PLANS",
+		"source": "src/api/routes/store/skus/#sku_id/plans.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"TeamListResponse"
 		],
 		"route": "/teams",

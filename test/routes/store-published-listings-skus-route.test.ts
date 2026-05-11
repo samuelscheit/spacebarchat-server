@@ -208,13 +208,13 @@ describe("GET /store/published-listings/skus", () => {
         };
 
         assert.deepEqual(
-            getStorePublishedListingsSkusSubscriptionPlans(query, [customPlan]).map((plan) => plan.id),
+            (await getStorePublishedListingsSkusSubscriptionPlans(query, [customPlan])).map((plan) => plan.id),
             ["642251038925127690", "511651880837840896", "511651885459963904", "custom-plan"],
         );
-        assert.deepEqual(listStorePublishedListingsSkusSubscriptionPlans({ sku_ids: ["missing-sku"] }), []);
+        assert.deepEqual(await listStorePublishedListingsSkusSubscriptionPlans({ sku_ids: ["missing-sku"] }), []);
         assert.notEqual(
-            listStorePublishedListingsSkusSubscriptionPlans({ sku_ids: ["missing-sku"] }),
-            listStorePublishedListingsSkusSubscriptionPlans({ sku_ids: ["missing-sku"] }),
+            await listStorePublishedListingsSkusSubscriptionPlans({ sku_ids: ["missing-sku"] }),
+            await listStorePublishedListingsSkusSubscriptionPlans({ sku_ids: ["missing-sku"] }),
             "callers should receive a fresh list",
         );
 

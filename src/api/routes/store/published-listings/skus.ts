@@ -18,9 +18,8 @@
 
 import { route } from "@spacebar/api";
 import type { StorePublishedListingsSkusResponse, StorePublishedListingsSkusSubscriptionPlansResponse } from "@spacebar/schemas";
-import { Config, DiscordApiErrors } from "@spacebar/util";
+import { Config, DiscordApiErrors, type StoreSubscriptionPlanConfiguration } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-import { getSubscriptionPlansForSku, type SubscriptionPlan } from "./skus/#sku_id/subscription-plans";
 
 const emptyPublishedStoreListings: readonly unknown[] = [];
 const maxBulkSubscriptionPlanSkuIds = 16;
@@ -42,7 +41,10 @@ export interface StorePublishedListingsSkusSubscriptionPlansQueryOptions {
     payment_source_id?: string;
 }
 
-export type StorePublishedListingsSkusSubscriptionPlansProvider = (options: StorePublishedListingsSkusSubscriptionPlansQueryOptions) => readonly SubscriptionPlan[];
+export type SubscriptionPlan = StoreSubscriptionPlanConfiguration;
+export type StorePublishedListingsSkusSubscriptionPlansProvider = (
+    options: StorePublishedListingsSkusSubscriptionPlansQueryOptions,
+) => readonly SubscriptionPlan[] | Promise<readonly SubscriptionPlan[]>;
 
 function firstQueryValue(value: unknown): unknown {
     if (Array.isArray(value)) return firstQueryValue(value[0]);
@@ -130,10 +132,11 @@ export function getStorePublishedListingsSkus(_options: StorePublishedListingsSk
     return emptyPublishedStoreListings;
 }
 
-export function getStorePublishedListingsSkusSubscriptionPlans(
+export async function getStorePublishedListingsSkusSubscriptionPlans(
     options: StorePublishedListingsSkusSubscriptionPlansQueryOptions,
     customPlans: readonly SubscriptionPlan[] = Config.get().store.customSubscriptionPlans,
-): readonly SubscriptionPlan[] {
+): Promise<readonly SubscriptionPlan[]> {
+    const { getSubscriptionPlansForSku } = require("./skus/#sku_id/subscription-plans") as typeof import("./skus/#sku_id/subscription-plans");
     return options.sku_ids.flatMap((skuId) => getSubscriptionPlansForSku(skuId, customPlans));
 }
 
@@ -144,11 +147,11 @@ export function listStorePublishedListingsSkus(
     return Array.from(listingProvider(options));
 }
 
-export function listStorePublishedListingsSkusSubscriptionPlans(
+export async function listStorePublishedListingsSkusSubscriptionPlans(
     options: StorePublishedListingsSkusSubscriptionPlansQueryOptions,
     subscriptionPlansProvider: StorePublishedListingsSkusSubscriptionPlansProvider = getStorePublishedListingsSkusSubscriptionPlans,
-): StorePublishedListingsSkusSubscriptionPlansResponse {
-    return Array.from(subscriptionPlansProvider(options));
+): Promise<StorePublishedListingsSkusSubscriptionPlansResponse> {
+    return Array.from(await subscriptionPlansProvider(options));
 }
 
 export function createStorePublishedListingsSkusRouter(
@@ -239,9 +242,9 @@ export function createStorePublishedListingsSkusRouter(
                 },
             },
         }),
-        (req: Request, res: Response) => {
+        async (req: Request, res: Response) => {
             const options = parseStorePublishedListingsSkusSubscriptionPlansQuery(req.query);
-            res.status(200).json(listStorePublishedListingsSkusSubscriptionPlans(options, subscriptionPlansProvider));
+            res.status(200).json(await listStorePublishedListingsSkusSubscriptionPlans(options, subscriptionPlansProvider));
         },
     );
 

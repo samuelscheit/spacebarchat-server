@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 642,
+        "totalEntries": 643,
         "byService": {
-            "api": 545,
+            "api": 546,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 617,
+            "http-route": 618,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 148,
+            "contract": 149,
             "stateful-domain": 344,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 500,
+            "route-class": 501,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19055,7 +19055,7 @@
             "method": "GET",
             "path": "/store/published-listings/skus/:sku_id",
             "sourceFile": "src/api/routes/store/published-listings/skus.ts",
-            "line": 248,
+            "line": 251,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -19083,7 +19083,7 @@
             "method": "GET",
             "path": "/store/published-listings/skus/",
             "sourceFile": "src/api/routes/store/published-listings/skus.ts",
-            "line": 160,
+            "line": 163,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -19120,7 +19120,7 @@
             "method": "GET",
             "path": "/store/published-listings/skus/subscription-plans",
             "sourceFile": "src/api/routes/store/published-listings/skus.ts",
-            "line": 202,
+            "line": 205,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -19173,6 +19173,44 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/store/skus/:sku_id/plans/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/skus/:sku_id/plans/",
+            "sourceFile": "src/api/routes/store/skus/#sku_id/plans.ts",
+            "line": 107,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StorePublishedListingsSkusSubscriptionPlansResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-public-contract",

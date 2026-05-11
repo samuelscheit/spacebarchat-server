@@ -1,6 +1,6 @@
 {
-    "missing": 643,
-    "spacebar": 537,
+    "missing": 642,
+    "spacebar": 538,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -318,7 +318,6 @@
         "/store/skus",
         "/store/skus/{param}",
         "/store/skus/{param}/listings",
-        "/store/skus/{param}/plans",
         "/store/skus/{param}/purchase",
         "/storefront/collections/{param}",
         "/storefront/products/sku/{param}",
@@ -1685,14 +1684,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/store/skus/{sku_id}/listings"],
             "summaries": ["Get SKU Store Listings"]
-        },
-        {
-            "method": "GET",
-            "route": "/store/skus/{param}/plans",
-            "route_name": "GET_STORE_SKUS_SKU_ID_PLANS",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/store/skus/{sku_id}/plans"],
-            "summaries": ["Get Subscription Plans"]
         },
         {
             "method": "GET",
