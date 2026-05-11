@@ -21,6 +21,10 @@ import type { PartialUser } from "../api/users";
 
 export type SoundboardDefaultSoundsResponse = SoundboardSoundResponse[];
 
+export interface GuildSoundboardSoundsResponse {
+    items: SoundboardSoundResponse[];
+}
+
 /**
  * @TJS-type number
  */

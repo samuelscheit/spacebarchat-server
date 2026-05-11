@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 609,
+        "totalContracts": 610,
         "byService": {
-            "api": 536,
+            "api": 537,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 462,
-        "runtimeMalformedAuthContracts": 462,
-        "runtimeRevokedSessionAuthContracts": 462,
-        "runtimeStaleTokenAuthContracts": 462,
+        "runtimeAuthBoundaryContracts": 463,
+        "runtimeMalformedAuthContracts": 463,
+        "runtimeRevokedSessionAuthContracts": 463,
+        "runtimeStaleTokenAuthContracts": 463,
         "runtimePublicAuthBoundaryContracts": 66,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
@@ -22,7 +22,7 @@
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 218,
+        "runtimeRateLimitHeaderContracts": 219,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -19438,6 +19438,76 @@
                 {
                     "id": "policy-authenticated",
                     "checks": ["authenticated"]
+                },
+                {
+                    "id": "policy-permission-denied",
+                    "checks": ["permission-denied"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/guilds/:guild_id/soundboard-sounds/",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/soundboard-sounds/",
+            "samplePath": "/guilds/100000000000000001/soundboard-sounds/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/soundboard-sounds.ts",
+            "line": 55,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "members", "roles", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "GuildSoundboardSoundsResponse"],
+                "responseStatuses": [200, 401, 403, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "guild",
+                        "configPath": "limits.rate.routes.guild",
+                        "pathPrefix": "/guilds/:guild_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 218
+                    }
                 },
                 {
                     "id": "policy-permission-denied",

@@ -1,6 +1,6 @@
 {
-    "missing": 651,
-    "spacebar": 529,
+    "missing": 650,
+    "spacebar": 530,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1527,14 +1527,6 @@
             "sources": ["userdoccers:resources/guild-scheduled-event.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users/counts", "/guilds/{guild_id}/scheduled-events/{param}/users/counts"],
             "summaries": ["Get Guild Scheduled Event User Count"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/soundboard-sounds",
-            "route_name": "GET_GUILDS_GUILD_ID_SOUNDBOARD_SOUNDS",
-            "sources": ["userdoccers:resources/soundboard.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/soundboard-sounds"],
-            "summaries": ["Get Guild Soundboard Sounds"]
         },
         {
             "method": "GET",

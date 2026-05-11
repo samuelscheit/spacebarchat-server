@@ -2979,6 +2979,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildSoundboardSoundsResponse"
+		],
+		"route": "/guilds/{guild_id}/soundboard-sounds",
+		"route_name": "GET_GUILDS_GUILD_ID_SOUNDBOARD_SOUNDS",
+		"source": "src/api/routes/guilds/#guild_id/soundboard-sounds.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"StickersResponse"
 		],
 		"route": "/guilds/{guild_id}/stickers",
