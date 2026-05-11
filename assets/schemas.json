@@ -12140,6 +12140,62 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StorefrontProductResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "sku_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "skus": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StorefrontProductSku"
+                }
+            },
+            "name": {
+                "type": "string"
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StorefrontProductOption"
+                }
+            },
+            "created_at": {
+                "type": "string"
+            },
+            "updated_at": {
+                "type": "string"
+            },
+            "tenant_metadata": {
+                "$ref": "#/definitions/StorefrontProductTenantMetadata"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "created_at",
+            "id",
+            "name",
+            "options",
+            "sku_ids",
+            "skus",
+            "tenant_metadata",
+            "updated_at"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StoreSkuResponse": {
         "type": "object",
         "properties": {
@@ -33338,6 +33394,227 @@
             "download_url",
             "filename",
             "size_bytes"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontProductSku": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "product_line": {
+                "type": "integer"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "thumbnail_asset_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "slug": {
+                "type": "string"
+            },
+            "premium": {
+                "type": "boolean"
+            },
+            "selected_options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StorefrontProductSkuOption"
+                }
+            },
+            "product_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "position": {
+                "type": "integer"
+            },
+            "tenant_metadata": {
+                "$ref": "#/definitions/StorefrontProductSkuTenantMetadata"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "id",
+            "name",
+            "position",
+            "premium",
+            "product_id",
+            "product_line",
+            "selected_options",
+            "slug",
+            "tenant_metadata",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontProductSkuOption": {
+        "type": "object",
+        "properties": {
+            "option_name": {
+                "type": "string"
+            },
+            "option_value": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "option_name",
+            "option_value"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontProductSkuTenantMetadata": {
+        "type": "object",
+        "properties": {
+            "boost_price": {
+                "type": "integer"
+            },
+            "purchase_limit": {
+                "type": "integer"
+            },
+            "category_type": {
+                "type": "string"
+            },
+            "plan_features": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StorefrontProductSkuPlanFeature"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "boost_price",
+            "category_type",
+            "plan_features",
+            "purchase_limit"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontProductSkuPlanFeature": {
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "title"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontProductOption": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string"
+            },
+            "option_values": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "option_values"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontProductTenantMetadata": {
+        "type": "object",
+        "properties": {
+            "guild_monetization": {
+                "$ref": "#/definitions/StorefrontGuildMonetizationProductMetadata"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontGuildMonetizationProductMetadata": {
+        "type": "object",
+        "properties": {
+            "game_server": {
+                "$ref": "#/definitions/StorefrontGameServerPowerupProductMetadata"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontGameServerPowerupProductMetadata": {
+        "type": "object",
+        "properties": {
+            "instructions": {
+                "$ref": "#/definitions/StorefrontGameServerInstructions"
+            },
+            "deactivation_cooldown_period_days": {
+                "type": "integer"
+            },
+            "game_application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "provider": {
+                "type": "string"
+            },
+            "disabled": {
+                "type": "boolean"
+            },
+            "early_access": {
+                "type": "boolean"
+            },
+            "can_market": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "can_market",
+            "deactivation_cooldown_period_days",
+            "disabled",
+            "early_access",
+            "game_application_id",
+            "instructions",
+            "provider"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontGameServerInstructions": {
+        "type": "object",
+        "properties": {
+            "pc": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "pc"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

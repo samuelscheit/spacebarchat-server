@@ -11522,6 +11522,60 @@
                     "name"
                 ]
             },
+            "StorefrontProductResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "sku_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "skus": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StorefrontProductSku"
+                        }
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StorefrontProductOption"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "tenant_metadata": {
+                        "$ref": "#/components/schemas/StorefrontProductTenantMetadata"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "created_at",
+                    "id",
+                    "name",
+                    "options",
+                    "sku_ids",
+                    "skus",
+                    "tenant_metadata",
+                    "updated_at"
+                ]
+            },
             "StoreSkuResponse": {
                 "type": "object",
                 "properties": {
@@ -31690,6 +31744,209 @@
                     "size_bytes"
                 ]
             },
+            "StorefrontProductSku": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "product_line": {
+                        "type": "integer"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "thumbnail_asset_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "premium": {
+                        "type": "boolean"
+                    },
+                    "selected_options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StorefrontProductSkuOption"
+                        }
+                    },
+                    "product_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "position": {
+                        "type": "integer"
+                    },
+                    "tenant_metadata": {
+                        "$ref": "#/components/schemas/StorefrontProductSkuTenantMetadata"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "id",
+                    "name",
+                    "position",
+                    "premium",
+                    "product_id",
+                    "product_line",
+                    "selected_options",
+                    "slug",
+                    "tenant_metadata",
+                    "type"
+                ]
+            },
+            "StorefrontProductSkuOption": {
+                "type": "object",
+                "properties": {
+                    "option_name": {
+                        "type": "string"
+                    },
+                    "option_value": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "option_name",
+                    "option_value"
+                ]
+            },
+            "StorefrontProductSkuTenantMetadata": {
+                "type": "object",
+                "properties": {
+                    "boost_price": {
+                        "type": "integer"
+                    },
+                    "purchase_limit": {
+                        "type": "integer"
+                    },
+                    "category_type": {
+                        "type": "string"
+                    },
+                    "plan_features": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StorefrontProductSkuPlanFeature"
+                        }
+                    }
+                },
+                "required": [
+                    "boost_price",
+                    "category_type",
+                    "plan_features",
+                    "purchase_limit"
+                ]
+            },
+            "StorefrontProductSkuPlanFeature": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "description",
+                    "title"
+                ]
+            },
+            "StorefrontProductOption": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "option_values": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "name",
+                    "option_values"
+                ]
+            },
+            "StorefrontProductTenantMetadata": {
+                "type": "object",
+                "properties": {
+                    "guild_monetization": {
+                        "$ref": "#/components/schemas/StorefrontGuildMonetizationProductMetadata"
+                    }
+                }
+            },
+            "StorefrontGuildMonetizationProductMetadata": {
+                "type": "object",
+                "properties": {
+                    "game_server": {
+                        "$ref": "#/components/schemas/StorefrontGameServerPowerupProductMetadata"
+                    }
+                }
+            },
+            "StorefrontGameServerPowerupProductMetadata": {
+                "type": "object",
+                "properties": {
+                    "instructions": {
+                        "$ref": "#/components/schemas/StorefrontGameServerInstructions"
+                    },
+                    "deactivation_cooldown_period_days": {
+                        "type": "integer"
+                    },
+                    "game_application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "provider": {
+                        "type": "string"
+                    },
+                    "disabled": {
+                        "type": "boolean"
+                    },
+                    "early_access": {
+                        "type": "boolean"
+                    },
+                    "can_market": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "can_market",
+                    "deactivation_cooldown_period_days",
+                    "disabled",
+                    "early_access",
+                    "game_application_id",
+                    "instructions",
+                    "provider"
+                ]
+            },
+            "StorefrontGameServerInstructions": {
+                "type": "object",
+                "properties": {
+                    "pc": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "pc"
+                ]
+            },
             "StoreSkuLocalizedString": {
                 "anyOf": [
                     {
@@ -34207,6 +34464,9 @@
         },
         {
             "name": "store"
+        },
+        {
+            "name": "storefront"
         },
         {
             "name": "teams"
@@ -39024,6 +39284,63 @@
                 ],
                 "tags": [
                     "teams"
+                ]
+            }
+        },
+        "/storefront/products/{product_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the locally backed storefront product object for the given product ID.",
+                "summary": "Get Storefront Product",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StorefrontProductResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "product_id"
+                    }
+                ],
+                "tags": [
+                    "storefront"
                 ]
             }
         },

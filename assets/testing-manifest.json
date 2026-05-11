@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 661,
+        "totalEntries": 662,
         "byService": {
-            "api": 564,
+            "api": 565,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 636,
+            "http-route": 637,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 157,
+            "contract": 158,
             "stateful-domain": 353,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 519,
+            "route-class": 520,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19577,6 +19577,43 @@
                     200,
                     401,
                     403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/storefront/products/:product_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/storefront/products/:product_id/",
+            "sourceFile": "src/api/routes/storefront/products/#product_id.ts",
+            "line": 157,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StorefrontProductResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
                     404
                 ],
                 "hasQuery": false
