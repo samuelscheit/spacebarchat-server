@@ -6891,6 +6891,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildWelcomeScreenFunnelResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildWelcomeScreenFunnelBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GravityCustomChannelScoresResponse": {
         "type": "array",
         "items": {
@@ -23884,6 +23891,50 @@
             "day_pt",
             "messages_sent",
             "participators"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildWelcomeScreenFunnelBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "option_channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "option_selected": {
+                "type": "string"
+            },
+            "users_viewed_welcome_screen": {
+                "type": "integer"
+            },
+            "users_clicked_any_option": {
+                "type": "integer"
+            },
+            "users_clicked_option": {
+                "type": "integer"
+            },
+            "users_sent_message": {
+                "type": "integer"
+            },
+            "pct_clicked_option": {
+                "type": "integer"
+            },
+            "pct_sent_message": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "option_channel_id",
+            "option_selected",
+            "users_clicked_any_option",
+            "users_clicked_option",
+            "users_sent_message",
+            "users_viewed_welcome_screen"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

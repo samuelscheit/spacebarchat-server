@@ -95,6 +95,7 @@ export * from "./GuildEngagementPruneableMembersResponse";
 export * from "./GuildEngagementTextChannelsResponse";
 export * from "./GuildEngagementVoiceChannelsResponse";
 export * from "./GuildPreviewResponse";
+export * from "./GuildWelcomeScreenFunnelResponse";
 export * from "./GravityCustomChannelScoresResponse";
 export * from "./GravityRecommendedGuildsResponse";
 export * from "./GuildIntegrationResponse";

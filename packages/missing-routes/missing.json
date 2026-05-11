@@ -1,6 +1,6 @@
 {
-    "missing": 694,
-    "spacebar": 486,
+    "missing": 693,
+    "spacebar": 487,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -143,7 +143,6 @@
         "/guilds/{param}/analytics/growth-activation/membership",
         "/guilds/{param}/analytics/growth-activation/overview",
         "/guilds/{param}/analytics/growth-activation/retention",
-        "/guilds/{param}/analytics/welcome-screen/funnel",
         "/guilds/{param}/analytics/welcome-screen/users",
         "/guilds/{param}/application-commands/{param}",
         "/guilds/{param}/auto-moderation/alert-action",
@@ -1453,14 +1452,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/analytics/growth-activation/retention"],
             "summaries": ["Get Guild Growth Activation Retention"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/welcome-screen/funnel",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_WELCOME_SCREEN_FUNNEL",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/welcome-screen/funnel"],
-            "summaries": ["Get Guild Welcome Screen Funnel"]
         },
         {
             "method": "GET",

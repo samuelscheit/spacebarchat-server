@@ -6566,6 +6566,12 @@
                     "stickers"
                 ]
             },
+            "GuildWelcomeScreenFunnelResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildWelcomeScreenFunnelBucket"
+                }
+            },
             "GravityCustomChannelScoresResponse": {
                 "type": "array",
                 "items": {
@@ -22691,6 +22697,48 @@
                     "day_pt",
                     "messages_sent",
                     "participators"
+                ]
+            },
+            "GuildWelcomeScreenFunnelBucket": {
+                "type": "object",
+                "properties": {
+                    "day_pt": {
+                        "type": "string"
+                    },
+                    "option_channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "option_selected": {
+                        "type": "string"
+                    },
+                    "users_viewed_welcome_screen": {
+                        "type": "integer"
+                    },
+                    "users_clicked_any_option": {
+                        "type": "integer"
+                    },
+                    "users_clicked_option": {
+                        "type": "integer"
+                    },
+                    "users_sent_message": {
+                        "type": "integer"
+                    },
+                    "pct_clicked_option": {
+                        "type": "integer"
+                    },
+                    "pct_sent_message": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "day_pt",
+                    "option_channel_id",
+                    "option_selected",
+                    "users_clicked_any_option",
+                    "users_clicked_option",
+                    "users_sent_message",
+                    "users_viewed_welcome_screen"
                 ]
             },
             "GravityCustomChannelScore": {
@@ -44337,6 +44385,108 @@
                             "type": "string"
                         },
                         "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/analytics/welcome-screen/funnel/": {
+            "get": {
+                "x-permission-required": "VIEW_GUILD_INSIGHTS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns welcome screen funnel analytics buckets for the requested aggregation interval.",
+                "summary": "Get Guild Welcome Screen Funnel",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildWelcomeScreenFunnelResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Start date for the insights data as an ISO8601 timestamp."
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "End date for the insights data as an ISO8601 timestamp."
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly."
                     }
                 ],
                 "tags": [
