@@ -40,6 +40,7 @@ const coveredManifestIds = [
     "api:http:PATCH:/applications/@me/",
     "api:http:GET:/applications/detectable/",
     "api:http:GET:/guilds/:guild_id/application-command-index/",
+    "api:http:GET:/users/@me/application-command-index/",
     "api:http:POST:/interactions/",
     "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
 ];
@@ -82,6 +83,7 @@ test(
             "api:http:PATCH:/applications/@me/",
             "api:http:GET:/applications/detectable/",
             "api:http:GET:/guilds/:guild_id/application-command-index/",
+            "api:http:GET:/users/@me/application-command-index/",
             "api:http:POST:/interactions/",
             "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
         ]);
@@ -439,6 +441,13 @@ test(
             assert.ok(unlocalizedGuildCommand);
             assert.equal("name_localized" in unlocalizedGuildCommand, false);
             assert.equal("description_localized" in unlocalizedGuildCommand, false);
+
+            const userCommandIndex = await getJson(`${api.apiBaseUrl}/users/@me/application-command-index`, ownerToken);
+            await assertStatus(userCommandIndex, 200);
+            const userCommandIndexBody = await assertJsonObject(userCommandIndex);
+            assert.deepEqual(userCommandIndexBody.applications, []);
+            assert.deepEqual(userCommandIndexBody.application_commands, []);
+            assert.equal(typeof userCommandIndexBody.version, "string");
 
             eventCapture = await captureEvents([owner.id, applicationId, channelId]);
             const interaction = await postJson(

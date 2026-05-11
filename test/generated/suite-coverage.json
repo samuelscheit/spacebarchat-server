@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 505,
+        "totalCoveredManifestEntries": 506,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 483,
-                "totalCoveredManifestEntries": 483,
-                "totalCoveredRequiredManifestEntries": 483,
+                "totalRequiredManifestEntries": 484,
+                "totalCoveredManifestEntries": 484,
+                "totalCoveredRequiredManifestEntries": 484,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 344,
+            "stateful-domain": 345,
             "cdn-integration": 78,
             "integration": 21,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 483,
-                "totalCoveredManifestEntries": 483,
-                "totalCoveredRequiredManifestEntries": 483,
+                "totalRequiredManifestEntries": 484,
+                "totalCoveredManifestEntries": 484,
+                "totalCoveredRequiredManifestEntries": 484,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -299,6 +299,7 @@
                 "api:http:GET:/users/@me/affinities/channels/",
                 "api:http:GET:/users/@me/affinities/guilds/",
                 "api:http:GET:/users/@me/affinities/users/",
+                "api:http:GET:/users/@me/application-command-index/",
                 "api:http:GET:/users/@me/applications/:application_id/entitlements/",
                 "api:http:GET:/users/@me/avatars/",
                 "api:http:GET:/users/@me/billing/country-code/",
@@ -784,6 +785,7 @@
                 "api:http:GET:/users/@me/affinities/channels/",
                 "api:http:GET:/users/@me/affinities/guilds/",
                 "api:http:GET:/users/@me/affinities/users/",
+                "api:http:GET:/users/@me/application-command-index/",
                 "api:http:GET:/users/@me/applications/:application_id/entitlements/",
                 "api:http:GET:/users/@me/avatars/",
                 "api:http:GET:/users/@me/billing/country-code/",
@@ -1119,6 +1121,7 @@
                         "api:http:GET:/users/@me/affinities/channels/",
                         "api:http:GET:/users/@me/affinities/guilds/",
                         "api:http:GET:/users/@me/affinities/users/",
+                        "api:http:GET:/users/@me/application-command-index/",
                         "api:http:GET:/users/@me/applications/:application_id/entitlements/",
                         "api:http:GET:/users/@me/avatars/",
                         "api:http:GET:/users/@me/billing/country-code/",

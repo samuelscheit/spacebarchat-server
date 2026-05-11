@@ -1,6 +1,6 @@
 {
-    "missing": 642,
-    "spacebar": 538,
+    "missing": 641,
+    "spacebar": 539,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -354,7 +354,6 @@
         "/users/@me/activities/subscribe",
         "/users/@me/affinities/v2/users",
         "/users/@me/agreements",
-        "/users/@me/application-command-index",
         "/users/@me/applications/role-connections",
         "/users/@me/applications/{param}/entitlement-ticket",
         "/users/@me/applications/{param}/role-connection",
@@ -1837,13 +1836,6 @@
             "route_name": "GET_USERS__ME_AFFINITIES_V2_USERS",
             "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Affinities v2"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/application-command-index",
-            "route_name": "GET_USERS__ME_APPLICATION_COMMAND_INDEX",
-            "sources": ["userdoccers:interactions/application-commands.mdx"],
-            "summaries": ["Get User Application Command Index"]
         },
         {
             "method": "GET",

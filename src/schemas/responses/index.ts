@@ -24,6 +24,7 @@ export * from "./ActivityShelfResponse";
 export * from "./ActivitySessionUpdateResponse";
 export * from "./AppRecommendationsResponse";
 export * from "./ApplicationActivityStatisticsResponse";
+export * from "./ApplicationCommandIndexResponse";
 export * from "./ApplicationCanDeleteResponse";
 export * from "./ApplicationDiscoverabilityStateResponse";
 export * from "./ApplicationDirectoryCategoriesResponse";

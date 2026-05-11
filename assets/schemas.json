@@ -3050,6 +3050,124 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationCommandIndexEmbeddedActivityConfigResponse": {
+        "type": "object",
+        "properties": {
+            "supported_platforms": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandIndexBotResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "username": {
+                "type": "string"
+            },
+            "discriminator": {
+                "type": "string"
+            },
+            "global_name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "avatar": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "bot": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandIndexApplicationResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "icon": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "permissions": {
+                "$ref": "#/definitions/ApplicationCommandIndexPermissions"
+            },
+            "bot": {
+                "$ref": "#/definitions/ApplicationCommandIndexBotResponse"
+            },
+            "bot_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "embedded_activity_config": {
+                "$ref": "#/definitions/ApplicationCommandIndexEmbeddedActivityConfigResponse"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "flags",
+            "id",
+            "name"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationCommandIndexResponse": {
+        "type": "object",
+        "properties": {
+            "applications": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationCommandIndexApplicationResponse"
+                }
+            },
+            "application_commands": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ApplicationCommandSchema"
+                }
+            },
+            "version": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_commands",
+            "applications",
+            "version"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationCanDeleteResponse": {
         "type": "object",
         "properties": {

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 643,
+        "totalEntries": 644,
         "byService": {
-            "api": 546,
+            "api": 547,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 618,
+            "http-route": 619,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 149,
-            "stateful-domain": 344,
+            "stateful-domain": 345,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 21,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 501,
+            "route-class": 502,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19196,7 +19196,7 @@
             "method": "GET",
             "path": "/store/skus/:sku_id/plans/",
             "sourceFile": "src/api/routes/store/skus/#sku_id/plans.ts",
-            "line": 107,
+            "line": 101,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -20157,6 +20157,46 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/application-command-index/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/application-command-index/",
+            "sourceFile": "src/api/routes/users/@me/application-command-index.ts",
+            "line": 40,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationCommandIndexResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
                 "hasQuery": false
             },
             "coverage": {

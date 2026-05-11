@@ -4311,6 +4311,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationCommandIndexResponse"
+		],
+		"route": "/users/@me/application-command-index",
+		"route_name": "GET_USERS__ME_APPLICATION_COMMAND_INDEX",
+		"source": "src/api/routes/users/@me/application-command-index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"ApplicationEntitlementsResponse"
 		],
 		"route": "/users/@me/applications/{application_id}/entitlements",
