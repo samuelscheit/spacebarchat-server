@@ -3725,6 +3725,16 @@
 		"source": "src/api/routes/promotions.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"QuestConfigResponse"
+		],
+		"route": "/quests/{quest_id}",
+		"route_name": "GET_QUESTS_QUEST_ID",
+		"source": "src/api/routes/quests/#quest_id/index.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse",

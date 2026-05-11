@@ -49,6 +49,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /oauth2/keys",
     /^(GET|HEAD) \/applications\/[^/]+\/rpc\/?$/,
     /^(GET|HEAD) \/oauth2\/applications\/[^/]+\/rpc\/?$/,
+    /^(GET|HEAD) \/quests\/(?!(?:@me|decision)(?:\/|$))[^/]+\/?$/,
     "GET /applications/non-games/detectable",
     "GET /games/detectable/exclusions",
     "GET /experiments",

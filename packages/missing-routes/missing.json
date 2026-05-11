@@ -1,6 +1,6 @@
 {
-    "missing": 625,
-    "spacebar": 555,
+    "missing": 624,
+    "spacebar": 556,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -276,7 +276,6 @@
         "/quests/@me",
         "/quests/@me/claimed",
         "/quests/decision?placement={param}&client_heartbeat_session_id={param}",
-        "/quests/{param}",
         "/quests/{param}/claim-reward",
         "/quests/{param}/console/start",
         "/quests/{param}/console/stop",
@@ -1566,14 +1565,6 @@
         { "method": "GET", "route": "/premium-marketing", "route_name": "PREMIUM_MARKETING", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/presences", "route_name": "GET_PRESENCES", "sources": ["userdoccers:resources/presence.mdx"], "summaries": ["Get Presences"] },
         { "method": "GET", "route": "/private/bug-reports", "route_name": "BUG_REPORTS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/quests/{param}",
-            "route_name": "GET_QUESTS_QUEST_ID",
-            "sources": ["userdoccers:resources/quests.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/quests/{quest_id}"],
-            "summaries": ["Get Quest Config"]
-        },
         {
             "method": "GET",
             "route": "/quests/{param}/reward-code",
