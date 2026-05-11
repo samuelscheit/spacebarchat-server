@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 648,
+        "totalEntries": 649,
         "byService": {
-            "api": 551,
+            "api": 552,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 623,
+            "http-route": 624,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 151,
+            "contract": 152,
             "stateful-domain": 347,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 506,
+            "route-class": 507,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19362,6 +19362,43 @@
                     401,
                     403,
                     404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/teams/:team_id/identity/verification/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/teams/:team_id/identity/verification/",
+            "sourceFile": "src/api/routes/teams/#team_id/identity/verification.ts",
+            "line": 79,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    403,
+                    404,
+                    501
                 ],
                 "hasQuery": false
             },

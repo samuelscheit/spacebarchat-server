@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 623,
+        "totalContracts": 624,
         "byService": {
-            "api": 550,
+            "api": 551,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 476,
-        "runtimeMalformedAuthContracts": 476,
-        "runtimeRevokedSessionAuthContracts": 476,
-        "runtimeStaleTokenAuthContracts": 476,
+        "runtimeAuthBoundaryContracts": 477,
+        "runtimeMalformedAuthContracts": 477,
+        "runtimeRevokedSessionAuthContracts": 477,
+        "runtimeStaleTokenAuthContracts": 477,
         "runtimePublicAuthBoundaryContracts": 66,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
@@ -25767,6 +25767,50 @@
             "routeMetadata": {
                 "responses": ["APIApplicationArray", "APIErrorResponse"],
                 "responseStatuses": [200, 401, 403, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/teams/:team_id/identity/verification/",
+            "service": "api",
+            "method": "GET",
+            "path": "/teams/:team_id/identity/verification/",
+            "samplePath": "/teams/value/identity/verification/",
+            "sourceFile": "src/api/routes/teams/#team_id/identity/verification.ts",
+            "line": 79,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [401, 403, 404, 501]
             },
             "cases": [
                 {

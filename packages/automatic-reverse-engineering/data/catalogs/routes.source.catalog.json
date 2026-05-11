@@ -4142,6 +4142,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/teams/{team_id}/identity/verification",
+		"route_name": "GET_TEAMS_TEAM_ID_IDENTITY_VERIFICATION",
+		"source": "src/api/routes/teams/#team_id/identity/verification.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse",
 			"TeamMembersResponse"
 		],
