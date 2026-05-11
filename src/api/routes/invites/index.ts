@@ -107,6 +107,16 @@ export async function assertCanReadInviteTargetUsers(userId: string, invite: Inv
     }
 }
 
+export async function assertCanUpdateInviteTargetUsers(userId: string, invite: InviteTargetUsersInvite, dependencies = inviteTargetUsersDependencies): Promise<void> {
+    if (invite.inviter_id === userId) return;
+    if (!invite.guild_id) throw DiscordApiErrors.MISSING_PERMISSIONS.withParams("MANAGE_GUILD");
+
+    const permission = (await dependencies.getPermission(userId, invite.guild_id)) as InviteTargetUsersPermission;
+    if (!permission.has("MANAGE_GUILD")) {
+        throw DiscordApiErrors.MISSING_PERMISSIONS.withParams("MANAGE_GUILD");
+    }
+}
+
 async function findInviteTargetUsersInvite(inviteCode: string): Promise<InviteTargetUsersInvite> {
     return (await Invite.findOneOrFail({
         where: { code: inviteCode },
@@ -119,11 +129,13 @@ async function findInviteTargetUsersInvite(inviteCode: string): Promise<InviteTa
     })) as InviteTargetUsersInvite;
 }
 
-async function rejectUnsupportedInviteTargetUsersRequest(req: Request): Promise<never> {
+type InviteTargetUsersAuthorizer = (userId: string, invite: InviteTargetUsersInvite) => Promise<void>;
+
+async function rejectUnsupportedInviteTargetUsersRequest(req: Request, authorize: InviteTargetUsersAuthorizer): Promise<never> {
     const { invite_code } = req.params as { invite_code: string };
     const invite = await findInviteTargetUsersInvite(invite_code);
 
-    await assertCanReadInviteTargetUsers(req.user_id, invite);
+    await authorize(req.user_id, invite);
 
     // Spacebar does not persist Discord target-users CSV files or the async
     // processing job needed by the paired PUT/job-status endpoints.
@@ -202,7 +214,31 @@ router.get(
         },
     }),
     async (req: Request, _res: Response) => {
-        await rejectUnsupportedInviteTargetUsersRequest(req);
+        await rejectUnsupportedInviteTargetUsersRequest(req, assertCanReadInviteTargetUsers);
+    },
+);
+
+router.put(
+    "/:invite_code/target-users",
+    route({
+        summary: "Update Invite Target Users",
+        responses: {
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, _res: Response) => {
+        await rejectUnsupportedInviteTargetUsersRequest(req, assertCanUpdateInviteTargetUsers);
     },
 );
 
@@ -226,7 +262,7 @@ router.get(
         },
     }),
     async (req: Request, _res: Response) => {
-        await rejectUnsupportedInviteTargetUsersRequest(req);
+        await rejectUnsupportedInviteTargetUsersRequest(req, assertCanReadInviteTargetUsers);
     },
 );
 

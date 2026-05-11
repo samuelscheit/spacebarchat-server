@@ -3316,6 +3316,15 @@
 		"source": "src/api/routes/invites/index.ts"
 	},
 	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/invites/{invite_code}/target-users",
+		"route_name": "PUT_INVITES_INVITE_CODE_TARGET_USERS",
+		"source": "src/api/routes/invites/index.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse"

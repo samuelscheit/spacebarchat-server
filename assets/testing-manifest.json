@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 617,
+        "totalEntries": 618,
         "byService": {
-            "api": 520,
+            "api": 521,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 592,
+            "http-route": 593,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 138,
+            "contract": 139,
             "stateful-domain": 335,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 475,
+            "route-class": 476,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15986,7 +15986,7 @@
             "method": "GET",
             "path": "/invites/:invite_code/friend-members",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 162,
+            "line": 174,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -16023,7 +16023,7 @@
             "method": "GET",
             "path": "/invites/:invite_code/target-users/job-status",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 209,
+            "line": 245,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -16060,7 +16060,44 @@
             "method": "GET",
             "path": "/invites/:invite_code/target-users",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 185,
+            "line": 197,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    403,
+                    404,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/invites/:invite_code/target-users",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/invites/:invite_code/target-users",
+            "sourceFile": "src/api/routes/invites/index.ts",
+            "line": 221,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -16097,7 +16134,7 @@
             "method": "DELETE",
             "path": "/invites/:invite_code",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 288,
+            "line": 324,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -16137,7 +16174,7 @@
             "method": "GET",
             "path": "/invites/:invite_code",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 133,
+            "line": 145,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -16172,7 +16209,7 @@
             "method": "POST",
             "path": "/invites/:invite_code",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 233,
+            "line": 269,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

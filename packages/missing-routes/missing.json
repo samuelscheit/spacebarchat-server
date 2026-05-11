@@ -1,6 +1,6 @@
 {
-    "missing": 668,
-    "spacebar": 512,
+    "missing": 667,
+    "spacebar": 513,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -230,7 +230,6 @@
         "/initiate-prompts",
         "/integrations/{param}/join",
         "/integrations/{param}/search",
-        "/invites/{param}/target-users",
         "/join-requests/{param}",
         "/join-requests/{param}/interview",
         "/lobbies",
@@ -4671,14 +4670,6 @@
             "sources": ["userdoccers:resources/guild-scheduled-event.mdx"],
             "source_routes": ["/guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users/@me"],
             "summaries": ["Create Guild Scheduled Event User"]
-        },
-        {
-            "method": "PUT",
-            "route": "/invites/{param}/target-users",
-            "route_name": "PUT_INVITES_INVITE_CODE_TARGET_USERS",
-            "sources": ["userdoccers:resources/invite.mdx"],
-            "source_routes": ["/invites/{invite_code}/target-users"],
-            "summaries": ["Update Invite Target Users"]
         },
         { "method": "PUT", "route": "/lobbies", "route_name": "PUT_LOBBIES", "sources": ["userdoccers:resources/lobby.mdx"], "summaries": ["Join or Create Lobby"] },
         {
