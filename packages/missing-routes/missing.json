@@ -1,6 +1,6 @@
 {
-    "missing": 674,
-    "spacebar": 506,
+    "missing": 673,
+    "spacebar": 507,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1660,14 +1660,6 @@
         },
         { "method": "GET", "route": "/guilds/gravity-join", "route_name": "GRAVITY_JOIN_GUILD", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/integrations/{param}/search", "route_name": "INTEGRATION_SEARCH", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/invites/{param}/target-users",
-            "route_name": "GET_INVITES_INVITE_CODE_TARGET_USERS",
-            "sources": ["userdoccers:resources/invite.mdx"],
-            "source_routes": ["/invites/{invite_code}/target-users"],
-            "summaries": ["Get Invite Target Users"]
-        },
         {
             "method": "GET",
             "route": "/invites/{param}/target-users/job-status",

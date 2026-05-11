@@ -18,7 +18,7 @@
 
 import { acceptUserInvite, isUserInvite, revokeUserInvite, route, toUserInviteResponse } from "@spacebar/api";
 import { RelationshipType, type InviteFriendMembersResponse } from "@spacebar/schemas";
-import { Config, DiscordApiErrors, getPermission, getRights, Invite, Member, PublicInviteRelation, Relationship, SpacebarApiErrors, User } from "@spacebar/util";
+import { ApiError, Config, DiscordApiErrors, getPermission, getRights, Invite, Member, PublicInviteRelation, Relationship, SpacebarApiErrors, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { In } from "typeorm";
@@ -29,6 +29,27 @@ const router: Router = Router({ mergeParams: true });
 type InviteFriendMembersInvite = Pick<Invite, "guild_id">;
 type InviteFriendMembersRelationship = Pick<Relationship, "to_id">;
 type InviteFriendMembersMember = Pick<Member, "id">;
+type InviteTargetUsersInvite = {
+    channel_id?: string | null;
+    guild_id?: string | null;
+    inviter_id?: string | null;
+};
+type InviteTargetUsersPermission = {
+    has(permission: "MANAGE_GUILD" | "VIEW_AUDIT_LOG"): boolean;
+};
+type InviteTargetUsersDependencies = {
+    getPermission(userId: string, guildId: string): Promise<InviteTargetUsersPermission>;
+};
+
+export const INVITE_TARGET_USERS_UNSUPPORTED_MESSAGE = "Invite target user files are not supported on this Spacebar instance.";
+
+export function createInviteTargetUsersUnsupportedError(): ApiError {
+    return new ApiError(INVITE_TARGET_USERS_UNSUPPORTED_MESSAGE, 0, 501);
+}
+
+const inviteTargetUsersDependencies: InviteTargetUsersDependencies = {
+    getPermission: async (userId, guildId) => (await getPermission(userId, guildId)) as InviteTargetUsersPermission,
+};
 
 export async function buildInviteFriendMembersResponse(userId: string, inviteCode: string): Promise<InviteFriendMembersResponse> {
     const invite = (await Invite.findOneOrFail({
@@ -73,6 +94,16 @@ export async function buildInviteFriendMembersResponse(userId: string, inviteCod
     return {
         friend_member_ids: [...new Set(members.map((member) => member.id))].sort(),
     };
+}
+
+export async function assertCanReadInviteTargetUsers(userId: string, invite: InviteTargetUsersInvite, dependencies = inviteTargetUsersDependencies): Promise<void> {
+    if (invite.inviter_id === userId) return;
+    if (!invite.guild_id) throw DiscordApiErrors.MISSING_PERMISSIONS.withParams("MANAGE_GUILD or VIEW_AUDIT_LOG");
+
+    const permission = (await dependencies.getPermission(userId, invite.guild_id)) as InviteTargetUsersPermission;
+    if (!permission.has("MANAGE_GUILD") && !permission.has("VIEW_AUDIT_LOG")) {
+        throw DiscordApiErrors.MISSING_PERMISSIONS.withParams("MANAGE_GUILD or VIEW_AUDIT_LOG");
+    }
 }
 
 router.get(
@@ -124,6 +155,45 @@ router.get(
         const { invite_code } = req.params as { invite_code: string };
 
         res.status(200).json(await buildInviteFriendMembersResponse(req.user_id, invite_code));
+    },
+);
+
+router.get(
+    "/:invite_code/target-users",
+    route({
+        summary: "Get Invite Target Users",
+        responses: {
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, _res: Response) => {
+        const { invite_code } = req.params as { invite_code: string };
+        const invite = (await Invite.findOneOrFail({
+            where: { code: invite_code },
+            select: {
+                channel_id: true,
+                code: true,
+                guild_id: true,
+                inviter_id: true,
+            },
+        })) as InviteTargetUsersInvite;
+
+        await assertCanReadInviteTargetUsers(req.user_id, invite);
+
+        // Spacebar does not persist Discord target-users CSV files or the async
+        // processing job needed by the paired PUT/job-status endpoints.
+        throw createInviteTargetUsersUnsupportedError();
     },
 );
 
