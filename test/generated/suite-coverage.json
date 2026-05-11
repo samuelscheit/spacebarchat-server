@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 512,
+        "totalCoveredManifestEntries": 513,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 490,
-                "totalCoveredManifestEntries": 490,
-                "totalCoveredRequiredManifestEntries": 490,
+                "totalRequiredManifestEntries": 491,
+                "totalCoveredManifestEntries": 491,
+                "totalCoveredRequiredManifestEntries": 491,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 350,
+            "stateful-domain": 351,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 490,
-                "totalCoveredManifestEntries": 490,
-                "totalCoveredRequiredManifestEntries": 490,
+                "totalRequiredManifestEntries": 491,
+                "totalCoveredManifestEntries": 491,
+                "totalCoveredRequiredManifestEntries": 491,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -246,6 +246,7 @@
                 "api:http:GET:/guilds/:guild_id/members/search/",
                 "api:http:GET:/guilds/:guild_id/messages/search/",
                 "api:http:GET:/guilds/:guild_id/new-member-welcome/",
+                "api:http:GET:/guilds/:guild_id/onboarding/allowed-applications/",
                 "api:http:GET:/guilds/:guild_id/premium/subscriptions",
                 "api:http:GET:/guilds/:guild_id/preview/",
                 "api:http:GET:/guilds/:guild_id/profile/",
@@ -738,6 +739,7 @@
                 "api:http:GET:/guilds/:guild_id/members/search/",
                 "api:http:GET:/guilds/:guild_id/messages/search/",
                 "api:http:GET:/guilds/:guild_id/new-member-welcome/",
+                "api:http:GET:/guilds/:guild_id/onboarding/allowed-applications/",
                 "api:http:GET:/guilds/:guild_id/premium/subscriptions",
                 "api:http:GET:/guilds/:guild_id/preview/",
                 "api:http:GET:/guilds/:guild_id/profile/",
@@ -1280,6 +1282,7 @@
                         "api:http:GET:/guilds/:guild_id/members/search/",
                         "api:http:GET:/guilds/:guild_id/messages/search/",
                         "api:http:GET:/guilds/:guild_id/new-member-welcome/",
+                        "api:http:GET:/guilds/:guild_id/onboarding/allowed-applications/",
                         "api:http:GET:/guilds/:guild_id/premium/subscriptions",
                         "api:http:GET:/guilds/:guild_id/preview/",
                         "api:http:GET:/guilds/:guild_id/profile/",

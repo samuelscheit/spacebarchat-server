@@ -7673,6 +7673,20 @@
                     "welcome_message"
                 ]
             },
+            "GuildOnboardingAllowedApplicationsResponse": {
+                "type": "object",
+                "properties": {
+                    "application_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "application_ids"
+                ]
+            },
             "GuildPruneResponse": {
                 "type": "object",
                 "properties": {
@@ -46109,6 +46123,74 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/onboarding/allowed-applications/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the application IDs that can be used as onboarding application connections. Spacebar does not currently persist Discord's onboarding connection allowlist, so the locally backed fail-closed response is an empty list.",
+                "summary": "Get Guild Onboarding Allowed Applications",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildOnboardingAllowedApplicationsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

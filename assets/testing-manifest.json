@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 656,
+        "totalEntries": 657,
         "byService": {
-            "api": 559,
+            "api": 560,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 631,
+            "http-route": 632,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 155,
-            "stateful-domain": 350,
+            "stateful-domain": 351,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 22,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 514,
+            "route-class": 515,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -13679,6 +13679,58 @@
                 "responseStatuses": [
                     200,
                     204,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "coverage": {
+                "policyId": "api-guild-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "members",
+                    "roles",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/guilds/:guild_id/onboarding/allowed-applications/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/onboarding/allowed-applications/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/onboarding/allowed-applications.ts",
+            "line": 30,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "MANAGE_GUILD",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GuildOnboardingAllowedApplicationsResponse"
+                ],
+                "responseStatuses": [
+                    200,
                     401,
                     403,
                     404

@@ -8067,6 +8067,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildOnboardingAllowedApplicationsResponse": {
+        "type": "object",
+        "properties": {
+            "application_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_ids"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPruneResponse": {
         "type": "object",
         "properties": {

@@ -1,6 +1,6 @@
 {
-    "missing": 629,
-    "spacebar": 551,
+    "missing": 628,
+    "spacebar": 552,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -175,7 +175,6 @@
         "/guilds/{param}/onboarding",
         "/guilds/{param}/onboarding-prompts/{param}",
         "/guilds/{param}/onboarding-responses",
-        "/guilds/{param}/onboarding/allowed-applications",
         "/guilds/{param}/pincode",
         "/guilds/{param}/powerups",
         "/guilds/{param}/premium/subscriptions",
@@ -1349,14 +1348,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/onboarding"],
             "summaries": ["Get Guild Onboarding"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/onboarding/allowed-applications",
-            "route_name": "GET_GUILDS_GUILD_ID_ONBOARDING_ALLOWED_APPLICATIONS",
-            "sources": ["userdoccers:resources/guild.mdx"],
-            "source_routes": ["/guilds/{guild_id}/onboarding/allowed-applications"],
-            "summaries": ["Get Guild Onboarding Allowed Applications"]
         },
         {
             "method": "GET",

@@ -2829,6 +2829,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildOnboardingAllowedApplicationsResponse"
+		],
+		"route": "/guilds/{guild_id}/onboarding/allowed-applications",
+		"route_name": "GET_GUILDS_GUILD_ID_ONBOARDING_ALLOWED_APPLICATIONS",
+		"source": "src/api/routes/guilds/#guild_id/onboarding/allowed-applications.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/premium/subscriptions",
 		"route_name": "GET_GUILDS_GUILD_ID_PREMIUM_SUBSCRIPTIONS",
