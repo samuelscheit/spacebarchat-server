@@ -11736,6 +11736,17 @@
                     "products"
                 ]
             },
+            "StorefrontSkuPricesResponse": {
+                "type": "object",
+                "properties": {
+                    "sku_prices": {
+                        "$ref": "#/components/schemas/StorefrontSkuPriceMap"
+                    }
+                },
+                "required": [
+                    "sku_prices"
+                ]
+            },
             "StoreSkuResponse": {
                 "type": "object",
                 "properties": {
@@ -32118,6 +32129,69 @@
                     "pc"
                 ]
             },
+            "StorefrontSkuPriceMap": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/StorefrontSkuPrice"
+                }
+            },
+            "StorefrontSkuPrice": {
+                "type": "object",
+                "properties": {
+                    "country_prices": {
+                        "$ref": "#/components/schemas/StorefrontSkuCountryPrices"
+                    },
+                    "payment_source_prices": {
+                        "$ref": "#/components/schemas/StorefrontSkuPaymentSourcePrices"
+                    }
+                }
+            },
+            "StorefrontSkuCountryPrices": {
+                "type": "object",
+                "properties": {
+                    "country_code": {
+                        "type": "string"
+                    },
+                    "prices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StorefrontSkuUnitPrice"
+                        }
+                    }
+                },
+                "required": [
+                    "country_code",
+                    "prices"
+                ]
+            },
+            "StorefrontSkuUnitPrice": {
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "integer"
+                    },
+                    "exponent": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "currency",
+                    "exponent"
+                ]
+            },
+            "StorefrontSkuPaymentSourcePrices": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/StorefrontSkuUnitPrice"
+                    }
+                }
+            },
             "StoreSkuLocalizedString": {
                 "anyOf": [
                     {
@@ -39505,6 +39579,63 @@
                 ],
                 "tags": [
                     "teams"
+                ]
+            }
+        },
+        "/storefront/skus/prices/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed pricing objects for the requested storefront SKU IDs.",
+                "summary": "Get Storefront SKU Prices",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StorefrontSkuPricesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "sku_ids",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "SKU IDs to retrieve storefront prices for (1-100)."
+                    }
+                ],
+                "tags": [
+                    "storefront"
                 ]
             }
         },

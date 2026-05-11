@@ -12367,6 +12367,19 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StorefrontSkuPricesResponse": {
+        "type": "object",
+        "properties": {
+            "sku_prices": {
+                "$ref": "#/definitions/StorefrontSkuPriceMap"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "sku_prices"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StoreSkuResponse": {
         "type": "object",
         "properties": {
@@ -33799,6 +33812,77 @@
         "required": [
             "pc"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontSkuPriceMap": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/StorefrontSkuPrice"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontSkuPrice": {
+        "type": "object",
+        "properties": {
+            "country_prices": {
+                "$ref": "#/definitions/StorefrontSkuCountryPrices"
+            },
+            "payment_source_prices": {
+                "$ref": "#/definitions/StorefrontSkuPaymentSourcePrices"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontSkuCountryPrices": {
+        "type": "object",
+        "properties": {
+            "country_code": {
+                "type": "string"
+            },
+            "prices": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StorefrontSkuUnitPrice"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "country_code",
+            "prices"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontSkuUnitPrice": {
+        "type": "object",
+        "properties": {
+            "currency": {
+                "type": "string"
+            },
+            "amount": {
+                "type": "integer"
+            },
+            "exponent": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "amount",
+            "currency",
+            "exponent"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontSkuPaymentSourcePrices": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/StorefrontSkuUnitPrice"
+            }
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "StoreSkuLocalizedString": {

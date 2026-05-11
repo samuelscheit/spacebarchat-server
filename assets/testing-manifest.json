@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 669,
+        "totalEntries": 670,
         "byService": {
-            "api": 572,
+            "api": 573,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 644,
+            "http-route": 645,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 163,
+            "contract": 164,
             "stateful-domain": 355,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 527,
+            "route-class": 528,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -5776,7 +5776,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 181,
+            "line": 177,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5827,7 +5827,7 @@
             "method": "POST",
             "path": "/channels/:channel_id/messages/",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 319,
+            "line": 315,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5889,7 +5889,7 @@
             "method": "DELETE",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 381,
+            "line": 377,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5934,7 +5934,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 321,
+            "line": 317,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -5986,7 +5986,7 @@
             "method": "PATCH",
             "path": "/channels/:channel_id/messages/ack",
             "sourceFile": "src/api/routes/channels/#channel_id/messages/index.ts",
-            "line": 349,
+            "line": 345,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -19868,6 +19868,43 @@
                 "responseBodies": [
                     "APIErrorResponse",
                     "StorefrontProductsBySkuResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/storefront/skus/prices/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/storefront/skus/prices/",
+            "sourceFile": "src/api/routes/storefront/skus/prices.ts",
+            "line": 121,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StorefrontSkuPricesResponse"
                 ],
                 "responseStatuses": [
                     200,

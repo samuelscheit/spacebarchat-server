@@ -182,6 +182,7 @@ export * from "./StageInstanceResponse";
 export * from "./StoreConsumableSkuPricingResponse";
 export * from "./StoreEulaResponse";
 export * from "./StorefrontProductResponse";
+export * from "./StorefrontSkuPricesResponse";
 export * from "./StoreSkuResponse";
 export * from "./StoreSkuListingsResponse";
 export * from "./StorePublishedListingsApplicationsResponse";

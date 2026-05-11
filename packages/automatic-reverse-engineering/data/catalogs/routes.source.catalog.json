@@ -4244,6 +4244,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"StorefrontSkuPricesResponse"
+		],
+		"route": "/storefront/skus/prices",
+		"route_name": "GET_STOREFRONT_SKUS_PRICES",
+		"source": "src/api/routes/storefront/skus/prices.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"TeamListResponse"
 		],
 		"route": "/teams",
