@@ -5183,6 +5183,17 @@
                     "$ref": "#/components/schemas/GuildAudienceParticipatorsByRegCountryBucket"
                 }
             },
+            "GuildAdminServerEligibilityResponse": {
+                "type": "object",
+                "properties": {
+                    "eligible_for_admin_server": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "eligible_for_admin_server"
+                ]
+            },
             "GuildBasicResponse": {
                 "type": "object",
                 "properties": {
@@ -48027,6 +48038,63 @@
                             "type": "integer"
                         },
                         "description": "Data aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/admin-server-eligibility/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Admin Community Eligibility",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildAdminServerEligibilityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
                     }
                 ],
                 "tags": [

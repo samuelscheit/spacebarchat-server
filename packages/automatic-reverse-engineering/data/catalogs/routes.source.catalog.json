@@ -2111,6 +2111,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildAdminServerEligibilityResponse"
+		],
+		"route": "/guilds/{guild_id}/admin-server-eligibility",
+		"route_name": "GET_GUILDS_GUILD_ID_ADMIN_SERVER_ELIGIBILITY",
+		"source": "src/api/routes/guilds/#guild_id/admin-server-eligibility.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildAudienceNewMembersByDiscordTenureResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/audience/new-members-by-discord-tenure",

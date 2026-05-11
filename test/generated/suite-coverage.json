@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 488,
+        "totalCoveredManifestEntries": 489,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 466,
-                "totalCoveredManifestEntries": 466,
-                "totalCoveredRequiredManifestEntries": 466,
+                "totalRequiredManifestEntries": 467,
+                "totalCoveredManifestEntries": 467,
+                "totalCoveredRequiredManifestEntries": 467,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 333,
+            "stateful-domain": 334,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 466,
-                "totalCoveredManifestEntries": 466,
-                "totalCoveredRequiredManifestEntries": 466,
+                "totalRequiredManifestEntries": 467,
+                "totalCoveredManifestEntries": 467,
+                "totalCoveredRequiredManifestEntries": 467,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -192,6 +192,7 @@
                 "api:http:GET:/gifs/trending/",
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/guilds/:guild_id/",
+                "api:http:GET:/guilds/:guild_id/admin-server-eligibility/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
@@ -660,6 +661,7 @@
                 "api:http:GET:/gifs/trending/",
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/guilds/:guild_id/",
+                "api:http:GET:/guilds/:guild_id/admin-server-eligibility/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
@@ -1177,6 +1179,7 @@
                         "api:http:DELETE:/guilds/:guild_id/stickers/:sticker_id",
                         "api:http:DELETE:/guilds/:guild_id/templates/:code",
                         "api:http:GET:/guilds/:guild_id/",
+                        "api:http:GET:/guilds/:guild_id/admin-server-eligibility/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",

@@ -5467,6 +5467,19 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildAdminServerEligibilityResponse": {
+        "type": "object",
+        "properties": {
+            "eligible_for_admin_server": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "eligible_for_admin_server"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildBasicResponse": {
         "type": "object",
         "properties": {

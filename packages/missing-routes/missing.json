@@ -1,6 +1,6 @@
 {
-    "missing": 672,
-    "spacebar": 508,
+    "missing": 671,
+    "spacebar": 509,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -130,7 +130,6 @@
         "/guilds/{param}/ack",
         "/guilds/{param}/ack/{param}/{param}",
         "/guilds/{param}/active-channels",
-        "/guilds/{param}/admin-server-eligibility",
         "/guilds/{param}/analytics/growth-activation/overview",
         "/guilds/{param}/analytics/growth-activation/retention",
         "/guilds/{param}/analytics/welcome-screen/users",
@@ -1325,14 +1324,6 @@
             "route_name": "ACTIVE_CHANNELS",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/active-channels"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/admin-server-eligibility",
-            "route_name": "GET_GUILDS_GUILD_ID_ADMIN_SERVER_ELIGIBILITY",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/admin-server-eligibility"],
-            "summaries": ["Get Admin Community Eligibility"]
         },
         {
             "method": "GET",
