@@ -39923,6 +39923,75 @@
                 ]
             }
         },
+        "/oauth2/applications/{application_id}/assets/{application_asset_id}/": {
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Deletes an application asset owned by the given application.",
+                "summary": "Delete Application Asset",
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "application_asset_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_asset_id"
+                    }
+                ],
+                "tags": [
+                    "oauth2"
+                ]
+            }
+        },
         "/oauth2/applications/{application_id}/allowlist/{user_id}/": {
             "delete": {
                 "security": [

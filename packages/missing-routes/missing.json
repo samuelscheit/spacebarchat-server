@@ -1,6 +1,6 @@
 {
-    "missing": 660,
-    "spacebar": 520,
+    "missing": 659,
+    "spacebar": 521,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -249,7 +249,6 @@
         "/oauth2/allowlist/accept",
         "/oauth2/applications/{param}/allowlist",
         "/oauth2/applications/{param}/assets",
-        "/oauth2/applications/{param}/assets/{param}",
         "/oauth2/applications/{param}/rpc",
         "/oauth2/applications/{param}/tokens",
         "/oauth2/authorize/webhook-channels",
@@ -848,14 +847,6 @@
             "sources": ["userdoccers:resources/lobby.mdx"],
             "source_routes": ["/lobbies/{lobby_id}/members/@me"],
             "summaries": ["Leave Lobby"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/oauth2/applications/{param}/assets/{param}",
-            "route_name": "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS_APPLICATION_ASSET_ID",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/oauth2/applications/{application_id}/assets/{application_asset_id}"],
-            "summaries": ["Delete Application Asset"]
         },
         {
             "method": "DELETE",
