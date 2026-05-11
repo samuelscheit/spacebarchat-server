@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 514,
+        "totalCoveredManifestEntries": 515,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 492,
-                "totalCoveredManifestEntries": 492,
-                "totalCoveredRequiredManifestEntries": 492,
+                "totalRequiredManifestEntries": 493,
+                "totalCoveredManifestEntries": 493,
+                "totalCoveredRequiredManifestEntries": 493,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 352,
+            "stateful-domain": 353,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 492,
-                "totalCoveredManifestEntries": 492,
-                "totalCoveredRequiredManifestEntries": 492,
+                "totalRequiredManifestEntries": 493,
+                "totalCoveredManifestEntries": 493,
+                "totalCoveredRequiredManifestEntries": 493,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -319,6 +319,7 @@
                 "api:http:GET:/users/@me/consumable/confetti/",
                 "api:http:GET:/users/@me/consumable/hd-streaming/",
                 "api:http:GET:/users/@me/devices/sync-token/",
+                "api:http:GET:/users/@me/dms/:user_id/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
                 "api:http:GET:/users/@me/game-relationships/",
@@ -813,6 +814,7 @@
                 "api:http:GET:/users/@me/consumable/confetti/",
                 "api:http:GET:/users/@me/consumable/hd-streaming/",
                 "api:http:GET:/users/@me/devices/sync-token/",
+                "api:http:GET:/users/@me/dms/:user_id/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
                 "api:http:GET:/users/@me/game-relationships/",
@@ -1154,6 +1156,7 @@
                         "api:http:GET:/users/@me/consumable/confetti/",
                         "api:http:GET:/users/@me/consumable/hd-streaming/",
                         "api:http:GET:/users/@me/devices/sync-token/",
+                        "api:http:GET:/users/@me/dms/:user_id/",
                         "api:http:GET:/users/@me/email-settings/",
                         "api:http:GET:/users/@me/entitlements/gifts",
                         "api:http:GET:/users/@me/game-relationships/",

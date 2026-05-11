@@ -4665,6 +4665,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"DmChannelDTO"
+		],
+		"route": "/users/@me/dms/{user_id}",
+		"route_name": "GET_USERS__ME_DMS_USER_ID",
+		"source": "src/api/routes/users/@me/dms/#user_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/users/@me/email-settings",

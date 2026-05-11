@@ -48,6 +48,7 @@ const coveredManifestIds = [
     "api:http:GET:/users/@me/channels/",
     "api:http:GET:/users/@me/collectibles-marketing/",
     "api:http:GET:/users/@me/collectibles-purchases/",
+    "api:http:GET:/users/@me/dms/:user_id/",
     "api:http:GET:/users/@me/email-settings/",
     "api:http:GET:/users/@me/entitlements/gifts",
     "api:http:GET:/users/@me/guilds/",
@@ -101,6 +102,7 @@ test(
             "api:http:GET:/users/@me/channels/",
             "api:http:GET:/users/@me/collectibles-marketing/",
             "api:http:GET:/users/@me/collectibles-purchases/",
+            "api:http:GET:/users/@me/dms/:user_id/",
             "api:http:GET:/users/@me/email-settings/",
             "api:http:GET:/users/@me/entitlements/gifts",
             "api:http:GET:/users/@me/guilds/",
@@ -212,7 +214,23 @@ test(
             const dmMessages = await getJsonArray(`${api.apiBaseUrl}/users/${target.id}/messages?limit=5`, ownerToken);
             assert.deepEqual(dmMessages, []);
 
+            const fetchedDmResponse = await getJson(`${api.apiBaseUrl}/users/@me/dms/${target.id}`, ownerToken);
+            await assertStatus(fetchedDmResponse, 200);
+            const fetchedDm = await assertJsonObject(fetchedDmResponse);
+            assert.equal(fetchedDm.id, dmId);
+            assert.equal(fetchedDm.type, ChannelType.DM);
+            assert.deepEqual(
+                (fetchedDm.recipients as Array<{ id: string }>).map((recipient) => recipient.id),
+                [target.id],
+            );
+
             const invalidMessageRecipient = await registerUser(`invaliddm${suffix.slice(-8)}`, `users-invalid-dm-${suffix}@example.com`);
+            const missingDmResponse = await getJson(`${api.apiBaseUrl}/users/@me/dms/${invalidMessageRecipient.id}`, ownerToken);
+            await assertStatus(missingDmResponse, 404);
+            const missingDm = await assertJsonObject(missingDmResponse);
+            assert.equal(missingDm.code, 10003);
+            assert.equal(await owner.getDmChannelWith(invalidMessageRecipient.id), undefined, "DM channel lookup must not create or reopen a DM");
+
             const invalidDirectMessage = await postJson(
                 `${api.apiBaseUrl}/users/${invalidMessageRecipient.id}/messages`,
                 {

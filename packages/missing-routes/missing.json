@@ -1,6 +1,6 @@
 {
-    "missing": 627,
-    "spacebar": 553,
+    "missing": 626,
+    "spacebar": 554,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -399,7 +399,6 @@
         "/users/@me/connections/{param}/{param}/refresh",
         "/users/@me/consent",
         "/users/@me/devices/sync",
-        "/users/@me/dms/{param}",
         "/users/@me/email",
         "/users/@me/email-settings",
         "/users/@me/email/verify-code",
@@ -1898,14 +1897,6 @@
             "route_name": "GET_USERS__ME_CONSENT",
             "sources": ["userdoccers:resources/user-settings.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Consents"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/dms/{param}",
-            "route_name": "GET_USERS__ME_DMS_USER_ID",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/users/@me/dms/{user_id}"],
-            "summaries": ["Get DM Channel"]
         },
         {
             "method": "GET",
