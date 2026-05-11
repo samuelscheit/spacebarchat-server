@@ -3431,6 +3431,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"OAuthAuthorizationsResponse"
+		],
+		"route": "/oauth2/applications/{application_id}/tokens",
+		"route_name": "GET_OAUTH2_APPLICATIONS_APPLICATION_ID_TOKENS",
+		"source": "src/api/routes/oauth2/applications/#application_id/tokens.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"Application"
 		],
 		"route": "/oauth2/applications/@me",

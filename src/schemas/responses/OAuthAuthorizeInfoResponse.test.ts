@@ -67,6 +67,36 @@ describe("OAuthAuthorizationResponse schema", () => {
     });
 });
 
+describe("OAuthAuthorizationsResponse schema", () => {
+    test("describes the OAuth2 authorizations list payload", () => {
+        const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8"));
+        const schema = schemas.OAuthAuthorizationsResponse;
+
+        assert.deepEqual(schema, {
+            $schema: "http://json-schema.org/draft-07/schema#",
+            items: {
+                $ref: "#/definitions/OAuthAuthorizationResponse",
+            },
+            type: "array",
+        });
+    });
+
+    test("documents GET /oauth2/applications/{application_id}/tokens with the OAuth2 authorizations list response", () => {
+        const openapi = JSON.parse(readFileSync("assets/openapi.json", "utf8"));
+        const operation = openapi.paths["/oauth2/applications/{application_id}/tokens/"].get;
+
+        assert.deepEqual(operation.responses["200"].content["application/json"].schema, {
+            $ref: "#/components/schemas/OAuthAuthorizationsResponse",
+        });
+        assert.deepEqual(operation.responses["403"].content["application/json"].schema, {
+            $ref: "#/components/schemas/APIErrorResponse",
+        });
+        assert.deepEqual(operation.responses["404"].content["application/json"].schema, {
+            $ref: "#/components/schemas/APIErrorResponse",
+        });
+    });
+});
+
 describe("OAuthCurrentAuthorizationResponse schema", () => {
     test("describes GET /oauth2/@me current authorization payload", () => {
         const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8"));

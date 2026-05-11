@@ -6,6 +6,7 @@ import {
     canAccessApplicationBranches,
     canAccessApplicationEmojis,
     canAccessApplicationGiftCodeBatches,
+    canAccessApplicationOAuth2Authorizations,
     canManageApplicationAssets,
     canManageApplicationCommands,
     requireApplicationAssetManagement,
@@ -13,6 +14,7 @@ import {
     requireApplicationCommandManagement,
     requireApplicationEmojiAccess,
     requireApplicationGiftCodeBatchAccess,
+    requireApplicationOAuth2AuthorizationAccess,
 } from "./ApplicationAuthorization";
 
 describe("application command authorization", () => {
@@ -375,6 +377,96 @@ describe("application branch authorization", () => {
 
         await assert.rejects(
             () => requireApplicationBranchAccess("app", "attacker", repository),
+            (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
+        );
+    });
+});
+
+describe("application OAuth2 authorization access", () => {
+    test("uses the same owner and accepted team-member access boundary as developer resources", () => {
+        assert.equal(canAccessApplicationOAuth2Authorizations({ owner: { id: "owner" } }, "owner"), true);
+        assert.equal(
+            canAccessApplicationOAuth2Authorizations(
+                {
+                    owner: { id: "owner" },
+                    team: {
+                        members: [
+                            {
+                                user_id: "member",
+                                membership_state: TeamMemberState.ACCEPTED,
+                                role: TeamMemberRole.READ_ONLY,
+                            },
+                        ],
+                    },
+                },
+                "member",
+            ),
+            true,
+        );
+    });
+
+    test("does not allow application bot users or invited team members", () => {
+        const application = {
+            owner: { id: "owner" },
+            bot: { id: "application" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                ],
+            },
+        };
+
+        assert.equal(canAccessApplicationOAuth2Authorizations(application, "application"), false);
+        assert.equal(canAccessApplicationOAuth2Authorizations(application, "invited"), false);
+    });
+
+    test("loads owner and team members before allowing OAuth2 authorization access", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({
+                owner: { id: "owner" },
+                team: {
+                    members: [
+                        {
+                            user_id: "developer",
+                            membership_state: TeamMemberState.ACCEPTED,
+                            role: TeamMemberRole.DEVELOPER,
+                        },
+                    ],
+                },
+            })),
+        };
+
+        await requireApplicationOAuth2AuthorizationAccess("app", "developer", repository);
+
+        assert.deepEqual(repository.findOne.mock.calls[0].arguments[0], {
+            where: { id: "app" },
+            relations: {
+                owner: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+    });
+
+    test("throws unknown application and authorization errors for OAuth2 authorization access", async (t) => {
+        const missingRepository = {
+            findOne: t.mock.fn(async (_options: unknown) => null),
+        };
+        await assert.rejects(
+            () => requireApplicationOAuth2AuthorizationAccess("missing-app", "user", missingRepository),
+            (error) => error === DiscordApiErrors.UNKNOWN_APPLICATION,
+        );
+
+        const unauthorizedRepository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({ owner: { id: "owner" } })),
+        };
+        await assert.rejects(
+            () => requireApplicationOAuth2AuthorizationAccess("app", "attacker", unauthorizedRepository),
             (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
         );
     });

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 495,
+        "totalCoveredManifestEntries": 496,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 473,
-                "totalCoveredManifestEntries": 473,
-                "totalCoveredRequiredManifestEntries": 473,
+                "totalRequiredManifestEntries": 474,
+                "totalCoveredManifestEntries": 474,
+                "totalCoveredRequiredManifestEntries": 474,
                 "totalSuites": 12
             },
             "protocol": {
@@ -30,7 +30,7 @@
         "byCoveredTestTier": {
             "stateful-domain": 336,
             "cdn-integration": 78,
-            "integration": 19,
+            "integration": 20,
             "contract": 22,
             "auth-scenario": 17,
             "middleware-contract": 1,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 473,
-                "totalCoveredManifestEntries": 473,
-                "totalCoveredRequiredManifestEntries": 473,
+                "totalRequiredManifestEntries": 474,
+                "totalCoveredManifestEntries": 474,
+                "totalCoveredRequiredManifestEntries": 474,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -268,6 +268,7 @@
                 "api:http:GET:/guilds/templates/:template_code",
                 "api:http:GET:/oauth2/@me/",
                 "api:http:GET:/oauth2/applications/:application_id/allowlist/",
+                "api:http:GET:/oauth2/applications/:application_id/tokens/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
                 "api:http:GET:/oauth2/keys/",
@@ -743,6 +744,7 @@
                 "api:http:GET:/guilds/templates/:template_code",
                 "api:http:GET:/oauth2/@me/",
                 "api:http:GET:/oauth2/applications/:application_id/allowlist/",
+                "api:http:GET:/oauth2/applications/:application_id/tokens/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
                 "api:http:GET:/oauth2/keys/",
@@ -1520,6 +1522,7 @@
                         "api:http:GET:/connections/:connection_name/authorize/",
                         "api:http:GET:/oauth2/@me/",
                         "api:http:GET:/oauth2/applications/:application_id/allowlist/",
+                        "api:http:GET:/oauth2/applications/:application_id/tokens/",
                         "api:http:GET:/oauth2/applications/@me/",
                         "api:http:GET:/oauth2/authorize/",
                         "api:http:GET:/oauth2/keys/",

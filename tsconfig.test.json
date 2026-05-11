@@ -27,6 +27,7 @@
         "src/api/tests/users/@me/guildAffinitiesRoute.test.ts",
         "src/api/routes/oauth2/@me.test.ts",
         "src/api/routes/oauth2/authorize.test.ts",
+        "src/api/routes/oauth2/applications/#application_id/tokens.test.ts",
         "src/api/routes/oauth2/tokens/#token_id.test.ts",
         "src/api/util/utility/OAuthAuthorize.test.ts",
         "src/api/util/utility/OAuthAuthorizeResponse.test.ts",
