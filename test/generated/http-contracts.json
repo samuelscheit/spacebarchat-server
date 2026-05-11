@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 600,
+        "totalContracts": 601,
         "byService": {
-            "api": 527,
+            "api": 528,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 453,
-        "runtimeMalformedAuthContracts": 453,
-        "runtimeRevokedSessionAuthContracts": 453,
-        "runtimeStaleTokenAuthContracts": 453,
+        "runtimeAuthBoundaryContracts": 454,
+        "runtimeMalformedAuthContracts": 454,
+        "runtimeRevokedSessionAuthContracts": 454,
+        "runtimeStaleTokenAuthContracts": 454,
         "runtimePublicAuthBoundaryContracts": 66,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,

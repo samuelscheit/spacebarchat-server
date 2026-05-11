@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 625,
+        "totalEntries": 626,
         "byService": {
-            "api": 528,
+            "api": 529,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 600,
+            "http-route": 601,
             "opcode": 21
         },
         "byTestTier": {
@@ -38,7 +38,7 @@
             "stateful-domain": 335,
             "cdn-integration": 78,
             "auth-scenario": 17,
-            "integration": 17,
+            "integration": 18,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 483,
+            "route-class": 484,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
