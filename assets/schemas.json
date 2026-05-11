@@ -7287,6 +7287,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildTopEmojisResponse": {
+        "type": "object",
+        "properties": {
+            "items": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildTopEmojiResponseItem"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "items"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildVanityUrlResponse": {
         "anyOf": [
             {
@@ -23931,6 +23947,24 @@
         "required": [
             "day",
             "n"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildTopEmojiResponseItem": {
+        "type": "object",
+        "properties": {
+            "emoji_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "emoji_rank": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "emoji_id",
+            "emoji_rank"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

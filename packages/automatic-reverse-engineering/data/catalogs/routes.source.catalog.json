@@ -2743,6 +2743,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildTopEmojisResponse"
+		],
+		"route": "/guilds/{guild_id}/top-emojis",
+		"route_name": "GET_GUILDS_GUILD_ID_TOP_EMOJIS",
+		"source": "src/api/routes/guilds/#guild_id/top-emojis.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildVanityUrlResponse"
 		],
 		"route": "/guilds/{guild_id}/vanity-url",

@@ -6958,6 +6958,20 @@
                     "status"
                 ]
             },
+            "GuildTopEmojisResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GuildTopEmojiResponseItem"
+                        }
+                    }
+                },
+                "required": [
+                    "items"
+                ]
+            },
             "GuildVanityUrlResponse": {
                 "anyOf": [
                     {
@@ -22763,6 +22777,22 @@
                 "required": [
                     "day",
                     "n"
+                ]
+            },
+            "GuildTopEmojiResponseItem": {
+                "type": "object",
+                "properties": {
+                    "emoji_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "emoji_rank": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "emoji_id",
+                    "emoji_rank"
                 ]
             },
             "GuildVanityUrl": {
@@ -39709,6 +39739,73 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GuildVanityUrlCreateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/top-emojis/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns source-backed top emoji rankings for the guild when available.",
+                "summary": "Get Guild Top Emojis",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildTopEmojisResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }

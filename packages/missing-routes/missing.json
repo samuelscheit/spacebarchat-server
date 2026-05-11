@@ -1,6 +1,6 @@
 {
-    "missing": 711,
-    "spacebar": 469,
+    "missing": 710,
+    "spacebar": 470,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -254,7 +254,6 @@
         "/guilds/{param}/skus/{param}",
         "/guilds/{param}/soundboard-sounds",
         "/guilds/{param}/soundboard-sounds/{param}",
-        "/guilds/{param}/top-emojis",
         "/guilds/{param}/top-games",
         "/guilds/{param}/top-read-channels",
         "/guilds/{param}/voice-states/@me",
@@ -1898,14 +1897,6 @@
             "sources": ["userdoccers:resources/soundboard.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/soundboard-sounds/{sound_id}", "/guilds/{guild_id}/soundboard-sounds/{param}"],
             "summaries": ["Get Guild Soundboard Sound"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/top-emojis",
-            "route_name": "GET_GUILDS_GUILD_ID_TOP_EMOJIS",
-            "sources": ["userdoccers:resources/emoji.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/top-emojis"],
-            "summaries": ["Get Guild Top Emojis"]
         },
         {
             "method": "GET",
