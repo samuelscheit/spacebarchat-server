@@ -398,6 +398,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationExternalIdentityProviderConfigurationsResponse"
+		],
+		"route": "/applications/{application_id}/external-identity-provider-configurations",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_EXTERNAL_IDENTITY_PROVIDER_CONFIGURATIONS",
+		"source": "src/api/routes/applications/#application_id/external-identity-provider-configurations.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/applications/{application_id}/gift-code-batches/{gift_code_batch_id}",

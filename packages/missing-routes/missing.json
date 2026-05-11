@@ -1,6 +1,6 @@
 {
-    "missing": 706,
-    "spacebar": 474,
+    "missing": 705,
+    "spacebar": 475,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -28,7 +28,6 @@
         "/applications/{param}/entitlements/{param}",
         "/applications/{param}/entitlements/{param}/consume",
         "/applications/{param}/external-assets",
-        "/applications/{param}/external-identity-provider-configurations",
         "/applications/{param}/external-identity-provider-configurations/{param}",
         "/applications/{param}/game-claims",
         "/applications/{param}/game-claims/{param}",
@@ -1141,14 +1140,6 @@
             "sources": ["userdoccers:resources/entitlement.mdx"],
             "source_routes": ["/applications/{application_id}/entitlements/{entitlement_id}"],
             "summaries": ["Get Application Entitlement"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/external-identity-provider-configurations",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_EXTERNAL_IDENTITY_PROVIDER_CONFIGURATIONS",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/external-identity-provider-configurations"],
-            "summaries": ["Get Application External Identity Provider Configurations"]
         },
         {
             "method": "GET",

@@ -30,6 +30,7 @@ export * from "./ApplicationDirectoryCategoriesResponse";
 export * from "./ApplicationDirectoryCollectionsResponse";
 export * from "./ApplicationDirectorySearchResponse";
 export * from "./ApplicationDirectorySimilarApplicationsResponse";
+export * from "./ApplicationExternalIdentityProviderConfigurationsResponse";
 export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";

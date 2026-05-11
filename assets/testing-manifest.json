@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 579,
+        "totalEntries": 580,
         "byService": {
-            "api": 482,
+            "api": 483,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 554,
+            "http-route": 555,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 125,
-            "stateful-domain": 310,
+            "stateful-domain": 311,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 15,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 437,
+            "route-class": 438,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -1683,6 +1683,48 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/applications/:application_id/external-identity-provider-configurations/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications/:application_id/external-identity-provider-configurations/",
+            "sourceFile": "src/api/routes/applications/#application_id/external-identity-provider-configurations.ts",
+            "line": 45,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationExternalIdentityProviderConfigurationsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
                 ],
                 "hasQuery": false
             },
