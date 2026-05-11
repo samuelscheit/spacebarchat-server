@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 468,
+        "totalCoveredManifestEntries": 469,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 446,
-                "totalCoveredManifestEntries": 446,
-                "totalCoveredRequiredManifestEntries": 446,
+                "totalRequiredManifestEntries": 447,
+                "totalCoveredManifestEntries": 447,
+                "totalCoveredRequiredManifestEntries": 447,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 315,
+            "stateful-domain": 316,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 446,
-                "totalCoveredManifestEntries": 446,
-                "totalCoveredRequiredManifestEntries": 446,
+                "totalRequiredManifestEntries": 447,
+                "totalCoveredManifestEntries": 447,
+                "totalCoveredRequiredManifestEntries": 447,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -192,6 +192,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
+                "api:http:GET:/guilds/:guild_id/analytics/engagement/overview/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/pruneable-members/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/text-channels/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/voice-channels/",
@@ -640,6 +641,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
+                "api:http:GET:/guilds/:guild_id/analytics/engagement/overview/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/pruneable-members/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/text-channels/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/voice-channels/",
@@ -1139,6 +1141,7 @@
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
+                        "api:http:GET:/guilds/:guild_id/analytics/engagement/overview/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/pruneable-members/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/text-channels/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/voice-channels/",

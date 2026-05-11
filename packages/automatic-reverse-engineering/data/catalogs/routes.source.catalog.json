@@ -2131,6 +2131,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildEngagementOverviewResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/engagement/overview",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_ENGAGEMENT_OVERVIEW",
+		"source": "src/api/routes/guilds/#guild_id/analytics/engagement/overview.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildEngagementPruneableMembersResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/engagement/pruneable-members",

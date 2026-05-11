@@ -6753,6 +6753,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildEngagementOverviewResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildEngagementOverviewBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildEngagementPruneableMembersResponse": {
         "type": "array",
         "items": {
@@ -23582,6 +23589,35 @@
             "day_pt",
             "days_in_guild",
             "muters"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildEngagementOverviewBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "visitors": {
+                "type": "integer"
+            },
+            "communicators": {
+                "type": "integer"
+            },
+            "messages": {
+                "type": "integer"
+            },
+            "speaking_minutes": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "communicators",
+            "day_pt",
+            "messages",
+            "speaking_minutes",
+            "visitors"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

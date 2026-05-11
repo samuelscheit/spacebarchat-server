@@ -85,6 +85,7 @@ export * from "./GuildDiscoveryMetadataResponse";
 export * from "./GuildDiscoveryRequirements";
 export * from "./GuildEngagementBaseResponse";
 export * from "./GuildEngagementMutersResponse";
+export * from "./GuildEngagementOverviewResponse";
 export * from "./GuildEngagementPruneableMembersResponse";
 export * from "./GuildEngagementTextChannelsResponse";
 export * from "./GuildEngagementVoiceChannelsResponse";

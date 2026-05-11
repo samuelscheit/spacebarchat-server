@@ -1,6 +1,6 @@
 {
-    "missing": 700,
-    "spacebar": 480,
+    "missing": 699,
+    "spacebar": 481,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -139,7 +139,6 @@
         "/guilds/{param}/analytics/channel-following/following-guild-size-by-channel",
         "/guilds/{param}/analytics/channel-following/overview",
         "/guilds/{param}/analytics/channel-following/reach",
-        "/guilds/{param}/analytics/engagement/overview",
         "/guilds/{param}/analytics/growth-activation/activation",
         "/guilds/{param}/analytics/growth-activation/joins",
         "/guilds/{param}/analytics/growth-activation/joins-by-invite-link",
@@ -1427,14 +1426,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx"],
             "source_routes": ["/guilds/{guild_id}/analytics/channel-following/reach"],
             "summaries": ["Get Guild Channel Following Reach"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/engagement/overview",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_ENGAGEMENT_OVERVIEW",
-            "sources": ["userdoccers:resources/guild-analytics.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/analytics/engagement/overview"],
-            "summaries": ["Get Guild Engagement Overview"]
         },
         {
             "method": "GET",
