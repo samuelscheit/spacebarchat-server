@@ -1,9 +1,8 @@
 {
-    "missing": 716,
-    "spacebar": 464,
+    "missing": 714,
+    "spacebar": 466,
     "discord": 1128,
     "routes": [
-        "/activities",
         "/activities/{param}/test-mode",
         "/activities/{param}/{param}",
         "/age-verification/test",
@@ -1093,13 +1092,6 @@
             "sources": ["userdoccers:interactions/receiving-and-responding.mdx"],
             "source_routes": ["/webhooks/{application_id}/{interaction_token}/messages/@original"],
             "summaries": ["Delete Original Interaction Response"]
-        },
-        {
-            "method": "GET",
-            "route": "/activities",
-            "route_name": "GET_ACTIVITIES",
-            "sources": ["userdoccers:resources/presence.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Global Activity Statistics"]
         },
         {
             "method": "GET",
@@ -3267,13 +3259,6 @@
             "summaries": ["Modify Original Interaction Response"]
         },
         { "method": "POST", "route": "/{param}/force-send-prompt", "route_name": "FORCE_SEND_PROMPT", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/activities",
-            "route_name": "POST_ACTIVITIES",
-            "sources": ["userdoccers:resources/presence.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Update Activity Session"]
-        },
         {
             "method": "POST",
             "route": "/activities/{param}/{param}",

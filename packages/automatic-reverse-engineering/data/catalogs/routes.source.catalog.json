@@ -17,6 +17,27 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GlobalActivityStatisticsResponse"
+		],
+		"route": "/activities",
+		"route_name": "GET_ACTIVITIES",
+		"source": "src/api/routes/activities.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "ActivitySessionUpdateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ActivitySessionUpdateResponse"
+		],
+		"route": "/activities",
+		"route_name": "POST_ACTIVITIES",
+		"source": "src/api/routes/activities.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"EmbeddedActivityInstancesResponse"
 		],
 		"route": "/activities/{application_id}/instances/{channel_id}",

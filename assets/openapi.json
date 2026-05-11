@@ -558,6 +558,49 @@
                     "type"
                 ]
             },
+            "ActivitySessionUpdateSchema": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "duration": {
+                        "minimum": 0,
+                        "maximum": 1800,
+                        "type": "integer"
+                    },
+                    "share_activity": {
+                        "type": "boolean"
+                    },
+                    "distributor": {
+                        "type": "string"
+                    },
+                    "exe_path": {
+                        "maxLength": 128,
+                        "type": "string"
+                    },
+                    "voice_channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "session_id": {
+                        "type": "string"
+                    },
+                    "media_session_id": {
+                        "type": "string"
+                    },
+                    "closed": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "application_id"
+                ]
+            },
             "ActivitySchema": {
                 "type": "object",
                 "properties": {
@@ -2805,6 +2848,17 @@
                     "assets"
                 ]
             },
+            "ActivitySessionUpdateResponse": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "token"
+                ]
+            },
             "ApplicationDirectoryCategoriesResponse": {
                 "type": "array",
                 "items": {
@@ -4798,6 +4852,12 @@
                     "sku_id",
                     "uses"
                 ]
+            },
+            "GlobalActivityStatisticsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GlobalActivityStatistics"
+                }
             },
             "GuildAudienceNewMembersByDiscordTenureResponse": {
                 "type": "array",
@@ -22026,6 +22086,61 @@
                             "boolean"
                         ]
                     }
+                ]
+            },
+            "GlobalActivityStatistics": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/GlobalActivityStatisticsApplication"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "duration": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "duration",
+                    "updated_at",
+                    "user_id"
+                ]
+            },
+            "GlobalActivityStatisticsApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id"
                 ]
             },
             "GuildAudienceNewMembersByDiscordTenureBucket": {
@@ -54613,6 +54728,116 @@
                 },
                 "tags": [
                     "age-verification"
+                ]
+            }
+        },
+        "/activities/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns recent activity statistics for friends and affine users. Spacebar does not currently persist durable source-backed global activity statistics, so this compatibility endpoint returns an empty statistics list.",
+                "summary": "Get Global Activity Statistics",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GlobalActivityStatisticsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "with_users",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include user information in the returned activity statistics."
+                    },
+                    {
+                        "name": "with_applications",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include application information in the returned activity statistics."
+                    }
+                ],
+                "tags": [
+                    "activities"
+                ]
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Validates a client activity session update and returns the existing or generated session token. Spacebar does not currently persist game playtime statistics from this endpoint.",
+                "summary": "Update Activity Session",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ActivitySessionUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ActivitySessionUpdateResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "activities"
                 ]
             }
         },
