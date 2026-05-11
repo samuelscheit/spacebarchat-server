@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 472,
+        "totalCoveredManifestEntries": 473,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 450,
-                "totalCoveredManifestEntries": 450,
-                "totalCoveredRequiredManifestEntries": 450,
+                "totalRequiredManifestEntries": 451,
+                "totalCoveredManifestEntries": 451,
+                "totalCoveredRequiredManifestEntries": 451,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 319,
+            "stateful-domain": 320,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 450,
-                "totalCoveredManifestEntries": 450,
-                "totalCoveredRequiredManifestEntries": 450,
+                "totalRequiredManifestEntries": 451,
+                "totalCoveredManifestEntries": 451,
+                "totalCoveredRequiredManifestEntries": 451,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -191,6 +191,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                 "api:http:GET:/guilds/:guild_id/analytics/channel-following/announcements-by-channel/",
+                "api:http:GET:/guilds/:guild_id/analytics/channel-following/following-guild-size/",
                 "api:http:GET:/guilds/:guild_id/analytics/channel-following/overview/",
                 "api:http:GET:/guilds/:guild_id/analytics/channel-following/reach/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
@@ -643,6 +644,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                 "api:http:GET:/guilds/:guild_id/analytics/channel-following/announcements-by-channel/",
+                "api:http:GET:/guilds/:guild_id/analytics/channel-following/following-guild-size/",
                 "api:http:GET:/guilds/:guild_id/analytics/channel-following/overview/",
                 "api:http:GET:/guilds/:guild_id/analytics/channel-following/reach/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
@@ -1146,6 +1148,7 @@
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                         "api:http:GET:/guilds/:guild_id/analytics/channel-following/announcements-by-channel/",
+                        "api:http:GET:/guilds/:guild_id/analytics/channel-following/following-guild-size/",
                         "api:http:GET:/guilds/:guild_id/analytics/channel-following/overview/",
                         "api:http:GET:/guilds/:guild_id/analytics/channel-following/reach/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
