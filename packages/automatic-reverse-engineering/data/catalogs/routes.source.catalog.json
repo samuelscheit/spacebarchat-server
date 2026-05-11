@@ -4298,6 +4298,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"UpdatesResponse"
+		],
+		"route": "/updates/{release_channel}",
+		"route_name": "GET_UPDATES_RELEASE_CHANNEL",
+		"source": "src/api/routes/updates.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"UserProfileEffectsResponse"
 		],
 		"route": "/user-profile-effects",

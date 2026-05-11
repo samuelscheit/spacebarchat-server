@@ -55,6 +55,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /experiments",
     "GET /apex/experiments",
     "GET /updates",
+    /^(GET|HEAD) \/updates\/[^/]+\/?$/,
     "GET /download",
     /^(GET|HEAD) \/download\/[^/]+\/?$/,
     "GET /downloads/distributions/app/installers/latest",

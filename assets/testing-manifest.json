@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 662,
+        "totalEntries": 663,
         "byService": {
-            "api": 565,
+            "api": 566,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 637,
+            "http-route": 638,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 158,
+            "contract": 159,
             "stateful-domain": 353,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 520,
+            "route-class": 521,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -20031,13 +20031,49 @@
             }
         },
         {
+            "id": "api:http:GET:/updates/:release_channel",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/updates/:release_channel",
+            "sourceFile": "src/api/routes/updates.ts",
+            "line": 117,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UpdatesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    404
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/updates/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/updates/",
             "sourceFile": "src/api/routes/updates.ts",
-            "line": 25,
+            "line": 89,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,

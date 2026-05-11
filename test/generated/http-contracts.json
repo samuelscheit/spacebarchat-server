@@ -3,16 +3,16 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 637,
+        "totalContracts": 638,
         "byService": {
-            "api": 564,
+            "api": 565,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 488,
         "runtimeMalformedAuthContracts": 488,
         "runtimeRevokedSessionAuthContracts": 488,
         "runtimeStaleTokenAuthContracts": 488,
-        "runtimePublicAuthBoundaryContracts": 68,
+        "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 71,
         "runtimePublicResponseSchemaContracts": 19,
@@ -26592,13 +26592,53 @@
             ]
         },
         {
+            "manifestId": "api:http:GET:/updates/:release_channel",
+            "service": "api",
+            "method": "GET",
+            "path": "/updates/:release_channel",
+            "samplePath": "/updates/100000000000000002",
+            "sourceFile": "src/api/routes/updates.ts",
+            "line": 117,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "UpdatesResponse"],
+                "responseStatuses": [200, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/updates/",
             "service": "api",
             "method": "GET",
             "path": "/updates/",
             "samplePath": "/updates/",
             "sourceFile": "src/api/routes/updates.ts",
-            "line": 25,
+            "line": 89,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",

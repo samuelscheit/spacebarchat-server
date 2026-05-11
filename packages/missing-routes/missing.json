@@ -1,6 +1,6 @@
 {
-    "missing": 623,
-    "spacebar": 557,
+    "missing": 622,
+    "spacebar": 558,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -340,7 +340,6 @@
         "/unverified-applications",
         "/unverified-applications/icons",
         "/updates/distributions/app/manifests/latest",
-        "/updates/{param}",
         "/users/@me",
         "/users/@me/account",
         "/users/@me/activities/subscribe",
@@ -1681,14 +1680,6 @@
             "sources": ["userdoccers:resources/team.mdx"],
             "source_routes": ["/teams/{team_id}/payouts/onboarding"],
             "summaries": ["Get Team Payout Onboarding"]
-        },
-        {
-            "method": "GET",
-            "route": "/updates/{param}",
-            "route_name": "GET_UPDATES_RELEASE_CHANNEL",
-            "sources": ["userdoccers:topics/client-distribution.mdx"],
-            "source_routes": ["/updates/{release_channel}"],
-            "summaries": ["Get Application Updates"]
         },
         {
             "method": "GET",
