@@ -2111,6 +2111,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildChannelFollowingAnnouncementsByChannelResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/channel-following/announcements-by-channel",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_CHANNEL_FOLLOWING_ANNOUNCEMENTS_BY_CHANNEL",
+		"source": "src/api/routes/guilds/#guild_id/analytics/channel-following/announcements-by-channel.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildChannelFollowingOverviewResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/channel-following/overview",

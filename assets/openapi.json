@@ -5732,6 +5732,12 @@
                     "$ref": "#/components/schemas/APITemplate"
                 }
             },
+            "GuildChannelFollowingAnnouncementsByChannelResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildChannelFollowingAnnouncementsByChannelBucket"
+                }
+            },
             "GuildChannelFollowingOverviewResponse": {
                 "type": "array",
                 "items": {
@@ -22378,6 +22384,34 @@
                     "day_pt",
                     "participators",
                     "platform"
+                ]
+            },
+            "GuildChannelFollowingAnnouncementsByChannelBucket": {
+                "type": "object",
+                "properties": {
+                    "day_pt": {
+                        "type": "string"
+                    },
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "total_guilds_following": {
+                        "type": "integer"
+                    },
+                    "new_guilds_following": {
+                        "type": "integer"
+                    },
+                    "guilds_unfollowed": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "channel_id",
+                    "day_pt",
+                    "guilds_unfollowed",
+                    "new_guilds_following",
+                    "total_guilds_following"
                 ]
             },
             "GuildChannelFollowingOverviewBucket": {
@@ -44976,6 +45010,108 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GuildChannelFollowingOverviewResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Start date for the insights data as an ISO8601 timestamp."
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "End date for the insights data as an ISO8601 timestamp."
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly."
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/analytics/channel-following/announcements-by-channel/": {
+            "get": {
+                "x-permission-required": "VIEW_GUILD_INSIGHTS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns news-channel following statistics per followed channel and aggregation interval.",
+                "summary": "Get Guild Channel Following by Channel",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildChannelFollowingAnnouncementsByChannelResponse"
                                 }
                             }
                         }

@@ -1,6 +1,6 @@
 {
-    "missing": 697,
-    "spacebar": 483,
+    "missing": 696,
+    "spacebar": 484,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -134,7 +134,6 @@
         "/guilds/{param}/active-channels",
         "/guilds/{param}/admin-server-eligibility",
         "/guilds/{param}/analytics/audience/participators-by-reg-country",
-        "/guilds/{param}/analytics/channel-following/announcements-by-channel",
         "/guilds/{param}/analytics/channel-following/following-guild-size",
         "/guilds/{param}/analytics/channel-following/following-guild-size-by-channel",
         "/guilds/{param}/analytics/growth-activation/activation",
@@ -1384,14 +1383,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx"],
             "source_routes": ["/guilds/{guild_id}/analytics/audience/participators-by-reg-country"],
             "summaries": ["Get Guild Audience Participators by Registration Country"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/channel-following/announcements-by-channel",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_CHANNEL_FOLLOWING_ANNOUNCEMENTS_BY_CHANNEL",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/channel-following/announcements-by-channel"],
-            "summaries": ["Get Guild Channel Following by Channel"]
         },
         {
             "method": "GET",
