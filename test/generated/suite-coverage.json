@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 491,
+        "totalCoveredManifestEntries": 492,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 469,
-                "totalCoveredManifestEntries": 469,
-                "totalCoveredRequiredManifestEntries": 469,
+                "totalRequiredManifestEntries": 470,
+                "totalCoveredManifestEntries": 470,
+                "totalCoveredRequiredManifestEntries": 470,
                 "totalSuites": 12
             },
             "protocol": {
@@ -30,7 +30,7 @@
         "byCoveredTestTier": {
             "stateful-domain": 335,
             "cdn-integration": 78,
-            "integration": 16,
+            "integration": 17,
             "contract": 22,
             "auth-scenario": 17,
             "middleware-contract": 1,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 469,
-                "totalCoveredManifestEntries": 469,
-                "totalCoveredRequiredManifestEntries": 469,
+                "totalRequiredManifestEntries": 470,
+                "totalCoveredManifestEntries": 470,
+                "totalCoveredRequiredManifestEntries": 470,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -264,6 +264,7 @@
                 "api:http:GET:/guilds/:guild_id/widget.png/",
                 "api:http:GET:/guilds/:guild_id/widget/",
                 "api:http:GET:/guilds/templates/:template_code",
+                "api:http:GET:/oauth2/@me/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
                 "api:http:GET:/oauth2/keys/",
@@ -735,6 +736,7 @@
                 "api:http:GET:/guilds/:guild_id/widget.png/",
                 "api:http:GET:/guilds/:guild_id/widget/",
                 "api:http:GET:/guilds/templates/:template_code",
+                "api:http:GET:/oauth2/@me/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
                 "api:http:GET:/oauth2/keys/",
@@ -1508,6 +1510,7 @@
                         "api:http:DELETE:/oauth2/tokens/:token_id/",
                         "api:http:GET:/connections/",
                         "api:http:GET:/connections/:connection_name/authorize/",
+                        "api:http:GET:/oauth2/@me/",
                         "api:http:GET:/oauth2/applications/@me/",
                         "api:http:GET:/oauth2/authorize/",
                         "api:http:GET:/oauth2/keys/",

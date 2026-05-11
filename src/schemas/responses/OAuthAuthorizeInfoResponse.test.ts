@@ -66,3 +66,40 @@ describe("OAuthAuthorizationResponse schema", () => {
         assert.deepEqual(schema.required, ["application", "id", "scopes"]);
     });
 });
+
+describe("OAuthCurrentAuthorizationResponse schema", () => {
+    test("describes GET /oauth2/@me current authorization payload", () => {
+        const schemas = JSON.parse(readFileSync("assets/schemas.json", "utf8"));
+        const schema = schemas.OAuthCurrentAuthorizationResponse;
+
+        assert.deepEqual(schema.properties.application, {
+            $ref: "#/definitions/APIApplication",
+        });
+        assert.deepEqual(schema.properties.scopes, {
+            items: {
+                type: "string",
+            },
+            type: "array",
+        });
+        assert.equal(schema.properties.expires.type, "string");
+        assert.deepEqual(schema.properties.user, {
+            $ref: "#/definitions/PublicUser",
+        });
+        assert.deepEqual(schema.required, ["application", "expires", "scopes"]);
+    });
+
+    test("documents GET /oauth2/@me with the current authorization response", () => {
+        const openapi = JSON.parse(readFileSync("assets/openapi.json", "utf8"));
+        const operation = openapi.paths["/oauth2/@me/"].get;
+
+        assert.deepEqual(operation.responses["200"].content["application/json"].schema, {
+            $ref: "#/components/schemas/OAuthCurrentAuthorizationResponse",
+        });
+        assert.deepEqual(operation.responses["400"].content["application/json"].schema, {
+            $ref: "#/components/schemas/APIErrorResponse",
+        });
+        assert.deepEqual(operation.responses["401"].content["application/json"].schema, {
+            $ref: "#/components/schemas/APIErrorResponse",
+        });
+    });
+});

@@ -3381,6 +3381,16 @@
 		"source": "src/api/routes/modules/#release_channel/versions.json.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"OAuthCurrentAuthorizationResponse"
+		],
+		"route": "/oauth2/@me",
+		"route_name": "GET_OAUTH2__ME",
+		"source": "src/api/routes/oauth2/@me.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"
