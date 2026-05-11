@@ -3653,6 +3653,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"PartnerSdkUserMessageSummariesResponse"
+		],
+		"route": "/partner-sdk/users/@me/channels",
+		"route_name": "GET_PARTNER_SDK_USERS__ME_CHANNELS",
+		"source": "src/api/routes/partner-sdk/users/@me/channels.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"GuildDiscoveryRequirementsResponse"
 		],
 		"route": "/partners/{guild_id}/requirements",

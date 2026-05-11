@@ -1,6 +1,6 @@
 {
-    "missing": 621,
-    "spacebar": 559,
+    "missing": 620,
+    "spacebar": 560,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -266,7 +266,6 @@
         "/partner-sdk/provisional-accounts/unmerge/bot",
         "/partner-sdk/token",
         "/partner-sdk/token/bot",
-        "/partner-sdk/users/@me/channels",
         "/phone-verifications/resend",
         "/phone-verifications/validate-support-ticket",
         "/phone-verifications/verify",
@@ -1551,13 +1550,6 @@
             "sources": ["userdoccers:resources/store.mdx"],
             "source_routes": ["/partner-sdk/guilds/{guild_id}/application-storefront/skus/{sku_id}"],
             "summaries": ["Get Guild Application SKU Storefront"]
-        },
-        {
-            "method": "GET",
-            "route": "/partner-sdk/users/@me/channels",
-            "route_name": "GET_PARTNER_SDK_USERS__ME_CHANNELS",
-            "sources": ["userdoccers:resources/message.mdx"],
-            "summaries": ["Get User Message Summaries"]
         },
         { "method": "GET", "route": "/premium-marketing", "route_name": "PREMIUM_MARKETING", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/presences", "route_name": "GET_PRESENCES", "sources": ["userdoccers:resources/presence.mdx"], "summaries": ["Get Presences"] },

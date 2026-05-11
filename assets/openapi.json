@@ -9621,6 +9621,29 @@
                     "storefronts"
                 ]
             },
+            "PartnerSdkUserMessageSummariesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/PartnerSdkUserMessageSummaryResponse"
+                }
+            },
+            "PartnerSdkUserMessageSummaryResponse": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "last_message_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "last_message_id",
+                    "user_id"
+                ]
+            },
             "PaymentSourceBillingAddressResponse": {
                 "type": "object",
                 "properties": {
@@ -42348,6 +42371,52 @@
                 ],
                 "tags": [
                     "partners"
+                ]
+            }
+        },
+        "/partner-sdk/users/@me/channels/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed last-message summaries for the current user's one-to-one DM channels.",
+                "summary": "Get User Message Summaries",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PartnerSdkUserMessageSummariesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "partner-sdk"
                 ]
             }
         },
