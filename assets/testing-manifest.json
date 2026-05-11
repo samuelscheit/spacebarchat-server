@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 612,
+        "totalEntries": 613,
         "byService": {
-            "api": 515,
+            "api": 516,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 587,
+            "http-route": 588,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 135,
+            "contract": 136,
             "stateful-domain": 333,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 470,
+            "route-class": 471,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -17026,6 +17026,43 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/report/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/report/",
+            "sourceFile": "src/api/routes/report/index.ts",
+            "line": 132,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ReportReasonsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

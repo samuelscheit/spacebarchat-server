@@ -3544,6 +3544,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ReportReasonsResponse"
+		],
+		"route": "/report",
+		"route_name": "GET_REPORT",
+		"source": "src/api/routes/report/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ReportOptionsResponse"
 		],
 		"route": "/report/options",

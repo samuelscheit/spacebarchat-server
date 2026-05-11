@@ -10428,6 +10428,31 @@
                     "$ref": "#/components/schemas/ReportOptionResponse"
                 }
             },
+            "ReportReasonResponse": {
+                "type": "object",
+                "properties": {
+                    "reason": {
+                        "type": "integer"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "description",
+                    "label",
+                    "reason"
+                ]
+            },
+            "ReportReasonsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ReportReasonResponse"
+                }
+            },
             "ReportingMenuTypesResponse": {
                 "type": "array",
                 "items": {
@@ -38983,6 +39008,81 @@
                         }
                     }
                 },
+                "tags": [
+                    "report"
+                ]
+            }
+        },
+        "/report/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns legacy report reason objects that can be used when creating a report for a message or user.",
+                "summary": "Get Report Reasons",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReportReasonsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The ID of the channel containing the message to report."
+                    },
+                    {
+                        "name": "message_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The ID of the message to report."
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The ID of the user to report."
+                    }
+                ],
                 "tags": [
                     "report"
                 ]

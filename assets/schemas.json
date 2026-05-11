@@ -10953,6 +10953,34 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ReportReasonResponse": {
+        "type": "object",
+        "properties": {
+            "reason": {
+                "type": "integer"
+            },
+            "label": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "description",
+            "label",
+            "reason"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ReportReasonsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ReportReasonResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ReportingMenuTypesResponse": {
         "type": "array",
         "items": {

@@ -1,6 +1,6 @@
 {
-    "missing": 673,
-    "spacebar": 507,
+    "missing": 672,
+    "spacebar": 508,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1828,7 +1828,6 @@
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/quests/decision?placement=:param&client_heartbeat_session_id=:param"]
         },
-        { "method": "GET", "route": "/report", "route_name": "GET_REPORT", "sources": ["userdoccers:topics/reports.mdx"], "summaries": ["Get Report Reasons"] },
         {
             "method": "GET",
             "route": "/reporting/menu/{param}",
