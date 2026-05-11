@@ -3,19 +3,19 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 578,
+        "totalContracts": 579,
         "byService": {
-            "api": 505,
+            "api": 506,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 435,
         "runtimeMalformedAuthContracts": 435,
         "runtimeRevokedSessionAuthContracts": 435,
         "runtimeStaleTokenAuthContracts": 435,
-        "runtimePublicAuthBoundaryContracts": 62,
+        "runtimePublicAuthBoundaryContracts": 63,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
-        "runtimePublicResponseSchemaContracts": 16,
+        "runtimePublicResponseSchemaContracts": 17,
         "runtimeAuthenticatedResponseSchemaContracts": 21,
         "runtimeRightOnlyDenialContracts": 12,
         "runtimePermissionOnlyDenialContracts": 115,
@@ -23630,6 +23630,46 @@
                 {
                     "id": "malformed-auth",
                     "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/store/published-listings/applications/",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/published-listings/applications/",
+            "samplePath": "/store/published-listings/applications/",
+            "sourceFile": "src/api/routes/store/published-listings/applications.ts",
+            "line": 121,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "StorePublishedListingsApplicationsResponse"],
+                "responseStatuses": [200, 400]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
                 },
                 {
                     "id": "policy-auth-boundary",

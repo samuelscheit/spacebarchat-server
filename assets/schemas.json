@@ -10987,6 +10987,11 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StorePublishedListingsApplicationsResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StorePublishedListingsSkusResponse": {
         "type": "array",
         "items": {},

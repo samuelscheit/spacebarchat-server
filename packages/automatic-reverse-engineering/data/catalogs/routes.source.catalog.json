@@ -3694,6 +3694,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"StorePublishedListingsApplicationsResponse"
+		],
+		"route": "/store/published-listings/applications",
+		"route_name": "GET_STORE_PUBLISHED_LISTINGS_APPLICATIONS",
+		"source": "src/api/routes/store/published-listings/applications.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/store/published-listings/applications/{application_id}",
 		"route_name": "GET_STORE_PUBLISHED_LISTINGS_APPLICATIONS_APPLICATION_ID",

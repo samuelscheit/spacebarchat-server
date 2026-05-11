@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 603,
+        "totalEntries": 604,
         "byService": {
-            "api": 506,
+            "api": 507,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 578,
+            "http-route": 579,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 128,
+            "contract": 129,
             "stateful-domain": 331,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 461,
+            "route-class": 462,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -17635,6 +17635,42 @@
             "routeMetadata": {
                 "present": true,
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/store/published-listings/applications/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/published-listings/applications/",
+            "sourceFile": "src/api/routes/store/published-listings/applications.ts",
+            "line": 121,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StorePublishedListingsApplicationsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

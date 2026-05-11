@@ -1,6 +1,6 @@
 {
-    "missing": 682,
-    "spacebar": 498,
+    "missing": 681,
+    "spacebar": 499,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -337,7 +337,6 @@
         "/store/email/resend-payment-verification",
         "/store/listings",
         "/store/listings/{param}",
-        "/store/published-listings/applications",
         "/store/skus",
         "/store/skus/{param}",
         "/store/skus/{param}/listings",
@@ -1943,13 +1942,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/store/listings/{store_listing_id}"],
             "summaries": ["Get Store Listing"]
-        },
-        {
-            "method": "GET",
-            "route": "/store/published-listings/applications",
-            "route_name": "GET_STORE_PUBLISHED_LISTINGS_APPLICATIONS",
-            "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Bulk Application Primary Store Listing"]
         },
         {
             "method": "GET",
