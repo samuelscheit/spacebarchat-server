@@ -1,6 +1,6 @@
 {
-    "missing": 712,
-    "spacebar": 468,
+    "missing": 711,
+    "spacebar": 469,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -137,7 +137,6 @@
         "/guilds/{param}/active-channels",
         "/guilds/{param}/admin-server-eligibility",
         "/guilds/{param}/analytics/audience/participators-by-guild-tenure",
-        "/guilds/{param}/analytics/audience/participators-by-platform",
         "/guilds/{param}/analytics/audience/participators-by-reg-country",
         "/guilds/{param}/analytics/channel-following/announcements-by-channel",
         "/guilds/{param}/analytics/channel-following/following-guild-size",
@@ -1423,14 +1422,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx"],
             "source_routes": ["/guilds/{guild_id}/analytics/audience/participators-by-guild-tenure"],
             "summaries": ["Get Guild Audience Participators by Guild Tenure"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/audience/participators-by-platform",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_AUDIENCE_PARTICIPATORS_BY_PLATFORM",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/audience/participators-by-platform"],
-            "summaries": ["Get Guild Audience Participators by Platform"]
         },
         {
             "method": "GET",

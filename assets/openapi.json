@@ -4865,6 +4865,12 @@
                     "$ref": "#/components/schemas/GuildAudienceNewMembersByDiscordTenureBucket"
                 }
             },
+            "GuildAudienceParticipatorsByPlatformResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildAudienceParticipatorsByPlatformBucket"
+                }
+            },
             "GuildBasicResponse": {
                 "type": "object",
                 "properties": {
@@ -22160,6 +22166,25 @@
                     "day_pt",
                     "new_members",
                     "tenure"
+                ]
+            },
+            "GuildAudienceParticipatorsByPlatformBucket": {
+                "type": "object",
+                "properties": {
+                    "day_pt": {
+                        "type": "string"
+                    },
+                    "platform": {
+                        "type": "string"
+                    },
+                    "participators": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "day_pt",
+                    "participators",
+                    "platform"
                 ]
             },
             "GravityCustomChannelScore": {
@@ -43643,6 +43668,98 @@
                             "type": "string"
                         },
                         "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/analytics/audience/participators-by-platform/": {
+            "get": {
+                "x-permission-required": "VIEW_GUILD_INSIGHTS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns member statistics categorized by platform usage per aggregation interval.",
+                "summary": "Get Guild Audience Participators by Platform",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildAudienceParticipatorsByPlatformResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO8601 start timestamp for the insights data"
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO8601 end timestamp for the insights data"
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Data aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly"
                     }
                 ],
                 "tags": [
