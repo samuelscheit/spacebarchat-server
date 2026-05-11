@@ -7955,6 +7955,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "HubDirectoryEntryCountsResponse": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "integer"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "HubWaitlistSignupResponse": {
         "type": "object",
         "properties": {

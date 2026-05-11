@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 623,
+        "totalEntries": 624,
         "byService": {
-            "api": 526,
+            "api": 527,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 598,
+            "http-route": 599,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 143,
-            "stateful-domain": 335,
+            "stateful-domain": 336,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 16,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 481,
+            "route-class": 482,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -4001,7 +4001,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/directory-entries/",
             "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
-            "line": 24,
+            "line": 73,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4012,6 +4012,59 @@
                 "responseStatuses": [
                     200,
                     400
+                ],
+                "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/channels/:channel_id/directory-entries/counts",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/directory-entries/counts",
+            "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
+            "line": 42,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_CHANNEL",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "HubDirectoryEntryCountsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
                 ],
                 "hasQuery": false
             },

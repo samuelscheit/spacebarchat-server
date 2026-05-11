@@ -17,9 +17,58 @@
 */
 
 import { route } from "@spacebar/api";
-import { HubDirectoryEntriesResponse } from "@spacebar/schemas";
+import { Channel, DiscordApiErrors } from "@spacebar/util";
+import { ChannelType, type HubDirectoryEntriesResponse, type HubDirectoryEntryCountsResponse } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
+
+export function getEmptyDirectoryEntryCounts(): HubDirectoryEntryCountsResponse {
+    return {};
+}
+
+async function requireDirectoryChannel(channel_id: string): Promise<void> {
+    const channel = await Channel.findOneOrFail({
+        where: { id: channel_id },
+        select: {
+            id: true,
+            guild_id: true,
+            type: true,
+        },
+    });
+
+    if (channel.type !== ChannelType.GUILD_DIRECTORY) throw DiscordApiErrors.CANNOT_EXECUTE_ON_THIS_CHANNEL_TYPE;
+}
+
+router.get(
+    "/counts",
+    route({
+        permission: "VIEW_CHANNEL",
+        summary: "Get Directory Counts",
+        responses: {
+            200: {
+                body: "HubDirectoryEntryCountsResponse",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
+        await requireDirectoryChannel(channel_id);
+
+        return res.json(getEmptyDirectoryEntryCounts());
+    },
+);
 
 router.get(
     "/",
