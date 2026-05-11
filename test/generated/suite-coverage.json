@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 461,
+        "totalCoveredManifestEntries": 462,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 439,
-                "totalCoveredManifestEntries": 439,
-                "totalCoveredRequiredManifestEntries": 439,
+                "totalRequiredManifestEntries": 440,
+                "totalCoveredManifestEntries": 440,
+                "totalCoveredRequiredManifestEntries": 440,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 308,
+            "stateful-domain": 309,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 439,
-                "totalCoveredManifestEntries": 439,
-                "totalCoveredRequiredManifestEntries": 439,
+                "totalRequiredManifestEntries": 440,
+                "totalCoveredManifestEntries": 440,
+                "totalCoveredRequiredManifestEntries": 440,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -186,6 +186,7 @@
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/guilds/:guild_id/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
+                "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
@@ -627,6 +628,7 @@
                 "api:http:GET:/guild-recommendations/",
                 "api:http:GET:/guilds/:guild_id/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
+                "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
@@ -1121,6 +1123,7 @@
                         "api:http:DELETE:/guilds/:guild_id/templates/:code",
                         "api:http:GET:/guilds/:guild_id/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
+                        "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                         "api:http:GET:/guilds/:guild_id/application-command-index/",

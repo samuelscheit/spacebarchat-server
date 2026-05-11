@@ -1,6 +1,6 @@
 {
-    "missing": 708,
-    "spacebar": 472,
+    "missing": 707,
+    "spacebar": 473,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -136,7 +136,6 @@
         "/guilds/{param}/ack/{param}/{param}",
         "/guilds/{param}/active-channels",
         "/guilds/{param}/admin-server-eligibility",
-        "/guilds/{param}/analytics/audience/participators-by-guild-tenure",
         "/guilds/{param}/analytics/audience/participators-by-reg-country",
         "/guilds/{param}/analytics/channel-following/announcements-by-channel",
         "/guilds/{param}/analytics/channel-following/following-guild-size",
@@ -1411,14 +1410,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/admin-server-eligibility"],
             "summaries": ["Get Admin Community Eligibility"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/audience/participators-by-guild-tenure",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_AUDIENCE_PARTICIPATORS_BY_GUILD_TENURE",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/audience/participators-by-guild-tenure"],
-            "summaries": ["Get Guild Audience Participators by Guild Tenure"]
         },
         {
             "method": "GET",

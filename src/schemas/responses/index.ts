@@ -74,6 +74,7 @@ export * from "./GenerateRegistrationTokensResponse";
 export * from "./GiftCodeResponse";
 export * from "./GlobalActivityStatisticsResponse";
 export * from "./GuildAudienceNewMembersByDiscordTenureResponse";
+export * from "./GuildAudienceParticipatorsByGuildTenureResponse";
 export * from "./GuildAudienceParticipatorsByPlatformResponse";
 export * from "./GuildBasicResponse";
 export * from "./GuildBansResponse";

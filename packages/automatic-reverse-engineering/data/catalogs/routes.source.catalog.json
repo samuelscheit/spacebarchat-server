@@ -2061,6 +2061,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildAudienceParticipatorsByGuildTenureResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/audience/participators-by-guild-tenure",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_AUDIENCE_PARTICIPATORS_BY_GUILD_TENURE",
+		"source": "src/api/routes/guilds/#guild_id/analytics/audience/participators-by-guild-tenure.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildAudienceParticipatorsByPlatformResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/audience/participators-by-platform",

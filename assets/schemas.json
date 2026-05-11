@@ -5132,6 +5132,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildAudienceParticipatorsByGuildTenureResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildAudienceParticipatorsByGuildTenureBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildAudienceParticipatorsByPlatformResponse": {
         "type": "array",
         "items": {
@@ -23348,6 +23355,27 @@
         "required": [
             "day_pt",
             "new_members",
+            "tenure"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildAudienceParticipatorsByGuildTenureBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "tenure": {
+                "type": "string"
+            },
+            "participators": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "participators",
             "tenure"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"

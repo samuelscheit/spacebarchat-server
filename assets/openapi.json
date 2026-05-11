@@ -4865,6 +4865,12 @@
                     "$ref": "#/components/schemas/GuildAudienceNewMembersByDiscordTenureBucket"
                 }
             },
+            "GuildAudienceParticipatorsByGuildTenureResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildAudienceParticipatorsByGuildTenureBucket"
+                }
+            },
             "GuildAudienceParticipatorsByPlatformResponse": {
                 "type": "array",
                 "items": {
@@ -22199,6 +22205,25 @@
                 "required": [
                     "day_pt",
                     "new_members",
+                    "tenure"
+                ]
+            },
+            "GuildAudienceParticipatorsByGuildTenureBucket": {
+                "type": "object",
+                "properties": {
+                    "day_pt": {
+                        "type": "string"
+                    },
+                    "tenure": {
+                        "type": "string"
+                    },
+                    "participators": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "day_pt",
+                    "participators",
                     "tenure"
                 ]
             },
@@ -44022,6 +44047,98 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GuildAudienceParticipatorsByPlatformResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO8601 start timestamp for the insights data"
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO8601 end timestamp for the insights data"
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Data aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/analytics/audience/participators-by-guild-tenure/": {
+            "get": {
+                "x-permission-required": "VIEW_GUILD_INSIGHTS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns member statistics categorized by how long members have been in the guild per aggregation interval.",
+                "summary": "Get Guild Audience Participators by Guild Tenure",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildAudienceParticipatorsByGuildTenureResponse"
                                 }
                             }
                         }
