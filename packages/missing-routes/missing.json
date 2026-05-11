@@ -1,6 +1,6 @@
 {
-    "missing": 692,
-    "spacebar": 488,
+    "missing": 691,
+    "spacebar": 489,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -135,7 +135,6 @@
         "/guilds/{param}/admin-server-eligibility",
         "/guilds/{param}/analytics/audience/participators-by-reg-country",
         "/guilds/{param}/analytics/growth-activation/joins",
-        "/guilds/{param}/analytics/growth-activation/joins-by-invite-link",
         "/guilds/{param}/analytics/growth-activation/joins-by-referrer",
         "/guilds/{param}/analytics/growth-activation/joins-by-source",
         "/guilds/{param}/analytics/growth-activation/leavers",
@@ -1387,14 +1386,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx"],
             "source_routes": ["/guilds/{guild_id}/analytics/growth-activation/joins"],
             "summaries": ["Get Guild Growth Activation Joins"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/growth-activation/joins-by-invite-link",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_GROWTH_ACTIVATION_JOINS_BY_INVITE_LINK",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/growth-activation/joins-by-invite-link"],
-            "summaries": ["Get Guild Growth Activation Joins by Invite"]
         },
         {
             "method": "GET",

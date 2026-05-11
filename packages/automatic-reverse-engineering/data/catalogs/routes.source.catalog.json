@@ -2231,6 +2231,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildGrowthActivationJoinsByInviteLinkResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/growth-activation/joins-by-invite-link",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_GROWTH_ACTIVATION_JOINS_BY_INVITE_LINK",
+		"source": "src/api/routes/guilds/#guild_id/analytics/growth-activation/joins-by-invite-link.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildWelcomeScreenFunnelResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/welcome-screen/funnel",
