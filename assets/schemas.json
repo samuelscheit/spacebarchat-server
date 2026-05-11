@@ -11978,6 +11978,73 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StoreSkuPremiumPriceResponse": {
+        "type": "object",
+        "properties": {
+            "amount": {
+                "type": "integer"
+            },
+            "percentage": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "amount",
+            "percentage"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StoreSkuPremiumPriceMapResponse": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/StoreSkuPremiumPriceResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StoreSkuPriceResponse": {
+        "type": "object",
+        "properties": {
+            "currency": {
+                "type": "string"
+            },
+            "currency_exponent": {
+                "type": "integer"
+            },
+            "amount": {
+                "type": "integer"
+            },
+            "sale_amount": {
+                "type": "integer"
+            },
+            "sale_percentage": {
+                "type": "integer"
+            },
+            "premium": {
+                "$ref": "#/definitions/StoreSkuPremiumPriceMapResponse"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "amount",
+            "currency",
+            "currency_exponent"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StoreConsumableSkuPricingResponse": {
+        "type": "object",
+        "properties": {
+            "price": {
+                "$ref": "#/definitions/StoreSkuPriceResponse"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "price"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StoreEulaResponse": {
         "type": "object",
         "properties": {

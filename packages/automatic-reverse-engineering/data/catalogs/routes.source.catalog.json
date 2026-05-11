@@ -4006,6 +4006,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"StoreConsumableSkuPricingResponse"
+		],
+		"route": "/store/consumable/pricing/{sku_id}",
+		"route_name": "GET_STORE_CONSUMABLE_PRICING_SKU_ID",
+		"source": "src/api/routes/store/consumable/pricing/#sku_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"StoreEulaResponse"
 		],
 		"route": "/store/eulas/{eula_id}",

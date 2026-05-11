@@ -11377,6 +11377,66 @@
                     "topic"
                 ]
             },
+            "StoreSkuPremiumPriceResponse": {
+                "type": "object",
+                "properties": {
+                    "amount": {
+                        "type": "integer"
+                    },
+                    "percentage": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "percentage"
+                ]
+            },
+            "StoreSkuPremiumPriceMapResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/StoreSkuPremiumPriceResponse"
+                }
+            },
+            "StoreSkuPriceResponse": {
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string"
+                    },
+                    "currency_exponent": {
+                        "type": "integer"
+                    },
+                    "amount": {
+                        "type": "integer"
+                    },
+                    "sale_amount": {
+                        "type": "integer"
+                    },
+                    "sale_percentage": {
+                        "type": "integer"
+                    },
+                    "premium": {
+                        "$ref": "#/components/schemas/StoreSkuPremiumPriceMapResponse"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "currency",
+                    "currency_exponent"
+                ]
+            },
+            "StoreConsumableSkuPricingResponse": {
+                "type": "object",
+                "properties": {
+                    "price": {
+                        "$ref": "#/components/schemas/StoreSkuPriceResponse"
+                    }
+                },
+                "required": [
+                    "price"
+                ]
+            },
             "StoreEulaResponse": {
                 "type": "object",
                 "properties": {
@@ -39422,6 +39482,63 @@
                             "type": "string"
                         },
                         "description": "eula_id"
+                    }
+                ],
+                "tags": [
+                    "store"
+                ]
+            }
+        },
+        "/store/consumable/pricing/{sku_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed pricing information for a consumable SKU without fabricating Discord-managed pricing.",
+                "summary": "Get Consumable SKU Pricing",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StoreConsumableSkuPricingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "sku_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "sku_id"
                     }
                 ],
                 "tags": [

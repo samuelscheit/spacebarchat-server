@@ -1,6 +1,6 @@
 {
-    "missing": 633,
-    "spacebar": 547,
+    "missing": 632,
+    "spacebar": 548,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -309,7 +309,6 @@
         "/stage-instances/extra",
         "/sticker-packs/directory-v2/{param}",
         "/store/applications/{param}/assets",
-        "/store/consumable/pricing/{param}",
         "/store/directory-layouts/{param}",
         "/store/directory/{param}",
         "/store/email/resend-payment-verification",
@@ -1631,14 +1630,6 @@
         { "method": "GET", "route": "/sso-token", "route_name": "SSO_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/sticker-packs/directory-v2/{param}", "route_name": "STORE_DIRECTORY_LAYOUT_STICKER_PACKS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/store/consumable/pricing/{param}",
-            "route_name": "GET_STORE_CONSUMABLE_PRICING_SKU_ID",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/store/consumable/pricing/{sku_id}"],
-            "summaries": ["Get Consumable SKU Pricing"]
-        },
         { "method": "GET", "route": "/store/directory-layouts/{param}", "route_name": "STORE_DIRECTORY_LAYOUT", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/store/directory/{param}", "route_name": "STORE_DIRECTORY", "sources": ["xhyrom:data/client/routes.json"] },
         {
