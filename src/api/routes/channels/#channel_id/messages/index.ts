@@ -17,14 +17,160 @@
 */
 
 import { getMessageHistoryQueryOrder, hydrateInteractionMetadataUsers, route, sortMessagesNewestFirst, toPublicReactions } from "@spacebar/api";
-import { Channel, getPermission, Message, messagePublicWithThreadRelations, NewUrlUserSignatureData, ReadState, Snowflake, User } from "@spacebar/util";
+import {
+    Channel,
+    emitEvent,
+    getPermission,
+    Message,
+    MessageAckEvent,
+    messagePublicWithThreadRelations,
+    NewUrlUserSignatureData,
+    ReadState,
+    Snowflake,
+    upsertChannelMessageReadState,
+    User,
+} from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { FindManyOptions, FindOperator, LessThan, MoreThan, MoreThanOrEqual } from "typeorm";
-import { AcknowledgeDeleteSchema, isTextChannel, PartialUser, ReadStateType } from "@spacebar/schemas";
+import {
+    AcknowledgeDeleteSchema,
+    type ChannelMessagesAckPatchSchema,
+    type ChannelMessagesAckStateResponse,
+    isTextChannel,
+    PartialUser,
+    ReadStateFlags,
+    ReadStateType,
+} from "@spacebar/schemas";
 import { createMessageRouteHandlers } from "../../../../util/handlers/ChannelMessageCreateRoute";
 
 const router: Router = Router({ mergeParams: true });
+const MESSAGE_ACK_VERSION = 3763;
+const snowflakePattern = /^[1-9]\d{16,19}$/;
+
+type MutableChannelMessagesAckReadState = Pick<
+    ReadState,
+    "channel_id" | "last_message_id" | "last_pin_timestamp" | "last_viewed" | "mention_count" | "notifications_cursor" | "read_state_type" | "user_id"
+> & {
+    flags: ReadStateFlags | 0;
+    save(): Promise<unknown>;
+};
+
+export interface ChannelMessagesAckDependencies {
+    findChannelReadState(user_id: string, channel_id: string): Promise<MutableChannelMessagesAckReadState | null>;
+    createChannelReadState(user_id: string, channel_id: string): MutableChannelMessagesAckReadState;
+    upsertChannelMessageReadState: typeof upsertChannelMessageReadState;
+    emitEvent: typeof emitEvent;
+}
+
+const defaultChannelMessagesAckDependencies: ChannelMessagesAckDependencies = {
+    findChannelReadState: (user_id, channel_id) =>
+        ReadState.findOne({
+            where: {
+                channel_id,
+                user_id,
+                read_state_type: ReadStateType.CHANNEL,
+            },
+        }),
+    createChannelReadState: (user_id, channel_id) =>
+        ReadState.create({
+            channel_id,
+            user_id,
+            read_state_type: ReadStateType.CHANNEL,
+            mention_count: 0,
+            last_viewed: 0,
+            badge_count: 0,
+        }),
+    upsertChannelMessageReadState,
+    emitEvent,
+};
+
+function requireNonNegativeInteger(value: number | undefined, field: string) {
+    if (value === undefined) return;
+    if (!Number.isSafeInteger(value) || value < 0) throw new HTTPError(`${field} must be a non-negative integer`, 400);
+}
+
+function requireSnowflake(value: string | undefined, field: string) {
+    if (value === undefined) return;
+    if (!snowflakePattern.test(value)) throw new HTTPError(`${field} must be a valid snowflake`, 400);
+}
+
+function channelMessagesAckMessageId(body: ChannelMessagesAckPatchSchema) {
+    if (body.message_id !== undefined && body.last_message_id !== undefined && body.message_id !== body.last_message_id) {
+        throw new HTTPError("message_id and last_message_id must match when both are provided", 400);
+    }
+
+    const messageId = body.message_id ?? body.last_message_id;
+    requireSnowflake(messageId, "message_id");
+    return messageId;
+}
+
+function hasLocalReadStatePatchFields(body: ChannelMessagesAckPatchSchema) {
+    return body.flags !== undefined || body.last_viewed !== undefined || body.mention_count !== undefined;
+}
+
+function serializeLastPinTimestamp(value: Date | string | null | undefined) {
+    if (value === null || value === undefined) return null;
+    return value instanceof Date ? value.toISOString() : value;
+}
+
+export function toChannelMessagesAckStateResponse(channel_id: string, readState: MutableChannelMessagesAckReadState | null): ChannelMessagesAckStateResponse {
+    return {
+        channel_id,
+        read_state_type: readState?.read_state_type ?? ReadStateType.CHANNEL,
+        last_message_id: readState?.last_message_id ?? null,
+        notifications_cursor: readState?.notifications_cursor ?? null,
+        mention_count: readState?.mention_count ?? 0,
+        last_pin_timestamp: serializeLastPinTimestamp(readState?.last_pin_timestamp),
+        last_viewed: readState?.last_viewed ?? 0,
+        flags: readState?.flags ?? 0,
+    };
+}
+
+export async function getChannelMessagesAckState(user_id: string, channel_id: string, dependencies: ChannelMessagesAckDependencies = defaultChannelMessagesAckDependencies) {
+    return toChannelMessagesAckStateResponse(channel_id, await dependencies.findChannelReadState(user_id, channel_id));
+}
+
+export async function patchChannelMessagesAckState(
+    user_id: string,
+    channel_id: string,
+    body: ChannelMessagesAckPatchSchema,
+    dependencies: ChannelMessagesAckDependencies = defaultChannelMessagesAckDependencies,
+) {
+    requireNonNegativeInteger(body.mention_count, "mention_count");
+    requireNonNegativeInteger(body.last_viewed, "last_viewed");
+    requireNonNegativeInteger(body.flags, "flags");
+
+    const message_id = channelMessagesAckMessageId(body);
+    if (message_id) {
+        await dependencies.upsertChannelMessageReadState({ user_id, channel_id }, message_id, {
+            flags: body.flags,
+            last_viewed: body.last_viewed,
+        });
+    }
+
+    if (hasLocalReadStatePatchFields(body)) {
+        const readState = (await dependencies.findChannelReadState(user_id, channel_id)) ?? dependencies.createChannelReadState(user_id, channel_id);
+        if (body.mention_count !== undefined) readState.mention_count = body.mention_count;
+        if (body.last_viewed !== undefined) readState.last_viewed = body.last_viewed;
+        if (body.flags !== undefined) readState.flags = body.flags;
+        await readState.save();
+    }
+
+    if (message_id) {
+        await dependencies.emitEvent({
+            event: "MESSAGE_ACK",
+            channel_id,
+            data: {
+                channel_id,
+                message_id,
+                version: MESSAGE_ACK_VERSION,
+            },
+        } satisfies MessageAckEvent);
+    }
+
+    return getChannelMessagesAckState(user_id, channel_id, dependencies);
+}
 
 // https://discord.com/developers/docs/resources/channel#create-message
 // get messages
@@ -167,6 +313,66 @@ router.get(
 );
 
 router.post("/", ...createMessageRouteHandlers);
+
+router.get(
+    "/ack",
+    route({
+        permission: "VIEW_CHANNEL",
+        summary: "Get Channel Message Acknowledgement",
+        description:
+            "Returns the current user's locally persisted channel read-state fields for message acknowledgement. When no read state exists, Spacebar returns an empty local read-state representation instead of fabricating Discord ack-token state.",
+        responses: {
+            200: {
+                body: "ChannelMessagesAckStateResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
+        res.json(await getChannelMessagesAckState(req.user_id, channel_id));
+    },
+);
+
+router.patch(
+    "/ack",
+    route({
+        permission: "VIEW_CHANNEL",
+        requestBody: "ChannelMessagesAckPatchSchema",
+        summary: "Update Channel Message Acknowledgement",
+        description:
+            "Updates the current user's locally persisted channel message acknowledgement fields. Discord's exact channel-level ack token contract is not source-documented here, so Spacebar only stores durable read-state fields it owns.",
+        responses: {
+            200: {
+                body: "ChannelMessagesAckStateResponse",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
+        res.json(await patchChannelMessagesAckState(req.user_id, channel_id, req.body as ChannelMessagesAckPatchSchema));
+    },
+);
 
 router.delete(
     "/ack",

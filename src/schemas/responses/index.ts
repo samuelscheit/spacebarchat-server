@@ -49,6 +49,7 @@ export * from "./ChannelCallEligibilityResponse";
 export * from "./ChannelFollowerMessageStatsResponse";
 export * from "./ChannelFollowerStatsResponse";
 export * from "./ChannelLinkedAccountsResponse";
+export * from "./ChannelMessagesAckStateResponse";
 export * from "./CheckpointResponse";
 export * from "./CompanyResponse";
 export * from "./CompanySearchResponse";

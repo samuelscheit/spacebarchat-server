@@ -37,6 +37,16 @@ export interface AcknowledgeDeleteSchema {
     version?: number;
 }
 
+export interface ChannelMessagesAckPatchSchema {
+    manual?: boolean;
+    mention_count?: number;
+    flags?: ReadStateFlags | 0;
+    last_viewed?: number;
+    token?: string;
+    message_id?: string;
+    last_message_id?: string;
+}
+
 export enum ReadStateType {
     CHANNEL = 0,
     GUILD_EVENT = 1,

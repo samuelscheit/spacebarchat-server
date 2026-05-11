@@ -1244,6 +1244,27 @@
 		"source": "src/api/routes/channels/#channel_id/messages/index.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ChannelMessagesAckStateResponse"
+		],
+		"route": "/channels/{channel_id}/messages/ack",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_MESSAGES_ACK",
+		"source": "src/api/routes/channels/#channel_id/messages/index.ts"
+	},
+	{
+		"method": "PATCH",
+		"request_schema_ref": "ChannelMessagesAckPatchSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ChannelMessagesAckStateResponse"
+		],
+		"route": "/channels/{channel_id}/messages/ack",
+		"route_name": "PATCH_CHANNELS_CHANNEL_ID_MESSAGES_ACK",
+		"source": "src/api/routes/channels/#channel_id/messages/index.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "BulkDeleteSchema",
 		"response_schema_refs": [

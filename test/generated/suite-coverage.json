@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 515,
+        "totalCoveredManifestEntries": 517,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 493,
-                "totalCoveredManifestEntries": 493,
-                "totalCoveredRequiredManifestEntries": 493,
+                "totalRequiredManifestEntries": 495,
+                "totalCoveredManifestEntries": 495,
+                "totalCoveredRequiredManifestEntries": 495,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 353,
+            "stateful-domain": 355,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 493,
-                "totalCoveredManifestEntries": 493,
-                "totalCoveredRequiredManifestEntries": 493,
+                "totalRequiredManifestEntries": 495,
+                "totalCoveredManifestEntries": 495,
+                "totalCoveredRequiredManifestEntries": 495,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -168,6 +168,7 @@
                 "api:http:GET:/channels/:channel_id/messages/:message_id/interaction-data/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
+                "api:http:GET:/channels/:channel_id/messages/ack",
                 "api:http:GET:/channels/:channel_id/messages/pins/",
                 "api:http:GET:/channels/:channel_id/messages/search/",
                 "api:http:GET:/channels/:channel_id/pins/",
@@ -355,6 +356,7 @@
                 "api:http:PATCH:/channels/:channel_id/",
                 "api:http:PATCH:/channels/:channel_id/call/",
                 "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
+                "api:http:PATCH:/channels/:channel_id/messages/ack",
                 "api:http:PATCH:/channels/:channel_id/recipients/@me",
                 "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                 "api:http:PATCH:/guilds/:guild_id/",
@@ -663,6 +665,7 @@
                 "api:http:GET:/channels/:channel_id/messages/:message_id/interaction-data/",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                 "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
+                "api:http:GET:/channels/:channel_id/messages/ack",
                 "api:http:GET:/channels/:channel_id/messages/pins/",
                 "api:http:GET:/channels/:channel_id/messages/search/",
                 "api:http:GET:/channels/:channel_id/pins/",
@@ -850,6 +853,7 @@
                 "api:http:PATCH:/channels/:channel_id/",
                 "api:http:PATCH:/channels/:channel_id/call/",
                 "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
+                "api:http:PATCH:/channels/:channel_id/messages/ack",
                 "api:http:PATCH:/channels/:channel_id/recipients/@me",
                 "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                 "api:http:PATCH:/guilds/:guild_id/",
@@ -1414,6 +1418,7 @@
                         "api:http:GET:/channels/:channel_id/messages/:message_id/interaction-data/",
                         "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji",
                         "api:http:GET:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type",
+                        "api:http:GET:/channels/:channel_id/messages/ack",
                         "api:http:GET:/channels/:channel_id/messages/pins/",
                         "api:http:GET:/channels/:channel_id/messages/search/",
                         "api:http:GET:/channels/:channel_id/pins/",
@@ -1430,6 +1435,7 @@
                         "api:http:PATCH:/channels/:channel_id/",
                         "api:http:PATCH:/channels/:channel_id/call/",
                         "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
+                        "api:http:PATCH:/channels/:channel_id/messages/ack",
                         "api:http:PATCH:/channels/:channel_id/recipients/@me",
                         "api:http:PATCH:/channels/:channel_id/thread-members/@me/settings",
                         "api:http:POST:/channels/:channel_id/attachments/",

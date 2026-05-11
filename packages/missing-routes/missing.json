@@ -1,6 +1,6 @@
 {
-    "missing": 618,
-    "spacebar": 562,
+    "missing": 616,
+    "spacebar": 564,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -80,7 +80,6 @@
         "/channels/{param}/integrations/{param}",
         "/channels/{param}/linked-lobby",
         "/channels/{param}/media-post-preview",
-        "/channels/{param}/messages/ack",
         "/channels/{param}/messages/search",
         "/channels/{param}/messages/search/tabs",
         "/channels/{param}/polls/{param}/answers/@me",
@@ -1153,13 +1152,6 @@
         },
         {
             "method": "GET",
-            "route": "/channels/{param}/messages/ack",
-            "route_name": "CHANNEL_ACK",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/messages/ack"]
-        },
-        {
-            "method": "GET",
             "route": "/channels/{param}/polls/{param}/answers/@me",
             "route_name": "POLL_ANSWERS",
             "sources": ["xhyrom:data/client/routes.json"],
@@ -2068,13 +2060,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/explicit-media"],
             "summaries": ["Scan Explicit Media"]
-        },
-        {
-            "method": "PATCH",
-            "route": "/channels/{param}/messages/ack",
-            "route_name": "CHANNEL_ACK",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/messages/ack"]
         },
         {
             "method": "PATCH",
