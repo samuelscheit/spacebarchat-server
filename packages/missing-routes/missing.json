@@ -1,6 +1,6 @@
 {
-    "missing": 688,
-    "spacebar": 492,
+    "missing": 687,
+    "spacebar": 493,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -135,7 +135,6 @@
         "/guilds/{param}/admin-server-eligibility",
         "/guilds/{param}/analytics/audience/participators-by-reg-country",
         "/guilds/{param}/analytics/growth-activation/joins",
-        "/guilds/{param}/analytics/growth-activation/leavers",
         "/guilds/{param}/analytics/growth-activation/overview",
         "/guilds/{param}/analytics/growth-activation/retention",
         "/guilds/{param}/analytics/welcome-screen/users",
@@ -1383,14 +1382,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx"],
             "source_routes": ["/guilds/{guild_id}/analytics/growth-activation/joins"],
             "summaries": ["Get Guild Growth Activation Joins"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/growth-activation/leavers",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_GROWTH_ACTIVATION_LEAVERS",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/growth-activation/leavers"],
-            "summaries": ["Get Guild Growth Activation Leavers"]
         },
         {
             "method": "GET",

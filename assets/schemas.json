@@ -6844,6 +6844,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildGrowthActivationLeaversResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildGrowthActivationLeaversBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildGrowthActivationMembershipResponse": {
         "type": "array",
         "items": {
@@ -24038,6 +24045,27 @@
             "other_joins",
             "total_joins",
             "vanity_joins"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildGrowthActivationLeaversBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "days_in_guild": {
+                "type": "string"
+            },
+            "leavers": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "days_in_guild",
+            "leavers"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

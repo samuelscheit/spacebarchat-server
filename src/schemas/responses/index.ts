@@ -98,6 +98,7 @@ export * from "./GuildGrowthActivationActivationResponse";
 export * from "./GuildGrowthActivationJoinsByInviteLinkResponse";
 export * from "./GuildGrowthActivationJoinsByReferrerResponse";
 export * from "./GuildGrowthActivationJoinsBySourceResponse";
+export * from "./GuildGrowthActivationLeaversResponse";
 export * from "./GuildGrowthActivationMembershipResponse";
 export * from "./GuildPreviewResponse";
 export * from "./GuildWelcomeScreenFunnelResponse";

@@ -2261,6 +2261,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildGrowthActivationLeaversResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/growth-activation/leavers",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_GROWTH_ACTIVATION_LEAVERS",
+		"source": "src/api/routes/guilds/#guild_id/analytics/growth-activation/leavers.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildGrowthActivationMembershipResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/growth-activation/membership",
