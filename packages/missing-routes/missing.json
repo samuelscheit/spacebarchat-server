@@ -1,6 +1,6 @@
 {
-    "missing": 667,
-    "spacebar": 513,
+    "missing": 666,
+    "spacebar": 514,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -315,7 +315,6 @@
         "/safety-hub/suspended/request-verification",
         "/search/favorites",
         "/shop/search",
-        "/soundboard-sounds/{param}/guild/{param}",
         "/sso",
         "/sso-token",
         "/stage-instances/extra",
@@ -1809,14 +1808,6 @@
         },
         { "method": "GET", "route": "/search/favorites", "route_name": "SEARCH_FAVORITES", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/shop/search", "route_name": "GET_SHOP_SEARCH", "sources": ["userdoccers:resources/collectibles.mdx"], "summaries": ["Search Collectibles"] },
-        {
-            "method": "GET",
-            "route": "/soundboard-sounds/{param}/guild/{param}",
-            "route_name": "GET_SOUNDBOARD_SOUNDS_SOUND_ID_GUILD_GUILD_ID",
-            "sources": ["userdoccers:resources/soundboard.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/soundboard-sounds/{sound_id}/guild/{guild_id}"],
-            "summaries": ["Get Soundboard Sound Guild"]
-        },
         { "method": "GET", "route": "/sso", "route_name": "SSO", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/sso-token", "route_name": "SSO_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },

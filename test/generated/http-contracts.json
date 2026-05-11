@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 593,
+        "totalContracts": 594,
         "byService": {
-            "api": 520,
+            "api": 521,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 447,
-        "runtimeMalformedAuthContracts": 447,
-        "runtimeRevokedSessionAuthContracts": 447,
-        "runtimeStaleTokenAuthContracts": 447,
+        "runtimeAuthBoundaryContracts": 448,
+        "runtimeMalformedAuthContracts": 448,
+        "runtimeRevokedSessionAuthContracts": 448,
+        "runtimeStaleTokenAuthContracts": 448,
         "runtimePublicAuthBoundaryContracts": 65,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
@@ -23607,6 +23607,50 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "SoundboardDefaultSoundsResponse"],
                 "responseStatuses": [200, 401]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/soundboard-sounds/:sound_id/guild/:guild_id/",
+            "service": "api",
+            "method": "GET",
+            "path": "/soundboard-sounds/:sound_id/guild/:guild_id/",
+            "samplePath": "/soundboard-sounds/value/guild/100000000000000001/",
+            "sourceFile": "src/api/routes/soundboard-sounds/#sound_id/guild/#guild_id.ts",
+            "line": 84,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "DiscoverableGuild"],
+                "responseStatuses": [200, 401, 404]
             },
             "cases": [
                 {

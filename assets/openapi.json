@@ -33014,6 +33014,9 @@
             "name": "soundboard-default-sounds"
         },
         {
+            "name": "soundboard-sounds"
+        },
+        {
             "name": "stage-instances"
         },
         {
@@ -38028,6 +38031,71 @@
                 ],
                 "tags": [
                     "stage-instances"
+                ]
+            }
+        },
+        "/soundboard-sounds/{sound_id}/guild/{guild_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Soundboard Sound Guild",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DiscoverableGuild"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "sound_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "sound_id"
+                    },
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "soundboard-sounds"
                 ]
             }
         },

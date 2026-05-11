@@ -3701,6 +3701,16 @@
 		"source": "src/api/routes/soundboard-default-sounds.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"DiscoverableGuild"
+		],
+		"route": "/soundboard-sounds/{sound_id}/guild/{guild_id}",
+		"route_name": "GET_SOUNDBOARD_SOUNDS_SOUND_ID_GUILD_GUILD_ID",
+		"source": "src/api/routes/soundboard-sounds/#sound_id/guild/#guild_id.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "StageInstanceCreateSchema",
 		"response_schema_refs": [
