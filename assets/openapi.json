@@ -4202,6 +4202,17 @@
                     "skus"
                 ]
             },
+            "CollectiblesGiftRecipientEligibilityResponse": {
+                "type": "object",
+                "properties": {
+                    "valid": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "valid"
+                ]
+            },
             "ApplicationDetectableResponse": {
                 "type": "array",
                 "items": {}
@@ -35586,6 +35597,72 @@
                         }
                     }
                 },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/valid-collectibles-gift-recipient/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns gift eligibility for a recipient and collectible SKU.",
+                "summary": "Get Valid Collectibles Gift Recipient",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CollectiblesGiftRecipientEligibilityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "recipient_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "User ID to check for gift eligibility."
+                    },
+                    {
+                        "name": "sku_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Collectible SKU ID to gift."
+                    }
+                ],
                 "tags": [
                     "users"
                 ]

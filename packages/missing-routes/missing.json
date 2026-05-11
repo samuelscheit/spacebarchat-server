@@ -1,6 +1,6 @@
 {
-    "missing": 615,
-    "spacebar": 565,
+    "missing": 614,
+    "spacebar": 566,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -458,7 +458,6 @@
         "/users/@me/survey",
         "/users/@me/survey/{param}/seen",
         "/users/@me/update-league-of-legends-leaderboard",
-        "/users/@me/valid-collectibles-gift-recipient",
         "/users/@me/valid-collectibles-gift-recipients-batch",
         "/users/@me/video-filters/assets",
         "/users/@me/video-filters/assets/{param}",
@@ -1956,13 +1955,6 @@
             "route_name": "GET_USERS__ME_SURVEY",
             "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Survey"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/valid-collectibles-gift-recipient",
-            "route_name": "GET_USERS__ME_VALID_COLLECTIBLES_GIFT_RECIPIENT",
-            "sources": ["userdoccers:resources/collectibles.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Valid Collectibles Gift Recipient"]
         },
         {
             "method": "GET",

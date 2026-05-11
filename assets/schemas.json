@@ -4432,6 +4432,19 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CollectiblesGiftRecipientEligibilityResponse": {
+        "type": "object",
+        "properties": {
+            "valid": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "valid"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationDetectableResponse": {
         "type": "array",
         "items": {},

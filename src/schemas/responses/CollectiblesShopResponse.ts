@@ -28,6 +28,10 @@ export interface CollectiblesSearchResponse {
     skus: string[];
 }
 
+export interface CollectiblesGiftRecipientEligibilityResponse {
+    valid: boolean;
+}
+
 export interface CollectiblesSearchPagination {
     offset: number;
     limit: number;

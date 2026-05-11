@@ -5190,6 +5190,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"CollectiblesGiftRecipientEligibilityResponse"
+		],
+		"route": "/users/@me/valid-collectibles-gift-recipient",
+		"route_name": "GET_USERS__ME_VALID_COLLECTIBLES_GIFT_RECIPIENT",
+		"source": "src/api/routes/users/@me/valid-collectibles-gift-recipient.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ProfileWidgetsSuggestedGamesResponse"
 		],
 		"route": "/users/@me/widgets/suggested-games",
