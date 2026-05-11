@@ -32,7 +32,10 @@ export interface GuildSoundboardSoundsDependencies {
     isGuildMember(userId: string | undefined, guildId: string): Promise<boolean>;
     canIncludeSoundboardSoundCreator(userId: string | undefined, guildId: string): Promise<boolean>;
     findGuildSoundboardSounds(guildId: string, options: GuildSoundboardSoundQueryOptions): Promise<SoundboardSoundResponse[]>;
+    findGuildSoundboardSound?(guildId: string, soundId: string, options: GuildSoundboardSoundQueryOptions): Promise<SoundboardSoundResponse | null>;
 }
+
+export const UNKNOWN_SOUNDBOARD_SOUND = new ApiError("Unknown sound", 10097, 404);
 
 const defaultDependencies: GuildSoundboardSoundsDependencies = {
     findGuild: (options) => Guild.findOne(options) as Promise<{ id: string } | null>,
@@ -78,6 +81,32 @@ export function createGuildSoundboardSoundsRouter(dependencies: GuildSoundboardS
         },
     );
 
+    router.get(
+        "/:sound_id",
+        route({
+            summary: "Get Guild Soundboard Sound",
+            responses: {
+                200: {
+                    body: "SoundboardSoundResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                403: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const { guild_id, sound_id } = req.params as { [key: string]: string };
+
+            return res.status(200).json(await getGuildSoundboardSoundResponse(guild_id, sound_id, req.user_id, dependencies));
+        },
+    );
+
     return router;
 }
 
@@ -86,6 +115,30 @@ export async function getGuildSoundboardSoundsResponse(
     userId: string | undefined,
     dependencies: GuildSoundboardSoundsDependencies = defaultDependencies,
 ): Promise<GuildSoundboardSoundsResponse> {
+    const options = await getGuildSoundboardSoundQueryOptions(guildId, userId, dependencies);
+    const sounds = await dependencies.findGuildSoundboardSounds(guildId, options);
+
+    return buildGuildSoundboardSoundsResponse(sounds, options);
+}
+
+export async function getGuildSoundboardSoundResponse(
+    guildId: string,
+    soundId: string,
+    userId: string | undefined,
+    dependencies: GuildSoundboardSoundsDependencies = defaultDependencies,
+): Promise<SoundboardSoundResponse> {
+    const options = await getGuildSoundboardSoundQueryOptions(guildId, userId, dependencies);
+    const sound = await findGuildSoundboardSound(guildId, soundId, options, dependencies);
+    if (!sound) throw unknownSoundboardSoundError();
+
+    return buildGuildSoundboardSoundResponse(sound, options);
+}
+
+async function getGuildSoundboardSoundQueryOptions(
+    guildId: string,
+    userId: string | undefined,
+    dependencies: GuildSoundboardSoundsDependencies,
+): Promise<GuildSoundboardSoundQueryOptions> {
     const guild = await dependencies.findGuild({
         where: { id: guildId },
         select: { id: true },
@@ -95,15 +148,30 @@ export async function getGuildSoundboardSoundsResponse(
     if (!(await dependencies.isGuildMember(userId, guildId))) throw new HTTPError("You are not member of this guild", 403);
 
     const includeUser = await dependencies.canIncludeSoundboardSoundCreator(userId, guildId);
-    const sounds = await dependencies.findGuildSoundboardSounds(guildId, { includeUser });
 
-    return buildGuildSoundboardSoundsResponse(sounds, { includeUser });
+    return { includeUser };
 }
 
 export function buildGuildSoundboardSoundsResponse(sounds: readonly SoundboardSoundResponse[], options: GuildSoundboardSoundQueryOptions): GuildSoundboardSoundsResponse {
     return {
         items: sounds.map((sound) => serializeSoundboardSound(sound, options)),
     };
+}
+
+export function buildGuildSoundboardSoundResponse(sound: SoundboardSoundResponse, options: GuildSoundboardSoundQueryOptions): SoundboardSoundResponse {
+    return serializeSoundboardSound(sound, options);
+}
+
+async function findGuildSoundboardSound(
+    guildId: string,
+    soundId: string,
+    options: GuildSoundboardSoundQueryOptions,
+    dependencies: GuildSoundboardSoundsDependencies,
+): Promise<SoundboardSoundResponse | null> {
+    if (dependencies.findGuildSoundboardSound) return dependencies.findGuildSoundboardSound(guildId, soundId, options);
+
+    const sounds = await dependencies.findGuildSoundboardSounds(guildId, options);
+    return sounds.find((sound) => sound.sound_id === soundId) ?? null;
 }
 
 function serializeSoundboardSound(sound: SoundboardSoundResponse, options: GuildSoundboardSoundQueryOptions): SoundboardSoundResponse {
@@ -116,6 +184,10 @@ function serializeSoundboardSound(sound: SoundboardSoundResponse, options: Guild
 
 function unknownGuildError() {
     return new ApiError(DiscordApiErrors.UNKNOWN_GUILD.message, DiscordApiErrors.UNKNOWN_GUILD.code, 404);
+}
+
+function unknownSoundboardSoundError() {
+    return new ApiError(UNKNOWN_SOUNDBOARD_SOUND.message, UNKNOWN_SOUNDBOARD_SOUND.code, 404);
 }
 
 export default createGuildSoundboardSoundsRouter();

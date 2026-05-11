@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 501,
+        "totalCoveredManifestEntries": 502,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 479,
-                "totalCoveredManifestEntries": 479,
-                "totalCoveredRequiredManifestEntries": 479,
+                "totalRequiredManifestEntries": 480,
+                "totalCoveredManifestEntries": 480,
+                "totalCoveredRequiredManifestEntries": 480,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 340,
+            "stateful-domain": 341,
             "cdn-integration": 78,
             "integration": 21,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 479,
-                "totalCoveredManifestEntries": 479,
-                "totalCoveredRequiredManifestEntries": 479,
+                "totalRequiredManifestEntries": 480,
+                "totalCoveredManifestEntries": 480,
+                "totalCoveredRequiredManifestEntries": 480,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -255,6 +255,7 @@
                 "api:http:GET:/guilds/:guild_id/roles/member-counts/",
                 "api:http:GET:/guilds/:guild_id/shield.svg/",
                 "api:http:GET:/guilds/:guild_id/soundboard-sounds/",
+                "api:http:GET:/guilds/:guild_id/soundboard-sounds/:sound_id",
                 "api:http:GET:/guilds/:guild_id/stickers/",
                 "api:http:GET:/guilds/:guild_id/stickers/:sticker_id",
                 "api:http:GET:/guilds/:guild_id/templates/",
@@ -736,6 +737,7 @@
                 "api:http:GET:/guilds/:guild_id/roles/member-counts/",
                 "api:http:GET:/guilds/:guild_id/shield.svg/",
                 "api:http:GET:/guilds/:guild_id/soundboard-sounds/",
+                "api:http:GET:/guilds/:guild_id/soundboard-sounds/:sound_id",
                 "api:http:GET:/guilds/:guild_id/stickers/",
                 "api:http:GET:/guilds/:guild_id/stickers/:sticker_id",
                 "api:http:GET:/guilds/:guild_id/templates/",
@@ -1261,6 +1263,7 @@
                         "api:http:GET:/guilds/:guild_id/roles/member-counts/",
                         "api:http:GET:/guilds/:guild_id/shield.svg/",
                         "api:http:GET:/guilds/:guild_id/soundboard-sounds/",
+                        "api:http:GET:/guilds/:guild_id/soundboard-sounds/:sound_id",
                         "api:http:GET:/guilds/:guild_id/stickers/",
                         "api:http:GET:/guilds/:guild_id/stickers/:sticker_id",
                         "api:http:GET:/guilds/:guild_id/templates/",
