@@ -1,6 +1,6 @@
 {
-    "missing": 683,
-    "spacebar": 497,
+    "missing": 682,
+    "spacebar": 498,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -338,7 +338,6 @@
         "/store/listings",
         "/store/listings/{param}",
         "/store/published-listings/applications",
-        "/store/published-listings/skus/subscription-plans",
         "/store/skus",
         "/store/skus/{param}",
         "/store/skus/{param}/listings",
@@ -1951,13 +1950,6 @@
             "route_name": "GET_STORE_PUBLISHED_LISTINGS_APPLICATIONS",
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Bulk Application Primary Store Listing"]
-        },
-        {
-            "method": "GET",
-            "route": "/store/published-listings/skus/subscription-plans",
-            "route_name": "GET_STORE_PUBLISHED_LISTINGS_SKUS_SUBSCRIPTION_PLANS",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "summaries": ["Get Bulk Published Subscription Plans"]
         },
         {
             "method": "GET",

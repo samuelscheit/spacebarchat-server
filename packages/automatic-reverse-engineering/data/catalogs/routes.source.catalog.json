@@ -3733,6 +3733,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"StorePublishedListingsSkusSubscriptionPlansResponse"
+		],
+		"route": "/store/published-listings/skus/subscription-plans",
+		"route_name": "GET_STORE_PUBLISHED_LISTINGS_SKUS_SUBSCRIPTION_PLANS",
+		"source": "src/api/routes/store/published-listings/skus.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"TeamListResponse"
 		],
 		"route": "/teams",

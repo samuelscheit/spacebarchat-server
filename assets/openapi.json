@@ -10453,6 +10453,72 @@
                 "type": "array",
                 "items": {}
             },
+            "StorePublishedListingsSkuSubscriptionPlanResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "sku_id": {
+                        "type": "string"
+                    },
+                    "interval": {
+                        "type": "integer"
+                    },
+                    "interval_count": {
+                        "type": "integer"
+                    },
+                    "tax_inclusive": {
+                        "type": "boolean"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "integer"
+                    },
+                    "price_tier": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "discount_price": {
+                        "type": "integer"
+                    },
+                    "fallback_price": {
+                        "type": "integer"
+                    },
+                    "fallback_currency": {
+                        "type": "string"
+                    },
+                    "prices": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    }
+                },
+                "required": [
+                    "currency",
+                    "id",
+                    "interval",
+                    "interval_count",
+                    "name",
+                    "price",
+                    "price_tier",
+                    "sku_id",
+                    "tax_inclusive"
+                ]
+            },
+            "StorePublishedListingsSkusSubscriptionPlansResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/StorePublishedListingsSkuSubscriptionPlanResponse"
+                }
+            },
             "StorePriceTierResponse": {
                 "type": "object",
                 "additionalProperties": {
@@ -36676,27 +36742,88 @@
                 ]
             }
         },
-        "/store/published-listings/skus/{sku_id}": {
+        "/store/published-listings/skus/subscription-plans": {
             "get": {
                 "security": [
                     {
                         "bearer": []
                     }
                 ],
+                "description": "Returns published subscription plan objects for the requested SKU IDs.",
+                "summary": "Get Bulk Published Subscription Plans",
                 "responses": {
-                    "default": {
-                        "description": "No description available"
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StorePublishedListingsSkusSubscriptionPlansResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [
                     {
-                        "name": "sku_id",
-                        "in": "path",
+                        "name": "sku_ids",
+                        "in": "query",
                         "required": true,
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "SKU IDs to retrieve subscription plans for (1-16)."
+                    },
+                    {
+                        "name": "include_unpublished",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include unpublished subscription plans when the viewer has access."
+                    },
+                    {
+                        "name": "revenue_surface",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Revenue surface used for analytics."
+                    },
+                    {
+                        "name": "country_code",
+                        "in": "query",
                         "schema": {
                             "type": "string"
                         },
-                        "description": "sku_id"
+                        "description": "ISO 3166-1 alpha-2 country code used for localized pricing."
+                    },
+                    {
+                        "name": "payment_source_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Payment source ID used to retrieve payment-source-specific prices."
                     }
                 ],
                 "tags": [
@@ -36704,7 +36831,7 @@
                 ]
             }
         },
-        "/store/published-listings/skus/{sku_id}/subscription-plans/": {
+        "/store/published-listings/skus/{sku_id}": {
             "get": {
                 "security": [
                     {

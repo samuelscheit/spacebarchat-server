@@ -160,6 +160,7 @@ export * from "./SocialSDKReleasesResponse";
 export * from "./StageInstanceResponse";
 export * from "./StoreEulaResponse";
 export * from "./StorePublishedListingsSkusResponse";
+export * from "./StorePublishedListingsSkusSubscriptionPlansResponse";
 export * from "./StorePriceTierResponse";
 export * from "./StorePriceTiersResponse";
 export * from "./TeamListResponse";

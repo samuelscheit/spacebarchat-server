@@ -10992,6 +10992,75 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StorePublishedListingsSkuSubscriptionPlanResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "sku_id": {
+                "type": "string"
+            },
+            "interval": {
+                "type": "integer"
+            },
+            "interval_count": {
+                "type": "integer"
+            },
+            "tax_inclusive": {
+                "type": "boolean"
+            },
+            "currency": {
+                "type": "string"
+            },
+            "price": {
+                "type": "integer"
+            },
+            "price_tier": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "discount_price": {
+                "type": "integer"
+            },
+            "fallback_price": {
+                "type": "integer"
+            },
+            "fallback_currency": {
+                "type": "string"
+            },
+            "prices": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "currency",
+            "id",
+            "interval",
+            "interval_count",
+            "name",
+            "price",
+            "price_tier",
+            "sku_id",
+            "tax_inclusive"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorePublishedListingsSkusSubscriptionPlansResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/StorePublishedListingsSkuSubscriptionPlanResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StorePriceTierResponse": {
         "type": "object",
         "additionalProperties": {

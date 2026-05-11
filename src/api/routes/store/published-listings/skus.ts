@@ -17,11 +17,13 @@
 */
 
 import { route } from "@spacebar/api";
-import type { StorePublishedListingsSkusResponse } from "@spacebar/schemas";
-import { DiscordApiErrors } from "@spacebar/util";
+import type { StorePublishedListingsSkusResponse, StorePublishedListingsSkusSubscriptionPlansResponse } from "@spacebar/schemas";
+import { Config, DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { getSubscriptionPlansForSku, type SubscriptionPlan } from "./skus/#sku_id/subscription-plans";
 
 const emptyPublishedStoreListings: readonly unknown[] = [];
+const maxBulkSubscriptionPlanSkuIds = 16;
 
 export interface StorePublishedListingsSkusQueryOptions {
     application_id: string;
@@ -32,9 +34,29 @@ export interface StorePublishedListingsSkusQueryOptions {
 
 export type StorePublishedListingsSkusProvider = (options: StorePublishedListingsSkusQueryOptions) => readonly unknown[];
 
+export interface StorePublishedListingsSkusSubscriptionPlansQueryOptions {
+    sku_ids: string[];
+    include_unpublished?: boolean;
+    revenue_surface?: number;
+    country_code?: string;
+    payment_source_id?: string;
+}
+
+export type StorePublishedListingsSkusSubscriptionPlansProvider = (options: StorePublishedListingsSkusSubscriptionPlansQueryOptions) => readonly SubscriptionPlan[];
+
 function firstQueryValue(value: unknown): unknown {
     if (Array.isArray(value)) return firstQueryValue(value[0]);
     return value;
+}
+
+function queryValues(value: unknown): string[] {
+    if (Array.isArray(value)) return value.flatMap(queryValues);
+    if (typeof value !== "string") return [];
+
+    return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
 }
 
 function queryString(value: unknown): string | undefined {
@@ -47,6 +69,14 @@ function queryBoolean(value: unknown): boolean | undefined {
     if (entry === "true" || entry === "1") return true;
     if (entry === "false" || entry === "0") return false;
     return undefined;
+}
+
+function queryInteger(value: unknown): number | undefined {
+    const entry = queryString(value);
+    if (entry === undefined || !/^-?\d+$/.test(entry)) return undefined;
+
+    const parsed = Number.parseInt(entry, 10);
+    return Number.isSafeInteger(parsed) ? parsed : undefined;
 }
 
 function assertSnowflake(value: unknown): asserts value is string {
@@ -67,6 +97,13 @@ function optionalSnowflake(value: unknown): string | undefined {
     return entry;
 }
 
+function requiredSnowflakeList(values: string[], maxLength: number): string[] {
+    if (values.length === 0 || values.length > maxLength) throw DiscordApiErrors.INVALID_FORM_BODY;
+
+    for (const value of values) assertSnowflake(value);
+    return [...new Set(values)];
+}
+
 export function parseStorePublishedListingsSkusQuery(query: Request["query"]): StorePublishedListingsSkusQueryOptions {
     return {
         application_id: requiredSnowflake(query.application_id),
@@ -76,9 +113,28 @@ export function parseStorePublishedListingsSkusQuery(query: Request["query"]): S
     };
 }
 
+export function parseStorePublishedListingsSkusSubscriptionPlansQuery(query: Request["query"]): StorePublishedListingsSkusSubscriptionPlansQueryOptions {
+    const skuIds = requiredSnowflakeList([...queryValues(query.sku_ids), ...queryValues(query["sku_ids[]"])], maxBulkSubscriptionPlanSkuIds);
+
+    return {
+        sku_ids: skuIds,
+        include_unpublished: queryBoolean(query.include_unpublished),
+        revenue_surface: queryInteger(query.revenue_surface),
+        country_code: queryString(query.country_code),
+        payment_source_id: optionalSnowflake(query.payment_source_id),
+    };
+}
+
 export function getStorePublishedListingsSkus(_options: StorePublishedListingsSkusQueryOptions): readonly unknown[] {
     // Spacebar does not currently persist Discord published store listing catalogs.
     return emptyPublishedStoreListings;
+}
+
+export function getStorePublishedListingsSkusSubscriptionPlans(
+    options: StorePublishedListingsSkusSubscriptionPlansQueryOptions,
+    customPlans: readonly SubscriptionPlan[] = Config.get().store.customSubscriptionPlans,
+): readonly SubscriptionPlan[] {
+    return options.sku_ids.flatMap((skuId) => getSubscriptionPlansForSku(skuId, customPlans));
 }
 
 export function listStorePublishedListingsSkus(
@@ -88,7 +144,17 @@ export function listStorePublishedListingsSkus(
     return Array.from(listingProvider(options));
 }
 
-export function createStorePublishedListingsSkusRouter(listingProvider: StorePublishedListingsSkusProvider = getStorePublishedListingsSkus) {
+export function listStorePublishedListingsSkusSubscriptionPlans(
+    options: StorePublishedListingsSkusSubscriptionPlansQueryOptions,
+    subscriptionPlansProvider: StorePublishedListingsSkusSubscriptionPlansProvider = getStorePublishedListingsSkusSubscriptionPlans,
+): StorePublishedListingsSkusSubscriptionPlansResponse {
+    return Array.from(subscriptionPlansProvider(options));
+}
+
+export function createStorePublishedListingsSkusRouter(
+    listingProvider: StorePublishedListingsSkusProvider = getStorePublishedListingsSkus,
+    subscriptionPlansProvider: StorePublishedListingsSkusSubscriptionPlansProvider = getStorePublishedListingsSkusSubscriptionPlans,
+) {
     const router: Router = Router({ mergeParams: true });
 
     router.get(
@@ -130,6 +196,52 @@ export function createStorePublishedListingsSkusRouter(listingProvider: StorePub
         (req: Request, res: Response) => {
             const options = parseStorePublishedListingsSkusQuery(req.query);
             res.status(200).json(listStorePublishedListingsSkus(options, listingProvider));
+        },
+    );
+
+    router.get(
+        "/subscription-plans",
+        route({
+            summary: "Get Bulk Published Subscription Plans",
+            description: "Returns published subscription plan objects for the requested SKU IDs.",
+            query: {
+                sku_ids: {
+                    type: "array",
+                    required: true,
+                    description: "SKU IDs to retrieve subscription plans for (1-16).",
+                },
+                include_unpublished: {
+                    type: "boolean",
+                    description: "Whether to include unpublished subscription plans when the viewer has access.",
+                },
+                revenue_surface: {
+                    type: "integer",
+                    description: "Revenue surface used for analytics.",
+                },
+                country_code: {
+                    type: "string",
+                    description: "ISO 3166-1 alpha-2 country code used for localized pricing.",
+                },
+                payment_source_id: {
+                    type: "string",
+                    description: "Payment source ID used to retrieve payment-source-specific prices.",
+                },
+            },
+            responses: {
+                200: {
+                    body: "StorePublishedListingsSkusSubscriptionPlansResponse",
+                },
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        (req: Request, res: Response) => {
+            const options = parseStorePublishedListingsSkusSubscriptionPlansQuery(req.query);
+            res.status(200).json(listStorePublishedListingsSkusSubscriptionPlans(options, subscriptionPlansProvider));
         },
     );
 
