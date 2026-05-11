@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 484,
+        "totalCoveredManifestEntries": 485,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 462,
-                "totalCoveredManifestEntries": 462,
-                "totalCoveredRequiredManifestEntries": 462,
+                "totalRequiredManifestEntries": 463,
+                "totalCoveredManifestEntries": 463,
+                "totalCoveredRequiredManifestEntries": 463,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 331,
+            "stateful-domain": 332,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 462,
-                "totalCoveredManifestEntries": 462,
-                "totalCoveredRequiredManifestEntries": 462,
+                "totalRequiredManifestEntries": 463,
+                "totalCoveredManifestEntries": 463,
+                "totalCoveredRequiredManifestEntries": 463,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -131,6 +131,7 @@
                 "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
                 "api:http:GET:/applications/:application_id/external-identity-provider-configurations/",
+                "api:http:GET:/applications/:application_id/gift-code-batches/",
                 "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
@@ -595,6 +596,7 @@
                 "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
                 "api:http:GET:/applications/:application_id/external-identity-provider-configurations/",
+                "api:http:GET:/applications/:application_id/gift-code-batches/",
                 "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
@@ -1442,6 +1444,7 @@
                         "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:GET:/applications/:application_id/entitlements/",
                         "api:http:GET:/applications/:application_id/external-identity-provider-configurations/",
+                        "api:http:GET:/applications/:application_id/gift-code-batches/",
                         "api:http:GET:/applications/:application_id/gift-code-batches/:gift_code_batch_id/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/",
                         "api:http:GET:/applications/:application_id/guilds/:guild_id/commands/:command_id/",

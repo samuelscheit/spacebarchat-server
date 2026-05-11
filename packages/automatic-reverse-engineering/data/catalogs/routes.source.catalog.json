@@ -418,6 +418,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationGiftCodeBatchesResponse"
+		],
+		"route": "/applications/{application_id}/gift-code-batches",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_GIFT_CODE_BATCHES",
+		"source": "src/api/routes/applications/#application_id/gift-code-batches/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/applications/{application_id}/gift-code-batches/{gift_code_batch_id}",

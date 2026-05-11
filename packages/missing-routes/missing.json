@@ -1,6 +1,6 @@
 {
-    "missing": 680,
-    "spacebar": 500,
+    "missing": 679,
+    "spacebar": 501,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1123,14 +1123,6 @@
             "sources": ["userdoccers:resources/game.mdx"],
             "source_routes": ["/applications/{application_id}/game-claims/{game_claim_id}"],
             "summaries": ["Get Application Game Claim"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/gift-code-batches",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_GIFT_CODE_BATCHES",
-            "sources": ["userdoccers:resources/entitlement.mdx"],
-            "source_routes": ["/applications/{application_id}/gift-code-batches"],
-            "summaries": ["Get Application Gift Code Batches"]
         },
         {
             "method": "GET",
