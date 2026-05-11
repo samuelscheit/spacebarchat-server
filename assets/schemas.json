@@ -8519,6 +8519,22 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "InviteFriendMembersResponse": {
+        "type": "object",
+        "properties": {
+            "friend_member_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "friend_member_ids"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "LocationMetadataResponse": {
         "type": "object",
         "properties": {

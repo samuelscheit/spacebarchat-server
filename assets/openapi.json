@@ -8118,6 +8118,20 @@
                     "$ref": "#/components/schemas/APIInvite"
                 }
             },
+            "InviteFriendMembersResponse": {
+                "type": "object",
+                "properties": {
+                    "friend_member_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "friend_member_ids"
+                ]
+            },
             "LocationMetadataResponse": {
                 "type": "object",
                 "properties": {
@@ -39762,6 +39776,62 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/Invite"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "invite_code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "invite_code"
+                    }
+                ],
+                "tags": [
+                    "invites"
+                ]
+            }
+        },
+        "/invites/{invite_code}/friend-members": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Invite Friend Members",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InviteFriendMembersResponse"
                                 }
                             }
                         }

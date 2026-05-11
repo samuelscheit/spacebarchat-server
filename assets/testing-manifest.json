@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 607,
+        "totalEntries": 608,
         "byService": {
-            "api": 510,
+            "api": 511,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 582,
+            "http-route": 583,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 131,
+            "contract": 132,
             "stateful-domain": 332,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 465,
+            "route-class": 466,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15842,13 +15842,50 @@
             }
         },
         {
+            "id": "api:http:GET:/invites/:invite_code/friend-members",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/invites/:invite_code/friend-members",
+            "sourceFile": "src/api/routes/invites/index.ts",
+            "line": 107,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "InviteFriendMembersResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:DELETE:/invites/:invite_code",
             "type": "http-route",
             "service": "api",
             "method": "DELETE",
             "path": "/invites/:invite_code",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 111,
+            "line": 185,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -15888,7 +15925,7 @@
             "method": "GET",
             "path": "/invites/:invite_code",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 27,
+            "line": 78,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -15923,7 +15960,7 @@
             "method": "POST",
             "path": "/invites/:invite_code",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 56,
+            "line": 130,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

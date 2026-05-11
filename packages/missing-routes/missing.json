@@ -1,6 +1,6 @@
 {
-    "missing": 678,
-    "spacebar": 502,
+    "missing": 677,
+    "spacebar": 503,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -233,7 +233,6 @@
         "/initiate-prompts",
         "/integrations/{param}/join",
         "/integrations/{param}/search",
-        "/invites/{param}/friend-members",
         "/invites/{param}/target-users",
         "/invites/{param}/target-users/job-status",
         "/join-requests/{param}",
@@ -1670,14 +1669,6 @@
         },
         { "method": "GET", "route": "/guilds/gravity-join", "route_name": "GRAVITY_JOIN_GUILD", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/integrations/{param}/search", "route_name": "INTEGRATION_SEARCH", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/invites/{param}/friend-members",
-            "route_name": "GET_INVITES_INVITE_CODE_FRIEND_MEMBERS",
-            "sources": ["userdoccers:resources/invite.mdx"],
-            "source_routes": ["/invites/{invite_code}/friend-members"],
-            "summaries": ["Get Invite Friend Members"]
-        },
         {
             "method": "GET",
             "route": "/invites/{param}/target-users",

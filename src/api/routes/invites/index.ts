@@ -17,12 +17,63 @@
 */
 
 import { acceptUserInvite, isUserInvite, revokeUserInvite, route, toUserInviteResponse } from "@spacebar/api";
-import { Config, DiscordApiErrors, getPermission, getRights, Invite, PublicInviteRelation, SpacebarApiErrors, User } from "@spacebar/util";
+import { RelationshipType, type InviteFriendMembersResponse } from "@spacebar/schemas";
+import { Config, DiscordApiErrors, getPermission, getRights, Invite, Member, PublicInviteRelation, Relationship, SpacebarApiErrors, User } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
+import { In } from "typeorm";
 import { assertInviteAcceptanceAllowed } from "../../util/handlers/InviteAcceptance";
 
 const router: Router = Router({ mergeParams: true });
+
+type InviteFriendMembersInvite = Pick<Invite, "guild_id">;
+type InviteFriendMembersRelationship = Pick<Relationship, "to_id">;
+type InviteFriendMembersMember = Pick<Member, "id">;
+
+export async function buildInviteFriendMembersResponse(userId: string, inviteCode: string): Promise<InviteFriendMembersResponse> {
+    const invite = (await Invite.findOneOrFail({
+        where: { code: inviteCode },
+        select: {
+            code: true,
+            guild_id: true,
+        },
+    })) as InviteFriendMembersInvite;
+
+    if (!invite.guild_id) return { friend_member_ids: [] };
+
+    const relationships = (await Relationship.find({
+        where: {
+            from_id: userId,
+            type: RelationshipType.friends,
+        },
+        select: {
+            to_id: true,
+        },
+        order: {
+            to_id: "ASC",
+        },
+    })) as InviteFriendMembersRelationship[];
+
+    const friendIds = relationships.map((relationship) => relationship.to_id);
+    if (!friendIds.length) return { friend_member_ids: [] };
+
+    const members = (await Member.find({
+        where: {
+            guild_id: invite.guild_id,
+            id: In(friendIds),
+        },
+        select: {
+            id: true,
+        },
+        order: {
+            id: "ASC",
+        },
+    })) as InviteFriendMembersMember[];
+
+    return {
+        friend_member_ids: [...new Set(members.map((member) => member.id))].sort(),
+    };
+}
 
 router.get(
     "/:invite_code",
@@ -50,6 +101,29 @@ router.get(
         }
 
         res.status(200).send(invite.toPublicJSON());
+    },
+);
+
+router.get(
+    "/:invite_code/friend-members",
+    route({
+        summary: "Get Invite Friend Members",
+        responses: {
+            200: {
+                body: "InviteFriendMembersResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { invite_code } = req.params as { invite_code: string };
+
+        res.status(200).json(await buildInviteFriendMembersResponse(req.user_id, invite_code));
     },
 );
 
