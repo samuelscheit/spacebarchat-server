@@ -4117,6 +4117,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"StoreListingResponse"
+		],
+		"route": "/store/listings/{store_listing_id}",
+		"route_name": "GET_STORE_LISTINGS_STORE_LISTING_ID",
+		"source": "src/api/routes/store/listings/#store_listing_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"StorePriceTiersResponse"
 		],
 		"route": "/store/price-tiers",

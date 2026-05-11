@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 672,
+        "totalEntries": 673,
         "byService": {
-            "api": 575,
+            "api": 576,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 647,
+            "http-route": 648,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 164,
+            "contract": 165,
             "stateful-domain": 357,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 530,
+            "route-class": 531,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19405,6 +19405,45 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/store/listings/:store_listing_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/listings/:store_listing_id/",
+            "sourceFile": "src/api/routes/store/listings/#store_listing_id.ts",
+            "line": 154,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StoreListingResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

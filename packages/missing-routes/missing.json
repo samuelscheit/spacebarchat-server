@@ -1,6 +1,6 @@
 {
-    "missing": 613,
-    "spacebar": 567,
+    "missing": 612,
+    "spacebar": 568,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1563,14 +1563,6 @@
         { "method": "GET", "route": "/sticker-packs/directory-v2/{param}", "route_name": "STORE_DIRECTORY_LAYOUT_STICKER_PACKS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/store/directory-layouts/{param}", "route_name": "STORE_DIRECTORY_LAYOUT", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/store/directory/{param}", "route_name": "STORE_DIRECTORY", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/store/listings/{param}",
-            "route_name": "GET_STORE_LISTINGS_STORE_LISTING_ID",
-            "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/store/listings/{store_listing_id}"],
-            "summaries": ["Get Store Listing"]
-        },
         {
             "method": "GET",
             "route": "/store/skus/{param}/purchase",
