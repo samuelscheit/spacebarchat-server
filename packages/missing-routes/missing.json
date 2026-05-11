@@ -1,6 +1,6 @@
 {
-    "missing": 609,
-    "spacebar": 571,
+    "missing": 608,
+    "spacebar": 572,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -109,7 +109,6 @@
         "/entitlements/gift-codes/{param}/redeem",
         "/entitlements/partner-promotions/{param}",
         "/family-center/more-activity/{param}/{param}/{param}/{param}",
-        "/family-center/{param}/activity",
         "/friend-finder/find-friends",
         "/gifs/select",
         "/google-play/downgrade-subscription",
@@ -1178,7 +1177,6 @@
             "source_routes": ["/discovery/{guild_id}"],
             "summaries": ["Get Discovery Slug"]
         },
-        { "method": "GET", "route": "/family-center/{param}/activity", "route_name": "FAMILY_CENTER_TEEN_ACTIVITY", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
             "route": "/family-center/more-activity/{param}/{param}/{param}/{param}",

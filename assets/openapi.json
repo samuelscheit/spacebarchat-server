@@ -54067,6 +54067,52 @@
                 ]
             }
         },
+        "/family-center/{teen_user_id}/activity/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Family Center Teen Activity",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FamilyCenterTeenAuditLog"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "teen_user_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "teen_user_id"
+                    }
+                ],
+                "tags": [
+                    "family-center"
+                ]
+            }
+        },
         "/experiments/": {
             "get": {
                 "responses": {

@@ -17,23 +17,35 @@
 */
 
 import { route } from "@spacebar/api";
-import type { FamilyCenterResponse } from "@spacebar/schemas";
+import type { FamilyCenterResponse, FamilyCenterTeenAuditLog } from "@spacebar/schemas";
 import { DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
 
+export function resolveFamilyCenterTeenUserId(teenUserId: string | string[] | null | undefined): string | null {
+    if (Array.isArray(teenUserId)) {
+        return teenUserId[0] ?? null;
+    }
+
+    return teenUserId ?? null;
+}
+
+export function buildFamilyCenterTeenActivityResponse(teenUserId: string | string[] | null | undefined): FamilyCenterTeenAuditLog {
+    return {
+        teen_user_id: resolveFamilyCenterTeenUserId(teenUserId),
+        range_start_id: null,
+        actions: [],
+        users: [],
+        guilds: [],
+        totals: {},
+    };
+}
+
 export function buildFamilyCenterOverviewResponse(): FamilyCenterResponse {
     return {
         linked_users: [],
-        teen_audit_log: {
-            teen_user_id: null,
-            range_start_id: null,
-            actions: [],
-            users: [],
-            guilds: [],
-            totals: {},
-        },
+        teen_audit_log: buildFamilyCenterTeenActivityResponse(null),
         users: [],
     };
 }

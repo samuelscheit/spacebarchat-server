@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 651,
+        "totalContracts": 652,
         "byService": {
-            "api": 578,
+            "api": 579,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 501,
-        "runtimeMalformedAuthContracts": 501,
-        "runtimeRevokedSessionAuthContracts": 501,
-        "runtimeStaleTokenAuthContracts": 501,
+        "runtimeAuthBoundaryContracts": 502,
+        "runtimeMalformedAuthContracts": 502,
+        "runtimeRevokedSessionAuthContracts": 502,
+        "runtimeStaleTokenAuthContracts": 502,
         "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 71,
@@ -12553,13 +12553,57 @@
             ]
         },
         {
+            "manifestId": "api:http:GET:/family-center/:teen_user_id/activity/",
+            "service": "api",
+            "method": "GET",
+            "path": "/family-center/:teen_user_id/activity/",
+            "samplePath": "/family-center/100000000000000004/activity/",
+            "sourceFile": "src/api/routes/family-center/#teen_user_id/activity.ts",
+            "line": 25,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "FamilyCenterTeenAuditLog"],
+                "responseStatuses": [200, 401]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/family-center/@me/",
             "service": "api",
             "method": "GET",
             "path": "/family-center/@me/",
             "samplePath": "/family-center/@me/",
             "sourceFile": "src/api/routes/family-center/@me.ts",
-            "line": 45,
+            "line": 57,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -12603,7 +12647,7 @@
             "path": "/family-center/@me/link-code",
             "samplePath": "/family-center/@me/link-code",
             "sourceFile": "src/api/routes/family-center/@me.ts",
-            "line": 61,
+            "line": 73,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",

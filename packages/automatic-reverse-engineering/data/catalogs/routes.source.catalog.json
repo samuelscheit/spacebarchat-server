@@ -1958,6 +1958,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"FamilyCenterTeenAuditLog"
+		],
+		"route": "/family-center/{teen_user_id}/activity",
+		"route_name": "GET_FAMILY_CENTER_TEEN_USER_ID_ACTIVITY",
+		"source": "src/api/routes/family-center/#teen_user_id/activity.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"FamilyCenterResponse"
 		],
 		"route": "/family-center/@me",
