@@ -2733,6 +2733,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"APIMemberArray"
+		],
+		"route": "/guilds/{guild_id}/members/search",
+		"route_name": "GET_GUILDS_GUILD_ID_MEMBERS_SEARCH",
+		"source": "src/api/routes/guilds/#guild_id/members/search.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildMessagesSearchResponse"
 		],
 		"route": "/guilds/{guild_id}/messages/search",

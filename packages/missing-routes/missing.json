@@ -1,6 +1,6 @@
 {
-    "missing": 669,
-    "spacebar": 511,
+    "missing": 668,
+    "spacebar": 512,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -167,7 +167,6 @@
         "/guilds/{param}/members-search",
         "/guilds/{param}/members/@me",
         "/guilds/{param}/members/@me/nick",
-        "/guilds/{param}/members/search",
         "/guilds/{param}/members/supplemental",
         "/guilds/{param}/members/unusual-dm-activity",
         "/guilds/{param}/messages/search/tabs",
@@ -1426,14 +1425,6 @@
             "route_name": "GUILD_JOIN",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/members/@me"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/members/search",
-            "route_name": "GET_GUILDS_GUILD_ID_MEMBERS_SEARCH",
-            "sources": ["userdoccers:resources/guild.mdx"],
-            "source_routes": ["/guilds/{guild_id}/members/search"],
-            "summaries": ["Query Guild Members"]
         },
         {
             "method": "GET",
