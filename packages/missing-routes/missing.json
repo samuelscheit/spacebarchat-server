@@ -1,6 +1,6 @@
 {
-    "missing": 720,
-    "spacebar": 460,
+    "missing": 719,
+    "spacebar": 461,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -53,7 +53,6 @@
         "/applications/{param}/subscription-group-listings/{param}",
         "/applications/{param}/transfer",
         "/applications/{param}/users/{param}/identities/{param}/profile",
-        "/applications/{param}/verification",
         "/attachments/refresh-urls",
         "/attachments/{param}",
         "/auth/authorize-ip",
@@ -1282,14 +1281,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/applications/{application_id}/users/{user_id}/identities/{external_user_id}/profile"],
             "summaries": ["Get User Application Profile"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/verification",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_VERIFICATION",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/verification"],
-            "summaries": ["Get Application Verification Eligibility"]
         },
         { "method": "GET", "route": "/applications/games-supplemental", "route_name": "APPLICATIONS_GAMES_SUPPLEMENTAL", "sources": ["xhyrom:data/client/routes.json"] },
         {

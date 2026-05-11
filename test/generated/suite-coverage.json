@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 454,
+        "totalCoveredManifestEntries": 455,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 432,
-                "totalCoveredManifestEntries": 432,
-                "totalCoveredRequiredManifestEntries": 432,
+                "totalRequiredManifestEntries": 433,
+                "totalCoveredManifestEntries": 433,
+                "totalCoveredRequiredManifestEntries": 433,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 301,
+            "stateful-domain": 302,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 432,
-                "totalCoveredManifestEntries": 432,
-                "totalCoveredRequiredManifestEntries": 432,
+                "totalRequiredManifestEntries": 433,
+                "totalCoveredManifestEntries": 433,
+                "totalCoveredRequiredManifestEntries": 433,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -136,6 +136,7 @@
                 "api:http:GET:/applications/:application_id/public/",
                 "api:http:GET:/applications/:application_id/rpc/",
                 "api:http:GET:/applications/:application_id/skus/",
+                "api:http:GET:/applications/:application_id/verification/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
                 "api:http:GET:/auth/generate-registration-tokens/",
@@ -570,6 +571,7 @@
                 "api:http:GET:/applications/:application_id/public/",
                 "api:http:GET:/applications/:application_id/rpc/",
                 "api:http:GET:/applications/:application_id/skus/",
+                "api:http:GET:/applications/:application_id/verification/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
                 "api:http:GET:/auth/generate-registration-tokens/",
@@ -1360,6 +1362,7 @@
                         "api:http:GET:/applications/:application_id/public/",
                         "api:http:GET:/applications/:application_id/rpc/",
                         "api:http:GET:/applications/:application_id/skus/",
+                        "api:http:GET:/applications/:application_id/verification/",
                         "api:http:GET:/applications/@me/",
                         "api:http:GET:/applications/detectable/",
                         "api:http:PATCH:/applications/:application_id/",

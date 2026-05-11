@@ -432,6 +432,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/{application_id}/verification",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_VERIFICATION",
+		"source": "src/api/routes/applications/#application_id/verification.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse",
 			"Application"
 		],
