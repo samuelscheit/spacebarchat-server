@@ -16422,6 +16422,46 @@
             }
         },
         {
+            "id": "api:http:GET:/oauth2/@me/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/oauth2/@me/",
+            "sourceFile": "src/api/routes/oauth2/@me.ts",
+            "line": 269,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "OAuthCurrentAuthorizationResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:DELETE:/oauth2/applications/:application_id/allowlist/:user_id/",
             "type": "http-route",
             "service": "api",

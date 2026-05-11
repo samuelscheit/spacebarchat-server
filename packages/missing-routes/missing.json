@@ -246,7 +246,6 @@
         "/metrics",
         "/metrics/v2",
         "/networking/token",
-        "/oauth2/@me",
         "/oauth2/allowlist/accept",
         "/oauth2/applications/{param}/allowlist",
         "/oauth2/applications/{param}/assets",
@@ -1615,13 +1614,6 @@
             "sources": ["userdoccers:resources/lobby.mdx"],
             "source_routes": ["/lobbies/{lobby_id}/messages"],
             "summaries": ["Get Lobby Messages"]
-        },
-        {
-            "method": "GET",
-            "route": "/oauth2/@me",
-            "route_name": "GET_OAUTH2__ME",
-            "sources": ["userdoccers:topics/oauth2.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Current Authorization Information"]
         },
         {
             "method": "GET",
