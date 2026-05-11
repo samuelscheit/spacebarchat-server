@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 589,
+        "totalContracts": 590,
         "byService": {
-            "api": 516,
+            "api": 517,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 443,
-        "runtimeMalformedAuthContracts": 443,
-        "runtimeRevokedSessionAuthContracts": 443,
-        "runtimeStaleTokenAuthContracts": 443,
+        "runtimeAuthBoundaryContracts": 444,
+        "runtimeMalformedAuthContracts": 444,
+        "runtimeRevokedSessionAuthContracts": 444,
+        "runtimeStaleTokenAuthContracts": 444,
         "runtimePublicAuthBoundaryContracts": 65,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
@@ -21468,7 +21468,7 @@
             "path": "/invites/:invite_code/friend-members",
             "samplePath": "/invites/value/friend-members",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 138,
+            "line": 162,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -21506,13 +21506,57 @@
             ]
         },
         {
+            "manifestId": "api:http:GET:/invites/:invite_code/target-users/job-status",
+            "service": "api",
+            "method": "GET",
+            "path": "/invites/:invite_code/target-users/job-status",
+            "samplePath": "/invites/value/target-users/job-status",
+            "sourceFile": "src/api/routes/invites/index.ts",
+            "line": 209,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [401, 403, 404, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/invites/:invite_code/target-users",
             "service": "api",
             "method": "GET",
             "path": "/invites/:invite_code/target-users",
             "samplePath": "/invites/value/target-users",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 161,
+            "line": 185,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -21556,7 +21600,7 @@
             "path": "/invites/:invite_code",
             "samplePath": "/invites/value",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 255,
+            "line": 288,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -21606,7 +21650,7 @@
             "path": "/invites/:invite_code",
             "samplePath": "/invites/value",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 109,
+            "line": 133,
             "authMode": "public",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -21646,7 +21690,7 @@
             "path": "/invites/:invite_code",
             "samplePath": "/invites/value",
             "sourceFile": "src/api/routes/invites/index.ts",
-            "line": 200,
+            "line": 233,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",

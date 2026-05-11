@@ -31,6 +31,7 @@ type InviteFriendMembersRelationship = Pick<Relationship, "to_id">;
 type InviteFriendMembersMember = Pick<Member, "id">;
 type InviteTargetUsersInvite = {
     channel_id?: string | null;
+    code?: string;
     guild_id?: string | null;
     inviter_id?: string | null;
 };
@@ -106,6 +107,29 @@ export async function assertCanReadInviteTargetUsers(userId: string, invite: Inv
     }
 }
 
+async function findInviteTargetUsersInvite(inviteCode: string): Promise<InviteTargetUsersInvite> {
+    return (await Invite.findOneOrFail({
+        where: { code: inviteCode },
+        select: {
+            channel_id: true,
+            code: true,
+            guild_id: true,
+            inviter_id: true,
+        },
+    })) as InviteTargetUsersInvite;
+}
+
+async function rejectUnsupportedInviteTargetUsersRequest(req: Request): Promise<never> {
+    const { invite_code } = req.params as { invite_code: string };
+    const invite = await findInviteTargetUsersInvite(invite_code);
+
+    await assertCanReadInviteTargetUsers(req.user_id, invite);
+
+    // Spacebar does not persist Discord target-users CSV files or the async
+    // processing job needed by the paired PUT/job-status endpoints.
+    throw createInviteTargetUsersUnsupportedError();
+}
+
 router.get(
     "/:invite_code",
     route({
@@ -178,22 +202,31 @@ router.get(
         },
     }),
     async (req: Request, _res: Response) => {
-        const { invite_code } = req.params as { invite_code: string };
-        const invite = (await Invite.findOneOrFail({
-            where: { code: invite_code },
-            select: {
-                channel_id: true,
-                code: true,
-                guild_id: true,
-                inviter_id: true,
+        await rejectUnsupportedInviteTargetUsersRequest(req);
+    },
+);
+
+router.get(
+    "/:invite_code/target-users/job-status",
+    route({
+        summary: "Get Invite Target Users Job Status",
+        responses: {
+            401: {
+                body: "APIErrorResponse",
             },
-        })) as InviteTargetUsersInvite;
-
-        await assertCanReadInviteTargetUsers(req.user_id, invite);
-
-        // Spacebar does not persist Discord target-users CSV files or the async
-        // processing job needed by the paired PUT/job-status endpoints.
-        throw createInviteTargetUsersUnsupportedError();
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, _res: Response) => {
+        await rejectUnsupportedInviteTargetUsersRequest(req);
     },
 );
 

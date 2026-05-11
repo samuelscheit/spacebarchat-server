@@ -1,6 +1,6 @@
 {
-    "missing": 671,
-    "spacebar": 509,
+    "missing": 670,
+    "spacebar": 510,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -232,7 +232,6 @@
         "/integrations/{param}/join",
         "/integrations/{param}/search",
         "/invites/{param}/target-users",
-        "/invites/{param}/target-users/job-status",
         "/join-requests/{param}",
         "/join-requests/{param}/interview",
         "/lobbies",
@@ -1651,14 +1650,6 @@
         },
         { "method": "GET", "route": "/guilds/gravity-join", "route_name": "GRAVITY_JOIN_GUILD", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/integrations/{param}/search", "route_name": "INTEGRATION_SEARCH", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/invites/{param}/target-users/job-status",
-            "route_name": "GET_INVITES_INVITE_CODE_TARGET_USERS_JOB_STATUS",
-            "sources": ["userdoccers:resources/invite.mdx"],
-            "source_routes": ["/invites/{invite_code}/target-users/job-status"],
-            "summaries": ["Get Invite Target Users Job Status"]
-        },
         {
             "method": "GET",
             "route": "/join-requests/{param}",
