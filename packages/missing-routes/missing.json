@@ -1,6 +1,6 @@
 {
-    "missing": 626,
-    "spacebar": 554,
+    "missing": 625,
+    "spacebar": 555,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -301,7 +301,6 @@
         "/safety-hub/suspended/request-review/{param}",
         "/safety-hub/suspended/request-verification",
         "/search/favorites",
-        "/shop/search",
         "/sso",
         "/sso-token",
         "/stage-instances/extra",
@@ -1605,7 +1604,6 @@
             "source_routes": ["/quests/decision?placement=:param&client_heartbeat_session_id=:param"]
         },
         { "method": "GET", "route": "/search/favorites", "route_name": "SEARCH_FAVORITES", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "GET", "route": "/shop/search", "route_name": "GET_SHOP_SEARCH", "sources": ["userdoccers:resources/collectibles.mdx"], "summaries": ["Search Collectibles"] },
         { "method": "GET", "route": "/sso", "route_name": "SSO", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/sso-token", "route_name": "SSO_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },

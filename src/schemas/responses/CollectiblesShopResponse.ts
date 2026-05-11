@@ -23,6 +23,18 @@ export interface CollectiblesShopResponse {
     categories: CollectiblesCategory[];
 }
 
+export interface CollectiblesSearchResponse {
+    pagination: CollectiblesSearchPagination;
+    skus: string[];
+}
+
+export interface CollectiblesSearchPagination {
+    offset: number;
+    limit: number;
+    total: number;
+    has_more: boolean;
+}
+
 export type AnyShopBlock = ItemRowShopBlock | BundleTileRowShopBlock | ItemCollectionShopBlock;
 
 export interface BaseShopBlock {

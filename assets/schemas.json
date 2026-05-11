@@ -4232,6 +4232,26 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CollectiblesSearchResponse": {
+        "type": "object",
+        "properties": {
+            "pagination": {
+                "$ref": "#/definitions/CollectiblesSearchPagination"
+            },
+            "skus": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "pagination",
+            "skus"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationDetectableResponse": {
         "type": "array",
         "items": {},
@@ -21846,6 +21866,31 @@
             "ranked_sku_ids",
             "sorted_sku_ids",
             "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CollectiblesSearchPagination": {
+        "type": "object",
+        "properties": {
+            "offset": {
+                "type": "integer"
+            },
+            "limit": {
+                "type": "integer"
+            },
+            "total": {
+                "type": "integer"
+            },
+            "has_more": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "has_more",
+            "limit",
+            "offset",
+            "total"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

@@ -4014,6 +4014,24 @@
                     "shop_blocks"
                 ]
             },
+            "CollectiblesSearchResponse": {
+                "type": "object",
+                "properties": {
+                    "pagination": {
+                        "$ref": "#/components/schemas/CollectiblesSearchPagination"
+                    },
+                    "skus": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "pagination",
+                    "skus"
+                ]
+            },
             "ApplicationDetectableResponse": {
                 "type": "array",
                 "items": {}
@@ -20728,6 +20746,29 @@
                     "type"
                 ]
             },
+            "CollectiblesSearchPagination": {
+                "type": "object",
+                "properties": {
+                    "offset": {
+                        "type": "integer"
+                    },
+                    "limit": {
+                        "type": "integer"
+                    },
+                    "total": {
+                        "type": "integer"
+                    },
+                    "has_more": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "has_more",
+                    "limit",
+                    "offset",
+                    "total"
+                ]
+            },
             "ConsoleDevicePlatform": {
                 "enum": [
                     "playstation",
@@ -34141,6 +34182,9 @@
             "name": "science"
         },
         {
+            "name": "shop"
+        },
+        {
             "name": "social-sdk"
         },
         {
@@ -40511,6 +40555,116 @@
                 ],
                 "tags": [
                     "social-sdk"
+                ]
+            }
+        },
+        "/shop/search/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed collectible SKU IDs that match the requested shop search filters.",
+                "summary": "Search Collectibles",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CollectiblesSearchResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "item_types",
+                        "in": "query",
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "Collectible item types to search for."
+                    },
+                    {
+                        "name": "colors",
+                        "in": "query",
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "Collectible color facets to search for."
+                    },
+                    {
+                        "name": "themes",
+                        "in": "query",
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "Collectible theme facets to search for."
+                    },
+                    {
+                        "name": "orbs_eligible",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether returned products must be eligible for orb purchases."
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Number of products to skip before returning results."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Maximum number of SKU IDs to return, capped at 100."
+                    },
+                    {
+                        "name": "sort_type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Sort field for matching products."
+                    },
+                    {
+                        "name": "sort_direction",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Sort direction for matching products."
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Text query to match against locally backed collectible metadata."
+                    }
+                ],
+                "tags": [
+                    "shop"
                 ]
             }
         },

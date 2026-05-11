@@ -42,6 +42,7 @@ function assertCollectiblesDefinitionsUseScopedNames(schemas: Record<string, Jso
     assert.equal(schemas.CollectiblesCategoriesV2Response.properties?.categories?.items?.$ref, `${refPrefix}CollectiblesCategory`);
     assert.equal(schemas.CollectiblesCategoriesV2Response.properties?.user_discounts?.items?.$ref, `${refPrefix}CollectiblesUserDiscount`);
     assert.equal(schemas.CollectiblesShopResponse.properties?.categories?.items?.$ref, `${refPrefix}CollectiblesCategory`);
+    assert.equal(schemas.CollectiblesSearchResponse.properties?.pagination?.$ref, `${refPrefix}CollectiblesSearchPagination`);
     assert.equal(schemas.CollectiblesCategory.properties?.banner_asset?.$ref, `${refPrefix}CollectiblesStaticAnimatedAsset`);
     assert.equal(schemas.CollectiblesCategoryProduct.properties?.items?.items?.$ref, `${refPrefix}CollectiblesProductItem`);
     assert.equal(schemas.CollectiblesCategoryProduct.properties?.variants?.items?.$ref, `${refPrefix}CollectiblesProductVariant`);
@@ -59,6 +60,8 @@ function assertCollectiblesDefinitionsUseScopedNames(schemas: Record<string, Jso
     assert.ok(schemas.CollectiblesProductItem);
     assert.ok(schemas.CollectiblesProductVariant);
     assert.ok(schemas.CollectiblesUserDiscount);
+    assert.ok(schemas.CollectiblesSearchResponse);
+    assert.ok(schemas.CollectiblesSearchPagination);
     assert.ok(schemas.CollectiblesStaticAnimatedAsset);
     assert.ok(schemas.CollectiblesCountryPrice);
     assert.ok(schemas.CollectiblesPriceEntry);
@@ -188,4 +191,19 @@ test("CollectiblesCategoriesV2Response validates category wrappers and optional 
 
     assert.equal(ajv.validate("CollectiblesCategoriesV2Response", response), true);
     assert.equal(ajv.validate("CollectiblesCategoriesV2Response", { ...response, user_discounts: [{ ...response.user_discounts[0], internal_field: true }] }), false);
+});
+
+test("CollectiblesSearchResponse validates SKU search pagination wrappers", () => {
+    const response = {
+        pagination: {
+            offset: 0,
+            limit: 20,
+            total: 1,
+            has_more: false,
+        },
+        skus: ["123456789012345678"],
+    };
+
+    assert.equal(ajv.validate("CollectiblesSearchResponse", response), true);
+    assert.equal(ajv.validate("CollectiblesSearchResponse", { ...response, internal_field: true }), false);
 });
