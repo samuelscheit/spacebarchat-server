@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 510,
+        "totalCoveredManifestEntries": 512,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 488,
-                "totalCoveredManifestEntries": 488,
-                "totalCoveredRequiredManifestEntries": 488,
+                "totalRequiredManifestEntries": 490,
+                "totalCoveredManifestEntries": 490,
+                "totalCoveredRequiredManifestEntries": 490,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 348,
+            "stateful-domain": 350,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 488,
-                "totalCoveredManifestEntries": 488,
-                "totalCoveredRequiredManifestEntries": 488,
+                "totalRequiredManifestEntries": 490,
+                "totalCoveredManifestEntries": 490,
+                "totalCoveredRequiredManifestEntries": 490,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -316,6 +316,7 @@
                 "api:http:GET:/users/@me/connections/",
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                 "api:http:GET:/users/@me/consumable/confetti/",
+                "api:http:GET:/users/@me/consumable/hd-streaming/",
                 "api:http:GET:/users/@me/devices/sync-token/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
@@ -453,6 +454,7 @@
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
                 "api:http:POST:/users/@me/consumable/confetti/",
+                "api:http:POST:/users/@me/consumable/hd-streaming/",
                 "api:http:POST:/users/@me/delete/",
                 "api:http:POST:/users/@me/devices/",
                 "api:http:POST:/users/@me/disable/",
@@ -806,6 +808,7 @@
                 "api:http:GET:/users/@me/connections/",
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                 "api:http:GET:/users/@me/consumable/confetti/",
+                "api:http:GET:/users/@me/consumable/hd-streaming/",
                 "api:http:GET:/users/@me/devices/sync-token/",
                 "api:http:GET:/users/@me/email-settings/",
                 "api:http:GET:/users/@me/entitlements/gifts",
@@ -943,6 +946,7 @@
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
                 "api:http:POST:/users/@me/consumable/confetti/",
+                "api:http:POST:/users/@me/consumable/hd-streaming/",
                 "api:http:POST:/users/@me/delete/",
                 "api:http:POST:/users/@me/devices/",
                 "api:http:POST:/users/@me/disable/",
@@ -1144,6 +1148,7 @@
                         "api:http:GET:/users/@me/connections/",
                         "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
                         "api:http:GET:/users/@me/consumable/confetti/",
+                        "api:http:GET:/users/@me/consumable/hd-streaming/",
                         "api:http:GET:/users/@me/devices/sync-token/",
                         "api:http:GET:/users/@me/email-settings/",
                         "api:http:GET:/users/@me/entitlements/gifts",
@@ -1183,6 +1188,7 @@
                         "api:http:POST:/users/@me/billing/payment-sources/",
                         "api:http:POST:/users/@me/channels/",
                         "api:http:POST:/users/@me/consumable/confetti/",
+                        "api:http:POST:/users/@me/consumable/hd-streaming/",
                         "api:http:POST:/users/@me/delete/",
                         "api:http:POST:/users/@me/devices/",
                         "api:http:POST:/users/@me/disable/",

@@ -1,6 +1,6 @@
 {
-    "missing": 631,
-    "spacebar": 549,
+    "missing": 629,
+    "spacebar": 551,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -399,7 +399,6 @@
         "/users/@me/connections/{param}/{param}",
         "/users/@me/connections/{param}/{param}/refresh",
         "/users/@me/consent",
-        "/users/@me/consumable/hd-streaming",
         "/users/@me/devices/sync",
         "/users/@me/dms/{param}",
         "/users/@me/email",
@@ -1909,13 +1908,6 @@
             "route_name": "GET_USERS__ME_CONSENT",
             "sources": ["userdoccers:resources/user-settings.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Consents"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/consumable/hd-streaming",
-            "route_name": "GET_USERS__ME_CONSUMABLE_HD_STREAMING",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "summaries": ["Get HD Streaming Consumable"]
         },
         {
             "method": "GET",
@@ -3888,13 +3880,6 @@
             "route_name": "POST_USERS__ME_CONSENT",
             "sources": ["userdoccers:resources/user-settings.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Modify User Consents"]
-        },
-        {
-            "method": "POST",
-            "route": "/users/@me/consumable/hd-streaming",
-            "route_name": "POST_USERS__ME_CONSUMABLE_HD_STREAMING",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "summaries": ["Apply HD Streaming Consumable"]
         },
         {
             "method": "POST",

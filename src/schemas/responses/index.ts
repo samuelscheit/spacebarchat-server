@@ -56,6 +56,7 @@ export * from "./CollectiblesCategoriesResponse";
 export * from "./CollectiblesMarketingResponse";
 export * from "./CollectiblesShopResponse";
 export * from "./ConfettiConsumableResponse";
+export * from "./HDStreamingConsumableResponse";
 export * from "./ContentInventoryOutboxResponse";
 export * from "./ConsoleDevicesResponse";
 export * from "./ConversationSummariesResponse";

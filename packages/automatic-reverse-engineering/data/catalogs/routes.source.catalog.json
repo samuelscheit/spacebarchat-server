@@ -4588,6 +4588,26 @@
 		"source": "src/api/routes/users/@me/consumable/confetti.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"HDStreamingConsumableResponse"
+		],
+		"route": "/users/@me/consumable/hd-streaming",
+		"route_name": "GET_USERS__ME_CONSUMABLE_HD_STREAMING",
+		"source": "src/api/routes/users/@me/consumable/hd-streaming.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "HDStreamingConsumableApplySchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/consumable/hd-streaming",
+		"route_name": "POST_USERS__ME_CONSUMABLE_HD_STREAMING",
+		"source": "src/api/routes/users/@me/consumable/hd-streaming.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [
 			"APIErrorResponse"

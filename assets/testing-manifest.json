@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 654,
+        "totalEntries": 656,
         "byService": {
-            "api": 557,
+            "api": 559,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 629,
+            "http-route": 631,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 155,
-            "stateful-domain": 348,
+            "stateful-domain": 350,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 22,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 512,
+            "route-class": 514,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -21329,6 +21329,87 @@
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ConfettiConsumableApplySchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/consumable/hd-streaming/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/consumable/hd-streaming/",
+            "sourceFile": "src/api/routes/users/@me/consumable/hd-streaming.ts",
+            "line": 25,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "HDStreamingConsumableResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/users/@me/consumable/hd-streaming/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/consumable/hd-streaming/",
+            "sourceFile": "src/api/routes/users/@me/consumable/hd-streaming.ts",
+            "line": 40,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "HDStreamingConsumableApplySchema",
                 "responseBodies": [
                     "APIErrorResponse"
                 ],
