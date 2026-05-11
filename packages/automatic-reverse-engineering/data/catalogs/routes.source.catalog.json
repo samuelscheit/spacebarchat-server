@@ -3532,6 +3532,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ApplicationRpcResponse"
+		],
+		"route": "/oauth2/applications/{application_id}/rpc",
+		"route_name": "GET_OAUTH2_APPLICATIONS_APPLICATION_ID_RPC",
+		"source": "src/api/routes/oauth2/applications/#application_id/rpc.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"OAuthAuthorizationsResponse"
 		],
 		"route": "/oauth2/applications/{application_id}/tokens",

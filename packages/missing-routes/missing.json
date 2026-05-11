@@ -1,6 +1,6 @@
 {
-    "missing": 632,
-    "spacebar": 548,
+    "missing": 631,
+    "spacebar": 549,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -245,7 +245,6 @@
         "/oauth2/allowlist/accept",
         "/oauth2/applications/{param}/allowlist",
         "/oauth2/applications/{param}/assets",
-        "/oauth2/applications/{param}/rpc",
         "/oauth2/authorize/webhook-channels",
         "/oauth2/device/authorize",
         "/oauth2/device/finish",
@@ -1518,13 +1517,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/join-requests/{guild_join_request_id}"],
             "summaries": ["Get Guild Join Request"]
-        },
-        {
-            "method": "GET",
-            "route": "/oauth2/applications/{param}/rpc",
-            "route_name": "APPLICATION_RPC",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/oauth2/applications/{application_id}/rpc"]
         },
         { "method": "GET", "route": "/oauth2/authorize/webhook-channels", "route_name": "OAUTH2_AUTHORIZE_WEBHOOK_CHANNELS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG", "sources": ["xhyrom:data/client/routes.json"] },

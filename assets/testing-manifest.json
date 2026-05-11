@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 653,
+        "totalEntries": 654,
         "byService": {
-            "api": 556,
+            "api": 557,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 628,
+            "http-route": 629,
             "opcode": 21
         },
         "byTestTier": {
@@ -38,7 +38,7 @@
             "stateful-domain": 348,
             "cdn-integration": 78,
             "auth-scenario": 17,
-            "integration": 21,
+            "integration": 22,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 511,
+            "route-class": 512,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2203,7 +2203,7 @@
             "method": "GET",
             "path": "/applications/:application_id/rpc/",
             "sourceFile": "src/api/routes/applications/#application_id/rpc.ts",
-            "line": 118,
+            "line": 35,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -17093,6 +17093,45 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/oauth2/applications/:application_id/rpc/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/oauth2/applications/:application_id/rpc/",
+            "sourceFile": "src/api/routes/oauth2/applications/#application_id/rpc.ts",
+            "line": 26,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationRpcResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    404
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-oauth-connections",

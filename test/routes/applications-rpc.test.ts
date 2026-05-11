@@ -245,7 +245,7 @@ describe("GET /applications/:application_id/rpc", () => {
         assert.equal(isNoAuthorizationRoute("HEAD", "/applications/880218394199220334/rpc/"), true);
         assert.equal(isNoAuthorizationRoute("POST", "/applications/880218394199220334/rpc"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/applications/880218394199220334/public"), false);
-        assert.equal(isNoAuthorizationRoute("GET", "/oauth2/applications/880218394199220334/rpc"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/oauth2/applications/880218394199220334/rpc"), true);
     });
 
     test("documents unauthenticated route metadata", () => {

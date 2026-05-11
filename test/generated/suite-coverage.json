@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 509,
+        "totalCoveredManifestEntries": 510,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 487,
-                "totalCoveredManifestEntries": 487,
-                "totalCoveredRequiredManifestEntries": 487,
+                "totalRequiredManifestEntries": 488,
+                "totalCoveredManifestEntries": 488,
+                "totalCoveredRequiredManifestEntries": 488,
                 "totalSuites": 12
             },
             "protocol": {
@@ -30,7 +30,7 @@
         "byCoveredTestTier": {
             "stateful-domain": 348,
             "cdn-integration": 78,
-            "integration": 21,
+            "integration": 22,
             "contract": 22,
             "auth-scenario": 17,
             "middleware-contract": 1,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 487,
-                "totalCoveredManifestEntries": 487,
-                "totalCoveredRequiredManifestEntries": 487,
+                "totalRequiredManifestEntries": 488,
+                "totalCoveredManifestEntries": 488,
+                "totalCoveredRequiredManifestEntries": 488,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -276,6 +276,7 @@
                 "api:http:GET:/oauth2/@me/",
                 "api:http:GET:/oauth2/applications/:application_id/allowlist/",
                 "api:http:GET:/oauth2/applications/:application_id/assets/",
+                "api:http:GET:/oauth2/applications/:application_id/rpc/",
                 "api:http:GET:/oauth2/applications/:application_id/tokens/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
@@ -765,6 +766,7 @@
                 "api:http:GET:/oauth2/@me/",
                 "api:http:GET:/oauth2/applications/:application_id/allowlist/",
                 "api:http:GET:/oauth2/applications/:application_id/assets/",
+                "api:http:GET:/oauth2/applications/:application_id/rpc/",
                 "api:http:GET:/oauth2/applications/:application_id/tokens/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
@@ -1561,6 +1563,7 @@
                         "api:http:GET:/oauth2/@me/",
                         "api:http:GET:/oauth2/applications/:application_id/allowlist/",
                         "api:http:GET:/oauth2/applications/:application_id/assets/",
+                        "api:http:GET:/oauth2/applications/:application_id/rpc/",
                         "api:http:GET:/oauth2/applications/:application_id/tokens/",
                         "api:http:GET:/oauth2/applications/@me/",
                         "api:http:GET:/oauth2/authorize/",

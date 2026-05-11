@@ -18,18 +18,9 @@
 
 import { route } from "@spacebar/api";
 import { Router } from "express";
-import { createApplicationRpcRouteHandler, type ApplicationRpcRepositories } from "../../../util/utility/ApplicationRpc";
+import { createApplicationRpcRouteHandler, type ApplicationRpcRepositories } from "../../../../util/utility/ApplicationRpc";
 
-export {
-    createApplicationRpcRouteHandler,
-    getApplicationRpcResponse,
-    toApplicationRpcResponse,
-    type ApplicationRpcRepositories,
-    type ApplicationRpcRepository,
-    type ApplicationRpcSource,
-} from "../../../util/utility/ApplicationRpc";
-
-export function createApplicationRpcRouter(repositories: ApplicationRpcRepositories = {}) {
+export function createOAuth2ApplicationRpcRouter(repositories: ApplicationRpcRepositories = {}) {
     const router: Router = Router({ mergeParams: true });
 
     router.get(
@@ -51,4 +42,4 @@ export function createApplicationRpcRouter(repositories: ApplicationRpcRepositor
     return router;
 }
 
-export default createApplicationRpcRouter();
+export default createOAuth2ApplicationRpcRouter();
