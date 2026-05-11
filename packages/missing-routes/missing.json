@@ -1,6 +1,6 @@
 {
-    "missing": 659,
-    "spacebar": 521,
+    "missing": 657,
+    "spacebar": 523,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -75,7 +75,6 @@
         "/channels/{param}/add-safety-warning",
         "/channels/{param}/application-command-index",
         "/channels/{param}/application-commands/search",
-        "/channels/{param}/directory-entries/counts",
         "/channels/{param}/directory-entries/list",
         "/channels/{param}/directory-entries/search",
         "/channels/{param}/directory-entry/{param}",
@@ -249,7 +248,6 @@
         "/oauth2/allowlist/accept",
         "/oauth2/applications/{param}/allowlist",
         "/oauth2/applications/{param}/assets",
-        "/oauth2/applications/{param}/assets/{param}",
         "/oauth2/applications/{param}/rpc",
         "/oauth2/applications/{param}/tokens",
         "/oauth2/authorize/webhook-channels",
@@ -851,14 +849,6 @@
         },
         {
             "method": "DELETE",
-            "route": "/oauth2/applications/{param}/assets/{param}",
-            "route_name": "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS_APPLICATION_ASSET_ID",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/oauth2/applications/{application_id}/assets/{application_asset_id}"],
-            "summaries": ["Delete Application Asset"]
-        },
-        {
-            "method": "DELETE",
             "route": "/partner-sdk/applications/{param}/storefront",
             "route_name": "DELETE_PARTNER_SDK_APPLICATIONS_APPLICATION_ID_STOREFRONT",
             "sources": ["userdoccers:resources/store.mdx"],
@@ -1188,14 +1178,6 @@
             "route_name": "APPLICATION_COMMANDS_SEARCH",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/application-commands/search"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/directory-entries/counts",
-            "route_name": "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES_COUNTS",
-            "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/directory-entries/counts"],
-            "summaries": ["Get Directory Counts"]
         },
         {
             "method": "GET",

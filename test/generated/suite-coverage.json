@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 493,
+        "totalCoveredManifestEntries": 495,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 471,
-                "totalCoveredManifestEntries": 471,
-                "totalCoveredRequiredManifestEntries": 471,
+                "totalRequiredManifestEntries": 473,
+                "totalCoveredManifestEntries": 473,
+                "totalCoveredRequiredManifestEntries": 473,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,9 +28,9 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 335,
+            "stateful-domain": 336,
             "cdn-integration": 78,
-            "integration": 18,
+            "integration": 19,
             "contract": 22,
             "auth-scenario": 17,
             "middleware-contract": 1,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 471,
-                "totalCoveredManifestEntries": 471,
-                "totalCoveredRequiredManifestEntries": 471,
+                "totalRequiredManifestEntries": 473,
+                "totalCoveredManifestEntries": 473,
+                "totalCoveredRequiredManifestEntries": 473,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -110,6 +110,7 @@
                 "api:http:DELETE:/guilds/:guild_id/stickers/:sticker_id",
                 "api:http:DELETE:/guilds/:guild_id/templates/:code",
                 "api:http:DELETE:/oauth2/applications/:application_id/allowlist/:user_id/",
+                "api:http:DELETE:/oauth2/applications/:application_id/assets/:application_asset_id/",
                 "api:http:DELETE:/oauth2/tokens/:token_id/",
                 "api:http:DELETE:/users/@me/avatars/:avatar_id",
                 "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
@@ -152,6 +153,7 @@
                 "api:http:GET:/channels/:channel_id/",
                 "api:http:GET:/channels/:channel_id/call/",
                 "api:http:GET:/channels/:channel_id/directory-entries/",
+                "api:http:GET:/channels/:channel_id/directory-entries/counts",
                 "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                 "api:http:GET:/channels/:channel_id/follower-message-stats/",
                 "api:http:GET:/channels/:channel_id/follower-stats/",
@@ -583,6 +585,7 @@
                 "api:http:DELETE:/guilds/:guild_id/stickers/:sticker_id",
                 "api:http:DELETE:/guilds/:guild_id/templates/:code",
                 "api:http:DELETE:/oauth2/applications/:application_id/allowlist/:user_id/",
+                "api:http:DELETE:/oauth2/applications/:application_id/assets/:application_asset_id/",
                 "api:http:DELETE:/oauth2/tokens/:token_id/",
                 "api:http:DELETE:/users/@me/avatars/:avatar_id",
                 "api:http:DELETE:/users/@me/billing/payment-sources/:payment_source_id",
@@ -625,6 +628,7 @@
                 "api:http:GET:/channels/:channel_id/",
                 "api:http:GET:/channels/:channel_id/call/",
                 "api:http:GET:/channels/:channel_id/directory-entries/",
+                "api:http:GET:/channels/:channel_id/directory-entries/counts",
                 "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                 "api:http:GET:/channels/:channel_id/follower-message-stats/",
                 "api:http:GET:/channels/:channel_id/follower-stats/",
@@ -1342,6 +1346,7 @@
                         "api:http:GET:/channels/:channel_id/",
                         "api:http:GET:/channels/:channel_id/call/",
                         "api:http:GET:/channels/:channel_id/directory-entries/",
+                        "api:http:GET:/channels/:channel_id/directory-entries/counts",
                         "api:http:GET:/channels/:channel_id/directory-entry/:entity_id",
                         "api:http:GET:/channels/:channel_id/follower-message-stats/",
                         "api:http:GET:/channels/:channel_id/follower-stats/",
@@ -1509,6 +1514,7 @@
                     "checks": ["auth-boundary", "redirects", "provider-state", "token-state"],
                     "manifestIds": [
                         "api:http:DELETE:/oauth2/applications/:application_id/allowlist/:user_id/",
+                        "api:http:DELETE:/oauth2/applications/:application_id/assets/:application_asset_id/",
                         "api:http:DELETE:/oauth2/tokens/:token_id/",
                         "api:http:GET:/connections/",
                         "api:http:GET:/connections/:connection_name/authorize/",

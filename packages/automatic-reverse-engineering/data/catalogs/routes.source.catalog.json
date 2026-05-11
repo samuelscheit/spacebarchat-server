@@ -910,6 +910,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"HubDirectoryEntryCountsResponse"
+		],
+		"route": "/channels/{channel_id}/directory-entries/counts",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES_COUNTS",
+		"source": "src/api/routes/channels/#channel_id/directory-entries.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"HubDirectoryEntry"
 		],
 		"route": "/channels/{channel_id}/directory-entry/{entity_id}",
@@ -3408,6 +3418,15 @@
 		"route": "/oauth2/applications/{application_id}/allowlist/{user_id}",
 		"route_name": "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ALLOWLIST_USER_ID",
 		"source": "src/api/routes/oauth2/applications/#application_id/allowlist/#user_id.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/oauth2/applications/{application_id}/assets/{application_asset_id}",
+		"route_name": "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS_APPLICATION_ASSET_ID",
+		"source": "src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id.ts"
 	},
 	{
 		"method": "GET",

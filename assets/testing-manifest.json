@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 626,
+        "totalEntries": 628,
         "byService": {
-            "api": 529,
+            "api": 531,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,17 +28,17 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 601,
+            "http-route": 603,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 144,
-            "stateful-domain": 335,
+            "stateful-domain": 336,
             "cdn-integration": 78,
             "auth-scenario": 17,
-            "integration": 18,
+            "integration": 19,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 484,
+            "route-class": 486,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -4001,7 +4001,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/directory-entries/",
             "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
-            "line": 24,
+            "line": 73,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4012,6 +4012,59 @@
                 "responseStatuses": [
                     200,
                     400
+                ],
+                "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/channels/:channel_id/directory-entries/counts",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/directory-entries/counts",
+            "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
+            "line": 42,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_CHANNEL",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "HubDirectoryEntryCountsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
                 ],
                 "hasQuery": false
             },
@@ -16518,6 +16571,46 @@
                 ],
                 "responseStatuses": [
                     200,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/oauth2/applications/:application_id/assets/:application_asset_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/oauth2/applications/:application_id/assets/:application_asset_id/",
+            "sourceFile": "src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id.ts",
+            "line": 103,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
                     401,
                     403,
                     404

@@ -1,5 +1,24 @@
 # GET /oauth2/applications/{param}/allowlist
 
+## Orchestrator Current-Base Merge Review
+
+After merging current integration base `cb16ad240`, the route was regenerated and
+verified again with the already-accepted OAuth application asset deletion and
+channel directory entry counts changes present.
+
+- Current-base missing-route movement: `658 -> 657`.
+- Current-base implemented-route movement: `522 -> 523`.
+- `npm run generate:schema` wrote 1002 schemas.
+- `npm run generate:testing-manifest` wrote and verified 628 entries.
+- `npm run generate:contract-tests` wrote and verified 603 contracts.
+- `npm run generate:suite-coverage` wrote and verified 15 suites.
+- `npm run generate:openapi` wrote 417 paths and 1002 schemas; the existing
+  webhook route metadata warnings remain unrelated.
+- Focused current-base tests passed: allowlist GET, adjacent allowlist DELETE,
+  OAuth application asset DELETE, and channel directory entry counts, 31/31.
+- Generated contract/suite tests passed, 13/13.
+- `npm run test:manifest` and `npm run test:suite-coverage` passed.
+
 ## Summary
 
 Implemented exactly `GET /oauth2/applications/{application_id}/allowlist` for listing OAuth application testers.
