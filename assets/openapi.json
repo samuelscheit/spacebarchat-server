@@ -6517,6 +6517,12 @@
                     "$ref": "#/components/schemas/GuildGrowthActivationJoinsBySourceBucket"
                 }
             },
+            "GuildGrowthActivationMembershipResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildGrowthActivationMembershipBucket"
+                }
+            },
             "GuildPreviewResponse": {
                 "type": "object",
                 "properties": {
@@ -22825,6 +22831,21 @@
                     "other_joins",
                     "total_joins",
                     "vanity_joins"
+                ]
+            },
+            "GuildGrowthActivationMembershipBucket": {
+                "type": "object",
+                "properties": {
+                    "day_pt": {
+                        "type": "string"
+                    },
+                    "total_membership": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "day_pt",
+                    "total_membership"
                 ]
             },
             "GuildWelcomeScreenFunnelBucket": {
@@ -44537,6 +44558,108 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GuildWelcomeScreenFunnelResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Start date for the insights data as an ISO8601 timestamp."
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "End date for the insights data as an ISO8601 timestamp."
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly."
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/analytics/growth-activation/membership/": {
+            "get": {
+                "x-permission-required": "VIEW_GUILD_INSIGHTS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns total guild membership counts per aggregation interval.",
+                "summary": "Get Guild Growth Activation Membership",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildGrowthActivationMembershipResponse"
                                 }
                             }
                         }

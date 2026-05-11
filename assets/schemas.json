@@ -6844,6 +6844,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildGrowthActivationMembershipResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildGrowthActivationMembershipBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPreviewResponse": {
         "type": "object",
         "properties": {
@@ -24031,6 +24038,23 @@
             "other_joins",
             "total_joins",
             "vanity_joins"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildGrowthActivationMembershipBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "total_membership": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "total_membership"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
