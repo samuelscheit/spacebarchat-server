@@ -6746,6 +6746,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildEngagementMutersResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildEngagementMutersBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPreviewResponse": {
         "type": "object",
         "properties": {
@@ -23533,6 +23540,27 @@
             "messages_per_communicator",
             "speaking_minutes",
             "visitors"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildEngagementMutersBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "days_in_guild": {
+                "type": "string"
+            },
+            "muters": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "days_in_guild",
+            "muters"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

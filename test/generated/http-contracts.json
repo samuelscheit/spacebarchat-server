@@ -3,26 +3,26 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 556,
+        "totalContracts": 557,
         "byService": {
-            "api": 483,
+            "api": 484,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 413,
-        "runtimeMalformedAuthContracts": 413,
-        "runtimeRevokedSessionAuthContracts": 413,
-        "runtimeStaleTokenAuthContracts": 413,
+        "runtimeAuthBoundaryContracts": 414,
+        "runtimeMalformedAuthContracts": 414,
+        "runtimeRevokedSessionAuthContracts": 414,
+        "runtimeStaleTokenAuthContracts": 414,
         "runtimePublicAuthBoundaryContracts": 62,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
         "runtimePublicResponseSchemaContracts": 16,
         "runtimeAuthenticatedResponseSchemaContracts": 21,
         "runtimeRightOnlyDenialContracts": 12,
-        "runtimePermissionOnlyDenialContracts": 96,
+        "runtimePermissionOnlyDenialContracts": 97,
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 192,
+        "runtimeRateLimitHeaderContracts": 193,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -13191,6 +13191,78 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "GuildEngagementBaseResponse"],
                 "responseStatuses": [200, 401, 403, 404, 422],
+                "permission": "VIEW_GUILD_INSIGHTS"
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "permission": "VIEW_GUILD_INSIGHTS"
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "guild",
+                        "configPath": "limits.rate.routes.guild",
+                        "pathPrefix": "/guilds/:guild_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 218
+                    }
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/analytics/engagement/muters/",
+            "samplePath": "/guilds/100000000000000001/analytics/engagement/muters/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/analytics/engagement/muters.ts",
+            "line": 30,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "members", "roles", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "GuildEngagementMutersResponse"],
+                "responseStatuses": [200, 401, 403, 404],
                 "permission": "VIEW_GUILD_INSIGHTS"
             },
             "cases": [

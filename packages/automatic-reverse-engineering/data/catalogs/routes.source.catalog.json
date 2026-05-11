@@ -2119,6 +2119,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildEngagementMutersResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/engagement/muters",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_ENGAGEMENT_MUTERS",
+		"source": "src/api/routes/guilds/#guild_id/analytics/engagement/muters.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/application-command-index",
 		"route_name": "GET_GUILDS_GUILD_ID_APPLICATION_COMMAND_INDEX",

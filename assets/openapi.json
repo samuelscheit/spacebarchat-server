@@ -6433,6 +6433,12 @@
                     "$ref": "#/components/schemas/GuildEngagementBaseBucket"
                 }
             },
+            "GuildEngagementMutersResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildEngagementMutersBucket"
+                }
+            },
             "GuildPreviewResponse": {
                 "type": "object",
                 "properties": {
@@ -22370,6 +22376,25 @@
                     "messages_per_communicator",
                     "speaking_minutes",
                     "visitors"
+                ]
+            },
+            "GuildEngagementMutersBucket": {
+                "type": "object",
+                "properties": {
+                    "day_pt": {
+                        "type": "string"
+                    },
+                    "days_in_guild": {
+                        "type": "string"
+                    },
+                    "muters": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "day_pt",
+                    "days_in_guild",
+                    "muters"
                 ]
             },
             "GravityCustomChannelScore": {
@@ -44016,6 +44041,98 @@
                             "type": "string"
                         },
                         "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/analytics/engagement/muters/": {
+            "get": {
+                "x-permission-required": "VIEW_GUILD_INSIGHTS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns user mute statistics categorized by guild tenure per aggregation interval.",
+                "summary": "Get Guild Engagement Muters",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildEngagementMutersResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO8601 start timestamp for the insights data"
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO8601 end timestamp for the insights data"
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Data aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly"
                     }
                 ],
                 "tags": [

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 464,
+        "totalCoveredManifestEntries": 465,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 442,
-                "totalCoveredManifestEntries": 442,
-                "totalCoveredRequiredManifestEntries": 442,
+                "totalRequiredManifestEntries": 443,
+                "totalCoveredManifestEntries": 443,
+                "totalCoveredRequiredManifestEntries": 443,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 311,
+            "stateful-domain": 312,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 442,
-                "totalCoveredManifestEntries": 442,
-                "totalCoveredRequiredManifestEntries": 442,
+                "totalRequiredManifestEntries": 443,
+                "totalCoveredManifestEntries": 443,
+                "totalCoveredRequiredManifestEntries": 443,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -191,6 +191,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
+                "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
                 "api:http:GET:/guilds/:guild_id/applications/",
                 "api:http:GET:/guilds/:guild_id/audit-logs/",
@@ -635,6 +636,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
+                "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
                 "api:http:GET:/guilds/:guild_id/applications/",
                 "api:http:GET:/guilds/:guild_id/audit-logs/",
@@ -1130,6 +1132,7 @@
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
+                        "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
                         "api:http:GET:/guilds/:guild_id/application-command-index/",
                         "api:http:GET:/guilds/:guild_id/applications/",
                         "api:http:GET:/guilds/:guild_id/audit-logs/",
