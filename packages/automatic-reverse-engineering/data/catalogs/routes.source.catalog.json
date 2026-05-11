@@ -2111,6 +2111,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildChannelFollowingOverviewResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/channel-following/overview",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_CHANNEL_FOLLOWING_OVERVIEW",
+		"source": "src/api/routes/guilds/#guild_id/analytics/channel-following/overview.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildEngagementBaseResponse"
 		],
 		"route": "/guilds/{guild_id}/analytics/engagement/base",

@@ -5732,6 +5732,12 @@
                     "$ref": "#/components/schemas/APITemplate"
                 }
             },
+            "GuildChannelFollowingOverviewResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildChannelFollowingOverviewBucket"
+                }
+            },
             "GuildCreateResponse": {
                 "type": "object",
                 "properties": {
@@ -22366,6 +22372,29 @@
                     "day_pt",
                     "participators",
                     "platform"
+                ]
+            },
+            "GuildChannelFollowingOverviewBucket": {
+                "type": "object",
+                "properties": {
+                    "day_pt": {
+                        "type": "string"
+                    },
+                    "total_guilds_following": {
+                        "type": "integer"
+                    },
+                    "new_guilds_following": {
+                        "type": "integer"
+                    },
+                    "guilds_unfollowed": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "day_pt",
+                    "guilds_unfollowed",
+                    "new_guilds_following",
+                    "total_guilds_following"
                 ]
             },
             "GuildEngagementBaseBucket": {
@@ -44708,6 +44737,108 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/GuildEngagementBaseResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Start date for the insights data as an ISO8601 timestamp."
+                    },
+                    {
+                        "name": "end",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "End date for the insights data as an ISO8601 timestamp."
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Aggregation interval: 0 hourly, 1 daily, 2 weekly, or 3 monthly."
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/analytics/channel-following/overview/": {
+            "get": {
+                "x-permission-required": "VIEW_GUILD_INSIGHTS",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns news channel following overview analytics buckets for the requested aggregation interval.",
+                "summary": "Get Guild Channel Following Overview",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildChannelFollowingOverviewResponse"
                                 }
                             }
                         }

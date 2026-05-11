@@ -6033,6 +6033,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildChannelFollowingOverviewResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildChannelFollowingOverviewBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildCreateResponse": {
         "type": "object",
         "properties": {
@@ -23532,6 +23539,31 @@
             "day_pt",
             "participators",
             "platform"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildChannelFollowingOverviewBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "total_guilds_following": {
+                "type": "integer"
+            },
+            "new_guilds_following": {
+                "type": "integer"
+            },
+            "guilds_unfollowed": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "guilds_unfollowed",
+            "new_guilds_following",
+            "total_guilds_following"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 469,
+        "totalCoveredManifestEntries": 470,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 447,
-                "totalCoveredManifestEntries": 447,
-                "totalCoveredRequiredManifestEntries": 447,
+                "totalRequiredManifestEntries": 448,
+                "totalCoveredManifestEntries": 448,
+                "totalCoveredRequiredManifestEntries": 448,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 316,
+            "stateful-domain": 317,
             "cdn-integration": 78,
             "integration": 15,
             "contract": 20,
@@ -66,9 +66,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 447,
-                "totalCoveredManifestEntries": 447,
-                "totalCoveredRequiredManifestEntries": 447,
+                "totalRequiredManifestEntries": 448,
+                "totalCoveredManifestEntries": 448,
+                "totalCoveredRequiredManifestEntries": 448,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -190,6 +190,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
+                "api:http:GET:/guilds/:guild_id/analytics/channel-following/overview/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/overview/",
@@ -639,6 +640,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                 "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
+                "api:http:GET:/guilds/:guild_id/analytics/channel-following/overview/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
                 "api:http:GET:/guilds/:guild_id/analytics/engagement/overview/",
@@ -1139,6 +1141,7 @@
                         "api:http:GET:/guilds/:guild_id/analytics/audience/new-members-by-discord-tenure/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-guild-tenure/",
                         "api:http:GET:/guilds/:guild_id/analytics/audience/participators-by-platform/",
+                        "api:http:GET:/guilds/:guild_id/analytics/channel-following/overview/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/base/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/muters/",
                         "api:http:GET:/guilds/:guild_id/analytics/engagement/overview/",
