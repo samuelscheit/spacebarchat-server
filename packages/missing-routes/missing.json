@@ -1,6 +1,6 @@
 {
-    "missing": 619,
-    "spacebar": 561,
+    "missing": 618,
+    "spacebar": 562,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -282,7 +282,6 @@
         "/quests/{param}/enroll",
         "/quests/{param}/heartbeat",
         "/quests/{param}/preview/complete",
-        "/quests/{param}/reward-code",
         "/quests/{param}/video-progress",
         "/report",
         "/reporting/review",
@@ -1553,14 +1552,6 @@
         { "method": "GET", "route": "/premium-marketing", "route_name": "PREMIUM_MARKETING", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/presences", "route_name": "GET_PRESENCES", "sources": ["userdoccers:resources/presence.mdx"], "summaries": ["Get Presences"] },
         { "method": "GET", "route": "/private/bug-reports", "route_name": "BUG_REPORTS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/quests/{param}/reward-code",
-            "route_name": "GET_QUESTS_QUEST_ID_REWARD_CODE",
-            "sources": ["userdoccers:resources/quests.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/quests/{quest_id}/reward-code"],
-            "summaries": ["Get Quest Reward Code"]
-        },
         {
             "method": "GET",
             "route": "/quests/@me",

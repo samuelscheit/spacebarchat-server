@@ -11101,6 +11101,42 @@
                     "traffic_metadata_sealed"
                 ]
             },
+            "QuestRewardCodeResponse": {
+                "type": "object",
+                "properties": {
+                    "quest_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "platform": {
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "claimed_at": {
+                        "type": "string"
+                    },
+                    "tier": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    }
+                },
+                "required": [
+                    "claimed_at",
+                    "code",
+                    "platform",
+                    "quest_id",
+                    "tier",
+                    "user_id"
+                ]
+            },
             "RecentAvatarResponse": {
                 "type": "object",
                 "properties": {
@@ -42001,6 +42037,73 @@
                             "type": "string"
                         },
                         "description": "Client-generated UUID representing the current persisted analytics heartbeat."
+                    }
+                ],
+                "tags": [
+                    "quests"
+                ]
+            }
+        },
+        "/quests/{quest_id}/reward-code/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Retrieves the current user's locally stored quest reward code. Spacebar does not currently persist Discord quest reward-code or redemption data, so the default provider fails closed instead of fabricating redeem codes.",
+                "summary": "Get Quest Reward Code",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestRewardCodeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "quest_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "quest_id"
                     }
                 ],
                 "tags": [

@@ -18,17 +18,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 
 import { route } from "@spacebar/api";
 import type { QuestConfigResponse } from "@spacebar/schemas";
-import { ApiError, DiscordApiErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
-
-const questIdPattern = /^\d{17,20}$/;
+import { assertValidQuestId, UNKNOWN_QUEST } from "../../../util/utility/QuestRoutes";
 
 export type QuestConfigProvider = (questId: string) => QuestConfigResponse | undefined | Promise<QuestConfigResponse | undefined>;
 
-export const UNKNOWN_QUEST = new ApiError("Unknown Quest", 0, 404);
+export { UNKNOWN_QUEST };
 
 export function assertValidQuestConfigId(value: unknown): asserts value is string {
-    if (typeof value !== "string" || !questIdPattern.test(value)) throw DiscordApiErrors.INVALID_FORM_BODY;
+    assertValidQuestId(value);
 }
 
 export function getConfiguredQuestConfig(_questId: string): QuestConfigResponse | undefined {

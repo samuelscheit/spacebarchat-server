@@ -3768,6 +3768,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"QuestRewardCodeResponse"
+		],
+		"route": "/quests/{quest_id}/reward-code",
+		"route_name": "GET_QUESTS_QUEST_ID_REWARD_CODE",
+		"source": "src/api/routes/quests/#quest_id/reward-code.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"QuestDecisionResponse"
 		],
 		"route": "/quests/decision",

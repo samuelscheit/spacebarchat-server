@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 666,
+        "totalEntries": 667,
         "byService": {
-            "api": 569,
+            "api": 570,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 641,
+            "http-route": 642,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 162,
+            "contract": 163,
             "stateful-domain": 353,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 524,
+            "route-class": 525,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -17938,7 +17938,7 @@
             "method": "GET",
             "path": "/quests/:quest_id/",
             "sourceFile": "src/api/routes/quests/#quest_id/index.ts",
-            "line": 175,
+            "line": 173,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -18028,6 +18028,44 @@
                     400,
                     401,
                     403
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/quests/:quest_id/reward-code/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/quests/:quest_id/reward-code/",
+            "sourceFile": "src/api/routes/quests/#quest_id/reward-code.ts",
+            "line": 85,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "QuestRewardCodeResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
                 ],
                 "hasQuery": false
             },

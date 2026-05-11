@@ -224,7 +224,7 @@ describe("GET /quests/:quest_id", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.route === "/quests/{param}/reward-code"),
-            true,
+            false,
         );
     });
 });

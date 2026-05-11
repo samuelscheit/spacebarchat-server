@@ -166,6 +166,7 @@ export * from "./PremiumReferralIncentiveEligibilityResponse";
 export * from "./PremiumReferralResponse";
 export * from "./PublicApplicationResponse";
 export * from "./QuestDecisionResponse";
+export * from "./QuestRewardCodeResponse";
 export * from "./QuestUserStatusResponse";
 export * from "./RecentAvatarsResponse";
 export * from "./RefreshUrlsResponse";
