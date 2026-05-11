@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 485,
+        "totalCoveredManifestEntries": 486,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 463,
-                "totalCoveredManifestEntries": 463,
-                "totalCoveredRequiredManifestEntries": 463,
+                "totalRequiredManifestEntries": 464,
+                "totalCoveredManifestEntries": 464,
+                "totalCoveredRequiredManifestEntries": 464,
                 "totalSuites": 12
             },
             "protocol": {
@@ -31,7 +31,7 @@
             "stateful-domain": 332,
             "cdn-integration": 78,
             "integration": 15,
-            "contract": 20,
+            "contract": 21,
             "auth-scenario": 17,
             "middleware-contract": 1,
             "protocol-integration": 21,
@@ -47,6 +47,7 @@
                 "api:http:GET:/apex/experiments/",
                 "api:http:GET:/discovery/categories",
                 "api:http:GET:/discoverable-guilds/",
+                "api:http:GET:/discoverable-guilds/search",
                 "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
                 "api:http:GET:/gateway/",
@@ -66,9 +67,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 463,
-                "totalCoveredManifestEntries": 463,
-                "totalCoveredRequiredManifestEntries": 463,
+                "totalRequiredManifestEntries": 464,
+                "totalCoveredManifestEntries": 464,
+                "totalCoveredRequiredManifestEntries": 464,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -176,6 +177,7 @@
                 "api:http:GET:/connections/",
                 "api:http:GET:/connections/:connection_name/authorize/",
                 "api:http:GET:/discoverable-guilds/",
+                "api:http:GET:/discoverable-guilds/search",
                 "api:http:GET:/discovery/categories",
                 "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
@@ -641,6 +643,7 @@
                 "api:http:GET:/connections/",
                 "api:http:GET:/connections/:connection_name/authorize/",
                 "api:http:GET:/discoverable-guilds/",
+                "api:http:GET:/discoverable-guilds/search",
                 "api:http:GET:/discovery/categories",
                 "api:http:GET:/entitlements/gift-codes/:gift_code_code/",
                 "api:http:GET:/experiments/",
@@ -1512,6 +1515,7 @@
                     "manifestIds": [
                         "api:http:GET:/apex/experiments/",
                         "api:http:GET:/discoverable-guilds/",
+                        "api:http:GET:/discoverable-guilds/search",
                         "api:http:GET:/discovery/categories",
                         "api:http:GET:/experiments/",
                         "api:http:GET:/gateway/",

@@ -48843,6 +48843,86 @@
                 ]
             }
         },
+        "/discoverable-guilds/search": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Search Discoverable Guilds",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DiscoverableGuildsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "The search query to match against discoverable guild names and descriptions."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "The maximum number of discoverable guilds to return. Values above 48 are clamped."
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "The number of matching discoverable guilds to skip before returning results. Values above 2999 are clamped."
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "Filter by a primary discovery category ID."
+                    }
+                ],
+                "tags": [
+                    "discoverable-guilds"
+                ]
+            }
+        },
         "/content-inventory/users/{user_id}/outbox/": {
             "get": {
                 "security": [

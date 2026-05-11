@@ -1763,6 +1763,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"DiscoverableGuildsResponse"
+		],
+		"route": "/discoverable-guilds/search",
+		"route_name": "GET_DISCOVERABLE_GUILDS_SEARCH",
+		"source": "src/api/routes/discoverable-guilds.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIDiscoveryCategoryArray"
 		],
 		"route": "/discovery/categories",

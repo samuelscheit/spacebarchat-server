@@ -15,6 +15,7 @@ const coveredManifestIds = [
     "api:http:GET:/apex/experiments/",
     "api:http:GET:/discovery/categories",
     "api:http:GET:/discoverable-guilds/",
+    "api:http:GET:/discoverable-guilds/search",
     "api:http:GET:/experiments/",
     "api:http:GET:/gateway/",
     "api:http:GET:/gateway/bot/",
@@ -50,6 +51,7 @@ test(
             "api:http:GET:/apex/experiments/",
             "api:http:GET:/discovery/categories",
             "api:http:GET:/discoverable-guilds/",
+            "api:http:GET:/discoverable-guilds/search",
             "api:http:GET:/experiments/",
             "api:http:GET:/gateway/",
             "api:http:GET:/gateway/bot/",
@@ -281,6 +283,19 @@ async function coverDiscoveryRoutes(api: StartedApi, token: string) {
     assert.equal("discovery_weight" in guilds[0], false);
     assert.equal("discovery_splash" in guilds[0], false);
 
+    await assertJsonError(await getJson(`${api.apiBaseUrl}/discoverable-guilds/search?query=Discoverable&category_id=1&limit=50`), 401);
+    const searchedDiscoverable = await getJson(`${api.apiBaseUrl}/discoverable-guilds/search?query=Discoverable&category_id=1&limit=50`, token);
+    await assertStatus(searchedDiscoverable, 200);
+    const searchedDiscoverableBody = await assertJsonObject(searchedDiscoverable);
+    assert.equal(searchedDiscoverableBody.total, 1);
+    assert.equal(searchedDiscoverableBody.offset, 0);
+    assert.equal(searchedDiscoverableBody.limit, 48);
+    const searchedGuilds = searchedDiscoverableBody.guilds as Array<Record<string, unknown>>;
+    assert.equal(searchedGuilds.length, 1);
+    assert.equal(searchedGuilds[0].name, "Discoverable Scenario");
+    assert.equal("discovery_weight" in searchedGuilds[0], false);
+    assert.equal("presence_count" in searchedGuilds[0], false);
+
     await assertJsonError(await getJson(`${api.apiBaseUrl}/guild-recommendations?limit=5`), 401);
     assert.equal(Config.get().guild.discovery.useRecommendation, false);
     const disabledRecommendations = await getJson(`${api.apiBaseUrl}/guild-recommendations?limit=5`, token);
@@ -343,7 +358,8 @@ async function seedDiscoveryData(owner: User) {
         name: "Discoverable Scenario",
         features: [GuildFeature.Discoverable],
         primary_category_id: 1,
-        member_count: 42,
+        member_count: 250,
+        presence_count: 5,
         discovery_weight: 100,
         discovery_splash: "should-not-serialize",
         discovery_excluded: false,

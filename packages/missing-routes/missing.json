@@ -1,6 +1,6 @@
 {
-    "missing": 679,
-    "spacebar": 501,
+    "missing": 678,
+    "spacebar": 502,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -111,7 +111,6 @@
         "/debug-logs/multi/{param}",
         "/debug-logs/{param}/{param}",
         "/dev-portal-csat-survey-response",
-        "/discoverable-guilds/search",
         "/discovery/search",
         "/discovery/{param}",
         "/entitlements/gift-codes/{param}/redeem",
@@ -1308,13 +1307,6 @@
             "source_routes": ["/content-inventory/users/@me?refresh_token=:param"]
         },
         { "method": "GET", "route": "/content-inventory/users/@me/similar-games/{param}", "route_name": "SIMILAR_GAMES", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/discoverable-guilds/search",
-            "route_name": "GET_DISCOVERABLE_GUILDS_SEARCH",
-            "sources": ["userdoccers:resources/discovery.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Search Discoverable Guilds"]
-        },
         {
             "method": "GET",
             "route": "/discovery/{param}",

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 606,
+        "totalEntries": 607,
         "byService": {
-            "api": 509,
+            "api": 510,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 581,
+            "http-route": 582,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 130,
+            "contract": 131,
             "stateful-domain": 332,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 464,
+            "route-class": 465,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -8645,7 +8645,7 @@
             "method": "GET",
             "path": "/discoverable-guilds/",
             "sourceFile": "src/api/routes/discoverable-guilds.ts",
-            "line": 28,
+            "line": 170,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -8654,6 +8654,43 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/discoverable-guilds/search",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/discoverable-guilds/search",
+            "sourceFile": "src/api/routes/discoverable-guilds.ts",
+            "line": 234,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "DiscoverableGuildsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
                 ],
                 "hasQuery": true
             },
