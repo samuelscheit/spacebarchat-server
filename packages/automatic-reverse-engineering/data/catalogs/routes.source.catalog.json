@@ -4203,6 +4203,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"StorefrontProductsBySkuResponse"
+		],
+		"route": "/storefront/products/skus",
+		"route_name": "GET_STOREFRONT_PRODUCTS_SKUS",
+		"source": "src/api/routes/storefront/products/skus.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"TeamListResponse"
 		],
 		"route": "/teams",

@@ -48,6 +48,10 @@ export function getConfiguredStorefrontProduct(_options: StorefrontProductProvid
     return undefined;
 }
 
+export function storefrontProductIncludesSku(product: StorefrontProductSource, skuId: string) {
+    return product.sku_ids.includes(skuId) || product.skus.some((sku) => sku.id === skuId);
+}
+
 function cloneProductOption(option: StorefrontProductOption): StorefrontProductOption {
     return {
         name: option.name,

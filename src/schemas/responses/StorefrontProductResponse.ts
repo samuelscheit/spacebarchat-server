@@ -30,6 +30,10 @@ export interface StorefrontProductResponse {
     tenant_metadata: StorefrontProductTenantMetadata;
 }
 
+export interface StorefrontProductsBySkuResponse {
+    products: StorefrontProductResponse[];
+}
+
 export interface StorefrontProductSku {
     id: Snowflake;
     type: number;

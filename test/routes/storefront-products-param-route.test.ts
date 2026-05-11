@@ -268,7 +268,7 @@ describe("GET /storefront/products/:product_id", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/storefront/products/skus"),
-            true,
+            false,
         );
 
         const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);

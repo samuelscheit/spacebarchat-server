@@ -11599,6 +11599,20 @@
                     "updated_at"
                 ]
             },
+            "StorefrontProductsBySkuResponse": {
+                "type": "object",
+                "properties": {
+                    "products": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StorefrontProductResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "products"
+                ]
+            },
             "StoreSkuResponse": {
                 "type": "object",
                 "properties": {
@@ -39357,6 +39371,63 @@
                 ],
                 "tags": [
                     "teams"
+                ]
+            }
+        },
+        "/storefront/products/skus/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed storefront product objects associated with the requested SKU IDs.",
+                "summary": "Get Storefront Products By SKU ID",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StorefrontProductsBySkuResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "sku_ids",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "SKU IDs to retrieve storefront products for (1-100)."
+                    }
+                ],
+                "tags": [
+                    "storefront"
                 ]
             }
         },

@@ -12222,6 +12222,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StorefrontProductsBySkuResponse": {
+        "type": "object",
+        "properties": {
+            "products": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StorefrontProductResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "products"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StoreSkuResponse": {
         "type": "object",
         "properties": {

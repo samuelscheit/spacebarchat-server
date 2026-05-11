@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 665,
+        "totalEntries": 666,
         "byService": {
-            "api": 568,
+            "api": 569,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 640,
+            "http-route": 641,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 161,
+            "contract": 162,
             "stateful-domain": 353,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 523,
+            "route-class": 524,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19677,7 +19677,7 @@
             "method": "GET",
             "path": "/storefront/products/sku/:sku_id/",
             "sourceFile": "src/api/routes/storefront/products/sku/#sku_id.ts",
-            "line": 65,
+            "line": 62,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -19691,6 +19691,43 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/storefront/products/skus/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/storefront/products/skus/",
+            "sourceFile": "src/api/routes/storefront/products/skus.ts",
+            "line": 94,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StorefrontProductsBySkuResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

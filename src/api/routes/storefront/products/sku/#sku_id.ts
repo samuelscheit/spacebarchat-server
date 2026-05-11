@@ -21,6 +21,7 @@ import type { StorefrontProductResponse } from "@spacebar/schemas";
 import { Router as createRouter, type Request, type Response, type Router } from "express";
 import {
     isStorefrontProductId,
+    storefrontProductIncludesSku,
     toStorefrontProductResponse,
     UNKNOWN_STOREFRONT_PRODUCT_ERROR,
     type StorefrontProductSource,
@@ -41,10 +42,6 @@ export function isStorefrontProductSkuId(value: string) {
 export function getConfiguredStorefrontProductBySku(_options: StorefrontProductBySkuProviderOptions): StorefrontProductResponse | undefined {
     // Spacebar does not currently persist Discord storefront product or SKU catalogs.
     return undefined;
-}
-
-function storefrontProductIncludesSku(product: StorefrontProductSource, skuId: string) {
-    return product.sku_ids.includes(skuId) || product.skus.some((sku) => sku.id === skuId);
 }
 
 export async function getStorefrontProductBySku(
