@@ -1727,6 +1727,15 @@
 		"response_schema_refs": [
 			"APIErrorResponse"
 		],
+		"route": "/consoles/{connection_type}/devices/{device_id}/commands/{command_id}",
+		"route_name": "DELETE_CONSOLES_CONNECTION_TYPE_DEVICES_DEVICE_ID_COMMANDS_COMMAND_ID",
+		"source": "src/api/routes/consoles/#connection_type/devices/#device_id/commands/#command_id.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
 		"route": "/consoles/connect-request/{nonce}",
 		"route_name": "DELETE_CONSOLES_CONNECT_REQUEST_NONCE",
 		"source": "src/api/routes/consoles/connect-request/#nonce.ts"

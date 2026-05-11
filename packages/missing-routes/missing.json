@@ -1,6 +1,6 @@
 {
-    "missing": 663,
-    "spacebar": 517,
+    "missing": 662,
+    "spacebar": 518,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -101,7 +101,6 @@
         "/connections/{param}/link-dispatch-auth-callback",
         "/consoles/connect-request",
         "/consoles/{param}/devices/{param}/commands",
-        "/consoles/{param}/devices/{param}/commands/{param}",
         "/content-inventory/users/@me/applications/{param}",
         "/content-inventory/users/@me/outbox/entries/id/{param}/history",
         "/content-inventory/users/@me/similar-games/{param}",
@@ -643,14 +642,6 @@
             "source_routes": ["/channels/{channel_id}/messages/search"]
         },
         { "method": "DELETE", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "DELETE",
-            "route": "/consoles/{param}/devices/{param}/commands/{param}",
-            "route_name": "DELETE_CONSOLES_CONNECTION_TYPE_DEVICES_DEVICE_ID_COMMANDS_COMMAND_ID",
-            "sources": ["userdoccers:resources/connected-accounts.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/consoles/{connection_type}/devices/{device_id}/commands/{command_id}"],
-            "summaries": ["Cancel Console Command"]
-        },
         {
             "method": "DELETE",
             "route": "/content-inventory/users/@me/outbox/entries/id/{param}/history",

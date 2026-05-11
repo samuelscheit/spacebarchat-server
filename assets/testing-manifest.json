@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 622,
+        "totalEntries": 623,
         "byService": {
-            "api": 525,
+            "api": 526,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 597,
+            "http-route": 598,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 142,
+            "contract": 143,
             "stateful-domain": 335,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 480,
+            "route-class": 481,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -8487,6 +8487,42 @@
                     "auth-boundary",
                     "schema-validation",
                     "provider-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/consoles/:connection_type/devices/:device_id/commands/:command_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/consoles/:connection_type/devices/:device_id/commands/:command_id/",
+            "sourceFile": "src/api/routes/consoles/#connection_type/devices/#device_id/commands/#command_id.ts",
+            "line": 39,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
                 ],
                 "allowMissingRouteMetadata": false
             }
