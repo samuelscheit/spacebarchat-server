@@ -4169,6 +4169,15 @@
 		"source": "src/api/routes/teams/#team_id/members.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/teams/{team_id}/payouts",
+		"route_name": "GET_TEAMS_TEAM_ID_PAYOUTS",
+		"source": "src/api/routes/teams/#team_id/payouts.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [],
 		"route": "/track",

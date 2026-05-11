@@ -1,6 +1,6 @@
 {
-    "missing": 635,
-    "spacebar": 545,
+    "missing": 634,
+    "spacebar": 546,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -336,7 +336,6 @@
         "/teams/{param}/identity/verification",
         "/teams/{param}/members",
         "/teams/{param}/members/{param}",
-        "/teams/{param}/payouts",
         "/teams/{param}/payouts/onboarding",
         "/teams/{param}/payouts/{param}/report",
         "/teams/{param}/stripe/connect/redirect-url",
@@ -1723,14 +1722,6 @@
             "route": "/subscription-plans/{param}/subscription-group-listing",
             "route_name": "SUBSCRIPTION_PLAN_GROUP_LISTING",
             "sources": ["xhyrom:data/client/routes.json"]
-        },
-        {
-            "method": "GET",
-            "route": "/teams/{param}/payouts",
-            "route_name": "GET_TEAMS_TEAM_ID_PAYOUTS",
-            "sources": ["userdoccers:resources/team.mdx"],
-            "source_routes": ["/teams/{team_id}/payouts"],
-            "summaries": ["Get Team Payouts"]
         },
         {
             "method": "GET",
