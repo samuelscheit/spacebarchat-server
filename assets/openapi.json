@@ -8863,6 +8863,17 @@
                     "$ref": "#/components/schemas/BogoPromotionResponse"
                 }
             },
+            "PremiumReferralIncentiveEligibilityResponse": {
+                "type": "object",
+                "properties": {
+                    "is_eligible_for_incentive": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "is_eligible_for_incentive"
+                ]
+            },
             "PremiumReferralResponse": {
                 "type": "object",
                 "properties": {
@@ -32939,6 +32950,42 @@
                         "description": "user_id"
                     }
                 ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/referrals/incentive-eligibility/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a subset of the premium referral eligibility object for the user with their eligibility for a personal discount upon referral redemption.",
+                "summary": "Get Premium Referral Incentive Eligibility",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PremiumReferralIncentiveEligibilityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "users"
                 ]

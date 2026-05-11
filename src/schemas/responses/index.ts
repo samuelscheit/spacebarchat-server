@@ -115,6 +115,7 @@ export * from "./PaymentSourceResponse";
 export * from "./PreloadMessagesResponseSchema";
 export * from "./ProfileWidgetsSuggestedGamesResponse";
 export * from "./PromotionResponse";
+export * from "./PremiumReferralIncentiveEligibilityResponse";
 export * from "./PremiumReferralResponse";
 export * from "./PublicApplicationResponse";
 export * from "./QuestDecisionResponse";

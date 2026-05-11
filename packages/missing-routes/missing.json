@@ -1,6 +1,6 @@
 {
-    "missing": 718,
-    "spacebar": 462,
+    "missing": 717,
+    "spacebar": 463,
     "discord": 1128,
     "routes": [
         "/activities",
@@ -520,7 +520,6 @@
         "/users/@me/profile",
         "/users/@me/referrals/eligibility",
         "/users/@me/referrals/eligible-users",
-        "/users/@me/referrals/incentive-eligibility",
         "/users/@me/referrals/{param}",
         "/users/@me/relationships",
         "/users/@me/relationships/bulk",
@@ -2753,13 +2752,6 @@
             "route_name": "GET_USERS__ME_REFERRALS_ELIGIBILITY",
             "sources": ["userdoccers:resources/premium-referral.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Premium Referral Eligibility"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/referrals/incentive-eligibility",
-            "route_name": "GET_USERS__ME_REFERRALS_INCENTIVE_ELIGIBILITY",
-            "sources": ["userdoccers:resources/premium-referral.mdx"],
-            "summaries": ["Get Premium Referral Incentive Eligibility"]
         },
         {
             "method": "GET",

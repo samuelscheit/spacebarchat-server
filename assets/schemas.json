@@ -9276,6 +9276,19 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PremiumReferralIncentiveEligibilityResponse": {
+        "type": "object",
+        "properties": {
+            "is_eligible_for_incentive": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "is_eligible_for_incentive"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PremiumReferralResponse": {
         "type": "object",
         "properties": {

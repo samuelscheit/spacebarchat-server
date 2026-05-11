@@ -4030,6 +4030,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"PremiumReferralIncentiveEligibilityResponse"
+		],
+		"route": "/users/@me/referrals/incentive-eligibility",
+		"route_name": "GET_USERS__ME_REFERRALS_INCENTIVE_ELIGIBILITY",
+		"source": "src/api/routes/users/@me/referrals/incentive-eligibility.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"UserRelationshipsResponse"
 		],
 		"route": "/users/@me/relationships",

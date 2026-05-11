@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 567,
+        "totalEntries": 568,
         "byService": {
-            "api": 470,
+            "api": 471,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 542,
+            "http-route": 543,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 121,
-            "stateful-domain": 302,
+            "stateful-domain": 303,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 15,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 425,
+            "route-class": 426,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18689,6 +18689,46 @@
                 "responseBodies": [
                     "APIErrorResponse",
                     "UniqueUsernameSuggestionResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/referrals/incentive-eligibility/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/referrals/incentive-eligibility/",
+            "sourceFile": "src/api/routes/users/@me/referrals/incentive-eligibility.ts",
+            "line": 32,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PremiumReferralIncentiveEligibilityResponse"
                 ],
                 "responseStatuses": [
                     200,
