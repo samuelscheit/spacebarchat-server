@@ -22,6 +22,11 @@ test("hub directory entry schema uses directory DTOs", () => {
     assert.equal(rawSchemas.HubDirectoryEntryType.const, 0);
     assert.equal(rawSchemas.HubDirectoryGuild.properties.featurable_in_directory.type, "boolean");
     assert.ok(!rawSchemas.HubDirectoryGuild.required.includes("featurable_in_directory"));
+
+    assert.ok(!rawSchemas.HubPartialDirectoryEntry.required.includes("primary_category_id"));
+    assert.ok(!rawSchemas.HubPartialDirectoryEntry.required.includes("guild"));
+    assert.equal(rawSchemas.HubPartialDirectoryEntry.properties.guild, undefined);
+    assert.equal(rawSchemas.HubPartialDirectoryEntry.properties.guild_scheduled_event, undefined);
 });
 
 test("hub directory entries validate documented guild entries", () => {
@@ -125,6 +130,52 @@ test("hub directory entries validate documented guild entries", () => {
                     name: "Directory Guild",
                     icon: "abcdef",
                     owner_id: "789",
+                },
+            },
+        ]),
+        false,
+    );
+});
+
+test("hub partial directory entries validate list-route entries without expanded entities", () => {
+    const ajv = new Ajv({
+        allErrors: true,
+        schemas: ajvSchemas,
+        strict: true,
+        strictRequired: true,
+        allowUnionTypes: true,
+    });
+
+    const validate = ajv.getSchema("HubPartialDirectoryEntriesResponse");
+    assert.ok(validate);
+
+    assert.equal(
+        validate([
+            {
+                type: 0,
+                directory_channel_id: "123",
+                entity_id: "456",
+                created_at: "2026-05-06T00:00:00.000Z",
+                description: null,
+                author_id: "789",
+            },
+        ]),
+        true,
+    );
+
+    assert.equal(
+        validate([
+            {
+                type: 0,
+                directory_channel_id: "123",
+                entity_id: "456",
+                created_at: "2026-05-06T00:00:00.000Z",
+                description: null,
+                author_id: "789",
+                guild: {
+                    id: "456",
+                    name: "Directory Guild",
+                    icon: "abcdef",
                 },
             },
         ]),

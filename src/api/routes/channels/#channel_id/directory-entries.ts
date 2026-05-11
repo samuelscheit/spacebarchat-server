@@ -18,14 +18,20 @@
 
 import { route } from "@spacebar/api";
 import { Channel, DiscordApiErrors, FieldErrors } from "@spacebar/util";
-import { ChannelType, type HubDirectoryEntriesResponse, type HubDirectoryEntryCountsResponse } from "@spacebar/schemas";
+import { ChannelType, type HubDirectoryEntriesResponse, type HubDirectoryEntryCountsResponse, type HubPartialDirectoryEntriesResponse } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 const router = Router({ mergeParams: true });
+
+const directoryEntryEntityIdPattern = /^\d{1,20}$/;
 
 export const DIRECTORY_ENTRY_SEARCH_QUERY_MIN_LENGTH = 1;
 export const DIRECTORY_ENTRY_SEARCH_QUERY_MAX_LENGTH = 100;
 export const DIRECTORY_ENTRY_TYPE_QUERY_VALUES = ["0", "1"] as const;
 export const DIRECTORY_ENTRY_CATEGORY_QUERY_VALUES = ["0", "1", "2", "3", "5"] as const;
+
+export interface DirectoryEntryListQueryOptions {
+    entity_ids: string[];
+}
 
 export interface DirectoryEntrySearchQueryOptions {
     query: string;
@@ -39,6 +45,24 @@ export function getEmptyDirectoryEntryCounts(): HubDirectoryEntryCountsResponse 
 
 export function getDirectoryEntrySearchResults(_options: DirectoryEntrySearchQueryOptions): HubDirectoryEntriesResponse {
     return [];
+}
+
+function queryValues(value: unknown): string[] {
+    if (value === undefined) return [];
+    if (Array.isArray(value)) return value.flatMap(queryValues);
+    if (typeof value !== "string") {
+        throw FieldErrors({
+            entity_ids: {
+                code: "BASE_TYPE_INVALID",
+                message: "entity_ids must contain valid snowflakes",
+            },
+        });
+    }
+
+    return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
 }
 
 async function requireDirectoryChannel(channel_id: string): Promise<void> {
@@ -93,6 +117,32 @@ function parseOptionalDirectoryEntryIntegerFilter(field: "type" | "category_id",
     return Number(value);
 }
 
+export function parseDirectoryEntryListQuery(query: Request["query"]): DirectoryEntryListQueryOptions {
+    const entityIds = [...queryValues(query.entity_ids), ...queryValues(query["entity_ids[]"])];
+
+    if (entityIds.length > 100) {
+        throw FieldErrors({
+            entity_ids: {
+                code: "BASE_TYPE_BAD_LENGTH",
+                message: "entity_ids must contain at most 100 values",
+            },
+        });
+    }
+
+    if (entityIds.some((entityId) => !directoryEntryEntityIdPattern.test(entityId))) {
+        throw FieldErrors({
+            entity_ids: {
+                code: "BASE_TYPE_INVALID",
+                message: "entity_ids must contain valid snowflakes",
+            },
+        });
+    }
+
+    return {
+        entity_ids: [...new Set(entityIds)],
+    };
+}
+
 export function parseDirectoryEntrySearchQuery(query: Request["query"]): DirectoryEntrySearchQueryOptions {
     const options: DirectoryEntrySearchQueryOptions = {
         query: parseDirectoryEntrySearchString(query.query),
@@ -134,6 +184,45 @@ router.get(
         await requireDirectoryChannel(channel_id);
 
         return res.json(getEmptyDirectoryEntryCounts());
+    },
+);
+
+router.get(
+    "/list",
+    route({
+        permission: "VIEW_CHANNEL",
+        summary: "Get Partial Directory Entries",
+        query: {
+            entity_ids: {
+                type: "array",
+                description: "The IDs of the directory entries to retrieve (max 100).",
+            },
+        },
+        responses: {
+            200: {
+                body: "HubPartialDirectoryEntriesResponse",
+            },
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { channel_id } = req.params as { [key: string]: string };
+        await requireDirectoryChannel(channel_id);
+        parseDirectoryEntryListQuery(req.query);
+
+        // Spacebar does not persist directory entries yet; do not synthesize entries from guild discovery state.
+        return res.json([] as HubPartialDirectoryEntriesResponse);
     },
 );
 

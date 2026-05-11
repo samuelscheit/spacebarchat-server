@@ -37,7 +37,18 @@ export interface HubDirectoryEntry {
     type: HubDirectoryEntryType;
 }
 
+export interface HubPartialDirectoryEntry {
+    author_id: string;
+    created_at: string;
+    description: string | null;
+    directory_channel_id: string;
+    entity_id: string;
+    primary_category_id?: number;
+    type: HubDirectoryEntryType;
+}
+
 export type HubDirectoryEntriesResponse = HubDirectoryEntry[];
+export type HubPartialDirectoryEntriesResponse = HubPartialDirectoryEntry[];
 
 export interface HubDirectoryEntryCountsResponse {
     [categoryId: string]: number;

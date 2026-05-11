@@ -25,7 +25,7 @@ import Ajv from "ajv";
 import express from "express";
 
 const requireModule = require;
-const coveredManifestId = "api:http:GET:/channels/:channel_id/directory-entries/search";
+const coveredManifestId = "api:http:GET:/channels/:channel_id/directory-entries/list";
 
 function distModulePath(...segments: string[]) {
     return path.join(process.cwd(), "dist", ...segments);
@@ -37,11 +37,11 @@ afterEach(() => {
     delete require.cache[routeModulePath];
 });
 
-describe("GET /channels/:channel_id/directory-entries/search", () => {
-    test("returns empty directory entry search results while directory entries are not persisted", async (t) => {
+describe("GET /channels/:channel_id/directory-entries/list", () => {
+    test("returns an empty partial directory entry list while entries are not persisted", async (t) => {
         const harness = setupDirectoryEntriesRoute(t, harnessChannelTypes().GUILD_DIRECTORY);
 
-        const response = await requestJson(harness.app, "/channels/directory-channel/directory-entries/search?query=study&type=0&category_id=1");
+        const response = await requestJson(harness.app, "/channels/directory-channel/directory-entries/list?entity_ids=111,222&entity_ids[]=333");
 
         assert.equal(response.status, 200);
         assert.deepEqual(response.body, []);
@@ -55,13 +55,15 @@ describe("GET /channels/:channel_id/directory-entries/search", () => {
                 },
             },
         ]);
-        assert.deepEqual(harness.routeModule.getDirectoryEntrySearchResults({ query: "study", type: 0, category_id: 1 }), []);
+        assert.deepEqual(harness.routeModule.parseDirectoryEntryListQuery({ entity_ids: ["111, 222", "111"], "entity_ids[]": "333" }), {
+            entity_ids: ["111", "222", "333"],
+        });
     });
 
-    test("rejects search for non-directory channels", async (t) => {
+    test("rejects list requests for non-directory channels", async (t) => {
         const harness = setupDirectoryEntriesRoute(t, harnessChannelTypes().GUILD_TEXT);
 
-        const response = await requestJson(harness.app, "/channels/text-channel/directory-entries/search?query=study");
+        const response = await requestJson(harness.app, "/channels/text-channel/directory-entries/list");
 
         assert.equal(response.status, 400);
         assert.deepEqual(response.body, {
@@ -70,59 +72,54 @@ describe("GET /channels/:channel_id/directory-entries/search", () => {
         });
     });
 
-    test("validates documented search query fields", (t) => {
+    test("validates entity_ids as an optional max-100 snowflake array", async (t) => {
         const harness = setupDirectoryEntriesRoute(t, harnessChannelTypes().GUILD_DIRECTORY);
 
-        assert.deepEqual(
-            harness.routeModule.parseDirectoryEntrySearchQuery({
-                query: "study",
-                type: "1",
-                category_id: "5",
-            } as never),
-            {
-                query: "study",
-                type: 1,
-                category_id: 5,
+        assert.deepEqual(harness.routeModule.parseDirectoryEntryListQuery({}), { entity_ids: [] });
+        assert.throws(() => harness.routeModule.parseDirectoryEntryListQuery({ entity_ids: "not-a-snowflake" }), {
+            code: 50035,
+            message: "Invalid Form Body",
+        });
+        assert.throws(() => harness.routeModule.parseDirectoryEntryListQuery({ entity_ids: Array.from({ length: 101 }, (_, index) => `${index + 1}`) }), {
+            code: 50035,
+            message: "Invalid Form Body",
+        });
+
+        const response = await requestJson(harness.app, "/channels/directory-channel/directory-entries/list?entity_ids=not-a-snowflake");
+
+        assert.equal(response.status, 400);
+        assert.deepEqual(response.body, {
+            code: 50035,
+            message: "Invalid Form Body",
+            errors: {
+                entity_ids: {
+                    _errors: [
+                        {
+                            code: "BASE_TYPE_INVALID",
+                            message: "entity_ids must contain valid snowflakes",
+                        },
+                    ],
+                },
             },
-        );
-        assertDirectorySearchFieldError(() => harness.routeModule.parseDirectoryEntrySearchQuery({} as never), "query", "BASE_TYPE_REQUIRED");
-        assertDirectorySearchFieldError(() => harness.routeModule.parseDirectoryEntrySearchQuery({ query: "" } as never), "query", "BASE_TYPE_BAD_LENGTH");
-        assertDirectorySearchFieldError(() => harness.routeModule.parseDirectoryEntrySearchQuery({ query: "x".repeat(101) } as never), "query", "BASE_TYPE_BAD_LENGTH");
-        assertDirectorySearchFieldError(() => harness.routeModule.parseDirectoryEntrySearchQuery({ query: "study", type: "2" } as never), "type", "BASE_TYPE_CHOICES");
-        assertDirectorySearchFieldError(
-            () => harness.routeModule.parseDirectoryEntrySearchQuery({ query: "study", category_id: "4" } as never),
-            "category_id",
-            "BASE_TYPE_CHOICES",
-        );
+        });
     });
 
-    test("declares VIEW_CHANNEL metadata, query metadata, and compatibility response schemas", (t) => {
+    test("declares VIEW_CHANNEL metadata, entity_ids query metadata, and compatibility response schemas", (t) => {
         const harness = setupDirectoryEntriesRoute(t, harnessChannelTypes().GUILD_DIRECTORY);
-        const searchRouteOptions = harness.routeOptions.find((option) => (option as { summary?: string }).summary === "Search Directory Entries");
+        const listRouteOptions = harness.routeOptions.find((option) => (option as { summary?: string }).summary === "Get Partial Directory Entries");
 
-        assert.deepEqual(searchRouteOptions, {
+        assert.deepEqual(listRouteOptions, {
             permission: "VIEW_CHANNEL",
-            summary: "Search Directory Entries",
+            summary: "Get Partial Directory Entries",
             query: {
-                query: {
-                    type: "string",
-                    required: true,
-                    description: "Directory entry search text to match. Discord documents 1 to 100 characters.",
-                },
-                type: {
-                    type: "integer",
-                    description: "Directory entry type to filter by.",
-                    values: ["0", "1"],
-                },
-                category_id: {
-                    type: "integer",
-                    description: "Directory entry primary category to filter by.",
-                    values: ["0", "1", "2", "3", "5"],
+                entity_ids: {
+                    type: "array",
+                    description: "The IDs of the directory entries to retrieve (max 100).",
                 },
             },
             responses: {
                 200: {
-                    body: "HubDirectoryEntriesResponse",
+                    body: "HubPartialDirectoryEntriesResponse",
                 },
                 400: {
                     body: "APIErrorResponse",
@@ -140,8 +137,8 @@ describe("GET /channels/:channel_id/directory-entries/search", () => {
         });
     });
 
-    test("validates the generated directory entries response schema", () => {
-        const schemas = JSON.parse(readFileSync(path.join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, unknown>;
+    test("validates the generated partial directory entry response schema", () => {
+        const schemas = readJson<Record<string, JsonSchema>>(path.join(process.cwd(), "assets", "schemas.json"));
         const ajv = new Ajv({
             allErrors: true,
             schemas: JSON.parse(JSON.stringify(schemas).replaceAll("#/definitions/", "")),
@@ -150,9 +147,43 @@ describe("GET /channels/:channel_id/directory-entries/search", () => {
             allowUnionTypes: true,
         });
 
-        const validate = ajv.getSchema("HubDirectoryEntriesResponse");
+        const validate = ajv.getSchema("HubPartialDirectoryEntriesResponse");
         assert.ok(validate);
+
+        assert.equal(schemas.HubPartialDirectoryEntriesResponse?.items?.$ref, "#/definitions/HubPartialDirectoryEntry");
+        assert.equal(schemas.HubPartialDirectoryEntry?.properties?.guild, undefined);
+        assert.equal(schemas.HubPartialDirectoryEntry?.properties?.guild_scheduled_event, undefined);
         assert.equal(validate([]), true);
+        assert.equal(
+            validate([
+                {
+                    type: 0,
+                    directory_channel_id: "123",
+                    entity_id: "456",
+                    created_at: "2026-05-06T00:00:00.000Z",
+                    description: null,
+                    author_id: "789",
+                },
+            ]),
+            true,
+        );
+        assert.equal(
+            validate([
+                {
+                    type: 0,
+                    directory_channel_id: "123",
+                    entity_id: "456",
+                    created_at: "2026-05-06T00:00:00.000Z",
+                    description: null,
+                    author_id: "789",
+                    guild: {
+                        id: "456",
+                        name: "Directory Guild",
+                    },
+                },
+            ]),
+            false,
+        );
     });
 
     test("declares generated route catalog, OpenAPI, manifest, contract, and missing-route metadata", () => {
@@ -165,50 +196,46 @@ describe("GET /channels/:channel_id/directory-entries/search", () => {
         const suiteCoverage = readJson<SuiteCoverageCatalog>(path.join(process.cwd(), "test", "generated", "suite-coverage.json"));
         const missingRoutes = readJson<MissingRoutesReport>(path.join(process.cwd(), "packages", "missing-routes", "missing.json"));
 
-        const route = openapi.paths?.["/channels/{channel_id}/directory-entries/search"]?.get;
-        assert.equal(route?.summary, "Search Directory Entries");
+        const route = openapi.paths?.["/channels/{channel_id}/directory-entries/list"]?.get;
+        assert.equal(route?.summary, "Get Partial Directory Entries");
         assert.equal(route?.["x-permission-required"], "VIEW_CHANNEL");
         assert.deepEqual(route?.security, [{ bearer: [] }]);
-        assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/HubDirectoryEntriesResponse");
+        assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/HubPartialDirectoryEntriesResponse");
         assert.equal(route?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(route?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(route?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.deepEqual(
-            route?.parameters?.filter((parameter) => parameter.in === "query").map((parameter) => [parameter.name, parameter.required, parameter.schema?.type]),
-            [
-                ["query", true, "string"],
-                ["type", undefined, "integer"],
-                ["category_id", undefined, "integer"],
-            ],
+        assert.equal(
+            route?.parameters?.some((parameter) => parameter.in === "query" && parameter.name === "entity_ids"),
+            true,
         );
 
         const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.sourceFile, "src/api/routes/channels/#channel_id/directory-entries.ts");
         assert.equal(manifestEntry?.routeMetadata?.permission, "VIEW_CHANNEL");
-        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("HubDirectoryEntriesResponse"), true);
+        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("HubPartialDirectoryEntriesResponse"), true);
         assert.deepEqual(
             manifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
             [200, 400, 401, 403, 404],
         );
 
-        const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/channels/{channel_id}/directory-entries/search");
-        assert.equal(catalogEntry?.route_name, "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES_SEARCH");
+        const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/channels/{channel_id}/directory-entries/list");
+        assert.equal(catalogEntry?.route_name, "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES_LIST");
         assert.equal(catalogEntry?.source, "src/api/routes/channels/#channel_id/directory-entries.ts");
-        assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "HubDirectoryEntriesResponse"]);
+        assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "HubPartialDirectoryEntriesResponse"]);
 
         const contract = contracts.contracts?.find((entry) => entry.manifestId === coveredManifestId);
         assert.equal(contract?.authMode, "bearer");
-        assert.equal(contract?.path, "/channels/:channel_id/directory-entries/search");
+        assert.equal(contract?.path, "/channels/:channel_id/directory-entries/list");
         assert.equal(contract?.routeMetadata?.permission, "VIEW_CHANNEL");
-        assert.equal(contract?.routeMetadata?.responses?.includes("HubDirectoryEntriesResponse"), true);
+        assert.equal(contract?.routeMetadata?.responses?.includes("HubPartialDirectoryEntriesResponse"), true);
         assert.equal(contract?.routeMetadata?.responseStatuses?.includes(403), true);
         assert.equal(contract?.contractChecks?.includes("permission-denied"), true);
 
         assert.equal(JSON.stringify(suiteCoverage).includes(coveredManifestId), true);
         assert.equal(
-            missingRoutes.missing_entries.some((entry) => entry.method === "GET" && entry.route === "/channels/{param}/directory-entries/search"),
+            missingRoutes.missing_entries.some((entry) => entry.method === "GET" && entry.route === "/channels/{param}/directory-entries/list"),
             false,
         );
     });
@@ -247,16 +274,17 @@ function setupDirectoryEntriesRoute(t: TestContext, channelType: number) {
     app.use("/channels/:channel_id/directory-entries", routeModule.default);
     app.use(
         (
-            error: { code?: number; message?: string; status?: number; statusCode?: number; errors?: unknown },
+            error: { code?: number; errors?: unknown; message?: string; status?: number; statusCode?: number },
             _req: express.Request,
             res: express.Response,
             _next: express.NextFunction,
         ) => {
-            res.status(error.status ?? error.statusCode ?? 400).json({
+            const body: { code?: number; errors?: unknown; message?: string } = {
                 code: error.code,
                 message: error.message,
-                ...(error.errors ? { errors: error.errors } : {}),
-            });
+            };
+            if (error.errors) body.errors = error.errors;
+            res.status(error.status ?? error.statusCode ?? 400).json(body);
         },
     );
 
@@ -271,14 +299,6 @@ function setupDirectoryEntriesRoute(t: TestContext, channelType: number) {
             return channelFindOptions;
         },
     };
-}
-
-function assertDirectorySearchFieldError(action: () => unknown, field: string, code: string) {
-    assert.throws(action, (error) => {
-        const fieldError = error as { errors?: Record<string, { _errors?: { code?: string }[] }> };
-        assert.equal(fieldError.errors?.[field]?._errors?.[0]?.code, code);
-        return true;
-    });
 }
 
 async function requestJson(app: express.Express, requestPath: string): Promise<{ status: number; body: unknown }> {
@@ -302,8 +322,9 @@ function readJson<T>(filePath: string): T {
 
 type JsonSchema = {
     $ref?: string;
-    type?: string;
-    additionalProperties?: JsonSchema | boolean;
+    type?: string | string[];
+    items?: JsonSchema;
+    properties?: Record<string, JsonSchema | undefined>;
 };
 
 type OpenApiDocument = {
@@ -314,20 +335,15 @@ type OpenApiDocument = {
                 summary?: string;
                 "x-permission-required"?: string;
                 security?: unknown;
+                parameters?: { name?: string; in?: string; schema?: JsonSchema }[];
                 responses?: Record<string, { content?: Record<string, { schema?: JsonSchema }> }>;
-                parameters?: Array<{
-                    name?: string;
-                    in?: string;
-                    required?: boolean;
-                    schema?: JsonSchema;
-                }>;
             };
         }
     >;
 };
 
 type TestingManifest = {
-    entries?: Array<{
+    entries?: {
         id?: string;
         authMode?: string;
         sourceFile?: string;
@@ -336,7 +352,7 @@ type TestingManifest = {
             responseBodies?: string[];
             responseStatuses?: number[];
         };
-    }>;
+    }[];
 };
 
 type SourceRouteCatalogEntry = {
@@ -348,7 +364,7 @@ type SourceRouteCatalogEntry = {
 };
 
 type HttpContractCatalog = {
-    contracts?: Array<{
+    contracts?: {
         manifestId?: string;
         authMode?: string;
         path?: string;
@@ -358,7 +374,7 @@ type HttpContractCatalog = {
             responses?: string[];
             responseStatuses?: number[];
         };
-    }>;
+    }[];
 };
 
 type SuiteCoverageCatalog = {
@@ -366,8 +382,8 @@ type SuiteCoverageCatalog = {
 };
 
 type MissingRoutesReport = {
-    missing_entries: Array<{
+    missing_entries: {
         method: string;
         route: string;
-    }>;
+    }[];
 };

@@ -7979,6 +7979,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "HubPartialDirectoryEntriesResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/HubPartialDirectoryEntry"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "HubDirectoryEntryCountsResponse": {
         "type": "object",
         "additionalProperties": {
@@ -25610,6 +25617,45 @@
     "HubDirectoryEntryType": {
         "type": "number",
         "const": 0,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "HubPartialDirectoryEntry": {
+        "type": "object",
+        "properties": {
+            "author_id": {
+                "type": "string"
+            },
+            "created_at": {
+                "type": "string"
+            },
+            "description": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "directory_channel_id": {
+                "type": "string"
+            },
+            "entity_id": {
+                "type": "string"
+            },
+            "primary_category_id": {
+                "type": "integer"
+            },
+            "type": {
+                "$ref": "#/definitions/HubDirectoryEntryType"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "author_id",
+            "created_at",
+            "description",
+            "directory_channel_id",
+            "entity_id",
+            "type"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "EndpointConfiguration": {

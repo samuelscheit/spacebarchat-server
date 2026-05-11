@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 630,
+        "totalEntries": 631,
         "byService": {
-            "api": 533,
+            "api": 534,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 605,
+            "http-route": 606,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 144,
-            "stateful-domain": 337,
+            "stateful-domain": 338,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 20,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 488,
+            "route-class": 489,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -4001,7 +4001,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/directory-entries/",
             "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
-            "line": 189,
+            "line": 278,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4050,7 +4050,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/directory-entries/counts",
             "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
-            "line": 109,
+            "line": 159,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -4097,13 +4097,66 @@
             }
         },
         {
+            "id": "api:http:GET:/channels/:channel_id/directory-entries/list",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/directory-entries/list",
+            "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
+            "line": 190,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "VIEW_CHANNEL",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "HubPartialDirectoryEntriesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/channels/:channel_id/directory-entries/search",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/channels/:channel_id/directory-entries/search",
             "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
-            "line": 140,
+            "line": 229,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

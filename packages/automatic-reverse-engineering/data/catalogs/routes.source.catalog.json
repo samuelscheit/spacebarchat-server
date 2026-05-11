@@ -920,6 +920,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"HubPartialDirectoryEntriesResponse"
+		],
+		"route": "/channels/{channel_id}/directory-entries/list",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES_LIST",
+		"source": "src/api/routes/channels/#channel_id/directory-entries.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"HubDirectoryEntriesResponse"
 		],
 		"route": "/channels/{channel_id}/directory-entries/search",

@@ -3,26 +3,26 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 605,
+        "totalContracts": 606,
         "byService": {
-            "api": 532,
+            "api": 533,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 458,
-        "runtimeMalformedAuthContracts": 458,
-        "runtimeRevokedSessionAuthContracts": 458,
-        "runtimeStaleTokenAuthContracts": 458,
+        "runtimeAuthBoundaryContracts": 459,
+        "runtimeMalformedAuthContracts": 459,
+        "runtimeRevokedSessionAuthContracts": 459,
+        "runtimeStaleTokenAuthContracts": 459,
         "runtimePublicAuthBoundaryContracts": 66,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 70,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 21,
         "runtimeRightOnlyDenialContracts": 12,
-        "runtimePermissionOnlyDenialContracts": 118,
+        "runtimePermissionOnlyDenialContracts": 119,
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 216,
+        "runtimeRateLimitHeaderContracts": 217,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -5025,7 +5025,7 @@
             "path": "/channels/:channel_id/directory-entries/",
             "samplePath": "/channels/100000000000000002/directory-entries/",
             "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
-            "line": 189,
+            "line": 278,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5095,7 +5095,7 @@
             "path": "/channels/:channel_id/directory-entries/counts",
             "samplePath": "/channels/100000000000000002/directory-entries/counts",
             "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
-            "line": 109,
+            "line": 159,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -5161,13 +5161,85 @@
             ]
         },
         {
+            "manifestId": "api:http:GET:/channels/:channel_id/directory-entries/list",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/directory-entries/list",
+            "samplePath": "/channels/100000000000000002/directory-entries/list",
+            "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
+            "line": 190,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "channels", "messages", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "HubPartialDirectoryEntriesResponse"],
+                "responseStatuses": [200, 400, 401, 403, 404],
+                "permission": "VIEW_CHANNEL"
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "permission": "VIEW_CHANNEL"
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "channel",
+                        "configPath": "limits.rate.routes.channel",
+                        "pathPrefix": "/channels/:channel_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 220
+                    }
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/channels/:channel_id/directory-entries/search",
             "service": "api",
             "method": "GET",
             "path": "/channels/:channel_id/directory-entries/search",
             "samplePath": "/channels/100000000000000002/directory-entries/search",
             "sourceFile": "src/api/routes/channels/#channel_id/directory-entries.ts",
-            "line": 140,
+            "line": 229,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

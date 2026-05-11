@@ -198,6 +198,7 @@
         "src/schemas/responses/GuildEngagementMutersResponse.test.ts",
         "src/schemas/responses/GuildEngagementOverviewResponse.test.ts",
         "src/schemas/responses/GuildEngagementPruneableMembersResponse.test.ts",
+        "src/schemas/responses/HubDirectoryEntriesResponse.test.ts",
         "src/schemas/responses/SettingsProtoUpdateResponse.test.ts",
         "src/schemas/responses/TypedResponsesRemoval.test.ts",
         "src/schemas/uncategorised/ActivitySchema.test.ts",
