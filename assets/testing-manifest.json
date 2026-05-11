@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 663,
+        "totalEntries": 664,
         "byService": {
-            "api": 566,
+            "api": 567,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 638,
+            "http-route": 639,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 159,
+            "contract": 160,
             "stateful-domain": 353,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 521,
+            "route-class": 522,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19603,7 +19603,44 @@
             "method": "GET",
             "path": "/storefront/products/:product_id/",
             "sourceFile": "src/api/routes/storefront/products/#product_id.ts",
-            "line": 157,
+            "line": 37,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StorefrontProductResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/storefront/products/sku/:sku_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/storefront/products/sku/:sku_id/",
+            "sourceFile": "src/api/routes/storefront/products/sku/#sku_id.ts",
+            "line": 71,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

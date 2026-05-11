@@ -25,21 +25,22 @@ import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "@spacebar/
 import type { StorefrontProductResponse } from "@spacebar/schemas";
 import express from "express";
 import {
-    createStorefrontProductRouter,
-    getConfiguredStorefrontProduct,
-    getStorefrontProduct,
+    createStorefrontProductBySkuRouter,
+    getConfiguredStorefrontProductBySku,
+    getStorefrontProductBySku,
+    isStorefrontProductSkuId,
     toStorefrontProductResponse,
     UNKNOWN_STOREFRONT_PRODUCT_ERROR,
-    type StorefrontProductProvider,
-    type StorefrontProductProviderOptions,
-} from "../../src/api/routes/storefront/products/#product_id";
+    type StorefrontProductBySkuProvider,
+    type StorefrontProductBySkuProviderOptions,
+} from "../../src/api/routes/storefront/products/sku/#sku_id";
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
-const coveredManifestIds = ["api:http:GET:/storefront/products/:product_id/"];
-const assignedPath = "/storefront/products/{param}";
-const assignedSourcePath = "/storefront/products/{product_id}";
-const assignedRouteName = "GET_STOREFRONT_PRODUCTS_PRODUCT_ID";
+const coveredManifestIds = ["api:http:GET:/storefront/products/sku/:sku_id/"];
+const assignedPath = "/storefront/products/sku/{param}";
+const assignedSourcePath = "/storefront/products/sku/{sku_id}";
+const assignedRouteName = "GET_STOREFRONT_PRODUCTS_SKU_SKU_ID";
 
 type JsonSchema = {
     $ref?: string;
@@ -49,99 +50,76 @@ type JsonSchema = {
     items?: JsonSchema;
 };
 
-describe("GET /storefront/products/:product_id", () => {
+describe("GET /storefront/products/sku/:sku_id", () => {
     test("documents the assigned manifest id and stays behind bearer auth without exposing adjacent storefront product routes", async () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:GET:/storefront/products/:product_id/"]);
-        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/storefront/products/300000000000000001"), false);
-        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/storefront/products/300000000000000001/"), false);
-        assert.equal(isNoAuthorizationRoute("GET", "/storefront/products/sku/300000000000000002"), false);
+        assert.deepEqual(coveredManifestIds, ["api:http:GET:/storefront/products/sku/:sku_id/"]);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/storefront/products/sku/300000000000000002"), false);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/storefront/products/sku/300000000000000002/"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/storefront/products/300000000000000001"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/storefront/products/skus?sku_ids=300000000000000002"), false);
 
-        const response = await requestJson(createAuthenticatedApp(), "/storefront/products/300000000000000001");
+        const response = await requestJson(createAuthenticatedApp(), "/storefront/products/sku/300000000000000002");
 
         assert.equal(response.status, 401);
         assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
     });
 
-    test("returns provider-backed storefront products by product ID", async () => {
-        let receivedOptions: StorefrontProductProviderOptions | undefined;
+    test("returns provider-backed storefront products by SKU ID", async () => {
+        let receivedOptions: StorefrontProductBySkuProviderOptions | undefined;
         const sample = product();
-        const provider: StorefrontProductProvider = (options) => {
+        const provider: StorefrontProductBySkuProvider = (options) => {
             receivedOptions = options;
             return sample;
         };
 
-        const response = await requestJson(createRouteApp(provider), "/storefront/products/300000000000000001");
+        const response = await requestJson(createRouteApp(provider), "/storefront/products/sku/300000000000000002");
 
         assert.equal(response.status, 200);
-        assert.deepEqual(receivedOptions, { product_id: "300000000000000001" });
+        assert.deepEqual(receivedOptions, { sku_id: "300000000000000002" });
         assert.deepEqual(response.body, toStorefrontProductResponse(sample));
     });
 
-    test("fails closed for malformed, missing, or unbacked product IDs without fabricating storefront data", async () => {
-        assert.equal(getConfiguredStorefrontProduct({ product_id: "300000000000000001" }), undefined);
+    test("fails closed for malformed, missing, unbacked, or mismatched SKU IDs without fabricating storefront data", async () => {
+        assert.equal(isStorefrontProductSkuId("300000000000000002"), true);
+        assert.equal(isStorefrontProductSkuId("not-a-snowflake"), false);
+        assert.equal(getConfiguredStorefrontProductBySku({ sku_id: "300000000000000002" }), undefined);
         assert.equal(UNKNOWN_STOREFRONT_PRODUCT_ERROR.httpStatus, 404);
         assert.equal(UNKNOWN_STOREFRONT_PRODUCT_ERROR.code, 10987);
 
-        await assert.rejects(() => getStorefrontProduct("not-a-snowflake", () => product()), {
+        await assert.rejects(() => getStorefrontProductBySku("not-a-snowflake", () => product()), {
             code: UNKNOWN_STOREFRONT_PRODUCT_ERROR.code,
             message: UNKNOWN_STOREFRONT_PRODUCT_ERROR.message,
         });
-        await assert.rejects(() => getStorefrontProduct("300000000000000001", () => undefined), {
+        await assert.rejects(() => getStorefrontProductBySku("300000000000000002", () => undefined), {
+            code: UNKNOWN_STOREFRONT_PRODUCT_ERROR.code,
+            message: UNKNOWN_STOREFRONT_PRODUCT_ERROR.message,
+        });
+        await assert.rejects(() => getStorefrontProductBySku("300000000000000003", () => product()), {
             code: UNKNOWN_STOREFRONT_PRODUCT_ERROR.code,
             message: UNKNOWN_STOREFRONT_PRODUCT_ERROR.message,
         });
 
-        const missingResponse = await requestJson(createRouteApp(), "/storefront/products/300000000000000001");
+        const missingResponse = await requestJson(createRouteApp(), "/storefront/products/sku/300000000000000002");
         const invalidResponse = await requestJson(
             createRouteApp(() => product()),
-            "/storefront/products/not-a-snowflake",
+            "/storefront/products/sku/not-a-snowflake",
+        );
+        const mismatchResponse = await requestJson(
+            createRouteApp(() => product()),
+            "/storefront/products/sku/300000000000000003",
         );
 
-        assert.equal(missingResponse.status, 404);
-        assert.deepEqual(missingResponse.body, {
-            code: UNKNOWN_STOREFRONT_PRODUCT_ERROR.code,
-            message: UNKNOWN_STOREFRONT_PRODUCT_ERROR.message,
-        });
-        assert.equal(invalidResponse.status, 404);
-        assert.deepEqual(invalidResponse.body, {
-            code: UNKNOWN_STOREFRONT_PRODUCT_ERROR.code,
-            message: UNKNOWN_STOREFRONT_PRODUCT_ERROR.message,
-        });
-    });
-
-    test("serializes documented storefront product fields without leaking provider internals", () => {
-        const source = product({
-            options: [{ name: "Region", option_values: ["NA", "EU"] }],
-        }) as StorefrontProductResponse & { internal_notes?: string };
-        source.internal_notes = "do not leak";
-
-        const response = toStorefrontProductResponse(source) as StorefrontProductResponse & { internal_notes?: unknown };
-
-        assert.deepEqual(Object.keys(response).sort(), ["application_id", "created_at", "id", "name", "options", "sku_ids", "skus", "tenant_metadata", "updated_at"]);
-        assert.equal(response.internal_notes, undefined);
-        assert.deepEqual(response.sku_ids, ["300000000000000002"]);
-        assert.equal(response.skus[0]?.thumbnail_asset_id, null);
-        assert.deepEqual(response.skus[0]?.selected_options, [{ option_name: "Tier", option_value: "Standard" }]);
-        assert.deepEqual(response.skus[0]?.tenant_metadata.plan_features, [{ title: "Slots", description: "More player slots" }]);
-        assert.deepEqual(response.options, [{ name: "Region", option_values: ["NA", "EU"] }]);
-        assert.deepEqual(response.tenant_metadata.guild_monetization?.game_server?.instructions.pc, ["Join from the game menu"]);
-
-        source.sku_ids.push("300000000000000099");
-        source.skus[0]?.selected_options.push({ option_name: "Region", option_value: "LATAM" });
-        source.skus[0]?.tenant_metadata.plan_features.push({ title: "Mutated", description: "Should not appear" });
-        source.options[0]?.option_values.push("LATAM");
-        source.tenant_metadata.guild_monetization?.game_server?.instructions.pc.push("mutated");
-
-        assert.deepEqual(response.sku_ids, ["300000000000000002"]);
-        assert.deepEqual(response.skus[0]?.selected_options, [{ option_name: "Tier", option_value: "Standard" }]);
-        assert.deepEqual(response.skus[0]?.tenant_metadata.plan_features, [{ title: "Slots", description: "More player slots" }]);
-        assert.deepEqual(response.options[0]?.option_values, ["NA", "EU"]);
-        assert.deepEqual(response.tenant_metadata.guild_monetization?.game_server?.instructions.pc, ["Join from the game menu"]);
+        for (const response of [missingResponse, invalidResponse, mismatchResponse]) {
+            assert.equal(response.status, 404);
+            assert.deepEqual(response.body, {
+                code: UNKNOWN_STOREFRONT_PRODUCT_ERROR.code,
+                message: UNKNOWN_STOREFRONT_PRODUCT_ERROR.message,
+            });
+        }
     });
 
     test("declares source-backed metadata and generated artifacts for the exact owned path", () => {
-        const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "storefront", "products", "#product_id.ts"), "utf8");
+        const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "storefront", "products", "sku", "#sku_id.ts"), "utf8");
         const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonSchema>;
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
             components?: {
@@ -194,42 +172,20 @@ describe("GET /storefront/products/:product_id", () => {
             }[];
         };
 
-        assert.match(routeSource, /summary:\s*"Get Storefront Product"/);
-        assert.match(routeSource, /description:\s*"Returns the locally backed storefront product object for the given product ID\."/);
+        assert.match(routeSource, /summary:\s*"Get Storefront Product By SKU ID"/);
+        assert.match(routeSource, /description:\s*"Returns the locally backed storefront product object associated with the given SKU ID\."/);
         assert.match(routeSource, /200:\s*\{\s*body:\s*"StorefrontProductResponse"/s);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
 
         assert.equal(schemas.StorefrontProductResponse.type, "object");
-        for (const field of ["id", "application_id", "sku_ids", "skus", "name", "options", "created_at", "updated_at", "tenant_metadata"]) {
-            assert.equal(schemas.StorefrontProductResponse.required?.includes(field), true, `${field} should be required`);
-        }
-        assert.equal(schemas.StorefrontProductResponse.properties?.id?.type, "string");
-        assert.equal(schemas.StorefrontProductResponse.properties?.sku_ids?.type, "array");
-        assert.equal(schemas.StorefrontProductResponse.properties?.sku_ids?.items?.type, "string");
-        assert.equal(schemas.StorefrontProductResponse.properties?.skus?.type, "array");
         assert.equal(schemas.StorefrontProductResponse.properties?.skus?.items?.$ref, "#/definitions/StorefrontProductSku");
-        assert.deepEqual(schemas.StorefrontProductSku.required?.sort(), [
-            "application_id",
-            "id",
-            "name",
-            "position",
-            "premium",
-            "product_id",
-            "product_line",
-            "selected_options",
-            "slug",
-            "tenant_metadata",
-            "type",
-        ]);
-        assert.deepEqual(schemas.StorefrontProductSku.properties?.thumbnail_asset_id?.type, ["null", "string"]);
         assert.equal(schemas.StorefrontProductSku.properties?.selected_options?.items?.$ref, "#/definitions/StorefrontProductSkuOption");
         assert.equal(schemas.StorefrontProductSku.properties?.tenant_metadata?.$ref, "#/definitions/StorefrontProductSkuTenantMetadata");
-        assert.equal(schemas.StorefrontProductResponse.properties?.options?.items?.$ref, "#/definitions/StorefrontProductOption");
 
-        const route = openapi.paths?.["/storefront/products/{product_id}/"]?.get;
+        const route = openapi.paths?.["/storefront/products/sku/{sku_id}/"]?.get;
         assert.equal(
-            route?.parameters?.some((parameter) => parameter.name === "product_id" && parameter.in === "path" && parameter.required === true),
+            route?.parameters?.some((parameter) => parameter.name === "sku_id" && parameter.in === "path" && parameter.required === true),
             true,
         );
         assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/StorefrontProductResponse");
@@ -238,12 +194,10 @@ describe("GET /storefront/products/:product_id", () => {
         }
         assert.deepEqual(route?.security, [{ bearer: [] }]);
         assert.equal(openapi.components?.schemas?.StorefrontProductResponse?.required?.includes("skus"), true);
-        assert.equal(openapi.components?.schemas?.StorefrontProductResponse?.properties?.skus?.items?.$ref, "#/components/schemas/StorefrontProductSku");
-        assert.deepEqual(openapi.components?.schemas?.StorefrontProductSku?.properties?.thumbnail_asset_id?.type, ["null", "string"]);
 
         const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
-        assert.equal(manifestEntry?.path, "/storefront/products/:product_id/");
-        assert.equal(manifestEntry?.sourceFile, "src/api/routes/storefront/products/#product_id.ts");
+        assert.equal(manifestEntry?.path, "/storefront/products/sku/:sku_id/");
+        assert.equal(manifestEntry?.sourceFile, "src/api/routes/storefront/products/sku/#sku_id.ts");
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.routeMetadata?.hasQuery, false);
         assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("StorefrontProductResponse"), true);
@@ -255,15 +209,11 @@ describe("GET /storefront/products/:product_id", () => {
 
         const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === assignedSourcePath);
         assert.equal(catalogEntry?.route_name, assignedRouteName);
-        assert.equal(catalogEntry?.source, "src/api/routes/storefront/products/#product_id.ts");
+        assert.equal(catalogEntry?.source, "src/api/routes/storefront/products/sku/#sku_id.ts");
         assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "StorefrontProductResponse"]);
 
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === assignedPath && entry.route_name === assignedRouteName),
-            false,
-        );
-        assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/storefront/products/sku/{param}"),
             false,
         );
         assert.equal(
@@ -327,10 +277,10 @@ function product(overrides: Partial<StorefrontProductResponse> = {}): Storefront
     };
 }
 
-function createRouteApp(productProvider: StorefrontProductProvider = getConfiguredStorefrontProduct) {
+function createRouteApp(productProvider: StorefrontProductBySkuProvider = getConfiguredStorefrontProductBySku) {
     const app = express();
 
-    app.use("/storefront/products/:product_id", createStorefrontProductRouter(productProvider));
+    app.use("/storefront/products/sku/:sku_id", createStorefrontProductBySkuRouter(productProvider));
     app.use(ErrorHandler);
 
     return app;
@@ -340,7 +290,7 @@ function createAuthenticatedApp() {
     const app = express();
 
     app.use(Authentication);
-    app.use("/storefront/products/:product_id", createStorefrontProductRouter());
+    app.use("/storefront/products/sku/:sku_id", createStorefrontProductBySkuRouter());
     app.use(ErrorHandler);
 
     return app;

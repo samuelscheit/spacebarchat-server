@@ -1,6 +1,6 @@
 {
-    "missing": 622,
-    "spacebar": 558,
+    "missing": 621,
+    "spacebar": 559,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -314,7 +314,6 @@
         "/store/skus/{param}",
         "/store/skus/{param}/purchase",
         "/storefront/collections/{param}",
-        "/storefront/products/sku/{param}",
         "/storefront/products/skus",
         "/storefront/skus/prices",
         "/streams/{param}/notify",
@@ -1622,14 +1621,6 @@
             "sources": ["userdoccers:resources/store.mdx"],
             "source_routes": ["/storefront/collections/{collection_id}"],
             "summaries": ["Get Storefront Collection"]
-        },
-        {
-            "method": "GET",
-            "route": "/storefront/products/sku/{param}",
-            "route_name": "GET_STOREFRONT_PRODUCTS_SKU_SKU_ID",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/storefront/products/sku/{sku_id}"],
-            "summaries": ["Get Storefront Product By SKU ID"]
         },
         {
             "method": "GET",
