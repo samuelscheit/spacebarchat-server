@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 627,
+        "totalEntries": 628,
         "byService": {
-            "api": 530,
+            "api": 531,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 602,
+            "http-route": 603,
             "opcode": 21
         },
         "byTestTier": {
@@ -38,7 +38,7 @@
             "stateful-domain": 336,
             "cdn-integration": 78,
             "auth-scenario": 17,
-            "integration": 18,
+            "integration": 19,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 485,
+            "route-class": 486,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -16530,6 +16530,47 @@
                 ],
                 "responseStatuses": [
                     204,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/oauth2/applications/:application_id/allowlist/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/oauth2/applications/:application_id/allowlist/",
+            "sourceFile": "src/api/routes/oauth2/applications/#application_id/allowlist/index.ts",
+            "line": 95,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationTestersResponse"
+                ],
+                "responseStatuses": [
+                    200,
                     401,
                     403,
                     404

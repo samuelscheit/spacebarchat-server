@@ -3278,6 +3278,27 @@
                     "verify_key"
                 ]
             },
+            "ApplicationTesterResponse": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "state": {
+                        "$ref": "#/components/schemas/ApplicationTesterState"
+                    }
+                },
+                "required": [
+                    "state",
+                    "user"
+                ]
+            },
+            "ApplicationTestersResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationTesterResponse"
+                }
+            },
             "ApplicationAssetResponse": {
                 "type": "object",
                 "properties": {
@@ -18640,6 +18661,13 @@
                 "additionalProperties": {
                     "type": "integer"
                 }
+            },
+            "ApplicationTesterState": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2
+                ]
             },
             "ChannelLinkedAccount": {
                 "type": "object",
@@ -39991,6 +40019,72 @@
                             "type": "string"
                         },
                         "description": "application_asset_id"
+                    }
+                ],
+                "tags": [
+                    "oauth2"
+                ]
+            }
+        },
+        "/oauth2/applications/{application_id}/allowlist/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Application Testers",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationTestersResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
                     }
                 ],
                 "tags": [

@@ -3401,6 +3401,16 @@
 		"source": "src/api/routes/oauth2/@me.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationTestersResponse"
+		],
+		"route": "/oauth2/applications/{application_id}/allowlist",
+		"route_name": "GET_OAUTH2_APPLICATIONS_APPLICATION_ID_ALLOWLIST",
+		"source": "src/api/routes/oauth2/applications/#application_id/allowlist/index.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"
