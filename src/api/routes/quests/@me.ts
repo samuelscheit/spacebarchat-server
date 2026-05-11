@@ -121,7 +121,7 @@ function toQuestTaskProgressResponse(eventName: string, source: unknown): QuestT
     };
 }
 
-function toQuestUserStatusResponse(source: unknown, userId: string, questId: string): QuestUserStatusResponse | null | undefined {
+export function toQuestUserStatusResponse(source: unknown, userId: string, questId: string): QuestUserStatusResponse | null | undefined {
     if (source === null) return null;
     if (!isObject(source) || source.user_id !== userId) return undefined;
     if (source.quest_id !== undefined && (!isValidQuestSnowflake(source.quest_id) || source.quest_id !== questId)) return undefined;

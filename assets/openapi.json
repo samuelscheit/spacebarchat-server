@@ -11214,6 +11214,137 @@
                     "traffic_metadata_sealed"
                 ]
             },
+            "ClaimedQuestCollectibleProductResponse": {
+                "type": "object",
+                "additionalProperties": {}
+            },
+            "ClaimedQuestRewardResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "integer"
+                    },
+                    "sku_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "name_with_article": {
+                        "type": "string"
+                    },
+                    "asset": {
+                        "type": "string"
+                    },
+                    "asset_video": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "orb_quantity": {
+                        "type": "integer"
+                    },
+                    "collectible_product": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ClaimedQuestCollectibleProductResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "asset",
+                    "name",
+                    "name_with_article",
+                    "sku_id",
+                    "type"
+                ]
+            },
+            "ClaimedQuestConfigResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "starts_at": {
+                        "type": "string"
+                    },
+                    "expires_at": {
+                        "type": "string"
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "colors": {
+                        "$ref": "#/components/schemas/QuestGradientResponse"
+                    },
+                    "assets": {
+                        "$ref": "#/components/schemas/QuestAssetsResponse"
+                    },
+                    "messages": {
+                        "$ref": "#/components/schemas/QuestMessagesResponse"
+                    },
+                    "rewards": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ClaimedQuestRewardResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "assets",
+                    "colors",
+                    "expires_at",
+                    "features",
+                    "id",
+                    "messages",
+                    "rewards",
+                    "starts_at"
+                ]
+            },
+            "ClaimedQuestResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "config": {
+                        "$ref": "#/components/schemas/ClaimedQuestConfigResponse"
+                    },
+                    "user_status": {
+                        "$ref": "#/components/schemas/QuestUserStatusResponse"
+                    }
+                },
+                "required": [
+                    "config",
+                    "id",
+                    "user_status"
+                ]
+            },
+            "QuestClaimedQuestsResponse": {
+                "type": "object",
+                "properties": {
+                    "quests": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ClaimedQuestResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "quests"
+                ]
+            },
             "PartialQuestResponse": {
                 "type": "object",
                 "properties": {
@@ -42908,6 +43039,42 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/QuestCurrentUserQuestsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "quests"
+                ]
+            }
+        },
+        "/quests/@me/claimed/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's locally backed claimed quests. Spacebar does not currently persist Discord quest enrollment, progress, or claim state, so the default provider returns the documented empty claimed-quest collection instead of fabricating Discord quests.",
+                "summary": "Get Claimed Quests",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestClaimedQuestsResponse"
                                 }
                             }
                         }

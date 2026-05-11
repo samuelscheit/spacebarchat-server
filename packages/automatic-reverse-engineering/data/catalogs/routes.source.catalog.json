@@ -3839,6 +3839,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"QuestClaimedQuestsResponse"
+		],
+		"route": "/quests/@me/claimed",
+		"route_name": "GET_QUESTS__ME_CLAIMED",
+		"source": "src/api/routes/quests/@me/claimed.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"QuestDecisionResponse"
 		],
 		"route": "/quests/decision",

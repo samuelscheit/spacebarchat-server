@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 678,
+        "totalEntries": 679,
         "byService": {
-            "api": 581,
+            "api": 582,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 653,
+            "http-route": 654,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 169,
+            "contract": 170,
             "stateful-domain": 358,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 536,
+            "route-class": 537,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7304,7 +7304,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/store-listing/",
             "sourceFile": "src/api/routes/channels/#channel_id/store-listing.ts",
-            "line": 89,
+            "line": 81,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -18348,6 +18348,42 @@
                 "responseBodies": [
                     "APIErrorResponse",
                     "QuestCurrentUserQuestsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/quests/@me/claimed/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/quests/@me/claimed/",
+            "sourceFile": "src/api/routes/quests/@me/claimed.ts",
+            "line": 242,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "QuestClaimedQuestsResponse"
                 ],
                 "responseStatuses": [
                     200,

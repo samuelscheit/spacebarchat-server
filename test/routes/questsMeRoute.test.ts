@@ -245,7 +245,7 @@ describe("GET /quests/@me", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/quests/@me/claimed"),
-            true,
+            false,
         );
     });
 });
