@@ -38,3 +38,7 @@ export interface HubDirectoryEntry {
 }
 
 export type HubDirectoryEntriesResponse = HubDirectoryEntry[];
+
+export interface HubDirectoryEntryCountsResponse {
+    [categoryId: string]: number;
+}
