@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 504,
+        "totalCoveredManifestEntries": 505,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 482,
-                "totalCoveredManifestEntries": 482,
-                "totalCoveredRequiredManifestEntries": 482,
+                "totalRequiredManifestEntries": 483,
+                "totalCoveredManifestEntries": 483,
+                "totalCoveredRequiredManifestEntries": 483,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 343,
+            "stateful-domain": 344,
             "cdn-integration": 78,
             "integration": 21,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 482,
-                "totalCoveredManifestEntries": 482,
-                "totalCoveredRequiredManifestEntries": 482,
+                "totalRequiredManifestEntries": 483,
+                "totalCoveredManifestEntries": 483,
+                "totalCoveredRequiredManifestEntries": 483,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -290,6 +290,7 @@
                 "api:http:GET:/scheduled-maintenances/upcoming.json/",
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/",
                 "api:http:GET:/users/:user_id/",
+                "api:http:GET:/users/:user_id/application-identities/",
                 "api:http:GET:/users/:user_id/messages/",
                 "api:http:GET:/users/:user_id/profile/",
                 "api:http:GET:/users/:user_id/relationships/",
@@ -774,6 +775,7 @@
                 "api:http:GET:/scheduled-maintenances/upcoming.json/",
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/",
                 "api:http:GET:/users/:user_id/",
+                "api:http:GET:/users/:user_id/application-identities/",
                 "api:http:GET:/users/:user_id/messages/",
                 "api:http:GET:/users/:user_id/profile/",
                 "api:http:GET:/users/:user_id/relationships/",
@@ -1108,6 +1110,7 @@
                         "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
                         "api:http:DELETE:/users/@me/relationships/:user_id",
                         "api:http:GET:/users/:user_id/",
+                        "api:http:GET:/users/:user_id/application-identities/",
                         "api:http:GET:/users/:user_id/messages/",
                         "api:http:GET:/users/:user_id/profile/",
                         "api:http:GET:/users/:user_id/relationships/",

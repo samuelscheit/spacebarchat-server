@@ -1,6 +1,6 @@
 {
-    "missing": 644,
-    "spacebar": 536,
+    "missing": 643,
+    "spacebar": 537,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -489,7 +489,6 @@
         "/users/@me/{param}/{param}/ack",
         "/users/disable-email-notifications",
         "/users/disable-server-highlight-notifications",
-        "/users/{param}/application-identities",
         "/users/{param}/channels/{param}/guilds/{param}/application/{param}/webhooks/{param}/teams/{param}/subscriptions/{param}/quests/{param}/payments/{param}/lobbies/{param}/invites/{param}/roles/{param}/templates/{param}/connections/{param}/interactions/{param}/permissions/{param}",
         "/users/{param}/messages/{param}",
         "/users/{param}/sessions/{param}/activities/{param}/1",
@@ -1807,14 +1806,6 @@
             "route_name": "GET_UPDATES_DISTRIBUTIONS_APP_MANIFESTS_LATEST",
             "sources": ["userdoccers:topics/client-distribution.mdx"],
             "summaries": ["Get Latest Distributed Application Manifest"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/{param}/application-identities",
-            "route_name": "GET_USERS_USER_ID_APPLICATION_IDENTITIES",
-            "sources": ["userdoccers:resources/user.mdx"],
-            "source_routes": ["/users/{user_id}/application-identities"],
-            "summaries": ["Get User Application Identities"]
         },
         {
             "method": "GET",

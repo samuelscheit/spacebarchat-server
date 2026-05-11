@@ -16,6 +16,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { UnfurledMediaItem } from "../api/messages/Components";
 import type { Snowflake } from "../Identifiers";
 
 export interface PartialApplicationIdentityResponse {
@@ -24,3 +25,60 @@ export interface PartialApplicationIdentityResponse {
 }
 
 export type ApplicationIdentitiesResponse = PartialApplicationIdentityResponse[];
+
+/**
+ * Discord documents application profile playtime as a float.
+ *
+ * @TJS-type number
+ */
+export type UserApplicationIdentityFloat = number & {};
+
+export interface UserApplicationIdentityProfilePrimaryDataResponse {
+    season?: string;
+    rank_name?: string;
+    highest_rank?: string;
+    featured_played_character?: string;
+    featured_played_character_image?: UnfurledMediaItem;
+    playtime_hours?: UserApplicationIdentityFloat;
+    total_wins?: number;
+    current_period_wins?: number;
+    total_games?: number;
+    current_period_games?: number;
+    total_kills?: number;
+    current_period_kills?: number;
+    total_assists?: number;
+    current_period_assists?: number;
+    total_deaths?: number;
+    current_period_deaths?: number;
+    server_name?: string;
+    user_id?: string;
+    union_level?: string;
+    total_resonators?: number;
+    total_achievements?: number;
+    total_echoes?: number;
+    login_days?: number;
+    data_bank_level?: string;
+}
+
+export interface UserApplicationIdentityProfileDataResponse {
+    primary?: UserApplicationIdentityProfilePrimaryDataResponse;
+}
+
+export interface PartialUserApplicationProfileResponse {
+    username: string | null;
+    metadata: string | null;
+    data?: UserApplicationIdentityProfileDataResponse;
+    data_trusted?: boolean;
+    connection_visible: boolean;
+}
+
+export interface UserApplicationIdentityResponse {
+    application_id: Snowflake;
+    provider_issued_user_id: string;
+    profile?: PartialUserApplicationProfileResponse;
+    profiles?: PartialUserApplicationProfileResponse[];
+}
+
+export interface UserApplicationIdentitiesResponse {
+    identities: UserApplicationIdentityResponse[];
+}

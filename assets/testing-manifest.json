@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 641,
+        "totalEntries": 642,
         "byService": {
-            "api": 544,
+            "api": 545,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 616,
+            "http-route": 617,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 148,
-            "stateful-domain": 343,
+            "stateful-domain": 344,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 21,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 499,
+            "route-class": 500,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19602,6 +19602,47 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/:user_id/application-identities/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/:user_id/application-identities/",
+            "sourceFile": "src/api/routes/users/#user_id/application-identities.ts",
+            "line": 52,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UserApplicationIdentitiesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-user-state",

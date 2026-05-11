@@ -44,3 +44,43 @@ describe("ApplicationIdentitiesSchema", () => {
         assert.equal(nonCoercingAjv.validate("ApplicationIdentitiesSchema", { user_ids: [123] }), false);
     });
 });
+
+describe("UserApplicationIdentitiesResponse", () => {
+    test("accepts empty and profiled application identity responses", () => {
+        assert.equal(ajv.validate("UserApplicationIdentitiesResponse", { identities: [] }), true, JSON.stringify(ajv.errors));
+        assert.equal(
+            ajv.validate("UserApplicationIdentitiesResponse", {
+                identities: [
+                    {
+                        application_id: "100000000000000001",
+                        provider_issued_user_id: "external-user",
+                        profile: {
+                            username: "external-name",
+                            metadata: null,
+                            connection_visible: true,
+                            data_trusted: false,
+                            data: {
+                                primary: {
+                                    season: "Season 5.0",
+                                    rank_name: "No Season Data",
+                                    playtime_hours: 2.29,
+                                    total_wins: 12,
+                                    featured_played_character_image: {
+                                        url: "https://example.invalid/character.png",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                ],
+            }),
+            true,
+            JSON.stringify(ajv.errors),
+        );
+    });
+
+    test("rejects non-object user application identity responses", () => {
+        assert.equal(ajv.validate("UserApplicationIdentitiesResponse", []), false);
+        assert.equal(ajv.validate("UserApplicationIdentitiesResponse", { identities: [{ provider_issued_user_id: "external-user" }] }), false);
+    });
+});

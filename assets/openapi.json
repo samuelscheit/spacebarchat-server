@@ -3156,6 +3156,162 @@
                     "$ref": "#/components/schemas/PartialApplicationIdentityResponse"
                 }
             },
+            "UserApplicationIdentityProfilePrimaryDataResponse": {
+                "type": "object",
+                "properties": {
+                    "season": {
+                        "type": "string"
+                    },
+                    "rank_name": {
+                        "type": "string"
+                    },
+                    "highest_rank": {
+                        "type": "string"
+                    },
+                    "featured_played_character": {
+                        "type": "string"
+                    },
+                    "featured_played_character_image": {
+                        "$ref": "#/components/schemas/UnfurledMediaItem"
+                    },
+                    "playtime_hours": {
+                        "description": "Discord documents application profile playtime as a float.",
+                        "type": "number"
+                    },
+                    "total_wins": {
+                        "type": "integer"
+                    },
+                    "current_period_wins": {
+                        "type": "integer"
+                    },
+                    "total_games": {
+                        "type": "integer"
+                    },
+                    "current_period_games": {
+                        "type": "integer"
+                    },
+                    "total_kills": {
+                        "type": "integer"
+                    },
+                    "current_period_kills": {
+                        "type": "integer"
+                    },
+                    "total_assists": {
+                        "type": "integer"
+                    },
+                    "current_period_assists": {
+                        "type": "integer"
+                    },
+                    "total_deaths": {
+                        "type": "integer"
+                    },
+                    "current_period_deaths": {
+                        "type": "integer"
+                    },
+                    "server_name": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "union_level": {
+                        "type": "string"
+                    },
+                    "total_resonators": {
+                        "type": "integer"
+                    },
+                    "total_achievements": {
+                        "type": "integer"
+                    },
+                    "total_echoes": {
+                        "type": "integer"
+                    },
+                    "login_days": {
+                        "type": "integer"
+                    },
+                    "data_bank_level": {
+                        "type": "string"
+                    }
+                }
+            },
+            "UserApplicationIdentityProfileDataResponse": {
+                "type": "object",
+                "properties": {
+                    "primary": {
+                        "$ref": "#/components/schemas/UserApplicationIdentityProfilePrimaryDataResponse"
+                    }
+                }
+            },
+            "PartialUserApplicationProfileResponse": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "metadata": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/UserApplicationIdentityProfileDataResponse"
+                    },
+                    "data_trusted": {
+                        "type": "boolean"
+                    },
+                    "connection_visible": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "connection_visible",
+                    "metadata",
+                    "username"
+                ]
+            },
+            "UserApplicationIdentityResponse": {
+                "type": "object",
+                "properties": {
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "provider_issued_user_id": {
+                        "type": "string"
+                    },
+                    "profile": {
+                        "$ref": "#/components/schemas/PartialUserApplicationProfileResponse"
+                    },
+                    "profiles": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartialUserApplicationProfileResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "provider_issued_user_id"
+                ]
+            },
+            "UserApplicationIdentitiesResponse": {
+                "type": "object",
+                "properties": {
+                    "identities": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserApplicationIdentityResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "identities"
+                ]
+            },
             "ApplicationBranchResponse": {
                 "type": "object",
                 "properties": {
@@ -19087,6 +19243,95 @@
                     "type": "integer"
                 }
             },
+            "UnfurledMediaItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "proxy_url": {
+                        "type": "string"
+                    },
+                    "height": {
+                        "type": "integer"
+                    },
+                    "width": {
+                        "type": "integer"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "content_type": {
+                        "type": "string"
+                    },
+                    "content_scan_metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/JsonObject"
+                            },
+                            {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/JsonValue"
+                                }
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string",
+                                    "number",
+                                    "boolean"
+                                ]
+                            }
+                        ]
+                    },
+                    "placeholder_version": {
+                        "type": "integer"
+                    },
+                    "placeholder": {
+                        "type": "string"
+                    },
+                    "loading_state": {
+                        "type": "integer"
+                    },
+                    "attachment_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "url"
+                ]
+            },
+            "JsonObject": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/JsonValue"
+                }
+            },
+            "JsonValue": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/JsonObject"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "number",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
             "ApplicationTesterState": {
                 "type": "number",
                 "enum": [
@@ -23336,33 +23581,6 @@
                 "required": [
                     "name",
                     "roles"
-                ]
-            },
-            "JsonObject": {
-                "type": "object",
-                "additionalProperties": {
-                    "$ref": "#/components/schemas/JsonValue"
-                }
-            },
-            "JsonValue": {
-                "anyOf": [
-                    {
-                        "$ref": "#/components/schemas/JsonObject"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/JsonValue"
-                        }
-                    },
-                    {
-                        "type": [
-                            "null",
-                            "string",
-                            "number",
-                            "boolean"
-                        ]
-                    }
                 ]
             },
             "GlobalActivityStatistics": {
@@ -29574,68 +29792,6 @@
             "MessageComponentType.Thumbnail": {
                 "type": "number",
                 "const": 11
-            },
-            "UnfurledMediaItem": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "url": {
-                        "type": "string"
-                    },
-                    "proxy_url": {
-                        "type": "string"
-                    },
-                    "height": {
-                        "type": "integer"
-                    },
-                    "width": {
-                        "type": "integer"
-                    },
-                    "flags": {
-                        "type": "integer"
-                    },
-                    "content_type": {
-                        "type": "string"
-                    },
-                    "content_scan_metadata": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/JsonObject"
-                            },
-                            {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/components/schemas/JsonValue"
-                                }
-                            },
-                            {
-                                "type": [
-                                    "null",
-                                    "string",
-                                    "number",
-                                    "boolean"
-                                ]
-                            }
-                        ]
-                    },
-                    "placeholder_version": {
-                        "type": "integer"
-                    },
-                    "placeholder": {
-                        "type": "string"
-                    },
-                    "loading_state": {
-                        "type": "integer"
-                    },
-                    "attachment_id": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "url"
-                ]
             },
             "ButtonComponent": {
                 "type": "object",
@@ -37395,6 +37551,70 @@
                             "type": "string"
                         },
                         "description": "user_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/{user_id}/application-identities/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get User Application Identities",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserApplicationIdentitiesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "user_id"
+                    },
+                    {
+                        "name": "with_profiles",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include application profile information"
                     }
                 ],
                 "tags": [

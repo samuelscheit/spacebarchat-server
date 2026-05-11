@@ -4186,6 +4186,16 @@
 		"source": "src/api/routes/users/#user_id/index.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"UserApplicationIdentitiesResponse"
+		],
+		"route": "/users/{user_id}/application-identities",
+		"route_name": "GET_USERS_USER_ID_APPLICATION_IDENTITIES",
+		"source": "src/api/routes/users/#user_id/application-identities.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "InstanceUserDeleteSchema",
 		"response_schema_refs": [

@@ -3304,6 +3304,172 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserApplicationIdentityProfilePrimaryDataResponse": {
+        "type": "object",
+        "properties": {
+            "season": {
+                "type": "string"
+            },
+            "rank_name": {
+                "type": "string"
+            },
+            "highest_rank": {
+                "type": "string"
+            },
+            "featured_played_character": {
+                "type": "string"
+            },
+            "featured_played_character_image": {
+                "$ref": "#/definitions/UnfurledMediaItem"
+            },
+            "playtime_hours": {
+                "description": "Discord documents application profile playtime as a float.",
+                "type": "number"
+            },
+            "total_wins": {
+                "type": "integer"
+            },
+            "current_period_wins": {
+                "type": "integer"
+            },
+            "total_games": {
+                "type": "integer"
+            },
+            "current_period_games": {
+                "type": "integer"
+            },
+            "total_kills": {
+                "type": "integer"
+            },
+            "current_period_kills": {
+                "type": "integer"
+            },
+            "total_assists": {
+                "type": "integer"
+            },
+            "current_period_assists": {
+                "type": "integer"
+            },
+            "total_deaths": {
+                "type": "integer"
+            },
+            "current_period_deaths": {
+                "type": "integer"
+            },
+            "server_name": {
+                "type": "string"
+            },
+            "user_id": {
+                "type": "string"
+            },
+            "union_level": {
+                "type": "string"
+            },
+            "total_resonators": {
+                "type": "integer"
+            },
+            "total_achievements": {
+                "type": "integer"
+            },
+            "total_echoes": {
+                "type": "integer"
+            },
+            "login_days": {
+                "type": "integer"
+            },
+            "data_bank_level": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserApplicationIdentityProfileDataResponse": {
+        "type": "object",
+        "properties": {
+            "primary": {
+                "$ref": "#/definitions/UserApplicationIdentityProfilePrimaryDataResponse"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "PartialUserApplicationProfileResponse": {
+        "type": "object",
+        "properties": {
+            "username": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "metadata": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "data": {
+                "$ref": "#/definitions/UserApplicationIdentityProfileDataResponse"
+            },
+            "data_trusted": {
+                "type": "boolean"
+            },
+            "connection_visible": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "connection_visible",
+            "metadata",
+            "username"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserApplicationIdentityResponse": {
+        "type": "object",
+        "properties": {
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "provider_issued_user_id": {
+                "type": "string"
+            },
+            "profile": {
+                "$ref": "#/definitions/PartialUserApplicationProfileResponse"
+            },
+            "profiles": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/PartialUserApplicationProfileResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "provider_issued_user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserApplicationIdentitiesResponse": {
+        "type": "object",
+        "properties": {
+            "identities": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/UserApplicationIdentityResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "identities"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationBranchResponse": {
         "type": "object",
         "properties": {
@@ -20097,6 +20263,99 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UnfurledMediaItem": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "url": {
+                "type": "string"
+            },
+            "proxy_url": {
+                "type": "string"
+            },
+            "height": {
+                "type": "integer"
+            },
+            "width": {
+                "type": "integer"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "content_type": {
+                "type": "string"
+            },
+            "content_scan_metadata": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/JsonObject"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/JsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "number",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
+            "placeholder_version": {
+                "type": "integer"
+            },
+            "placeholder": {
+                "type": "string"
+            },
+            "loading_state": {
+                "type": "integer"
+            },
+            "attachment_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "JsonObject": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/JsonValue"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "JsonValue": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/JsonObject"
+            },
+            {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/JsonValue"
+                }
+            },
+            {
+                "type": [
+                    "null",
+                    "string",
+                    "number",
+                    "boolean"
+                ]
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationTesterState": {
         "type": "number",
         "enum": [
@@ -24563,35 +24822,6 @@
         "required": [
             "name",
             "roles"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "JsonObject": {
-        "type": "object",
-        "additionalProperties": {
-            "$ref": "#/definitions/JsonValue"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "JsonValue": {
-        "anyOf": [
-            {
-                "$ref": "#/definitions/JsonObject"
-            },
-            {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/JsonValue"
-                }
-            },
-            {
-                "type": [
-                    "null",
-                    "string",
-                    "number",
-                    "boolean"
-                ]
-            }
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
@@ -31088,70 +31318,6 @@
     "MessageComponentType.Thumbnail": {
         "type": "number",
         "const": 11,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "UnfurledMediaItem": {
-        "type": "object",
-        "properties": {
-            "id": {
-                "type": "string"
-            },
-            "url": {
-                "type": "string"
-            },
-            "proxy_url": {
-                "type": "string"
-            },
-            "height": {
-                "type": "integer"
-            },
-            "width": {
-                "type": "integer"
-            },
-            "flags": {
-                "type": "integer"
-            },
-            "content_type": {
-                "type": "string"
-            },
-            "content_scan_metadata": {
-                "anyOf": [
-                    {
-                        "$ref": "#/definitions/JsonObject"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/definitions/JsonValue"
-                        }
-                    },
-                    {
-                        "type": [
-                            "null",
-                            "string",
-                            "number",
-                            "boolean"
-                        ]
-                    }
-                ]
-            },
-            "placeholder_version": {
-                "type": "integer"
-            },
-            "placeholder": {
-                "type": "string"
-            },
-            "loading_state": {
-                "type": "integer"
-            },
-            "attachment_id": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "url"
-        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ButtonComponent": {
