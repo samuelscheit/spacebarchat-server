@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 621,
+        "totalEntries": 622,
         "byService": {
-            "api": 524,
+            "api": 525,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 596,
+            "http-route": 597,
             "opcode": 21
         },
         "byTestTier": {
@@ -38,7 +38,7 @@
             "stateful-domain": 335,
             "cdn-integration": 78,
             "auth-scenario": 17,
-            "integration": 15,
+            "integration": 16,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 479,
+            "route-class": 480,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -16381,6 +16381,46 @@
                     "auth-boundary",
                     "schema-validation",
                     "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/oauth2/applications/:application_id/allowlist/:user_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/oauth2/applications/:application_id/allowlist/:user_id/",
+            "sourceFile": "src/api/routes/oauth2/applications/#application_id/allowlist/#user_id.ts",
+            "line": 93,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
                 ],
                 "allowMissingRouteMetadata": false
             }

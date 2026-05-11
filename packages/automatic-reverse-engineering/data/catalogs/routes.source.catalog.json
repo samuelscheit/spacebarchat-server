@@ -3372,6 +3372,15 @@
 		"source": "src/api/routes/modules/#release_channel/versions.json.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/oauth2/applications/{application_id}/allowlist/{user_id}",
+		"route_name": "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ALLOWLIST_USER_ID",
+		"source": "src/api/routes/oauth2/applications/#application_id/allowlist/#user_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"Application"

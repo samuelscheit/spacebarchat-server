@@ -35,6 +35,7 @@ export type ApplicationCommandAuthorizationTarget = {
 };
 
 const applicationCommandManagementRoles = new Set<TeamMemberRole>([TeamMemberRole.ADMIN, TeamMemberRole.DEVELOPER]);
+const applicationTesterManagementRoles = new Set<TeamMemberRole>([TeamMemberRole.ADMIN, TeamMemberRole.DEVELOPER]);
 
 export type ApplicationCommandAuthorizationRepository = {
     findOne(options: unknown): Promise<ApplicationCommandAuthorizationTarget | null>;
@@ -77,6 +78,20 @@ export function canAccessApplicationBranches(application: ApplicationCommandAuth
 
 export function canAccessApplicationEmojis(application: ApplicationCommandAuthorizationTarget, userId: string) {
     return canManageApplicationCommands(application, userId);
+}
+
+export function canManageApplicationTesters(application: ApplicationCommandAuthorizationTarget, userId: string) {
+    if (application.owner?.id === userId) return true;
+
+    const team = application.team;
+    if (!team) return false;
+
+    if (team.owner_user_id === userId) return true;
+
+    return (
+        team.members?.some((member) => member.user_id === userId && member.membership_state === TeamMemberState.ACCEPTED && applicationTesterManagementRoles.has(member.role)) ??
+        false
+    );
 }
 
 export async function requireApplicationCommandManagement(applicationId: string, userId: string, repository?: ApplicationCommandAuthorizationRepository) {
@@ -149,6 +164,24 @@ export async function requireApplicationGiftCodeBatchAccess(applicationId: strin
 
     if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
     if (!canAccessApplicationGiftCodeBatches(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
+
+    return application;
+}
+
+export async function requireApplicationTesterManagement(applicationId: string, userId: string, repository?: ApplicationCommandAuthorizationRepository) {
+    const applicationRepository = repository ?? (await getApplicationCommandAuthorizationRepository());
+    const application = await applicationRepository.findOne({
+        where: { id: applicationId },
+        relations: {
+            owner: true,
+            team: {
+                members: true,
+            },
+        },
+    });
+
+    if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+    if (!canManageApplicationTesters(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
     return application;
 }
