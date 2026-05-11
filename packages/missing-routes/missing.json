@@ -1,6 +1,6 @@
 {
-    "missing": 611,
-    "spacebar": 569,
+    "missing": 610,
+    "spacebar": 570,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -271,7 +271,6 @@
         "/premium-marketing",
         "/presences",
         "/private/bug-reports",
-        "/quests/@me",
         "/quests/@me/claimed",
         "/quests/decision?placement={param}&client_heartbeat_session_id={param}",
         "/quests/{param}/claim-reward",
@@ -1534,13 +1533,6 @@
         { "method": "GET", "route": "/premium-marketing", "route_name": "PREMIUM_MARKETING", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/presences", "route_name": "GET_PRESENCES", "sources": ["userdoccers:resources/presence.mdx"], "summaries": ["Get Presences"] },
         { "method": "GET", "route": "/private/bug-reports", "route_name": "BUG_REPORTS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/quests/@me",
-            "route_name": "GET_QUESTS__ME",
-            "sources": ["userdoccers:resources/quests.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Current User Quests"]
-        },
         {
             "method": "GET",
             "route": "/quests/@me/claimed",

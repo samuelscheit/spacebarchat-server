@@ -11214,6 +11214,46 @@
                     "traffic_metadata_sealed"
                 ]
             },
+            "PartialQuestResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id"
+                ]
+            },
+            "QuestCurrentUserQuestsResponse": {
+                "type": "object",
+                "properties": {
+                    "quests": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/QuestResponse"
+                        }
+                    },
+                    "excluded_quests": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartialQuestResponse"
+                        }
+                    },
+                    "quest_enrollment_blocked_until": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "excluded_quests",
+                    "quest_enrollment_blocked_until",
+                    "quests"
+                ]
+            },
             "QuestRewardCodeResponse": {
                 "type": "object",
                 "properties": {
@@ -42804,6 +42844,42 @@
                         "description": "Client-generated UUID representing the current persisted analytics heartbeat."
                     }
                 ],
+                "tags": [
+                    "quests"
+                ]
+            }
+        },
+        "/quests/@me/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's locally backed quests. Spacebar does not currently persist Discord quest enrollment, progress, or claim state, so the default provider returns the documented empty quest collection instead of fabricating Discord quests.",
+                "summary": "Get Current User Quests",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestCurrentUserQuestsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "quests"
                 ]
