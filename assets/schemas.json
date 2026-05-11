@@ -12832,6 +12832,26 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StorefrontCollectionResponse": {
+        "type": "object",
+        "properties": {
+            "collection": {
+                "$ref": "#/definitions/StorefrontCollection"
+            },
+            "products": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StorefrontProductResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "collection",
+            "products"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StorefrontSkuPricesResponse": {
         "type": "object",
         "properties": {
@@ -34043,6 +34063,57 @@
         "required": [
             "pc"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontCollection": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "application_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "product_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "created_at": {
+                "type": "string"
+            },
+            "updated_at": {
+                "type": "string"
+            },
+            "tenant_metadata": {
+                "$ref": "#/definitions/StorefrontCollectionTenantMetadata"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "application_id",
+            "created_at",
+            "description",
+            "id",
+            "name",
+            "product_ids",
+            "tenant_metadata",
+            "updated_at"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "StorefrontCollectionTenantMetadata": {
+        "type": "object",
+        "additionalProperties": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "StorefrontSkuPriceMap": {

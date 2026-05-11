@@ -1,6 +1,6 @@
 {
-    "missing": 612,
-    "spacebar": 568,
+    "missing": 611,
+    "spacebar": 569,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -310,7 +310,6 @@
         "/store/skus",
         "/store/skus/{param}",
         "/store/skus/{param}/purchase",
-        "/storefront/collections/{param}",
         "/streams/{param}/notify",
         "/streams/{param}/preview",
         "/streams/{param}/preview/video",
@@ -1570,14 +1569,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/store/skus/{sku_id}/purchase"],
             "summaries": ["Get SKU Purchase Preview"]
-        },
-        {
-            "method": "GET",
-            "route": "/storefront/collections/{param}",
-            "route_name": "GET_STOREFRONT_COLLECTIONS_COLLECTION_ID",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/storefront/collections/{collection_id}"],
-            "summaries": ["Get Storefront Collection"]
         },
         {
             "method": "GET",

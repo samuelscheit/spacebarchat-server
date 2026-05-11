@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 648,
+        "totalContracts": 649,
         "byService": {
-            "api": 575,
+            "api": 576,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 498,
-        "runtimeMalformedAuthContracts": 498,
-        "runtimeRevokedSessionAuthContracts": 498,
-        "runtimeStaleTokenAuthContracts": 498,
+        "runtimeAuthBoundaryContracts": 499,
+        "runtimeMalformedAuthContracts": 499,
+        "runtimeRevokedSessionAuthContracts": 499,
+        "runtimeStaleTokenAuthContracts": 499,
         "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 71,
@@ -25862,7 +25862,7 @@
             "path": "/store/listings/:store_listing_id/",
             "samplePath": "/store/listings/value/",
             "sourceFile": "src/api/routes/store/listings/#store_listing_id.ts",
-            "line": 154,
+            "line": 148,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",
@@ -26395,6 +26395,50 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "StorePublishedListingsSkusSubscriptionPlansResponse"],
                 "responseStatuses": [200, 401, 403, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/storefront/collections/:collection_id/",
+            "service": "api",
+            "method": "GET",
+            "path": "/storefront/collections/:collection_id/",
+            "samplePath": "/storefront/collections/value/",
+            "sourceFile": "src/api/routes/storefront/collections/#collection_id.ts",
+            "line": 44,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "StorefrontCollectionResponse"],
+                "responseStatuses": [200, 400, 401, 404]
             },
             "cases": [
                 {

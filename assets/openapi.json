@@ -12193,6 +12193,24 @@
                     "products"
                 ]
             },
+            "StorefrontCollectionResponse": {
+                "type": "object",
+                "properties": {
+                    "collection": {
+                        "$ref": "#/components/schemas/StorefrontCollection"
+                    },
+                    "products": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StorefrontProductResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "collection",
+                    "products"
+                ]
+            },
             "StorefrontSkuPricesResponse": {
                 "type": "object",
                 "properties": {
@@ -32353,6 +32371,54 @@
                     "pc"
                 ]
             },
+            "StorefrontCollection": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "product_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "tenant_metadata": {
+                        "$ref": "#/components/schemas/StorefrontCollectionTenantMetadata"
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "created_at",
+                    "description",
+                    "id",
+                    "name",
+                    "product_ids",
+                    "tenant_metadata",
+                    "updated_at"
+                ]
+            },
+            "StorefrontCollectionTenantMetadata": {
+                "type": "object",
+                "additionalProperties": {}
+            },
             "StorefrontSkuPriceMap": {
                 "type": "object",
                 "additionalProperties": {
@@ -40081,6 +40147,105 @@
                             "type": "string"
                         },
                         "description": "product_id"
+                    }
+                ],
+                "tags": [
+                    "storefront"
+                ]
+            }
+        },
+        "/storefront/collections/{collection_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the locally backed storefront collection and locally backed products for the given collection ID.",
+                "summary": "Get Storefront Collection",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StorefrontCollectionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "collection_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "collection_id"
+                    },
+                    {
+                        "name": "country_code",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO 3166-1 alpha-2 country code used for localized pricing."
+                    },
+                    {
+                        "name": "guild_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Guild ID used to fetch a guild-specific storefront collection."
+                    },
+                    {
+                        "name": "include_unpublished_products",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include unpublished products when supported by the local provider."
+                    },
+                    {
+                        "name": "include_unpublished_collection",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include an unpublished collection when supported by the local provider."
                     }
                 ],
                 "tags": [
