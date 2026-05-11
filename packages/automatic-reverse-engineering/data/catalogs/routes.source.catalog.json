@@ -3835,6 +3835,15 @@
 		"source": "src/api/routes/stop.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/store/applications/{application_id}/assets/{asset_id}",
+		"route_name": "DELETE_STORE_APPLICATIONS_APPLICATION_ID_ASSETS_ASSET_ID",
+		"source": "src/api/routes/store/applications/#application_id/assets/#asset_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

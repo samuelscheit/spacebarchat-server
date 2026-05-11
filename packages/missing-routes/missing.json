@@ -1,6 +1,6 @@
 {
-    "missing": 662,
-    "spacebar": 518,
+    "missing": 661,
+    "spacebar": 519,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -316,7 +316,6 @@
         "/stage-instances/extra",
         "/sticker-packs/directory-v2/{param}",
         "/store/applications/{param}/assets",
-        "/store/applications/{param}/assets/{param}",
         "/store/consumable/pricing/{param}",
         "/store/directory-layouts/{param}",
         "/store/directory/{param}",
@@ -868,14 +867,6 @@
             "summaries": ["Delete Application Storefront"]
         },
         { "method": "DELETE", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "DELETE",
-            "route": "/store/applications/{param}/assets/{param}",
-            "route_name": "DELETE_STORE_APPLICATIONS_APPLICATION_ID_ASSETS_ASSET_ID",
-            "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/store/applications/{application_id}/assets/{asset_id}", "/store/applications/{application_id}/assets/{param}"],
-            "summaries": ["Delete Application Store Asset"]
-        },
         {
             "method": "DELETE",
             "route": "/store/listings/{param}",
