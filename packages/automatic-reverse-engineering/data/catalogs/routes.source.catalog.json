@@ -3391,6 +3391,16 @@
 		"source": "src/api/routes/modules/#release_channel/versions.json.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"OAuthCurrentAuthorizationResponse"
+		],
+		"route": "/oauth2/@me",
+		"route_name": "GET_OAUTH2__ME",
+		"source": "src/api/routes/oauth2/@me.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"
@@ -3398,6 +3408,15 @@
 		"route": "/oauth2/applications/{application_id}/allowlist/{user_id}",
 		"route_name": "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ALLOWLIST_USER_ID",
 		"source": "src/api/routes/oauth2/applications/#application_id/allowlist/#user_id.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/oauth2/applications/{application_id}/assets/{application_asset_id}",
+		"route_name": "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS_APPLICATION_ASSET_ID",
+		"source": "src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id.ts"
 	},
 	{
 		"method": "GET",
@@ -3843,6 +3862,15 @@
 		"route": "/stop",
 		"route_name": "POST_STOP",
 		"source": "src/api/routes/stop.ts"
+	},
+	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/store/applications/{application_id}/assets/{asset_id}",
+		"route_name": "DELETE_STORE_APPLICATIONS_APPLICATION_ID_ASSETS_ASSET_ID",
+		"source": "src/api/routes/store/applications/#application_id/assets/#asset_id.ts"
 	},
 	{
 		"method": "GET",

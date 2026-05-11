@@ -139,6 +139,7 @@ export * from "./NotificationCenterItemsResponse";
 export * from "./OAuthAuthorizeInfoResponse";
 export * from "./OAuthAuthorizeResponse";
 export * from "./OAuthAuthorizationResponse";
+export * from "./OAuthCurrentAuthorizationResponse";
 export * from "./OAuth2KeysResponse";
 export * from "./OAuthUserInfoResponse";
 export * from "./PasswordValidateResponse";

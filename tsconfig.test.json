@@ -25,6 +25,7 @@
         "src/api/util/utility/LinkEmbeds.test.ts",
         "src/api/ServerConfigure.test.ts",
         "src/api/tests/users/@me/guildAffinitiesRoute.test.ts",
+        "src/api/routes/oauth2/@me.test.ts",
         "src/api/routes/oauth2/authorize.test.ts",
         "src/api/routes/oauth2/tokens/#token_id.test.ts",
         "src/api/util/utility/OAuthAuthorize.test.ts",

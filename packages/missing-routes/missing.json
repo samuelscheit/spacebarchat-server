@@ -1,6 +1,6 @@
 {
-    "missing": 661,
-    "spacebar": 519,
+    "missing": 658,
+    "spacebar": 522,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -245,11 +245,9 @@
         "/metrics",
         "/metrics/v2",
         "/networking/token",
-        "/oauth2/@me",
         "/oauth2/allowlist/accept",
         "/oauth2/applications/{param}/allowlist",
         "/oauth2/applications/{param}/assets",
-        "/oauth2/applications/{param}/assets/{param}",
         "/oauth2/applications/{param}/rpc",
         "/oauth2/applications/{param}/tokens",
         "/oauth2/authorize/webhook-channels",
@@ -315,7 +313,6 @@
         "/stage-instances/extra",
         "/sticker-packs/directory-v2/{param}",
         "/store/applications/{param}/assets",
-        "/store/applications/{param}/assets/{param}",
         "/store/consumable/pricing/{param}",
         "/store/directory-layouts/{param}",
         "/store/directory/{param}",
@@ -852,14 +849,6 @@
         },
         {
             "method": "DELETE",
-            "route": "/oauth2/applications/{param}/assets/{param}",
-            "route_name": "DELETE_OAUTH2_APPLICATIONS_APPLICATION_ID_ASSETS_APPLICATION_ASSET_ID",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/oauth2/applications/{application_id}/assets/{application_asset_id}"],
-            "summaries": ["Delete Application Asset"]
-        },
-        {
-            "method": "DELETE",
             "route": "/partner-sdk/applications/{param}/storefront",
             "route_name": "DELETE_PARTNER_SDK_APPLICATIONS_APPLICATION_ID_STOREFRONT",
             "sources": ["userdoccers:resources/store.mdx"],
@@ -867,14 +856,6 @@
             "summaries": ["Delete Application Storefront"]
         },
         { "method": "DELETE", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "DELETE",
-            "route": "/store/applications/{param}/assets/{param}",
-            "route_name": "DELETE_STORE_APPLICATIONS_APPLICATION_ID_ASSETS_ASSET_ID",
-            "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/store/applications/{application_id}/assets/{asset_id}", "/store/applications/{application_id}/assets/{param}"],
-            "summaries": ["Delete Application Store Asset"]
-        },
         {
             "method": "DELETE",
             "route": "/store/listings/{param}",
@@ -1624,13 +1605,6 @@
             "sources": ["userdoccers:resources/lobby.mdx"],
             "source_routes": ["/lobbies/{lobby_id}/messages"],
             "summaries": ["Get Lobby Messages"]
-        },
-        {
-            "method": "GET",
-            "route": "/oauth2/@me",
-            "route_name": "GET_OAUTH2__ME",
-            "sources": ["userdoccers:topics/oauth2.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Current Authorization Information"]
         },
         {
             "method": "GET",

@@ -6,7 +6,9 @@ import {
     canAccessApplicationBranches,
     canAccessApplicationEmojis,
     canAccessApplicationGiftCodeBatches,
+    canManageApplicationAssets,
     canManageApplicationCommands,
+    requireApplicationAssetManagement,
     requireApplicationBranchAccess,
     requireApplicationCommandManagement,
     requireApplicationEmojiAccess,
@@ -373,6 +375,107 @@ describe("application branch authorization", () => {
 
         await assert.rejects(
             () => requireApplicationBranchAccess("app", "attacker", repository),
+            (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
+        );
+    });
+});
+
+describe("application asset authorization", () => {
+    test("allows owners and application-management team members to manage application assets", () => {
+        assert.equal(canManageApplicationAssets({ owner: { id: "owner" } }, "owner"), true);
+
+        for (const role of [TeamMemberRole.ADMIN, TeamMemberRole.DEVELOPER]) {
+            assert.equal(
+                canManageApplicationAssets(
+                    {
+                        owner: { id: "owner" },
+                        team: {
+                            members: [
+                                {
+                                    user_id: "manager",
+                                    membership_state: TeamMemberState.ACCEPTED,
+                                    role,
+                                },
+                            ],
+                        },
+                    },
+                    "manager",
+                ),
+                true,
+            );
+        }
+    });
+
+    test("rejects bot users, read-only team members, invited members, and non-members", () => {
+        const application = {
+            owner: { id: "owner" },
+            bot: { id: "application" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                    {
+                        user_id: "read-only",
+                        membership_state: TeamMemberState.ACCEPTED,
+                        role: TeamMemberRole.READ_ONLY,
+                    },
+                ],
+            },
+        };
+
+        assert.equal(canManageApplicationAssets(application, "application"), false);
+        assert.equal(canManageApplicationAssets(application, "read-only"), false);
+        assert.equal(canManageApplicationAssets(application, "invited"), false);
+        assert.equal(canManageApplicationAssets(application, "attacker"), false);
+    });
+
+    test("loads owner and team members before allowing asset management", async (t) => {
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({
+                owner: { id: "owner" },
+                team: {
+                    owner_user_id: "team-owner",
+                    members: [
+                        {
+                            user_id: "developer",
+                            membership_state: TeamMemberState.ACCEPTED,
+                            role: TeamMemberRole.DEVELOPER,
+                        },
+                    ],
+                },
+            })),
+        };
+
+        await requireApplicationAssetManagement("app", "developer", repository);
+
+        assert.deepEqual(repository.findOne.mock.calls[0].arguments[0], {
+            where: { id: "app" },
+            relations: {
+                owner: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+    });
+
+    test("throws unknown application and authorization errors for asset management", async (t) => {
+        const missingRepository = {
+            findOne: t.mock.fn(async (_options: unknown) => null),
+        };
+        await assert.rejects(
+            () => requireApplicationAssetManagement("missing-app", "user", missingRepository),
+            (error) => error === DiscordApiErrors.UNKNOWN_APPLICATION,
+        );
+
+        const unauthorizedRepository = {
+            findOne: t.mock.fn(async (_options: unknown) => ({ owner: { id: "owner" } })),
+        };
+        await assert.rejects(
+            () => requireApplicationAssetManagement("app", "attacker", unauthorizedRepository),
             (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
         );
     });

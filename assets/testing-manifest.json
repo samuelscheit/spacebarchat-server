@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 624,
+        "totalEntries": 627,
         "byService": {
-            "api": 527,
+            "api": 530,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,17 +28,17 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 599,
+            "http-route": 602,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 143,
+            "contract": 144,
             "stateful-domain": 336,
             "cdn-integration": 78,
             "auth-scenario": 17,
-            "integration": 16,
+            "integration": 18,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 482,
+            "route-class": 485,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -16475,6 +16475,46 @@
             }
         },
         {
+            "id": "api:http:GET:/oauth2/@me/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/oauth2/@me/",
+            "sourceFile": "src/api/routes/oauth2/@me.ts",
+            "line": 269,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "OAuthCurrentAuthorizationResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:DELETE:/oauth2/applications/:application_id/allowlist/:user_id/",
             "type": "http-route",
             "service": "api",
@@ -16482,6 +16522,46 @@
             "path": "/oauth2/applications/:application_id/allowlist/:user_id/",
             "sourceFile": "src/api/routes/oauth2/applications/#application_id/allowlist/#user_id.ts",
             "line": 93,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/oauth2/applications/:application_id/assets/:application_asset_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/oauth2/applications/:application_id/assets/:application_asset_id/",
+            "sourceFile": "src/api/routes/oauth2/applications/#application_id/assets/#application_asset_id.ts",
+            "line": 103,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -18216,6 +18296,43 @@
                 "responseStatuses": [
                     200,
                     403
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/store/applications/:application_id/assets/:asset_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/store/applications/:application_id/assets/:asset_id/",
+            "sourceFile": "src/api/routes/store/applications/#application_id/assets/#asset_id.ts",
+            "line": 112,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    401,
+                    403,
+                    404
                 ],
                 "hasQuery": false
             },

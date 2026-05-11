@@ -22,27 +22,27 @@ The route is mounted from `src/api/routes/channels/#channel_id/directory-entries
 - Userdoccers source reference: `resources/directory-entry.mdx`, mirrored at `https://docs.discord.food/resources/directory-entry`, says the endpoint returns a mapping of directory categories to entry counts and requires `VIEW_CHANNEL`.
 - xHyroM source reference: `packages/automatic-reverse-engineering/data/catalogs/routes.xhyrom.catalog.json` lists `/channels/{channel_id}/directory-entries/counts` as `DIRECTORY_CHANNEL_CATEGORY_COUNTS`.
 - Existing local directory-entry behavior:
-  - `src/api/routes/channels/#channel_id/directory-entries.ts` returned an empty `HubDirectoryEntriesResponse`.
-  - `src/api/routes/channels/#channel_id/directory-entry.ts` validates `GUILD_DIRECTORY` and does not synthesize entries because Spacebar does not persist them yet.
+    - `src/api/routes/channels/#channel_id/directory-entries.ts` returned an empty `HubDirectoryEntriesResponse`.
+    - `src/api/routes/channels/#channel_id/directory-entry.ts` validates `GUILD_DIRECTORY` and does not synthesize entries because Spacebar does not persist them yet.
 
 ## Changed Files
 
 - `src/api/routes/channels/#channel_id/directory-entries.ts`
-  - Added `GET /counts`.
-  - Added `VIEW_CHANNEL` route metadata.
-  - Added directory-channel validation and empty count response helper.
+    - Added `GET /counts`.
+    - Added `VIEW_CHANNEL` route metadata.
+    - Added directory-channel validation and empty count response helper.
 - `src/schemas/responses/HubDirectoryEntriesResponse.ts`
-  - Added `HubDirectoryEntryCountsResponse` as a string-keyed integer map.
+    - Added `HubDirectoryEntryCountsResponse` as a string-keyed integer map.
 - `test/routes/channels-param-directory-entries-counts-get.test.ts`
-  - Added focused route behavior, schema, and artifact assertions.
+    - Added focused route behavior, schema, and artifact assertions.
 - Regenerated artifacts:
-  - `assets/schemas.json`
-  - `assets/openapi.json`
-  - `assets/testing-manifest.json`
-  - `packages/automatic-reverse-engineering/data/catalogs/routes.source.catalog.json`
-  - `packages/missing-routes/missing.json`
-  - `test/generated/http-contracts.json`
-  - `test/generated/suite-coverage.json`
+    - `assets/schemas.json`
+    - `assets/openapi.json`
+    - `assets/testing-manifest.json`
+    - `packages/automatic-reverse-engineering/data/catalogs/routes.source.catalog.json`
+    - `packages/missing-routes/missing.json`
+    - `test/generated/http-contracts.json`
+    - `test/generated/suite-coverage.json`
 
 ## Behavior
 
@@ -53,17 +53,19 @@ The route is mounted from `src/api/routes/channels/#channel_id/directory-entries
 
 ## Missing-Route Movement
 
-- Before regeneration from current base: `missing = 662`; assigned route present.
-- After regeneration: `missing = 661`; assigned route absent from `missing_entries`.
+- Worker-base regeneration: `missing = 662 -> 661`; assigned route absent from `missing_entries`.
+- Current-base regeneration after merging `codex/merge-ready-prs-20260508` at
+  `1a4bea076`: `missing = 659 -> 658`, `spacebar = 521 -> 522`,
+  `discord = 1128`; assigned route absent from `missing_entries`.
 - Source catalog now includes:
-  - `GET /channels/{channel_id}/directory-entries/counts`
-  - `route_name: GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES_COUNTS`
-  - response schemas `APIErrorResponse`, `HubDirectoryEntryCountsResponse`
+    - `GET /channels/{channel_id}/directory-entries/counts`
+    - `route_name: GET_CHANNELS_CHANNEL_ID_DIRECTORY_ENTRIES_COUNTS`
+    - response schemas `APIErrorResponse`, `HubDirectoryEntryCountsResponse`
 
 ## Commands Run
 
 - `npm run build:src:tsgo`
-  - First attempt failed before `npm ci`: `TS2688: Cannot find type definition file for 'node'` because the worktree had no `node_modules`.
+    - First attempt failed before `npm ci`: `TS2688: Cannot find type definition file for 'node'` because the worktree had no `node_modules`.
 - `npm ci`
 - `npm run build:src:tsgo`
 - `npm run generate:schema`
@@ -77,26 +79,47 @@ The route is mounted from `src/api/routes/channels/#channel_id/directory-entries
 - `node scripts/testing-manifest/verify.js`
 - `npm run generate:openapi`
 - `node scripts/testing-manifest/generate-contract-tests.js --check`
-  - Reported stale contracts before regeneration.
+    - Reported stale contracts before regeneration.
 - `npm run generate:contract-tests`
 - `node scripts/testing-manifest/generate-contract-tests.js --check`
 - `node scripts/testing-manifest/generate-suite-coverage.js --check`
-  - Reported stale suite coverage before regeneration.
+    - Reported stale suite coverage before regeneration.
 - `npm run generate:suite-coverage`
 - `node scripts/testing-manifest/generate-suite-coverage.js --check`
 - `node --test test/generated/http-contracts.test.js test/generated/suite-coverage.test.js`
+- Current-base port reruns after merging `1a4bea076`:
+    - `npm run build:src:tsgo`
+    - `npm run build --workspace @spacebar/automatic-reverse-engineering`
+    - `npm run generate:schema`
+    - `node packages/automatic-reverse-engineering/dist/cli.js import-source-routes --root src/api/routes --out packages/automatic-reverse-engineering/data/catalogs/routes.source.catalog.json`
+    - `npm run build --workspace @spacebar/missing-routes`
+    - `npm run start --workspace @spacebar/missing-routes`
+    - `npm run generate:testing-manifest`
+    - `node scripts/testing-manifest/verify.js`
+    - `node scripts/testing-manifest/generate-contract-tests.js --check`
+    - `npm run generate:contract-tests`
+    - `node scripts/testing-manifest/generate-contract-tests.js --check`
+    - `node scripts/testing-manifest/generate-suite-coverage.js --check`
+    - `npm run generate:suite-coverage`
+    - `node scripts/testing-manifest/generate-suite-coverage.js --check`
+    - `npm run generate:openapi`
+    - `npm run build:test-fixtures`
+    - `node -r dotenv/config -r module-alias/register --enable-source-maps --test dist-test/test/routes/channels-param-directory-entries-counts-get.test.js`
+    - `node --test test/generated/http-contracts.test.js test/generated/suite-coverage.test.js`
+    - `npm run test:manifest`
+    - `npm run test:suite-coverage`
 - Final reruns:
-  - `npm run build:test-fixtures`
-  - `node -r dotenv/config -r module-alias/register --enable-source-maps --test dist-test/test/routes/channels-param-directory-entries-counts-get.test.js`
-  - `npm run build:src:tsgo`
-  - `node scripts/testing-manifest/verify.js`
-  - `node scripts/testing-manifest/generate-contract-tests.js --check`
-  - `node scripts/testing-manifest/generate-suite-coverage.js --check`
-  - `node --test test/generated/http-contracts.test.js test/generated/suite-coverage.test.js`
-  - `git diff --check`
-  - `git diff -- package.json package-lock.json && git status --short package.json package-lock.json`
-  - Changed-file malformed warranty scan over changed/untracked files.
-  - Repository-wide malformed warranty scan with the same malformed-token patterns.
+    - `npm run build:test-fixtures`
+    - `node -r dotenv/config -r module-alias/register --enable-source-maps --test dist-test/test/routes/channels-param-directory-entries-counts-get.test.js`
+    - `npm run build:src:tsgo`
+    - `node scripts/testing-manifest/verify.js`
+    - `node scripts/testing-manifest/generate-contract-tests.js --check`
+    - `node scripts/testing-manifest/generate-suite-coverage.js --check`
+    - `node --test test/generated/http-contracts.test.js test/generated/suite-coverage.test.js`
+    - `git diff --check`
+    - `git diff -- package.json package-lock.json && git status --short package.json package-lock.json`
+    - Changed-file malformed warranty scan over changed/untracked files.
+    - Repository-wide malformed warranty scan with the same malformed-token patterns.
 
 ## Verification Results
 
@@ -105,10 +128,11 @@ The route is mounted from `src/api/routes/channels/#channel_id/directory-entries
 - `npm run build:test-fixtures`: pass.
 - Focused route/schema/artifact test: pass, 5 tests.
 - Automatic reverse-engineering build and source import: pass.
-- Missing-routes build/start: pass; missing count 661.
-- Testing manifest generation and verify: pass, 624 entries.
-- OpenAPI generation: pass; existing warnings about webhook routes missing route metadata remain unrelated.
-- Contract check/regenerate/check: pass, 599 contracts.
+- Missing-routes build/start: pass; current-base missing count 658.
+- Testing manifest generation and verify: pass, 627 entries.
+- OpenAPI generation: pass with 416 paths and 999 schemas; existing warnings
+  about webhook routes missing route metadata remain unrelated.
+- Contract check/regenerate/check: pass, 602 contracts.
 - Suite coverage check/regenerate/check: pass.
 - Generated contract/suite tests: pass, 13 tests.
 - `git diff --check`: pass.
