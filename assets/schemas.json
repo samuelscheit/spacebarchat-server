@@ -10903,6 +10903,26 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "SocialSDKReleasesResponse": {
+        "type": "object",
+        "properties": {
+            "releases": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/SocialSDKRelease"
+                }
+            },
+            "latest_version": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "latest_version",
+            "releases"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StageInstanceResponse": {
         "type": "object",
         "properties": {
@@ -31488,6 +31508,50 @@
     },
     "SoundboardVolume": {
         "type": "number",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SocialSDKRelease": {
+        "type": "object",
+        "properties": {
+            "version": {
+                "type": "string"
+            },
+            "release_date_time": {
+                "type": "string"
+            },
+            "artifacts": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/SocialSDKReleaseArtifact"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "release_date_time",
+            "version"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SocialSDKReleaseArtifact": {
+        "type": "object",
+        "properties": {
+            "download_url": {
+                "type": "string"
+            },
+            "filename": {
+                "type": "string"
+            },
+            "size_bytes": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "download_url",
+            "filename",
+            "size_bytes"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "ThreadSearchMember": {

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 601,
+        "totalEntries": 602,
         "byService": {
-            "api": 504,
+            "api": 505,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 576,
+            "http-route": 577,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 126,
+            "contract": 127,
             "stateful-domain": 331,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 459,
+            "route-class": 460,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -17070,6 +17070,42 @@
                 "present": true,
                 "responseStatuses": [
                     204
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/social-sdk/releases/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/social-sdk/releases/",
+            "sourceFile": "src/api/routes/social-sdk/releases.ts",
+            "line": 32,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "SocialSDKReleasesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
                 ],
                 "hasQuery": false
             },

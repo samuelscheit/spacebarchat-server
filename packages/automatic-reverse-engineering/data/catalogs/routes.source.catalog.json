@@ -3559,6 +3559,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"SocialSDKReleasesResponse"
+		],
+		"route": "/social-sdk/releases",
+		"route_name": "GET_SOCIAL_SDK_RELEASES",
+		"source": "src/api/routes/social-sdk/releases.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"SoundboardDefaultSoundsResponse"
 		],
 		"route": "/soundboard-default-sounds",

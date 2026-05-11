@@ -10371,6 +10371,24 @@
                     "volume"
                 ]
             },
+            "SocialSDKReleasesResponse": {
+                "type": "object",
+                "properties": {
+                    "releases": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SocialSDKRelease"
+                        }
+                    },
+                    "latest_version": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "latest_version",
+                    "releases"
+                ]
+            },
             "StageInstanceResponse": {
                 "type": "object",
                 "properties": {
@@ -29956,6 +29974,46 @@
             "SoundboardVolume": {
                 "type": "number"
             },
+            "SocialSDKRelease": {
+                "type": "object",
+                "properties": {
+                    "version": {
+                        "type": "string"
+                    },
+                    "release_date_time": {
+                        "type": "string"
+                    },
+                    "artifacts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SocialSDKReleaseArtifact"
+                        }
+                    }
+                },
+                "required": [
+                    "release_date_time",
+                    "version"
+                ]
+            },
+            "SocialSDKReleaseArtifact": {
+                "type": "object",
+                "properties": {
+                    "download_url": {
+                        "type": "string"
+                    },
+                    "filename": {
+                        "type": "string"
+                    },
+                    "size_bytes": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "download_url",
+                    "filename",
+                    "size_bytes"
+                ]
+            },
             "ThreadSearchMember": {
                 "type": "object",
                 "properties": {
@@ -32431,6 +32489,9 @@
         },
         {
             "name": "science"
+        },
+        {
+            "name": "social-sdk"
         },
         {
             "name": "soundboard-default-sounds"
@@ -37311,6 +37372,42 @@
                 },
                 "tags": [
                     "soundboard-default-sounds"
+                ]
+            }
+        },
+        "/social-sdk/releases/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the currently available social SDK releases.",
+                "summary": "Get Social SDK Releases",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SocialSDKReleasesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "social-sdk"
                 ]
             }
         },

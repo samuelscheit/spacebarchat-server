@@ -156,6 +156,7 @@ export * from "./ReportOptionsResponse";
 export * from "./ReportingMenuResponse";
 export * from "./SettingsProtoUpdateResponse";
 export * from "./SoundboardDefaultSoundsResponse";
+export * from "./SocialSDKReleasesResponse";
 export * from "./StageInstanceResponse";
 export * from "./StoreEulaResponse";
 export * from "./StorePublishedListingsSkusResponse";
