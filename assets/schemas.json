@@ -6040,6 +6040,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildChannelFollowingGuildSizeByChannelResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildChannelFollowingGuildSizeByChannelBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildChannelFollowingGuildSizeResponse": {
         "type": "array",
         "items": {
@@ -23589,6 +23596,32 @@
             "day_pt",
             "guilds_unfollowed",
             "new_guilds_following",
+            "total_guilds_following"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildChannelFollowingGuildSizeByChannelBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_size": {
+                "type": "string"
+            },
+            "total_guilds_following": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "day_pt",
+            "guild_size",
             "total_guilds_following"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"

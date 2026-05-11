@@ -81,6 +81,7 @@ export * from "./GuildAudienceParticipatorsByPlatformResponse";
 export * from "./GuildBasicResponse";
 export * from "./GuildBansResponse";
 export * from "./GuildChannelFollowingAnnouncementsByChannelResponse";
+export * from "./GuildChannelFollowingGuildSizeByChannelResponse";
 export * from "./GuildChannelFollowingGuildSizeResponse";
 export * from "./GuildChannelFollowingOverviewResponse";
 export * from "./GuildChannelFollowingReachResponse";

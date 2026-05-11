@@ -16,10 +16,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { Snowflake } from "@spacebar/schemas";
 import type { Request } from "express";
 import { HTTPError } from "lambert-server";
 
 const SUPPORTED_INTERVALS = new Set([0, 1, 2, 3]);
+const snowflakeOrAllChannelsPattern = /^(0|[1-9]\d{0,19})$/;
 
 export type GuildAnalyticsAggregationInterval = 0 | 1 | 2 | 3;
 
@@ -27,6 +29,10 @@ export interface GuildChannelFollowingAnalyticsQuery {
     start?: Date;
     end?: Date;
     interval?: GuildAnalyticsAggregationInterval;
+}
+
+export interface GuildChannelFollowingByChannelAnalyticsQuery extends GuildChannelFollowingAnalyticsQuery {
+    channel_id?: Snowflake | "0";
 }
 
 function getSingleQueryValue(query: Request["query"], key: string) {
@@ -61,6 +67,14 @@ function parseOptionalAggregationInterval(query: Request["query"]) {
     return interval as GuildAnalyticsAggregationInterval;
 }
 
+function parseOptionalChannelId(query: Request["query"]) {
+    const value = getSingleQueryValue(query, "channel_id");
+    if (value == undefined) return undefined;
+    if (!snowflakeOrAllChannelsPattern.test(value)) throw new HTTPError("channel_id must be a snowflake or 0", 422);
+
+    return value as Snowflake | "0";
+}
+
 export function parseGuildChannelFollowingAnalyticsQuery(query: Request["query"]): GuildChannelFollowingAnalyticsQuery {
     const parsed = {
         start: parseOptionalIso8601Timestamp(query, "start"),
@@ -71,4 +85,11 @@ export function parseGuildChannelFollowingAnalyticsQuery(query: Request["query"]
     if (parsed.start && parsed.end && parsed.start > parsed.end) throw new HTTPError("start must be before or equal to end", 422);
 
     return parsed;
+}
+
+export function parseGuildChannelFollowingByChannelAnalyticsQuery(query: Request["query"]): GuildChannelFollowingByChannelAnalyticsQuery {
+    return {
+        ...parseGuildChannelFollowingAnalyticsQuery(query),
+        channel_id: parseOptionalChannelId(query),
+    };
 }
