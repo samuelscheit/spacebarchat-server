@@ -1,6 +1,6 @@
 {
-    "missing": 608,
-    "spacebar": 572,
+    "missing": 607,
+    "spacebar": 573,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -86,7 +86,6 @@
         "/channels/{param}/polls/{param}/expire",
         "/channels/{param}/safety-warning/report-false-positive",
         "/channels/{param}/send-soundboard-sound",
-        "/channels/{param}/store-listing",
         "/channels/{param}/store-listing/entitlement-grant",
         "/channels/{param}/store-listings/{param}",
         "/channels/{param}/voice-channel-effects",
@@ -1143,13 +1142,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/media-post-preview"],
             "summaries": ["Get Channel Media Preview"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/store-listing",
-            "route_name": "CHANNEL_STORE_LISTING",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/store-listing"]
         },
         {
             "method": "GET",
