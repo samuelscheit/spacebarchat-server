@@ -12146,6 +12146,11 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "SearchFavoritesResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "SoundboardDefaultSoundsResponse": {
         "type": "array",
         "items": {

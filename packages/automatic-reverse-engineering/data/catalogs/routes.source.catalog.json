@@ -3951,6 +3951,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"SearchFavoritesResponse"
+		],
+		"route": "/search/favorites",
+		"route_name": "GET_SEARCH_FAVORITES",
+		"source": "src/api/routes/search/favorites.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"CollectiblesSearchResponse"
 		],
 		"route": "/shop/search",

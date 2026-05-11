@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 675,
+        "totalEntries": 676,
         "byService": {
-            "api": 578,
+            "api": 579,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 650,
+            "http-route": 651,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 167,
+            "contract": 168,
             "stateful-domain": 357,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 533,
+            "route-class": 534,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18252,7 +18252,7 @@
             "method": "GET",
             "path": "/quests/@me/",
             "sourceFile": "src/api/routes/quests/@me.ts",
-            "line": 224,
+            "line": 221,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -18783,6 +18783,42 @@
                 "present": true,
                 "responseStatuses": [
                     204
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/search/favorites/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/search/favorites/",
+            "sourceFile": "src/api/routes/search/favorites.ts",
+            "line": 31,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "SearchFavoritesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
                 ],
                 "hasQuery": false
             },

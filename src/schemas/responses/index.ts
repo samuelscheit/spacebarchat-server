@@ -178,6 +178,7 @@ export * from "./ReportReasonsResponse";
 export * from "./ReportingMenuResponse";
 export * from "./ReportingUnauthenticatedExperimentResponse";
 export * from "./SettingsProtoUpdateResponse";
+export * from "./SearchFavoritesResponse";
 export * from "./SoundboardDefaultSoundsResponse";
 export * from "./SocialSDKReleasesResponse";
 export * from "./StageInstanceResponse";

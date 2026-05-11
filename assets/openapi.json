@@ -11529,6 +11529,10 @@
                     "settings"
                 ]
             },
+            "SearchFavoritesResponse": {
+                "type": "array",
+                "items": {}
+            },
             "SoundboardDefaultSoundsResponse": {
                 "type": "array",
                 "items": {
@@ -35002,6 +35006,9 @@
             "name": "science"
         },
         {
+            "name": "search"
+        },
+        {
             "name": "shop"
         },
         {
@@ -42024,6 +42031,42 @@
                 ],
                 "tags": [
                     "shop"
+                ]
+            }
+        },
+        "/search/favorites/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed Favorites search results for the authenticated user.",
+                "summary": "Search Favorites",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchFavoritesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "search"
                 ]
             }
         },
