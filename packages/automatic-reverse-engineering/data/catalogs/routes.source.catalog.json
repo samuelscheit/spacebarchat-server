@@ -4655,6 +4655,15 @@
 		"source": "src/api/routes/users/@me/guilds/premium/subscription-slots.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/identity/verification",
+		"route_name": "GET_USERS__ME_IDENTITY_VERIFICATION",
+		"source": "src/api/routes/users/@me/identity/verification.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "UserInviteCreateSchema",
 		"response_schema_refs": [

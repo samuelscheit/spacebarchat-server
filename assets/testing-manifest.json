@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 647,
+        "totalEntries": 648,
         "byService": {
-            "api": 550,
+            "api": 551,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 622,
+            "http-route": 623,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 151,
-            "stateful-domain": 346,
+            "stateful-domain": 347,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 21,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 505,
+            "route-class": 506,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -21642,6 +21642,45 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/identity/verification/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/identity/verification/",
+            "sourceFile": "src/api/routes/users/@me/identity/verification.ts",
+            "line": 31,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
+                ],
                 "hasQuery": false
             },
             "coverage": {

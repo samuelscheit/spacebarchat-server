@@ -36160,6 +36160,42 @@
                 ]
             }
         },
+        "/users/@me/identity/verification/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the most recent user identity verification attempt. This Discord endpoint is deprecated and depends on Stripe identity attempt state; Spacebar does not currently persist that state or integrate with an identity provider, so this compatibility endpoint fails closed instead of fabricating verification data.",
+                "summary": "Get User Identity Verification",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/guilds/": {
             "get": {
                 "security": [
