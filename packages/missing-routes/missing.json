@@ -1,6 +1,6 @@
 {
-    "missing": 701,
-    "spacebar": 479,
+    "missing": 700,
+    "spacebar": 480,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -140,7 +140,6 @@
         "/guilds/{param}/analytics/channel-following/overview",
         "/guilds/{param}/analytics/channel-following/reach",
         "/guilds/{param}/analytics/engagement/overview",
-        "/guilds/{param}/analytics/engagement/pruneable-members",
         "/guilds/{param}/analytics/growth-activation/activation",
         "/guilds/{param}/analytics/growth-activation/joins",
         "/guilds/{param}/analytics/growth-activation/joins-by-invite-link",
@@ -1436,14 +1435,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/analytics/engagement/overview"],
             "summaries": ["Get Guild Engagement Overview"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/engagement/pruneable-members",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_ENGAGEMENT_PRUNEABLE_MEMBERS",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/engagement/pruneable-members"],
-            "summaries": ["Get Guild Engagement Pruneable Members"]
         },
         {
             "method": "GET",

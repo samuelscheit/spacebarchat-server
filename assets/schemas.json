@@ -6753,6 +6753,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildEngagementPruneableMembersResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildEngagementPruneableMembersBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildEngagementTextChannelsResponse": {
         "type": "array",
         "items": {
@@ -23575,6 +23582,23 @@
             "day_pt",
             "days_in_guild",
             "muters"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildEngagementPruneableMembersBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "inactive": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
+            "inactive"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
