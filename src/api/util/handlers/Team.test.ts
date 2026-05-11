@@ -19,7 +19,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { TeamMemberRole, TeamMemberState } from "../../../schemas/api/developers/Team";
-import { serializeTeamListResponse, serializeTeamResponse } from "./Team";
+import { serializeTeamListResponse, serializeTeamMemberResponse, serializeTeamMembersResponse, serializeTeamResponse } from "./Team";
 
 test("serializeTeamListResponse returns the GET /teams/ DTO without unloaded relations", () => {
     const teamsWithRelations = [
@@ -103,4 +103,28 @@ test("serializeTeamResponse returns the GET /teams/:team_id DTO without unloaded
         name: "Example Team",
         owner_user_id: "200",
     });
+});
+
+test("serializeTeamMembersResponse returns route-shaped team member DTOs", () => {
+    const memberWithRelations = {
+        id: "101",
+        membership_state: TeamMemberState.ACCEPTED,
+        permissions: ["*"],
+        role: TeamMemberRole.ADMIN,
+        team: { id: "100" },
+        team_id: "100",
+        user: { id: "200" },
+        user_id: "200",
+    } as unknown as Parameters<typeof serializeTeamMemberResponse>[0];
+
+    assert.deepEqual(serializeTeamMembersResponse([memberWithRelations]), [
+        {
+            id: "101",
+            membership_state: TeamMemberState.ACCEPTED,
+            permissions: ["*"],
+            role: TeamMemberRole.ADMIN,
+            team_id: "100",
+            user_id: "200",
+        },
+    ]);
 });

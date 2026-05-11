@@ -2694,6 +2694,12 @@
                     "owner_user_id"
                 ]
             },
+            "TeamMembersResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/TeamListTeamMember"
+                }
+            },
             "TeamListResponse": {
                 "type": "array",
                 "items": {
@@ -37311,6 +37317,72 @@
                         }
                     }
                 },
+                "tags": [
+                    "teams"
+                ]
+            }
+        },
+        "/teams/{team_id}/members/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Team Members",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TeamMembersResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "team_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "team_id"
+                    }
+                ],
                 "tags": [
                     "teams"
                 ]

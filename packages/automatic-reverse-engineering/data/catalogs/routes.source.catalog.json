@@ -4100,6 +4100,16 @@
 		"source": "src/api/routes/teams/#team_id/applications.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"TeamMembersResponse"
+		],
+		"route": "/teams/{team_id}/members",
+		"route_name": "GET_TEAMS_TEAM_ID_MEMBERS",
+		"source": "src/api/routes/teams/#team_id/members.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [],
 		"route": "/track",

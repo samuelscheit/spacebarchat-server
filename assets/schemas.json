@@ -2808,6 +2808,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "TeamMembersResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/TeamListTeamMember"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "TeamListResponse": {
         "type": "array",
         "items": {

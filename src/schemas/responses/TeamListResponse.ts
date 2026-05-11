@@ -36,4 +36,5 @@ export interface TeamListTeam {
 }
 
 export type TeamResponse = TeamListTeam;
+export type TeamMembersResponse = TeamListTeamMember[];
 export type TeamListResponse = TeamListTeam[];

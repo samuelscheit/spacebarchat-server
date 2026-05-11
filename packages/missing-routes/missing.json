@@ -1,6 +1,6 @@
 {
-    "missing": 647,
-    "spacebar": 533,
+    "missing": 646,
+    "spacebar": 534,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1777,14 +1777,6 @@
             "sources": ["userdoccers:resources/team.mdx"],
             "source_routes": ["/teams/{team_id}/identity/verification"],
             "summaries": ["Get Team Identity Verification"]
-        },
-        {
-            "method": "GET",
-            "route": "/teams/{param}/members",
-            "route_name": "GET_TEAMS_TEAM_ID_MEMBERS",
-            "sources": ["userdoccers:resources/team.mdx"],
-            "source_routes": ["/teams/{team_id}/members"],
-            "summaries": ["Get Team Members"]
         },
         {
             "method": "GET",
