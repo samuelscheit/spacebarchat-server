@@ -4237,6 +4237,66 @@
                     }
                 }
             },
+            "BillingLocalizedPricingPromoPriceResponse": {
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "currency"
+                ]
+            },
+            "BillingLocalizedPricingPromoOfferResponse": {
+                "type": "object",
+                "properties": {
+                    "plan_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "country_code": {
+                        "type": "string"
+                    },
+                    "payment_source_types": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "price": {
+                        "$ref": "#/components/schemas/BillingLocalizedPricingPromoPriceResponse"
+                    }
+                },
+                "required": [
+                    "country_code",
+                    "payment_source_types",
+                    "plan_id",
+                    "price"
+                ]
+            },
+            "BillingLocalizedPricingPromoResponse": {
+                "type": "object",
+                "properties": {
+                    "country_code": {
+                        "type": "string"
+                    },
+                    "localized_pricing_promo": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BillingLocalizedPricingPromoOfferResponse"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
             "BillingSubscriptionsResponse": {
                 "type": "array",
                 "items": {}
@@ -41325,6 +41385,42 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BillingLocationInfoResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/billing/localized-pricing-promo/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the requester's detected country and a null localized pricing promo when Spacebar has no configured local promotion data, avoiding fabricated Discord-managed prices.",
+                "summary": "Get Localized Pricing Promo",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingLocalizedPricingPromoResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }

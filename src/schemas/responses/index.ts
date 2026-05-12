@@ -46,6 +46,7 @@ export * from "./ApplicationsWithAssetsResponse";
 export * from "./ArchivedThreadsResponse";
 export * from "./BackupCodesChallengeResponse";
 export * from "./BillingLocationInfoResponse";
+export * from "./BillingLocalizedPricingPromoResponse";
 export * from "./BillingSubscriptionsResponse";
 export * from "./BurstCreditBalanceResponse";
 export * from "./CaptchaRequiredResponse";
