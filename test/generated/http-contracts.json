@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 742,
+        "totalContracts": 743,
         "byService": {
-            "api": 669,
+            "api": 670,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 591,
-        "runtimeMalformedAuthContracts": 591,
-        "runtimeRevokedSessionAuthContracts": 591,
-        "runtimeStaleTokenAuthContracts": 591,
+        "runtimeAuthBoundaryContracts": 592,
+        "runtimeMalformedAuthContracts": 592,
+        "runtimeRevokedSessionAuthContracts": 592,
+        "runtimeStaleTokenAuthContracts": 592,
         "runtimePublicAuthBoundaryContracts": 70,
         "runtimePublicInvalidBodyContracts": 17,
-        "runtimeProtectedInvalidBodyContracts": 77,
+        "runtimeProtectedInvalidBodyContracts": 78,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
         "runtimeRightOnlyDenialContracts": 13,
@@ -14679,6 +14679,52 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "GooglePlayValidatePurchaseSchema"
+                },
+                {
+                    "id": "policy-no-fabricated-commerce-state",
+                    "checks": ["no-fabricated-commerce-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/google-play/verify-purchase-token/",
+            "service": "api",
+            "method": "POST",
+            "path": "/google-play/verify-purchase-token/",
+            "samplePath": "/google-play/verify-purchase-token/",
+            "sourceFile": "src/api/routes/google-play/verify-purchase-token.ts",
+            "line": 70,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions"],
+            "contractChecks": ["authenticated", "schema-validation", "no-fabricated-commerce-state"],
+            "routeMetadata": {
+                "requestBody": "GooglePlayVerifyPurchaseTokenSchema",
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [204, 400, 401, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "GooglePlayVerifyPurchaseTokenSchema"
                 },
                 {
                     "id": "policy-no-fabricated-commerce-state",

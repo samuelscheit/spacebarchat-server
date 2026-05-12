@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 767,
+        "totalEntries": 768,
         "byService": {
-            "api": 670,
+            "api": 671,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 742,
+            "http-route": 743,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 192,
-            "stateful-domain": 422,
+            "stateful-domain": 423,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 624,
+            "route-class": 625,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -11217,6 +11217,45 @@
                     "APIErrorResponse"
                 ],
                 "responseStatuses": [
+                    400,
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-google-play-commerce",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "schema-validation",
+                    "no-fabricated-commerce-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/google-play/verify-purchase-token/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/google-play/verify-purchase-token/",
+            "sourceFile": "src/api/routes/google-play/verify-purchase-token.ts",
+            "line": 70,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "GooglePlayVerifyPurchaseTokenSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
                     400,
                     401,
                     501

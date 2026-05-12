@@ -2529,6 +2529,36 @@
                     "purchase_token"
                 ]
             },
+            "GooglePlayVerifyPurchaseTokenSchema": {
+                "type": "object",
+                "properties": {
+                    "purchase_token": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "package_name": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "product_id": {
+                        "minLength": 1,
+                        "type": "string"
+                    },
+                    "sku_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "pattern": "^[0-9]+$",
+                        "type": "string"
+                    },
+                    "subscription_plan_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "pattern": "^[0-9]+$",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "purchase_token"
+                ]
+            },
             "HubWaitlistSignupSchema": {
                 "type": "object",
                 "properties": {
@@ -58974,6 +59004,65 @@
                 },
                 "tags": [
                     "gravity-custom-channel-scores"
+                ]
+            }
+        },
+        "/google-play/verify-purchase-token/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Verifies a Google Play purchase token with a configured billing provider and persists the resulting local entitlement or subscription state. The default Spacebar instance has no Google Play publisher credentials or durable purchase-token entitlement model, so this compatibility endpoint fails closed with 501 instead of granting benefits from unverified client input.",
+                "summary": "Verify Google Play Purchase Token",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GooglePlayVerifyPurchaseTokenSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "google-play"
                 ]
             }
         },

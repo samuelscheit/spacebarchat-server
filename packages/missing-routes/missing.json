@@ -1,6 +1,6 @@
 {
-    "missing": 518,
-    "spacebar": 662,
+    "missing": 517,
+    "spacebar": 663,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -97,7 +97,6 @@
         "/entitlements/gift-codes/{param}/redeem",
         "/family-center/more-activity/{param}/{param}/{param}/{param}",
         "/gifs/select",
-        "/google-play/verify-purchase-token",
         "/gravity-content",
         "/gravity-custom-guild-score",
         "/gravity-topic-guilds",
@@ -2282,7 +2281,6 @@
             "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Track Selected GIF"]
         },
-        { "method": "POST", "route": "/google-play/verify-purchase-token", "route_name": "VERIFY_PURCHASE", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/gravity-content", "route_name": "GRAVITY_ITEMS_HYDRATE", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/gravity-topic-guilds", "route_name": "GRAVITY_TOPIC_GUILDS", "sources": ["xhyrom:data/client/routes.json"] },
         {

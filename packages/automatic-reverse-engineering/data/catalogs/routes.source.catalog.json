@@ -2384,6 +2384,16 @@
 		"source": "src/api/routes/google-play/validate-purchase.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "GooglePlayVerifyPurchaseTokenSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/google-play/verify-purchase-token",
+		"route_name": "POST_GOOGLE_PLAY_VERIFY_PURCHASE_TOKEN",
+		"source": "src/api/routes/google-play/verify-purchase-token.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

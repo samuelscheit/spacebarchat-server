@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 586,
+        "totalCoveredManifestEntries": 587,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 564,
-                "totalCoveredManifestEntries": 564,
-                "totalCoveredRequiredManifestEntries": 564,
+                "totalRequiredManifestEntries": 565,
+                "totalCoveredManifestEntries": 565,
+                "totalCoveredRequiredManifestEntries": 565,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 422,
+            "stateful-domain": 423,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 564,
-                "totalCoveredManifestEntries": 564,
-                "totalCoveredRequiredManifestEntries": 564,
+                "totalRequiredManifestEntries": 565,
+                "totalCoveredManifestEntries": 565,
+                "totalCoveredRequiredManifestEntries": 565,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -505,6 +505,7 @@
                 "api:http:POST:/connections/:connection_name/callback/",
                 "api:http:POST:/google-play/downgrade-subscription/",
                 "api:http:POST:/google-play/validate-purchase/",
+                "api:http:POST:/google-play/verify-purchase-token/",
                 "api:http:POST:/guilds/",
                 "api:http:POST:/guilds/:guild_id/auto-moderation/rules/",
                 "api:http:POST:/guilds/:guild_id/bulk-ban/",
@@ -1071,6 +1072,7 @@
                 "api:http:POST:/connections/:connection_name/callback/",
                 "api:http:POST:/google-play/downgrade-subscription/",
                 "api:http:POST:/google-play/validate-purchase/",
+                "api:http:POST:/google-play/verify-purchase-token/",
                 "api:http:POST:/guilds/",
                 "api:http:POST:/guilds/:guild_id/auto-moderation/rules/",
                 "api:http:POST:/guilds/:guild_id/bulk-ban/",
@@ -1260,6 +1262,7 @@
                         "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
                         "test/routes/google-play-downgrade-subscription-post.test.ts",
                         "test/routes/google-play-validate-purchase-route.test.ts",
+                        "test/routes/google-play-verify-purchase-token-post.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
@@ -1375,6 +1378,7 @@
                         "api:http:PATCH:/users/@me/settings/",
                         "api:http:POST:/google-play/downgrade-subscription/",
                         "api:http:POST:/google-play/validate-purchase/",
+                        "api:http:POST:/google-play/verify-purchase-token/",
                         "api:http:POST:/users/:user_id/delete/",
                         "api:http:POST:/users/:user_id/messages/",
                         "api:http:POST:/users/@me/billing/payment-sources/",
