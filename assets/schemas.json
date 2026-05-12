@@ -488,6 +488,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StickerPacksDirectoryResponse": {
+        "type": "object",
+        "properties": {
+            "sticker_packs": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/StickerPackResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "sticker_packs"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StickerResponse": {
         "type": "object",
         "properties": {

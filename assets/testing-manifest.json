@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 732,
+        "totalEntries": 733,
         "byService": {
-            "api": 635,
+            "api": 636,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 707,
+            "http-route": 708,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 180,
+            "contract": 181,
             "stateful-domain": 400,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 590,
+            "route-class": 591,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18793,7 +18793,7 @@
             "method": "GET",
             "path": "/partner-sdk/applications/:application_id/storefront/",
             "sourceFile": "src/api/routes/partner-sdk/applications/#application_id/storefront.ts",
-            "line": 186,
+            "line": 184,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -20438,7 +20438,7 @@
             "method": "GET",
             "path": "/sticker-packs/:sticker_pack_id/",
             "sourceFile": "src/api/routes/sticker-packs/#sticker_pack_id/index.ts",
-            "line": 29,
+            "line": 28,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -20484,6 +20484,42 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/sticker-packs/directory-v2/:param/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/sticker-packs/directory-v2/:param/",
+            "sourceFile": "src/api/routes/sticker-packs/directory-v2/#param/index.ts",
+            "line": 38,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StickerPacksDirectoryResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
                 ],
                 "hasQuery": false
             },

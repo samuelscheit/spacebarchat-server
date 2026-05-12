@@ -4348,6 +4348,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"StickerPacksDirectoryResponse"
+		],
+		"route": "/sticker-packs/directory-v2/{param}",
+		"route_name": "GET_STICKER_PACKS_DIRECTORY_V2_PARAM",
+		"source": "src/api/routes/sticker-packs/directory-v2/#param/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"Sticker"
 		],
 		"route": "/stickers/{sticker_id}",

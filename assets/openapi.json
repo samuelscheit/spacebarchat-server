@@ -506,6 +506,20 @@
                     "stickers"
                 ]
             },
+            "StickerPacksDirectoryResponse": {
+                "type": "object",
+                "properties": {
+                    "sticker_packs": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StickerPackResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "sticker_packs"
+                ]
+            },
             "StickerResponse": {
                 "type": "object",
                 "properties": {
@@ -44546,6 +44560,53 @@
                         }
                     }
                 },
+                "tags": [
+                    "sticker-packs"
+                ]
+            }
+        },
+        "/sticker-packs/directory-v2/{param}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally persisted sticker packs for a sticker-pack directory request without Discord storefront ranking or entitlement metadata.",
+                "summary": "Get Sticker Packs Directory",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StickerPacksDirectoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "param",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "param"
+                    }
+                ],
                 "tags": [
                     "sticker-packs"
                 ]

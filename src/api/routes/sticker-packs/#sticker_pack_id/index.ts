@@ -17,12 +17,11 @@
 */
 
 import { route } from "@spacebar/api";
-import type { StickerPackResponse, StickerResponse } from "@spacebar/schemas";
-import { StickerPack, type Sticker } from "@spacebar/util";
+import { StickerPack } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { toStickerPackResponse } from "../../../util/utility/StickerPack";
 
-type StickerPackWithOptionalSku = StickerPack & { sku_id?: string | null };
-type StickerWithOptionalSort = Sticker & { sort_value?: number | null };
+export { toStickerPackResponse };
 
 const router: Router = Router({ mergeParams: true });
 
@@ -52,38 +51,5 @@ router.get(
         res.json(toStickerPackResponse(stickerPack));
     },
 );
-
-export function toStickerPackResponse(stickerPack: StickerPackWithOptionalSku): StickerPackResponse {
-    const response: StickerPackResponse = {
-        id: stickerPack.id,
-        stickers: (stickerPack.stickers ?? []).map(toStickerResponse),
-        name: stickerPack.name,
-        description: stickerPack.description ?? null,
-    };
-
-    if (stickerPack.sku_id) response.sku_id = stickerPack.sku_id;
-    if (stickerPack.cover_sticker_id) response.cover_sticker_id = stickerPack.cover_sticker_id;
-    if (stickerPack.banner_asset_id) response.banner_asset_id = stickerPack.banner_asset_id;
-
-    return response;
-}
-
-function toStickerResponse(sticker: StickerWithOptionalSort): StickerResponse {
-    const response: StickerResponse = {
-        id: sticker.id,
-        name: sticker.name,
-        description: sticker.description ?? null,
-        tags: sticker.tags ?? "",
-        type: sticker.type,
-        format_type: sticker.format_type,
-    };
-
-    if (sticker.pack_id) response.pack_id = sticker.pack_id;
-    if (typeof sticker.available === "boolean") response.available = sticker.available;
-    if (sticker.guild_id) response.guild_id = sticker.guild_id;
-    if (typeof sticker.sort_value === "number") response.sort_value = sticker.sort_value;
-
-    return response;
-}
 
 export default router;

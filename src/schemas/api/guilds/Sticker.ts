@@ -12,6 +12,10 @@ export interface StickerPackResponse {
     banner_asset_id?: Snowflake;
 }
 
+export interface StickerPacksDirectoryResponse {
+    sticker_packs: StickerPackResponse[];
+}
+
 export interface StickerResponse {
     id: Snowflake;
     pack_id?: Snowflake;
