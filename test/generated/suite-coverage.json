@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 535,
+        "totalCoveredManifestEntries": 536,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 513,
-                "totalCoveredManifestEntries": 513,
-                "totalCoveredRequiredManifestEntries": 513,
+                "totalRequiredManifestEntries": 514,
+                "totalCoveredManifestEntries": 514,
+                "totalCoveredRequiredManifestEntries": 514,
                 "totalSuites": 12
             },
             "protocol": {
@@ -30,7 +30,7 @@
         "byCoveredTestTier": {
             "stateful-domain": 373,
             "cdn-integration": 78,
-            "integration": 22,
+            "integration": 23,
             "contract": 22,
             "auth-scenario": 17,
             "middleware-contract": 1,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 513,
-                "totalCoveredManifestEntries": 513,
-                "totalCoveredRequiredManifestEntries": 513,
+                "totalRequiredManifestEntries": 514,
+                "totalCoveredManifestEntries": 514,
+                "totalCoveredRequiredManifestEntries": 514,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -288,6 +288,7 @@
                 "api:http:GET:/oauth2/applications/:application_id/tokens/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
+                "api:http:GET:/oauth2/authorize/webhook-channels/",
                 "api:http:GET:/oauth2/keys/",
                 "api:http:GET:/oauth2/tokens/",
                 "api:http:GET:/oauth2/tokens/:token_id/",
@@ -803,6 +804,7 @@
                 "api:http:GET:/oauth2/applications/:application_id/tokens/",
                 "api:http:GET:/oauth2/applications/@me/",
                 "api:http:GET:/oauth2/authorize/",
+                "api:http:GET:/oauth2/authorize/webhook-channels/",
                 "api:http:GET:/oauth2/keys/",
                 "api:http:GET:/oauth2/tokens/",
                 "api:http:GET:/oauth2/tokens/:token_id/",
@@ -1642,6 +1644,7 @@
                         "api:http:GET:/oauth2/applications/:application_id/tokens/",
                         "api:http:GET:/oauth2/applications/@me/",
                         "api:http:GET:/oauth2/authorize/",
+                        "api:http:GET:/oauth2/authorize/webhook-channels/",
                         "api:http:GET:/oauth2/keys/",
                         "api:http:GET:/oauth2/tokens/",
                         "api:http:GET:/oauth2/tokens/:token_id/",

@@ -3681,6 +3681,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"OAuthAuthorizeWebhookChannelsResponse"
+		],
+		"route": "/oauth2/authorize/webhook-channels",
+		"route_name": "GET_OAUTH2_AUTHORIZE_WEBHOOK_CHANNELS",
+		"source": "src/api/routes/oauth2/authorize/webhook-channels.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"OAuth2KeysResponse"
 		],
 		"route": "/oauth2/keys",

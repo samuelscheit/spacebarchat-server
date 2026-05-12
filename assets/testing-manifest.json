@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 697,
+        "totalEntries": 698,
         "byService": {
-            "api": 600,
+            "api": 601,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 672,
+            "http-route": 673,
             "opcode": 21
         },
         "byTestTier": {
@@ -38,7 +38,7 @@
             "stateful-domain": 373,
             "cdn-integration": 78,
             "auth-scenario": 17,
-            "integration": 22,
+            "integration": 23,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 555,
+            "route-class": 556,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -17802,6 +17802,48 @@
                 "emittedEvents": [
                     "GUILD_MEMBER_UPDATE"
                 ]
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/oauth2/authorize/webhook-channels/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/oauth2/authorize/webhook-channels/",
+            "sourceFile": "src/api/routes/oauth2/authorize/webhook-channels.ts",
+            "line": 170,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "OAuthAuthorizeWebhookChannelsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-oauth-connections",

@@ -9678,6 +9678,12 @@
                     "user"
                 ]
             },
+            "OAuthAuthorizeWebhookChannelsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/OAuthAuthorizeWebhookChannel"
+                }
+            },
             "OAuthAuthorizationResponse": {
                 "type": "object",
                 "properties": {
@@ -32346,6 +32352,33 @@
                     "username"
                 ]
             },
+            "OAuthAuthorizeWebhookChannel": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            0,
+                            5
+                        ],
+                        "type": "number"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "guild_id",
+                    "id",
+                    "name",
+                    "type"
+                ]
+            },
             "OAuth2JsonWebKey": {
                 "type": "object",
                 "properties": {
@@ -45455,6 +45488,83 @@
                         "schema": {
                             "type": "string"
                         }
+                    }
+                ],
+                "tags": [
+                    "oauth2"
+                ]
+            }
+        },
+        "/oauth2/authorize/webhook-channels/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns text channels in the selected guild where the current user can install an incoming OAuth2 webhook.",
+                "summary": "Get OAuth2 Authorize Webhook Channels",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuthAuthorizeWebhookChannelsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Guild to inspect for webhook-installable channels."
                     }
                 ],
                 "tags": [

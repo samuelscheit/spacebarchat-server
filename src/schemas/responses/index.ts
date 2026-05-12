@@ -151,6 +151,7 @@ export * from "./NativeModuleVersionsResponse";
 export * from "./NotificationCenterItemsResponse";
 export * from "./OAuthAuthorizeInfoResponse";
 export * from "./OAuthAuthorizeResponse";
+export * from "./OAuthAuthorizeWebhookChannelsResponse";
 export * from "./OAuthAuthorizationResponse";
 export * from "./OAuthAuthorizationsResponse";
 export * from "./OAuthCurrentAuthorizationResponse";
