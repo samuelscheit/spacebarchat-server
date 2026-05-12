@@ -5701,6 +5701,27 @@
                     "users"
                 ]
             },
+            "FamilyCenterLinkedUsersResponse": {
+                "type": "object",
+                "properties": {
+                    "linked_users": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FamilyCenterLinkedUser"
+                        }
+                    },
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartialUser"
+                        }
+                    }
+                },
+                "required": [
+                    "linked_users",
+                    "users"
+                ]
+            },
             "FamilyCenterLinkCodeResponse": {
                 "type": "object",
                 "properties": {
@@ -38736,6 +38757,42 @@
                         }
                     },
                     "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/linked-users/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns Family Center linked-user relationships visible to the current user. Spacebar does not persist Discord Family Center links, so only locally supported empty collections are returned.",
+                "summary": "Get Linked Users",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FamilyCenterLinkedUsersResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
                         "description": "",
                         "content": {
                             "application/json": {

@@ -75,6 +75,11 @@ export interface FamilyCenterResponse {
     users: PartialUser[];
 }
 
+export interface FamilyCenterLinkedUsersResponse {
+    linked_users: FamilyCenterLinkedUser[];
+    users: PartialUser[];
+}
+
 export interface FamilyCenterLinkCodeResponse {
     link_code: string;
 }

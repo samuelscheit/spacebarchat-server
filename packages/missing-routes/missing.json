@@ -1,6 +1,6 @@
 {
-    "missing": 571,
-    "spacebar": 609,
+    "missing": 570,
+    "spacebar": 610,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1615,13 +1615,6 @@
             "route_name": "GET_USERS__ME_JOIN_REQUEST_GUILDS",
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Join Request Guilds"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/linked-users",
-            "route_name": "GET_USERS__ME_LINKED_USERS",
-            "sources": ["userdoccers:resources/family-center.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Linked Users"]
         },
         {
             "method": "GET",

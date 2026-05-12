@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 689,
+        "totalContracts": 690,
         "byService": {
-            "api": 616,
+            "api": 617,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 539,
-        "runtimeMalformedAuthContracts": 539,
-        "runtimeRevokedSessionAuthContracts": 539,
-        "runtimeStaleTokenAuthContracts": 539,
+        "runtimeAuthBoundaryContracts": 540,
+        "runtimeMalformedAuthContracts": 540,
+        "runtimeRevokedSessionAuthContracts": 540,
+        "runtimeStaleTokenAuthContracts": 540,
         "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 71,
@@ -29083,7 +29083,7 @@
             "path": "/users/:user_id/sessions/:session_id/activities/:application_id/:activity_action_type/",
             "samplePath": "/users/100000000000000004/sessions/value/activities/100000000000000007/value/",
             "sourceFile": "src/api/routes/users/#user_id/sessions/#session_id/activities/#application_id/#activity_action_type.ts",
-            "line": 185,
+            "line": 190,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -31976,6 +31976,54 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "LinkedConnectionsResponse"],
                 "responseStatuses": [200, 400, 401]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/users/@me/linked-users/",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/linked-users/",
+            "samplePath": "/users/@me/linked-users/",
+            "sourceFile": "src/api/routes/users/@me/linked-users.ts",
+            "line": 35,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "FamilyCenterLinkedUsersResponse"],
+                "responseStatuses": [200, 401]
             },
             "cases": [
                 {
