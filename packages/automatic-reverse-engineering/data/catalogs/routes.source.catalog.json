@@ -1704,6 +1704,16 @@
 		"source": "src/api/routes/channels/#channel_id/webhooks.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"PreloadMessagesResponse"
+		],
+		"route": "/channels/preload-messages",
+		"route_name": "GET_CHANNELS_PRELOAD_MESSAGES",
+		"source": "src/api/routes/channels/preload-messages.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "PreloadMessagesRequestSchema",
 		"response_schema_refs": [

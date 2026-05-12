@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 561,
+        "totalCoveredManifestEntries": 562,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 539,
-                "totalCoveredManifestEntries": 539,
-                "totalCoveredRequiredManifestEntries": 539,
+                "totalRequiredManifestEntries": 540,
+                "totalCoveredManifestEntries": 540,
+                "totalCoveredRequiredManifestEntries": 540,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 398,
+            "stateful-domain": 399,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 539,
-                "totalCoveredManifestEntries": 539,
-                "totalCoveredRequiredManifestEntries": 539,
+                "totalRequiredManifestEntries": 540,
+                "totalCoveredManifestEntries": 540,
+                "totalCoveredRequiredManifestEntries": 540,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -186,6 +186,7 @@
                 "api:http:GET:/channels/:channel_id/threads/search",
                 "api:http:GET:/channels/:channel_id/users/@me/threads/archived/private/",
                 "api:http:GET:/channels/:channel_id/webhooks/",
+                "api:http:GET:/channels/preload-messages/",
                 "api:http:GET:/connections/",
                 "api:http:GET:/connections/:connection_name/authorize/",
                 "api:http:GET:/discoverable-guilds/",
@@ -727,6 +728,7 @@
                 "api:http:GET:/channels/:channel_id/threads/search",
                 "api:http:GET:/channels/:channel_id/users/@me/threads/archived/private/",
                 "api:http:GET:/channels/:channel_id/webhooks/",
+                "api:http:GET:/channels/preload-messages/",
                 "api:http:GET:/connections/",
                 "api:http:GET:/connections/:connection_name/authorize/",
                 "api:http:GET:/discoverable-guilds/",
@@ -1564,6 +1566,7 @@
                         "api:http:GET:/channels/:channel_id/threads/search",
                         "api:http:GET:/channels/:channel_id/users/@me/threads/archived/private/",
                         "api:http:GET:/channels/:channel_id/webhooks/",
+                        "api:http:GET:/channels/preload-messages/",
                         "api:http:PATCH:/channels/:channel_id/",
                         "api:http:PATCH:/channels/:channel_id/call/",
                         "api:http:PATCH:/channels/:channel_id/messages/:message_id/",

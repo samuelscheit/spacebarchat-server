@@ -1,6 +1,6 @@
 {
-    "missing": 556,
-    "spacebar": 624,
+    "missing": 555,
+    "spacebar": 625,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1118,7 +1118,6 @@
             "source_routes": ["/channels/{channel_id}/media-post-preview"],
             "summaries": ["Get Channel Media Preview"]
         },
-        { "method": "GET", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback/session-handoff", "route_name": "CONNECTIONS_SESSION_HANDOFF", "sources": ["xhyrom:data/client/routes.json"] },
         {
