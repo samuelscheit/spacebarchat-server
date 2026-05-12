@@ -4495,6 +4495,11 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserEntitlementsResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserEntitlementGiftsResponse": {
         "type": "array",
         "items": {},

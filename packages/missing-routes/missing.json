@@ -1,6 +1,6 @@
 {
-    "missing": 598,
-    "spacebar": 582,
+    "missing": 597,
+    "spacebar": 583,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -384,7 +384,6 @@
         "/users/@me/email",
         "/users/@me/email-settings",
         "/users/@me/email/verify-code",
-        "/users/@me/entitlements",
         "/users/@me/entitlements/gift-codes",
         "/users/@me/entitlements/gift-codes/{param}",
         "/users/@me/game-relationships",
@@ -1721,13 +1720,6 @@
             "route_name": "GET_USERS__ME_CONSENT",
             "sources": ["userdoccers:resources/user-settings.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Consents"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/entitlements",
-            "route_name": "GET_USERS__ME_ENTITLEMENTS",
-            "sources": ["userdoccers:resources/entitlement.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Entitlements"]
         },
         {
             "method": "GET",

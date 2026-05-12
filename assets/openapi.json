@@ -4258,6 +4258,10 @@
                 "type": "array",
                 "items": {}
             },
+            "UserEntitlementsResponse": {
+                "type": "array",
+                "items": {}
+            },
             "UserEntitlementGiftsResponse": {
                 "type": "array",
                 "items": {}
@@ -38342,6 +38346,76 @@
                         }
                     }
                 },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/entitlements/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed current-user entitlements without fabricating Discord commerce state.",
+                "summary": "Get User Entitlements",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserEntitlementsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "with_sku",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether SKU data should be included when backed by local entitlement state."
+                    },
+                    {
+                        "name": "with_application",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether application data should be included when backed by local entitlement state."
+                    },
+                    {
+                        "name": "entitlement_type",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Filters entitlements by type when backed by local entitlement state."
+                    },
+                    {
+                        "name": "exclude_ended",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether ended entitlements should be excluded when backed by local entitlement state."
+                    }
+                ],
                 "tags": [
                     "users"
                 ]

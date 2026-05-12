@@ -4935,6 +4935,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"UserEntitlementsResponse"
+		],
+		"route": "/users/@me/entitlements",
+		"route_name": "GET_USERS__ME_ENTITLEMENTS",
+		"source": "src/api/routes/users/@me/entitlements.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"UserEntitlementGiftsResponse"
 		],
 		"route": "/users/@me/entitlements/gifts",

@@ -16,23 +16,70 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Router, Response, Request } from "express";
 import { route } from "@spacebar/api";
+import type { UserEntitlementsResponse } from "@spacebar/schemas";
+import { Router as createRouter, type Request, type Response, type Router } from "express";
 
-const router = Router({ mergeParams: true });
+export function getCurrentUserEntitlements(): UserEntitlementsResponse {
+    // Spacebar currently has no durable global current-user entitlement store.
+    return [];
+}
 
-router.get(
-    "/gifts",
-    route({
-        responses: {
-            200: {
-                body: "UserEntitlementGiftsResponse",
+export function createUserEntitlementsRouter() {
+    const router: Router = createRouter({ mergeParams: true });
+
+    router.get(
+        "/",
+        route({
+            summary: "Get User Entitlements",
+            description: "Returns locally backed current-user entitlements without fabricating Discord commerce state.",
+            query: {
+                with_sku: {
+                    type: "boolean",
+                    description: "Whether SKU data should be included when backed by local entitlement state.",
+                },
+                with_application: {
+                    type: "boolean",
+                    description: "Whether application data should be included when backed by local entitlement state.",
+                },
+                entitlement_type: {
+                    type: "integer",
+                    description: "Filters entitlements by type when backed by local entitlement state.",
+                },
+                exclude_ended: {
+                    type: "boolean",
+                    description: "Whether ended entitlements should be excluded when backed by local entitlement state.",
+                },
             },
+            responses: {
+                200: {
+                    body: "UserEntitlementsResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        (_req: Request, res: Response) => {
+            res.status(200).json(getCurrentUserEntitlements());
         },
-    }),
-    (req: Request, res: Response) => {
-        res.status(200).json([]);
-    },
-);
+    );
 
-export default router;
+    router.get(
+        "/gifts",
+        route({
+            responses: {
+                200: {
+                    body: "UserEntitlementGiftsResponse",
+                },
+            },
+        }),
+        (_req: Request, res: Response) => {
+            res.status(200).json([]);
+        },
+    );
+
+    return router;
+}
+
+export default createUserEntitlementsRouter();
