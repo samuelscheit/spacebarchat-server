@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 578,
+        "totalCoveredManifestEntries": 579,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 556,
-                "totalCoveredManifestEntries": 556,
-                "totalCoveredRequiredManifestEntries": 556,
+                "totalRequiredManifestEntries": 557,
+                "totalCoveredManifestEntries": 557,
+                "totalCoveredRequiredManifestEntries": 557,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 415,
+            "stateful-domain": 416,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 556,
-                "totalCoveredManifestEntries": 556,
-                "totalCoveredRequiredManifestEntries": 556,
+                "totalRequiredManifestEntries": 557,
+                "totalCoveredManifestEntries": 557,
+                "totalCoveredRequiredManifestEntries": 557,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -412,6 +412,7 @@
                 "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:PATCH:/applications/@me/",
+                "api:http:PATCH:/applications/games-supplemental/",
                 "api:http:PATCH:/applications/public/",
                 "api:http:PATCH:/applications/shelf/",
                 "api:http:PATCH:/channels/:channel_id/",
@@ -970,6 +971,7 @@
                 "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:PATCH:/applications/@me/",
+                "api:http:PATCH:/applications/games-supplemental/",
                 "api:http:PATCH:/applications/public/",
                 "api:http:PATCH:/applications/shelf/",
                 "api:http:PATCH:/channels/:channel_id/",
@@ -1733,6 +1735,7 @@
                         "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:PATCH:/applications/@me/",
+                        "api:http:PATCH:/applications/games-supplemental/",
                         "api:http:PATCH:/applications/public/",
                         "api:http:PATCH:/applications/shelf/",
                         "api:http:POST:/applications/",

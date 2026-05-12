@@ -1,6 +1,6 @@
 {
-    "missing": 536,
-    "spacebar": 644,
+    "missing": 535,
+    "spacebar": 645,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1538,7 +1538,6 @@
             "source_routes": ["/applications/{application_id}/users/{user_id}/identities/{external_user_id}/profile"],
             "summaries": ["Modify User Application Profile"]
         },
-        { "method": "PATCH", "route": "/applications/games-supplemental", "route_name": "APPLICATIONS_GAMES_SUPPLEMENTAL", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PATCH",
             "route": "/channels/{param}/directory-entry/{param}",

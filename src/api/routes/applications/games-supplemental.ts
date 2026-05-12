@@ -18,13 +18,15 @@
 
 import { route } from "@spacebar/api";
 import type { ApplicationsGamesSupplementalResponse } from "@spacebar/schemas";
-import { Application, FieldErrors } from "@spacebar/util";
+import { ApiError, Application, FieldErrors } from "@spacebar/util";
 import { type Request, type Response, Router } from "express";
 import { In, type Repository } from "typeorm";
 import { serializeApplicationGameSupplementalData, type GameSupplementalApplication } from "../../util/utility/GameResponse";
 
 const snowflakePattern = /^\d{1,20}$/;
 const maxApplicationIds = 100;
+export const APPLICATIONS_GAMES_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE =
+    "Modifying application game supplemental data is not supported on this Spacebar instance.";
 
 const gameApplicationSelect = {
     id: true,
@@ -100,6 +102,10 @@ export async function listApplicationsGamesSupplementalData(
     });
 }
 
+export function createApplicationsGamesSupplementalMutationUnsupportedError(): ApiError {
+    return new ApiError(APPLICATIONS_GAMES_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE, 0, 501);
+}
+
 export function createApplicationsGamesSupplementalRouter(repositories: ApplicationsGamesSupplementalRepositories = {}) {
     const router = Router({ mergeParams: true });
 
@@ -132,6 +138,26 @@ export function createApplicationsGamesSupplementalRouter(repositories: Applicat
             const supplementalData = await listApplicationsGamesSupplementalData(applicationIds, repositories);
 
             return res.status(200).json(supplementalData);
+        },
+    );
+
+    router.patch(
+        "/",
+        route({
+            summary: "Modify Application Game Supplemental Data",
+            description:
+                "Discord exposes this client route for mutating supplemental game metadata. Spacebar only persists locally backed application metadata and cannot safely update Discord's supplemental game catalog, so this compatibility endpoint fails closed instead of fabricating or mutating unrelated application state.",
+            responses: {
+                401: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        (_req: Request, _res: Response) => {
+            throw createApplicationsGamesSupplementalMutationUnsupportedError();
         },
     );
 

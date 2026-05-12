@@ -24,6 +24,8 @@ import { describe, test } from "node:test";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "@spacebar/api";
 import express from "express";
 import {
+    APPLICATIONS_GAMES_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE,
+    createApplicationsGamesSupplementalMutationUnsupportedError,
     createApplicationsGamesSupplementalRouter,
     listApplicationsGamesSupplementalData,
     parseApplicationsGamesSupplementalQuery,
@@ -33,9 +35,11 @@ import type { GameSupplementalApplication } from "../../src/api/util/utility/Gam
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
-const coveredManifestIds = ["api:http:GET:/applications/games-supplemental/"];
+const coveredManifestIds = ["api:http:GET:/applications/games-supplemental/", "api:http:PATCH:/applications/games-supplemental/"];
 const assignedPath = "/applications/games-supplemental";
-const assignedRouteName = "GET_APPLICATIONS_GAMES_SUPPLEMENTAL";
+const assignedPatchRouteName = "APPLICATIONS_GAMES_SUPPLEMENTAL";
+const sourceGetRouteName = "GET_APPLICATIONS_GAMES_SUPPLEMENTAL";
+const sourcePatchRouteName = "PATCH_APPLICATIONS_GAMES_SUPPLEMENTAL";
 
 type JsonSchema = {
     $ref?: string;
@@ -45,18 +49,21 @@ type JsonSchema = {
     items?: JsonSchema;
 };
 
-describe("GET /applications/games-supplemental", () => {
+describe("GET and PATCH /applications/games-supplemental", () => {
     test("documents the assigned manifest id and remains bearer-authenticated", async () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:GET:/applications/games-supplemental/"]);
+        assert.deepEqual(coveredManifestIds, ["api:http:GET:/applications/games-supplemental/", "api:http:PATCH:/applications/games-supplemental/"]);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/applications/games-supplemental?application_ids=100000000000000001"), false);
         assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/applications/games-supplemental/"), false);
         assert.equal(isNoAuthorizationRoute("PATCH", "/api/v10/applications/games-supplemental"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/applications/non-games/detectable"), true);
 
-        const response = await requestJson(createRouteApp({ authentication: true }), "/applications/games-supplemental?application_ids=100000000000000001");
+        const getResponse = await requestJson(createRouteApp({ authentication: true }), "/applications/games-supplemental?application_ids=100000000000000001");
+        const patchResponse = await requestJson(createRouteApp({ authentication: true }), "/applications/games-supplemental", { method: "PATCH" });
 
-        assert.equal(response.status, 401);
-        assert.equal((response.body as { code?: unknown }).code, 401);
+        assert.equal(getResponse.status, 401);
+        assert.equal((getResponse.body as { code?: unknown }).code, 401);
+        assert.equal(patchResponse.status, 401);
+        assert.equal((patchResponse.body as { code?: unknown }).code, 401);
     });
 
     test("parses application IDs with game ID compatibility aliases", () => {
@@ -148,7 +155,34 @@ describe("GET /applications/games-supplemental", () => {
         );
     });
 
-    test("declares generated artifacts for only the owned GET method", () => {
+    test("fails closed for unsupported PATCH mutations without touching application data", async () => {
+        const harness = createRepositoryHarness();
+        const error = createApplicationsGamesSupplementalMutationUnsupportedError();
+
+        assert.equal(error.message, APPLICATIONS_GAMES_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE);
+        assert.equal(error.code, 0);
+        assert.equal(error.httpStatus, 501);
+
+        const response = await requestJson(createRouteApp({ repositories: harness.repositories }), "/applications/games-supplemental", {
+            method: "PATCH",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                application_id: "100000000000000001",
+                summary: "A forged supplemental summary must not be persisted.",
+            }),
+        });
+
+        assert.equal(response.status, 501);
+        assert.deepEqual(response.body, {
+            code: 0,
+            message: APPLICATIONS_GAMES_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE,
+        });
+        assert.deepEqual(harness.findOptions, []);
+    });
+
+    test("declares generated artifacts for the owned GET and PATCH methods", () => {
         const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "applications", "games-supplemental.ts"), "utf8");
         const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonSchema>;
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
@@ -160,7 +194,10 @@ describe("GET /applications/games-supplemental", () => {
                         responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
                         security?: unknown;
                     };
-                    patch?: unknown;
+                    patch?: {
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                        security?: unknown;
+                    };
                     put?: unknown;
                 }
             >;
@@ -201,48 +238,67 @@ describe("GET /applications/games-supplemental", () => {
             }[];
         };
 
+        assert.equal(assignedPatchRouteName, "APPLICATIONS_GAMES_SUPPLEMENTAL");
+
         assert.match(routeSource, /summary:\s*"Get Application Game Supplemental Data"/);
         assert.match(routeSource, /application_ids:\s*\{\s*type:\s*"array",\s*required:\s*true/s);
         assert.match(routeSource, /200:\s*\{\s*body:\s*"ApplicationsGamesSupplementalResponse"/s);
         assert.match(routeSource, /400:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.doesNotMatch(routeSource, /router\.(patch|put)\(/);
+        assert.match(routeSource, /router\.patch\(/);
+        assert.match(routeSource, /summary:\s*"Modify Application Game Supplemental Data"/);
+        assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.doesNotMatch(routeSource, /router\.put\(/);
 
         assert.equal(schemas.ApplicationsGamesSupplementalResponse.type, "array");
         assert.equal(schemas.ApplicationsGamesSupplementalResponse.items?.$ref, "#/definitions/GameSupplementalData");
 
-        const route = openapi.paths?.["/applications/games-supplemental/"]?.get;
+        const getRoute = openapi.paths?.["/applications/games-supplemental/"]?.get;
         assert.equal(
-            route?.parameters?.some((parameter) => parameter.name === "application_ids" && parameter.in === "query" && parameter.required === true),
+            getRoute?.parameters?.some((parameter) => parameter.name === "application_ids" && parameter.in === "query" && parameter.required === true),
             true,
         );
-        assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/ApplicationsGamesSupplementalResponse");
-        assert.equal(route?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.deepEqual(route?.security, [{ bearer: [] }]);
-        assert.equal(openapi.paths?.["/applications/games-supplemental/"]?.patch, undefined);
+        assert.equal(getRoute?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/ApplicationsGamesSupplementalResponse");
+        assert.equal(getRoute?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(getRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(getRoute?.security, [{ bearer: [] }]);
+
+        const patchRoute = openapi.paths?.["/applications/games-supplemental/"]?.patch;
+        assert.equal(patchRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(patchRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(patchRoute?.security, [{ bearer: [] }]);
         assert.equal(openapi.paths?.["/applications/games-supplemental/"]?.put, undefined);
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
-        assert.equal(manifestEntry?.path, `${assignedPath}/`);
-        assert.equal(manifestEntry?.sourceFile, "src/api/routes/applications/games-supplemental.ts");
-        assert.equal(manifestEntry?.authMode, "bearer");
-        assert.equal(manifestEntry?.routeMetadata?.hasQuery, true);
-        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("ApplicationsGamesSupplementalResponse"), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseStatuses?.includes(200), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseStatuses?.includes(400), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseStatuses?.includes(401), true);
+        const getManifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
+        assert.equal(getManifestEntry?.path, `${assignedPath}/`);
+        assert.equal(getManifestEntry?.sourceFile, "src/api/routes/applications/games-supplemental.ts");
+        assert.equal(getManifestEntry?.authMode, "bearer");
+        assert.equal(getManifestEntry?.routeMetadata?.hasQuery, true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseBodies?.includes("ApplicationsGamesSupplementalResponse"), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseStatuses?.includes(200), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseStatuses?.includes(400), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseStatuses?.includes(401), true);
+
+        const patchManifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[1]);
+        assert.equal(patchManifestEntry?.path, `${assignedPath}/`);
+        assert.equal(patchManifestEntry?.sourceFile, "src/api/routes/applications/games-supplemental.ts");
+        assert.equal(patchManifestEntry?.authMode, "bearer");
+        assert.equal(patchManifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.equal(patchManifestEntry?.routeMetadata?.responseStatuses?.includes(401), true);
+        assert.equal(patchManifestEntry?.routeMetadata?.responseStatuses?.includes(501), true);
 
         const sourceEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === assignedPath);
-        assert.equal(sourceEntry?.route_name, assignedRouteName);
+        assert.equal(sourceEntry?.route_name, sourceGetRouteName);
         assert.equal(sourceEntry?.source, "src/api/routes/applications/games-supplemental.ts");
         assert.equal(sourceEntry?.response_schema_refs?.includes("ApplicationsGamesSupplementalResponse"), true);
         assert.equal(sourceEntry?.response_schema_refs?.includes("APIErrorResponse"), true);
-        assert.equal(
-            sourceCatalog.some((entry) => (entry.method === "PATCH" || entry.method === "PUT") && entry.route === assignedPath),
-            false,
-        );
+
+        const patchSourceEntry = sourceCatalog.find((entry) => entry.method === "PATCH" && entry.route === assignedPath);
+        assert.equal(patchSourceEntry?.route_name, sourcePatchRouteName);
+        assert.equal(patchSourceEntry?.source, "src/api/routes/applications/games-supplemental.ts");
+        assert.deepEqual(patchSourceEntry?.response_schema_refs, ["APIErrorResponse"]);
+        assert.equal(sourceCatalog.some((entry) => entry.method === "PUT" && entry.route === assignedPath), false);
 
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === assignedPath),
@@ -250,20 +306,26 @@ describe("GET /applications/games-supplemental", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "PATCH" && entry.route === assignedPath),
-            true,
+            false,
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "PUT" && entry.route === assignedPath),
             true,
         );
 
-        const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);
-        assert.equal(contract?.authMode, "bearer");
-        assert.equal(contract?.routeMetadata?.responses?.includes("ApplicationsGamesSupplementalResponse"), true);
-        assert.equal(contract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
-        assert.equal(contract?.routeMetadata?.responseStatuses?.includes(200), true);
-        assert.equal(contract?.routeMetadata?.responseStatuses?.includes(400), true);
-        assert.equal(contract?.routeMetadata?.responseStatuses?.includes(401), true);
+        const getContract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);
+        assert.equal(getContract?.authMode, "bearer");
+        assert.equal(getContract?.routeMetadata?.responses?.includes("ApplicationsGamesSupplementalResponse"), true);
+        assert.equal(getContract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
+        assert.equal(getContract?.routeMetadata?.responseStatuses?.includes(200), true);
+        assert.equal(getContract?.routeMetadata?.responseStatuses?.includes(400), true);
+        assert.equal(getContract?.routeMetadata?.responseStatuses?.includes(401), true);
+
+        const patchContract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[1]);
+        assert.equal(patchContract?.authMode, "bearer");
+        assert.equal(patchContract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
+        assert.equal(patchContract?.routeMetadata?.responseStatuses?.includes(401), true);
+        assert.equal(patchContract?.routeMetadata?.responseStatuses?.includes(501), true);
     });
 });
 
@@ -311,7 +373,7 @@ function createRouteApp(options: { authentication?: boolean; repositories?: Appl
     return app;
 }
 
-async function requestJson(app: express.Express, path: string) {
+async function requestJson(app: express.Express, path: string, init?: RequestInit) {
     const server = await new Promise<ReturnType<express.Express["listen"]>>((resolve) => {
         const listener = app.listen(0, "127.0.0.1", () => resolve(listener));
     });
@@ -319,7 +381,7 @@ async function requestJson(app: express.Express, path: string) {
     try {
         const address = server.address();
         if (!address || typeof address === "string") throw new Error("Expected HTTP server to listen on a TCP port");
-        const response = await fetch(`http://127.0.0.1:${(address as AddressInfo).port}${path}`);
+        const response = await fetch(`http://127.0.0.1:${(address as AddressInfo).port}${path}`, init);
 
         return {
             status: response.status,

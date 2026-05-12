@@ -68435,6 +68435,40 @@
                 "tags": [
                     "applications"
                 ]
+            },
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Discord exposes this client route for mutating supplemental game metadata. Spacebar only persists locally backed application metadata and cannot safely update Discord's supplemental game catalog, so this compatibility endpoint fails closed instead of fabricating or mutating unrelated application state.",
+                "summary": "Modify Application Game Supplemental Data",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "applications"
+                ]
             }
         },
         "/applications/detectable/": {

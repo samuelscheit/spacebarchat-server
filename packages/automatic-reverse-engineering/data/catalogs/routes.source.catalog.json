@@ -616,6 +616,15 @@
 		"source": "src/api/routes/applications/games-supplemental.ts"
 	},
 	{
+		"method": "PATCH",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/games-supplemental",
+		"route_name": "PATCH_APPLICATIONS_GAMES_SUPPLEMENTAL",
+		"source": "src/api/routes/applications/games-supplemental.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
