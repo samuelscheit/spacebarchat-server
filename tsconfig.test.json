@@ -7,6 +7,7 @@
         "src/api/routes/discovery.test.ts",
         "src/api/routes/consoles/#connection_type/devices.test.ts",
         "src/api/routes/users/@me/application-command-index.test.ts",
+        "src/api/routes/users/@me/scheduled-events.test.ts",
         "src/api/routes/users/@me/linked-connections.test.ts",
         "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.test.ts",
         "src/api/routes/users/#user_id/application-identities.test.ts",

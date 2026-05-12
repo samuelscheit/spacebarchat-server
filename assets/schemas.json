@@ -8457,6 +8457,46 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildScheduledEventUserResponse": {
+        "type": "object",
+        "properties": {
+            "guild_scheduled_event_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_scheduled_event_exception_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "response": {
+                "$ref": "#/definitions/GuildScheduledEventUserResponseType"
+            },
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "user": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "member": {
+                "$ref": "#/definitions/GuildScheduledEventUserMember"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild_scheduled_event_id",
+            "response",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventUsersResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildScheduledEventUserResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildTopEmojisResponse": {
         "type": "object",
         "properties": {
@@ -27393,6 +27433,111 @@
         "required": [
             "day",
             "n"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventUserResponseType": {
+        "type": "number",
+        "enum": [
+            0,
+            1
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildScheduledEventUserMember": {
+        "additionalProperties": false,
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "avatar": {
+                "type": "string"
+            },
+            "banner": {
+                "type": "string"
+            },
+            "bio": {
+                "type": "string"
+            },
+            "premium_since": {
+                "type": "integer"
+            },
+            "theme_colors": {
+                "type": "array",
+                "items": {
+                    "type": "integer"
+                }
+            },
+            "pronouns": {
+                "type": "string"
+            },
+            "avatar_decoration_data": {
+                "$ref": "#/definitions/AvatarDecorationData"
+            },
+            "display_name_styles": {
+                "$ref": "#/definitions/DisplayNameStyle"
+            },
+            "collectibles": {
+                "$ref": "#/definitions/Collectibles"
+            },
+            "flags": {
+                "type": "integer"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "nick": {
+                "type": "string"
+            },
+            "roles": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "joined_at": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "pending": {
+                "type": "boolean"
+            },
+            "deaf": {
+                "type": "boolean"
+            },
+            "mute": {
+                "type": "boolean"
+            },
+            "communication_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "user": {
+                "$ref": "#/definitions/PublicUser"
+            }
+        },
+        "required": [
+            "banner",
+            "bio",
+            "communication_disabled_until",
+            "deaf",
+            "flags",
+            "guild_id",
+            "id",
+            "joined_at",
+            "mute",
+            "pending",
+            "roles"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

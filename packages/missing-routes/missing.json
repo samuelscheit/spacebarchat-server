@@ -1,6 +1,6 @@
 {
-    "missing": 600,
-    "spacebar": 580,
+    "missing": 599,
+    "spacebar": 581,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -443,7 +443,6 @@
         "/users/@me/remote-auth/login",
         "/users/@me/saved-messages",
         "/users/@me/saved-messages/{param}/{param}",
-        "/users/@me/scheduled-events",
         "/users/@me/scheduled-messages",
         "/users/@me/scheduled-messages/{param}",
         "/users/@me/settings-proto/{param}",
@@ -1844,13 +1843,6 @@
             "route_name": "GET_USERS__ME_SAVED_MESSAGES",
             "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Saved Messages"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/scheduled-events",
-            "route_name": "GET_USERS__ME_SCHEDULED_EVENTS",
-            "sources": ["userdoccers:resources/guild-scheduled-event.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Guild Scheduled Events"]
         },
         { "method": "GET", "route": "/users/@me/scheduled-messages", "route_name": "SCHEDULED_MESSAGES", "sources": ["xhyrom:data/client/routes.json"] },
         {

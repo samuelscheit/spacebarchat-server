@@ -7,6 +7,8 @@ import {
     GuildScheduledEventRecurrenceRuleWeekday,
     type GuildScheduledEventResponse,
     GuildScheduledEventStatus,
+    type GuildScheduledEventUserResponse,
+    GuildScheduledEventUserResponseType,
 } from "./GuildScheduledEventResponse";
 
 test("guild scheduled event response enums match Discord API wire values", () => {
@@ -35,6 +37,7 @@ test("guild scheduled event response enums match Discord API wire values", () =>
                 GuildScheduledEventRecurrenceRuleWeekday.Saturday,
                 GuildScheduledEventRecurrenceRuleWeekday.Sunday,
             ],
+            user_response: [GuildScheduledEventUserResponseType.Uninterested, GuildScheduledEventUserResponseType.Interested],
         },
         {
             privacy_level: 2,
@@ -42,6 +45,7 @@ test("guild scheduled event response enums match Discord API wire values", () =>
             entity_type: [1, 2, 3, 4],
             frequency: [0, 1, 2, 3],
             weekday: [0, 1, 2, 3, 4, 5, 6],
+            user_response: [0, 1],
         },
     );
 });
@@ -69,4 +73,16 @@ test("guild scheduled event response describes external scheduled event payloads
 
     assert.equal(event.entity_type, GuildScheduledEventEntityType.External);
     assert.deepEqual(event.entity_metadata, { location: "somewhere in the ocean" });
+});
+
+test("guild scheduled event user response describes user subscription payloads", () => {
+    const eventUser = {
+        guild_scheduled_event_id: "1059954443799498922",
+        guild_scheduled_event_exception_id: "2117779587072000000",
+        response: GuildScheduledEventUserResponseType.Interested,
+        user_id: "787017887877169173",
+    } satisfies GuildScheduledEventUserResponse;
+
+    assert.equal(eventUser.response, GuildScheduledEventUserResponseType.Interested);
+    assert.equal(eventUser.guild_scheduled_event_exception_id, "2117779587072000000");
 });

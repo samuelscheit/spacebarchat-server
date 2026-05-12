@@ -5223,6 +5223,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildScheduledEventUsersResponse"
+		],
+		"route": "/users/@me/scheduled-events",
+		"route_name": "GET_USERS__ME_SCHEDULED_EVENTS",
+		"source": "src/api/routes/users/@me/scheduled-events.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"UserSettings"
 		],
 		"route": "/users/@me/settings",

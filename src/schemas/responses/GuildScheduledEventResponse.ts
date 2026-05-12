@@ -17,6 +17,7 @@
 */
 
 import type { Snowflake } from "../Identifiers";
+import type { PublicMember } from "../api/users/Member";
 import type { PartialUser } from "../api/users/User";
 
 export enum GuildScheduledEventPrivacyLevel {
@@ -35,6 +36,11 @@ export enum GuildScheduledEventEntityType {
     Voice = 2,
     External = 3,
     PrimeTime = 4,
+}
+
+export enum GuildScheduledEventUserResponseType {
+    Uninterested = 0,
+    Interested = 1,
 }
 
 export enum GuildScheduledEventRecurrenceRuleFrequency {
@@ -108,3 +114,18 @@ export interface GuildScheduledEventResponse {
 }
 
 export type GuildScheduledEventsResponse = GuildScheduledEventResponse[];
+
+export type GuildScheduledEventUserMember = Omit<PublicMember, "user"> & {
+    user?: PublicMember["user"];
+};
+
+export interface GuildScheduledEventUserResponse {
+    guild_scheduled_event_id: Snowflake;
+    guild_scheduled_event_exception_id?: Snowflake;
+    response: GuildScheduledEventUserResponseType;
+    user_id: Snowflake;
+    user?: PartialUser;
+    member?: GuildScheduledEventUserMember;
+}
+
+export type GuildScheduledEventUsersResponse = GuildScheduledEventUserResponse[];
