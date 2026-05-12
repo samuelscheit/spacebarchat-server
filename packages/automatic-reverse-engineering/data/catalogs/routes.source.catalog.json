@@ -84,6 +84,15 @@
 	},
 	{
 		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/age-verification/test",
+		"route_name": "POST_AGE_VERIFICATION_TEST",
+		"source": "src/api/routes/age-verification/test.ts"
+	},
+	{
+		"method": "POST",
 		"request_schema_ref": "AgeVerificationVerifySchema",
 		"response_schema_refs": [
 			"APIErrorResponse"

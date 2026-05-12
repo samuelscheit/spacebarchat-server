@@ -71639,6 +71639,42 @@
                 ]
             }
         },
+        "/age-verification/test/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Exercises Discord's age-assurance test flow. Spacebar has no age-assurance provider, age-inference model, or durable verified-age-group state, so this compatibility endpoint fails closed instead of fabricating a successful test result.",
+                "summary": "Test Age Assurance",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "age-verification"
+                ]
+            }
+        },
         "/activities/": {
             "get": {
                 "security": [

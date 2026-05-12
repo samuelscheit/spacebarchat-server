@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 754,
+        "totalEntries": 755,
         "byService": {
-            "api": 657,
+            "api": 658,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 729,
+            "http-route": 730,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 184,
+            "contract": 185,
             "stateful-domain": 418,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 612,
+            "route-class": 613,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -519,6 +519,41 @@
                 "responseStatuses": [
                     200,
                     401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/age-verification/test/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/age-verification/test/",
+            "sourceFile": "src/api/routes/age-verification/test.ts",
+            "line": 27,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
                 ],
                 "hasQuery": false
             },
@@ -14529,7 +14564,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/members/supplemental/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/supplemental.ts",
-            "line": 101,
+            "line": 100,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -14581,7 +14616,7 @@
             "method": "PUT",
             "path": "/guilds/:guild_id/members/supplemental/",
             "sourceFile": "src/api/routes/guilds/#guild_id/members/supplemental.ts",
-            "line": 130,
+            "line": 129,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
