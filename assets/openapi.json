@@ -4091,6 +4091,10 @@
                     "$ref": "#/components/schemas/ApplicationStoreAssetResponse"
                 }
             },
+            "ApplicationSubscriptionGroupListingResponse": {
+                "type": "object",
+                "additionalProperties": {}
+            },
             "ApplicationTesterResponse": {
                 "type": "object",
                 "properties": {
@@ -68117,6 +68121,82 @@
                             "type": "string"
                         },
                         "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
+        "/applications/{application_id}/subscription-group-listings/{subscription_group_listing_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a provider-backed application subscription group listing after verifying the current user can access the owning application's store data. Spacebar does not persist Discord subscription group listing catalogs, so the default behavior is a not-found response rather than fabricated commerce state.",
+                "summary": "Get Application Subscription Group Listing",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationSubscriptionGroupListingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "subscription_group_listing_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "subscription_group_listing_id"
                     }
                 ],
                 "tags": [

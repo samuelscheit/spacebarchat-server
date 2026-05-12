@@ -4291,6 +4291,11 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationSubscriptionGroupListingResponse": {
+        "type": "object",
+        "additionalProperties": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationTesterResponse": {
         "type": "object",
         "properties": {
