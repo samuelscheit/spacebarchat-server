@@ -68258,6 +68258,42 @@
                 ]
             }
         },
+        "/applications/public/": {
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Registers Discord client's PATCH /applications/public route without mutating local application records. Spacebar only has source-backed public application read models for this collection, so this compatibility endpoint fails closed instead of fabricating or altering public application metadata.",
+                "summary": "Modify Public Applications",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
         "/applications/non-games/detectable/": {
             "get": {
                 "summary": "Get Detectable Non Game Applications",
