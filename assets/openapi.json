@@ -39266,6 +39266,42 @@
                 ]
             }
         },
+        "/users/@me/guilds/premium/subscriptions/cooldown/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's premium guild subscription slot change cooldown when locally persisted state exists. Spacebar does not currently persist Discord boost slot cooldown history, so this compatibility endpoint fails closed instead of fabricating cooldown limits or timestamps.",
+                "summary": "Get Premium Guild Subscription Cooldown",
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/guilds/premium/subscription-slots/": {
             "get": {
                 "security": [

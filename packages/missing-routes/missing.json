@@ -1,6 +1,6 @@
 {
-    "missing": 566,
-    "spacebar": 614,
+    "missing": 565,
+    "spacebar": 615,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -388,7 +388,6 @@
         "/users/@me/guilds/premium/subscription-slots/{param}/cancel",
         "/users/@me/guilds/premium/subscription-slots/{param}/uncancel",
         "/users/@me/guilds/premium/subscriptions",
-        "/users/@me/guilds/premium/subscriptions/cooldown",
         "/users/@me/guilds/settings",
         "/users/@me/guilds/{param}/member/ack-dm-upsell-settings",
         "/users/@me/harvest",
@@ -1579,13 +1578,6 @@
             "route_name": "GET_USERS__ME_GUILDS_PREMIUM_SUBSCRIPTIONS",
             "sources": ["userdoccers:resources/subscription.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Applied Premium Guild Subscriptions"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/guilds/premium/subscriptions/cooldown",
-            "route_name": "GET_USERS__ME_GUILDS_PREMIUM_SUBSCRIPTIONS_COOLDOWN",
-            "sources": ["userdoccers:resources/subscription.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Premium Guild Subscription Cooldown"]
         },
         {
             "method": "GET",
