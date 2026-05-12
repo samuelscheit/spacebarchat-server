@@ -130,7 +130,7 @@ describe("GET /content-inventory/users/@me/similar-games/:application_id", () =>
         );
         assert.equal(
             missingRoutes.missing_entries?.some((route) => route.method === "PATCH" && route.route === "/content-inventory/users/@me/applications/{param}"),
-            true,
+            false,
         );
         assert.equal(
             missingRoutes.missing_entries?.some((route) => route.method === "POST" && route.route === "/content-inventory/users/@me/spotify"),

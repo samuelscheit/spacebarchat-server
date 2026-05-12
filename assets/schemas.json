@@ -1736,6 +1736,19 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ContentInventoryApplicationUpdateSchema": {
+        "type": "object",
+        "properties": {
+            "is_sharing": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "is_sharing"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ConnectedAccountSchema": {
         "type": "object",
         "properties": {

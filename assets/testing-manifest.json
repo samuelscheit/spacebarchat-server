@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 756,
+        "totalEntries": 757,
         "byService": {
-            "api": 659,
+            "api": 660,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 731,
+            "http-route": 732,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 185,
+            "contract": 186,
             "stateful-domain": 419,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 614,
+            "route-class": 615,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -9618,6 +9618,43 @@
                     200,
                     401,
                     404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PATCH:/content-inventory/users/@me/applications/:application_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PATCH",
+            "path": "/content-inventory/users/@me/applications/:application_id/",
+            "sourceFile": "src/api/routes/content-inventory/users/@me/applications/#application_id.ts",
+            "line": 38,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "ContentInventoryApplicationUpdateSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    400,
+                    401,
+                    501
                 ],
                 "hasQuery": false
             },

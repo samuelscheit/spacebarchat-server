@@ -1964,6 +1964,16 @@
 		"source": "src/api/routes/content-inventory/users/#user_id/outbox.ts"
 	},
 	{
+		"method": "PATCH",
+		"request_schema_ref": "ContentInventoryApplicationUpdateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/content-inventory/users/@me/applications/{application_id}",
+		"route_name": "PATCH_CONTENT_INVENTORY_USERS__ME_APPLICATIONS_APPLICATION_ID",
+		"source": "src/api/routes/content-inventory/users/@me/applications/#application_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

@@ -42,6 +42,7 @@ export * from "./ChannelSafetyWarningsAckSchema";
 export * from "./CodesVerificationSchema";
 export * from "./ConfettiConsumableApplySchema";
 export * from "./HDStreamingConsumableApplySchema";
+export * from "./ContentInventoryApplicationUpdateSchema";
 export * from "./ConnectedAccountSchema";
 export * from "./ConnectionCallbackSchema";
 export * from "./ConnectionUpdateSchema";

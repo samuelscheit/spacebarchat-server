@@ -1,6 +1,6 @@
 {
-    "missing": 529,
-    "spacebar": 651,
+    "missing": 528,
+    "spacebar": 652,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -92,7 +92,6 @@
         "/connections/{param}/link-dispatch-auth-callback",
         "/consoles/connect-request",
         "/consoles/{param}/devices/{param}/commands",
-        "/content-inventory/users/@me/applications/{param}",
         "/content-inventory/users/@me/outbox/entries/id/{param}/history",
         "/content-inventory/users/@me/spotify",
         "/content-inventory/users/@me?refresh_token={param}",
@@ -1560,13 +1559,6 @@
             "source_routes": ["/channels/{channel_id}/messages/search"]
         },
         { "method": "PATCH", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "PATCH",
-            "route": "/content-inventory/users/@me/applications/{param}",
-            "route_name": "MY_CONTENT_INVENTORY_APPLICATION",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/content-inventory/users/@me/applications/{application_id}"]
-        },
         {
             "method": "PATCH",
             "route": "/guilds/{param}/auto-moderation/rules/validate",

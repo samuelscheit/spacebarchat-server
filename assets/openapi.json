@@ -1682,6 +1682,17 @@
                     "channel_id"
                 ]
             },
+            "ContentInventoryApplicationUpdateSchema": {
+                "type": "object",
+                "properties": {
+                    "is_sharing": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "is_sharing"
+                ]
+            },
             "ConnectedAccountSchema": {
                 "type": "object",
                 "properties": {
@@ -60398,6 +60409,73 @@
                         }
                     },
                     "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "content-inventory"
+                ]
+            }
+        },
+        "/content-inventory/users/@me/applications/{application_id}/": {
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Updates the current user's content-inventory sharing preference for an application. Spacebar does not currently persist per-user content inventory application sharing state, so this compatibility endpoint validates the request and fails closed instead of fabricating or mutating unrelated presence settings.",
+                "summary": "Modify Content Inventory Application",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ContentInventoryApplicationUpdateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
                         "description": "",
                         "content": {
                             "application/json": {
