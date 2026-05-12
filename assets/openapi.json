@@ -12957,6 +12957,32 @@
                     "username"
                 ]
             },
+            "UserConsentStatusResponse": {
+                "type": "object",
+                "properties": {
+                    "consented": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "consented"
+                ]
+            },
+            "UserConsentsResponse": {
+                "type": "object",
+                "properties": {
+                    "personalization": {
+                        "$ref": "#/components/schemas/UserConsentStatusResponse"
+                    },
+                    "usage_statistics": {
+                        "$ref": "#/components/schemas/UserConsentStatusResponse"
+                    }
+                },
+                "required": [
+                    "personalization",
+                    "usage_statistics"
+                ]
+            },
             "UserNoteResponse": {
                 "type": "object",
                 "properties": {
@@ -38852,6 +38878,42 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/consent/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's conservative tracking consent state. Spacebar does not currently persist personalization or usage-statistics consent, so the local response mirrors READY's non-consented personalization state and includes the endpoint-only usage-statistics consent as not consented.",
+                "summary": "Get User Consents",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserConsentsResponse"
                                 }
                             }
                         }

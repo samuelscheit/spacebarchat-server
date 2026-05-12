@@ -16,17 +16,11 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { createDefaultReadyUserConsents, type ReadyEventData } from "@spacebar/util";
+export interface UserConsentStatusResponse {
+    consented: boolean;
+}
 
-export type ReadyConsents = NonNullable<ReadyEventData["consents"]>;
-
-/**
- * Discord-compatible READY consent defaults.
- *
- * Spacebar currently has no persisted personalization-consent model, so READY
- * must expose the conservative non-consented state rather than implying
- * analytics personalization is enabled.
- */
-export function createReadyConsents(): ReadyConsents {
-    return createDefaultReadyUserConsents();
+export interface UserConsentsResponse {
+    personalization: UserConsentStatusResponse;
+    usage_statistics: UserConsentStatusResponse;
 }

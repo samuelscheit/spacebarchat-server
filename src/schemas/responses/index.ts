@@ -208,6 +208,7 @@ export * from "./UpdatesResponse";
 export * from "./UploadAttachmentResponseSchema";
 export * from "./UniqueUsernameAttemptResponse";
 export * from "./UniqueUsernameSuggestionResponse";
+export * from "./UserConsentsResponse";
 export * from "./UserNoteResponse";
 export * from "./UserProfileEffectsResponse";
 export * from "./UserProfileResponse";

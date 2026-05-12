@@ -1,6 +1,6 @@
 {
-    "missing": 597,
-    "spacebar": 583,
+    "missing": 596,
+    "spacebar": 584,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1713,13 +1713,6 @@
             "sources": ["userdoccers:resources/connected-accounts.mdx"],
             "source_routes": ["/users/@me/connections/contacts/{connection_id}/external-friend-list-entries/settings"],
             "summaries": ["Contact Sync Settings"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/consent",
-            "route_name": "GET_USERS__ME_CONSENT",
-            "sources": ["userdoccers:resources/user-settings.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Consents"]
         },
         {
             "method": "GET",

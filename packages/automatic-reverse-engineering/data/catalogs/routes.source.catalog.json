@@ -4832,6 +4832,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"UserConsentsResponse"
+		],
+		"route": "/users/@me/consent",
+		"route_name": "GET_USERS__ME_CONSENT",
+		"source": "src/api/routes/users/@me/consent.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ConfettiConsumableResponse"
 		],
 		"route": "/users/@me/consumable/confetti",

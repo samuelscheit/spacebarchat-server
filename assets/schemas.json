@@ -13663,6 +13663,36 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserConsentStatusResponse": {
+        "type": "object",
+        "properties": {
+            "consented": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "consented"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserConsentsResponse": {
+        "type": "object",
+        "properties": {
+            "personalization": {
+                "$ref": "#/definitions/UserConsentStatusResponse"
+            },
+            "usage_statistics": {
+                "$ref": "#/definitions/UserConsentStatusResponse"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "personalization",
+            "usage_statistics"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserNoteResponse": {
         "type": "object",
         "properties": {
