@@ -824,6 +824,16 @@
 	},
 	{
 		"method": "POST",
+		"request_schema_ref": "RegisterPhoneSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/auth/register/phone",
+		"route_name": "POST_AUTH_REGISTER_PHONE",
+		"source": "src/api/routes/auth/register/phone.ts"
+	},
+	{
+		"method": "POST",
 		"request_schema_ref": "PasswordResetSchema",
 		"response_schema_refs": [
 			"APIErrorOrCaptchaResponse",

@@ -16336,6 +16336,20 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "RegisterPhoneSchema": {
+        "type": "object",
+        "properties": {
+            "phone": {
+                "pattern": "^\\+[1-9]\\d{1,14}$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "phone"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "RelationshipPostSchema": {
         "type": "object",
         "properties": {

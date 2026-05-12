@@ -1,6 +1,6 @@
 {
-    "missing": 526,
-    "spacebar": 654,
+    "missing": 525,
+    "spacebar": 655,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -55,7 +55,6 @@
         "/auth/mfa/{param}",
         "/auth/one-time-login",
         "/auth/passwordless/start",
-        "/auth/register/phone",
         "/auth/revert",
         "/auth/sessions/debug/notifications",
         "/billing/apple/apply-receipt",
@@ -2161,13 +2160,6 @@
             "summaries": ["One-Time Login"]
         },
         { "method": "POST", "route": "/auth/passwordless/start", "route_name": "WEBAUTHN_PASSWORDLESS_CHALLENGE", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/auth/register/phone",
-            "route_name": "POST_AUTH_REGISTER_PHONE",
-            "sources": ["userdoccers:authentication.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Register Account with Phone Number"]
-        },
         {
             "method": "POST",
             "route": "/auth/revert",

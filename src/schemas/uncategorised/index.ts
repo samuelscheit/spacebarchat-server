@@ -86,6 +86,7 @@ export * from "./PruneSchema";
 export * from "./PurgeSchema";
 export * from "./RefreshUrlsRequestSchema";
 export * from "./RegisterSchema";
+export * from "./RegisterPhoneSchema";
 export * from "./RelationshipPostSchema";
 export * from "./RelationshipPatchSchema";
 export * from "./RelationshipPutSchema";

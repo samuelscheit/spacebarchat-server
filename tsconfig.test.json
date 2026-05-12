@@ -61,6 +61,7 @@
         "src/api/util/utility/ApplicationAuthorization.test.ts",
         "src/api/routes/applications/#application_id/emojis/#emoji_id.test.ts",
         "src/api/routes/stage-instances/extra.test.ts",
+        "src/api/routes/auth/register/phone.test.ts",
         "src/api/util/utility/DiscoveryCategories.test.ts",
         "src/schemas/api/bots/ApplicationCommandSchema.test.ts",
         "src/api/util/utility/InteractionMetadata.test.ts",

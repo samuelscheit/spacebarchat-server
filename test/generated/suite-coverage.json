@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 583,
+        "totalCoveredManifestEntries": 584,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 561,
-                "totalCoveredManifestEntries": 561,
-                "totalCoveredRequiredManifestEntries": 561,
+                "totalRequiredManifestEntries": 562,
+                "totalCoveredManifestEntries": 562,
+                "totalCoveredRequiredManifestEntries": 562,
                 "totalSuites": 12
             },
             "protocol": {
@@ -32,7 +32,7 @@
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
-            "auth-scenario": 17,
+            "auth-scenario": 18,
             "middleware-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 561,
-                "totalCoveredManifestEntries": 561,
-                "totalCoveredRequiredManifestEntries": 561,
+                "totalRequiredManifestEntries": 562,
+                "totalCoveredManifestEntries": 562,
+                "totalCoveredRequiredManifestEntries": 562,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -471,6 +471,7 @@
                 "api:http:POST:/auth/mfa/webauthn/",
                 "api:http:POST:/auth/password/validate/",
                 "api:http:POST:/auth/register/",
+                "api:http:POST:/auth/register/phone/",
                 "api:http:POST:/auth/reset/",
                 "api:http:POST:/auth/sessions/logout",
                 "api:http:POST:/auth/verify/",
@@ -1034,6 +1035,7 @@
                 "api:http:POST:/auth/mfa/webauthn/",
                 "api:http:POST:/auth/password/validate/",
                 "api:http:POST:/auth/register/",
+                "api:http:POST:/auth/register/phone/",
                 "api:http:POST:/auth/reset/",
                 "api:http:POST:/auth/sessions/logout",
                 "api:http:POST:/auth/verify/",
@@ -1228,6 +1230,7 @@
                         "api:http:POST:/auth/mfa/webauthn/",
                         "api:http:POST:/auth/password/validate/",
                         "api:http:POST:/auth/register/",
+                        "api:http:POST:/auth/register/phone/",
                         "api:http:POST:/auth/reset/",
                         "api:http:POST:/auth/sessions/logout",
                         "api:http:POST:/auth/verify/",

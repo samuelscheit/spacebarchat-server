@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 759,
+        "totalEntries": 760,
         "byService": {
-            "api": 662,
+            "api": 663,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 734,
+            "http-route": 735,
             "opcode": 21
         },
         "byTestTier": {
@@ -37,7 +37,7 @@
             "contract": 187,
             "stateful-domain": 420,
             "cdn-integration": 78,
-            "auth-scenario": 17,
+            "auth-scenario": 18,
             "integration": 23,
             "tooling-contract": 1,
             "protocol-integration": 21,
@@ -47,7 +47,7 @@
             "micro": 2,
             "startup-health": 11,
             "route-class": 617,
-            "hot-path": 34,
+            "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
             "protocol-load": 21
@@ -3547,6 +3547,53 @@
                     "GUILD_UPDATE",
                     "INVITE_DELETE"
                 ]
+            },
+            "rateLimit": {
+                "group": "auth.register",
+                "configPath": "limits.rate.routes.auth.register",
+                "pathPrefix": "/auth/register",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 223
+            },
+            "coverage": {
+                "policyId": "api-auth",
+                "testTier": "auth-scenario",
+                "benchmarkClass": "hot-path",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "tokens"
+                ],
+                "contractChecks": [
+                    "public-auth-boundary",
+                    "schema-validation",
+                    "response-shape",
+                    "session-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/auth/register/phone/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/auth/register/phone/",
+            "sourceFile": "src/api/routes/auth/register/phone.ts",
+            "line": 60,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "RegisterPhoneSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    501
+                ],
+                "hasQuery": false
             },
             "rateLimit": {
                 "group": "auth.register",

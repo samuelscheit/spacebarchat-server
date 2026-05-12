@@ -3,17 +3,17 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 734,
+        "totalContracts": 735,
         "byService": {
-            "api": 661,
+            "api": 662,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 584,
         "runtimeMalformedAuthContracts": 584,
         "runtimeRevokedSessionAuthContracts": 584,
         "runtimeStaleTokenAuthContracts": 584,
-        "runtimePublicAuthBoundaryContracts": 69,
-        "runtimePublicInvalidBodyContracts": 16,
+        "runtimePublicAuthBoundaryContracts": 70,
+        "runtimePublicInvalidBodyContracts": 17,
         "runtimeProtectedInvalidBodyContracts": 74,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
@@ -22,7 +22,7 @@
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 244,
+        "runtimeRateLimitHeaderContracts": 245,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -4365,6 +4365,66 @@
                     "id": "event-emission",
                     "checks": ["events"],
                     "events": ["GUILD_UPDATE", "INVITE_DELETE"]
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "auth.register",
+                        "configPath": "limits.rate.routes.auth.register",
+                        "pathPrefix": "/auth/register",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 223
+                    }
+                },
+                {
+                    "id": "policy-session-state",
+                    "checks": ["session-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/auth/register/phone/",
+            "service": "api",
+            "method": "POST",
+            "path": "/auth/register/phone/",
+            "samplePath": "/auth/register/phone/",
+            "sourceFile": "src/api/routes/auth/register/phone.ts",
+            "line": 60,
+            "authMode": "public",
+            "testTier": "auth-scenario",
+            "benchmarkClass": "hot-path",
+            "fixtureRequirements": ["users", "sessions", "tokens"],
+            "contractChecks": ["public-auth-boundary", "schema-validation", "response-shape", "session-state"],
+            "rateLimit": {
+                "group": "auth.register",
+                "configPath": "limits.rate.routes.auth.register",
+                "pathPrefix": "/auth/register",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 223
+            },
+            "routeMetadata": {
+                "requestBody": "RegisterPhoneSchema",
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [204, 400, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "RegisterPhoneSchema"
                 },
                 {
                     "id": "rate-limit-headers",
