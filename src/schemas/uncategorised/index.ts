@@ -72,6 +72,7 @@ export * from "./MemberNickChangeSchema";
 export * from "./MessageAcknowledgeSchema";
 export * from "./MessageCreateSchema";
 export * from "./MessageEditSchema";
+export * from "./MessageExplicitMediaScanSchema";
 export * from "./MfaCodesSchema";
 export * from "./MfaCodeSchema";
 export * from "./MfaFinishSchema";

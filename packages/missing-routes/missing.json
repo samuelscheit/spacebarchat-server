@@ -1,6 +1,6 @@
 {
-    "missing": 535,
-    "spacebar": 645,
+    "missing": 534,
+    "spacebar": 646,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -225,7 +225,6 @@
         "/lobbies/{param}/messages/{param}/moderation-metadata",
         "/messages-log/guild-channels/get",
         "/messages-log/private-channels/get",
-        "/messages/explicit-media",
         "/metrics",
         "/metrics/v2",
         "/networking/token",
@@ -1785,13 +1784,6 @@
             "sources": ["userdoccers:resources/lobby.mdx"],
             "source_routes": ["/lobbies/{lobby_id}/channel-linking"],
             "summaries": ["Modify Lobby Linked Channel"]
-        },
-        {
-            "method": "PATCH",
-            "route": "/messages/explicit-media",
-            "route_name": "PATCH_MESSAGES_EXPLICIT_MEDIA",
-            "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Bulk Scan Explicit Media"]
         },
         { "method": "PATCH", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         {

@@ -28,6 +28,7 @@
         "src/api/routes/applications-with-assets.test.ts",
         "src/api/routes/attachments/report-false-positive.test.ts",
         "src/api/routes/attachments/sender-report-false-positive.test.ts",
+        "src/api/routes/messages/explicit-media.test.ts",
         "src/api/routes/checkpoint.test.ts",
         "src/api/util/handlers/Instance.test.ts",
         "src/api/util/handlers/Voice.test.ts",

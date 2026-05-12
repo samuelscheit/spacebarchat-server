@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 750,
+        "totalEntries": 751,
         "byService": {
-            "api": 653,
+            "api": 654,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 725,
+            "http-route": 726,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 182,
+            "contract": 183,
             "stateful-domain": 416,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 608,
+            "route-class": 609,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18365,6 +18365,43 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PATCH:/messages/explicit-media/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PATCH",
+            "path": "/messages/explicit-media/",
+            "sourceFile": "src/api/routes/messages/explicit-media.ts",
+            "line": 88,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "MessageExplicitMediaScanSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-public-contract",

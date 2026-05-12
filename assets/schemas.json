@@ -16059,6 +16059,24 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "MessageExplicitMediaScanSchema": {
+        "type": "object",
+        "properties": {
+            "messages": {
+                "minItems": 1,
+                "maxItems": 100,
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/MessageExplicitMediaScanTarget"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "messages"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "MfaCodesSchema": {
         "type": "object",
         "properties": {
@@ -37115,6 +37133,27 @@
         "additionalProperties": false,
         "required": [
             "poll_media"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "MessageExplicitMediaScanTarget": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "pattern": "^\\d{1,20}$",
+                "type": "string"
+            },
+            "message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "pattern": "^\\d{1,20}$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_id",
+            "message_id"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

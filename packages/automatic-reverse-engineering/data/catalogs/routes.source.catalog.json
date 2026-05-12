@@ -3775,6 +3775,16 @@
 		"source": "src/api/routes/lobbies/#lobby_id/messages.ts"
 	},
 	{
+		"method": "PATCH",
+		"request_schema_ref": "MessageExplicitMediaScanSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/messages/explicit-media",
+		"route_name": "PATCH_MESSAGES_EXPLICIT_MEDIA",
+		"source": "src/api/routes/messages/explicit-media.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "MfaFinishSchema",
 		"response_schema_refs": [
