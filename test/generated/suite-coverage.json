@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 521,
+        "totalCoveredManifestEntries": 522,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 499,
-                "totalCoveredManifestEntries": 499,
-                "totalCoveredRequiredManifestEntries": 499,
+                "totalRequiredManifestEntries": 500,
+                "totalCoveredManifestEntries": 500,
+                "totalCoveredRequiredManifestEntries": 500,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 359,
+            "stateful-domain": 360,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 499,
-                "totalCoveredManifestEntries": 499,
-                "totalCoveredRequiredManifestEntries": 499,
+                "totalRequiredManifestEntries": 500,
+                "totalCoveredManifestEntries": 500,
+                "totalCoveredRequiredManifestEntries": 500,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -259,6 +259,7 @@
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
                 "api:http:GET:/guilds/:guild_id/roles/member-counts/",
+                "api:http:GET:/guilds/:guild_id/scheduled-events/",
                 "api:http:GET:/guilds/:guild_id/shield.svg/",
                 "api:http:GET:/guilds/:guild_id/soundboard-sounds/",
                 "api:http:GET:/guilds/:guild_id/soundboard-sounds/:sound_id",
@@ -760,6 +761,7 @@
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
                 "api:http:GET:/guilds/:guild_id/roles/member-counts/",
+                "api:http:GET:/guilds/:guild_id/scheduled-events/",
                 "api:http:GET:/guilds/:guild_id/shield.svg/",
                 "api:http:GET:/guilds/:guild_id/soundboard-sounds/",
                 "api:http:GET:/guilds/:guild_id/soundboard-sounds/:sound_id",
@@ -1312,6 +1314,7 @@
                         "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                         "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
                         "api:http:GET:/guilds/:guild_id/roles/member-counts/",
+                        "api:http:GET:/guilds/:guild_id/scheduled-events/",
                         "api:http:GET:/guilds/:guild_id/shield.svg/",
                         "api:http:GET:/guilds/:guild_id/soundboard-sounds/",
                         "api:http:GET:/guilds/:guild_id/soundboard-sounds/:sound_id",

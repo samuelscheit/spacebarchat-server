@@ -3050,6 +3050,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildScheduledEventsResponse"
+		],
+		"route": "/guilds/{guild_id}/scheduled-events",
+		"route_name": "GET_GUILDS_GUILD_ID_SCHEDULED_EVENTS",
+		"source": "src/api/routes/guilds/#guild_id/scheduled-events/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/guilds/{guild_id}/shield.svg",

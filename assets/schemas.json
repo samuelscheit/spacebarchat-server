@@ -8394,6 +8394,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildScheduledEventsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildScheduledEventResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildTopEmojisResponse": {
         "type": "object",
         "properties": {

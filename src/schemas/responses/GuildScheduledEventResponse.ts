@@ -106,3 +106,5 @@ export interface GuildScheduledEventResponse {
     guild_scheduled_event_exceptions?: GuildScheduledEventExceptionResponse[];
     sku_ids?: Snowflake[];
 }
+
+export type GuildScheduledEventsResponse = GuildScheduledEventResponse[];

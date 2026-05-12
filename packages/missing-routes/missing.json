@@ -1,6 +1,6 @@
 {
-    "missing": 604,
-    "spacebar": 576,
+    "missing": 603,
+    "spacebar": 577,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1404,14 +1404,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/roles/connections-configurations"],
             "summaries": ["Get Guild Role Connections Configurations"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/scheduled-events",
-            "route_name": "GET_GUILDS_GUILD_ID_SCHEDULED_EVENTS",
-            "sources": ["userdoccers:resources/guild-scheduled-event.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/scheduled-events"],
-            "summaries": ["Get Guild Scheduled Events"]
         },
         {
             "method": "GET",

@@ -95,6 +95,7 @@
         "src/api/routes/guilds/#guild_id/premium.test.ts",
         "src/api/routes/guilds/#guild_id/admin-server-eligibility.ts",
         "src/api/routes/guilds/#guild_id/admin-server-eligibility.test.ts",
+        "src/api/routes/guilds/#guild_id/scheduled-events/index.test.ts",
         "src/api/routes/guilds/#guild_id/widget.png.test.ts",
         "src/api/routes/guilds/#guild_id/index.test.ts",
         "src/api/routes/guilds/#guild_id/auto-moderation/rules.test.ts",
