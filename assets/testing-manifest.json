@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 747,
+        "totalEntries": 748,
         "byService": {
-            "api": 650,
+            "api": 651,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 722,
+            "http-route": 723,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 182,
-            "stateful-domain": 413,
+            "stateful-domain": 414,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 605,
+            "route-class": 606,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2754,6 +2754,45 @@
                 ],
                 "allowMissingRouteMetadata": false,
                 "notes": "Public Discord compatibility endpoint for detectable non-game applications."
+            }
+        },
+        {
+            "id": "api:http:PATCH:/applications/shelf/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PATCH",
+            "path": "/applications/shelf/",
+            "sourceFile": "src/api/routes/applications/shelf.ts",
+            "line": 31,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
             }
         },
         {

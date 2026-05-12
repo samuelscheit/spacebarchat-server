@@ -626,6 +626,15 @@
 		"source": "src/api/routes/applications/non-games/detectable.ts"
 	},
 	{
+		"method": "PATCH",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/shelf",
+		"route_name": "PATCH_APPLICATIONS_SHELF",
+		"source": "src/api/routes/applications/shelf.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "RefreshUrlsRequestSchema",
 		"response_schema_refs": [

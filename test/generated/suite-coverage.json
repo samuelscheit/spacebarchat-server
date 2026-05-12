@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 576,
+        "totalCoveredManifestEntries": 577,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 554,
-                "totalCoveredManifestEntries": 554,
-                "totalCoveredRequiredManifestEntries": 554,
+                "totalRequiredManifestEntries": 555,
+                "totalCoveredManifestEntries": 555,
+                "totalCoveredRequiredManifestEntries": 555,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 413,
+            "stateful-domain": 414,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 554,
-                "totalCoveredManifestEntries": 554,
-                "totalCoveredRequiredManifestEntries": 554,
+                "totalRequiredManifestEntries": 555,
+                "totalCoveredManifestEntries": 555,
+                "totalCoveredRequiredManifestEntries": 555,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -412,6 +412,7 @@
                 "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:PATCH:/applications/@me/",
+                "api:http:PATCH:/applications/shelf/",
                 "api:http:PATCH:/channels/:channel_id/",
                 "api:http:PATCH:/channels/:channel_id/call/",
                 "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
@@ -968,6 +969,7 @@
                 "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:PATCH:/applications/@me/",
+                "api:http:PATCH:/applications/shelf/",
                 "api:http:PATCH:/channels/:channel_id/",
                 "api:http:PATCH:/channels/:channel_id/call/",
                 "api:http:PATCH:/channels/:channel_id/messages/:message_id/",
@@ -1729,6 +1731,7 @@
                         "api:http:PATCH:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:PATCH:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:PATCH:/applications/@me/",
+                        "api:http:PATCH:/applications/shelf/",
                         "api:http:POST:/applications/",
                         "api:http:POST:/applications/:application_id/bot/",
                         "api:http:POST:/applications/:application_id/bot/reset",

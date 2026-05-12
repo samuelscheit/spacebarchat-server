@@ -1,6 +1,6 @@
 {
-    "missing": 538,
-    "spacebar": 642,
+    "missing": 537,
+    "spacebar": 643,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1540,7 +1540,6 @@
         },
         { "method": "PATCH", "route": "/applications/games-supplemental", "route_name": "APPLICATIONS_GAMES_SUPPLEMENTAL", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PATCH", "route": "/applications/public", "route_name": "APPLICATIONS_PUBLIC", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "PATCH", "route": "/applications/shelf", "route_name": "APPLICATIONS_SHELF", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PATCH",
             "route": "/channels/{param}/directory-entry/{param}",
