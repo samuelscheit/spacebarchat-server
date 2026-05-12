@@ -232,6 +232,7 @@ export * from "./VirtualCurrencyBalanceResponse";
 export * from "./VoiceFiltersCatalogResponse";
 export * from "./UserInviteResponse";
 export * from "./UserGuildsResponse";
+export * from "./UserGuildPremiumSubscriptionsResponse";
 export * from "./UserRelationsResponse";
 export * from "./UserRelationshipsResponse";
 export * from "./VoiceStateResponse";

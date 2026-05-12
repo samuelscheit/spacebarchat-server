@@ -54,6 +54,7 @@ const coveredManifestIds = [
     "api:http:GET:/users/@me/guilds/",
     "api:http:GET:/users/@me/guilds/:guild_id/settings/",
     "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
+    "api:http:GET:/users/@me/guilds/premium/subscriptions/",
     "api:http:GET:/users/@me/library/",
     "api:http:GET:/users/@me/settings-proto/1/",
     "api:http:GET:/users/@me/settings-proto/1/json",
@@ -108,6 +109,7 @@ test(
             "api:http:GET:/users/@me/guilds/",
             "api:http:GET:/users/@me/guilds/:guild_id/settings/",
             "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
+            "api:http:GET:/users/@me/guilds/premium/subscriptions/",
             "api:http:GET:/users/@me/library/",
             "api:http:GET:/users/@me/settings-proto/1/",
             "api:http:GET:/users/@me/settings-proto/1/json",
@@ -341,6 +343,7 @@ test(
             });
             assert.deepEqual(await assertArrayResponse(`${api.apiBaseUrl}/users/@me/entitlements/gifts`, ownerToken), []);
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/guilds/premium/subscription-slots`, ownerToken);
+            await assertArrayResponse(`${api.apiBaseUrl}/users/@me/guilds/premium/subscriptions`, ownerToken);
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/library`, ownerToken);
 
             const paymentSources = await getJsonArray(`${api.apiBaseUrl}/users/@me/billing/payment-sources`, ownerToken);

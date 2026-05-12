@@ -13687,6 +13687,10 @@
             "VoiceFilterEmptyModelReferencesResponse": {
                 "type": "object"
             },
+            "UserGuildPremiumSubscriptionsResponse": {
+                "type": "array",
+                "items": {}
+            },
             "UserRelationResponse": {
                 "type": "object",
                 "properties": {
@@ -39261,6 +39265,42 @@
                         "description": "guild_id"
                     }
                 ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/guilds/premium/subscriptions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed current-user guild premium subscriptions. Spacebar does not persist Discord guild boost subscription records yet, so the supported representation is an empty list.",
+                "summary": "Get Applied Premium Guild Subscriptions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserGuildPremiumSubscriptionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "users"
                 ]

@@ -1,6 +1,6 @@
 {
-    "missing": 565,
-    "spacebar": 615,
+    "missing": 564,
+    "spacebar": 616,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -387,7 +387,6 @@
         "/users/@me/guilds/integration-application-ids",
         "/users/@me/guilds/premium/subscription-slots/{param}/cancel",
         "/users/@me/guilds/premium/subscription-slots/{param}/uncancel",
-        "/users/@me/guilds/premium/subscriptions",
         "/users/@me/guilds/settings",
         "/users/@me/guilds/{param}/member/ack-dm-upsell-settings",
         "/users/@me/harvest",
@@ -1572,13 +1571,6 @@
         },
         { "method": "GET", "route": "/users/@me/gravity-attachments", "route_name": "GRAVITY_ATTACHMENTS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/users/@me/gravity-icymi", "route_name": "GRAVITY_ITEMS_DEHYDRATED", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/users/@me/guilds/premium/subscriptions",
-            "route_name": "GET_USERS__ME_GUILDS_PREMIUM_SUBSCRIPTIONS",
-            "sources": ["userdoccers:resources/subscription.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Applied Premium Guild Subscriptions"]
-        },
         {
             "method": "GET",
             "route": "/users/@me/harvest",

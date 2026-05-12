@@ -5252,6 +5252,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"UserGuildPremiumSubscriptionsResponse"
+		],
+		"route": "/users/@me/guilds/premium/subscriptions",
+		"route_name": "GET_USERS__ME_GUILDS_PREMIUM_SUBSCRIPTIONS",
+		"source": "src/api/routes/users/@me/guilds/premium/subscriptions.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/users/@me/guilds/premium/subscriptions/cooldown",

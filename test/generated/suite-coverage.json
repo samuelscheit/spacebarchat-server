@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 555,
+        "totalCoveredManifestEntries": 556,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 533,
-                "totalCoveredManifestEntries": 533,
-                "totalCoveredRequiredManifestEntries": 533,
+                "totalRequiredManifestEntries": 534,
+                "totalCoveredManifestEntries": 534,
+                "totalCoveredRequiredManifestEntries": 534,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 392,
+            "stateful-domain": 393,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 533,
-                "totalCoveredManifestEntries": 533,
-                "totalCoveredRequiredManifestEntries": 533,
+                "totalRequiredManifestEntries": 534,
+                "totalCoveredManifestEntries": 534,
+                "totalCoveredRequiredManifestEntries": 534,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -355,6 +355,7 @@
                 "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                 "api:http:GET:/users/@me/guilds/integration-application-ids/",
                 "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
+                "api:http:GET:/users/@me/guilds/premium/subscriptions/",
                 "api:http:GET:/users/@me/guilds/premium/subscriptions/cooldown/",
                 "api:http:GET:/users/@me/identity/verification/",
                 "api:http:GET:/users/@me/invites/",
@@ -890,6 +891,7 @@
                 "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                 "api:http:GET:/users/@me/guilds/integration-application-ids/",
                 "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
+                "api:http:GET:/users/@me/guilds/premium/subscriptions/",
                 "api:http:GET:/users/@me/guilds/premium/subscriptions/cooldown/",
                 "api:http:GET:/users/@me/identity/verification/",
                 "api:http:GET:/users/@me/invites/",
@@ -1193,6 +1195,7 @@
                         "test/scenarios/users-delete-route.test.ts",
                         "test/scenarios/users-entitlements-gifts.test.ts",
                         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",
+                        "src/api/routes/users/@me/guilds/premium/subscriptions.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
@@ -1255,6 +1258,7 @@
                         "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                         "api:http:GET:/users/@me/guilds/integration-application-ids/",
                         "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
+                        "api:http:GET:/users/@me/guilds/premium/subscriptions/",
                         "api:http:GET:/users/@me/guilds/premium/subscriptions/cooldown/",
                         "api:http:GET:/users/@me/identity/verification/",
                         "api:http:GET:/users/@me/invites/",

@@ -14466,6 +14466,11 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserGuildPremiumSubscriptionsResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserRelationResponse": {
         "type": "object",
         "properties": {
