@@ -4262,6 +4262,31 @@
                 "type": "array",
                 "items": {}
             },
+            "ConnectedAccountSubredditResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "subscribers": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "subscribers",
+                    "url"
+                ]
+            },
+            "ConnectedAccountSubredditsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ConnectedAccountSubredditResponse"
+                }
+            },
             "ConfettiConsumableResponse": {
                 "type": "object",
                 "properties": {
@@ -38572,6 +38597,63 @@
                         }
                     }
                 },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/connections/reddit/{connection_id}/subreddits/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally stored subreddits moderated by the linked Reddit account. Spacebar currently persists Reddit identity metadata but not Reddit moderated subreddit membership, so this compatibility endpoint returns an empty subreddit list for valid active Reddit connections instead of calling Reddit or fabricating subreddit data.",
+                "summary": "Get User Connection Subreddits",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectedAccountSubredditsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "connection_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "connection_id"
+                    }
+                ],
                 "tags": [
                     "users"
                 ]

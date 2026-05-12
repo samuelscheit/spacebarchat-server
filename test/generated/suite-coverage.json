@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 524,
+        "totalCoveredManifestEntries": 525,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 502,
-                "totalCoveredManifestEntries": 502,
-                "totalCoveredRequiredManifestEntries": 502,
+                "totalRequiredManifestEntries": 503,
+                "totalCoveredManifestEntries": 503,
+                "totalCoveredRequiredManifestEntries": 503,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 362,
+            "stateful-domain": 363,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 502,
-                "totalCoveredManifestEntries": 502,
-                "totalCoveredRequiredManifestEntries": 502,
+                "totalRequiredManifestEntries": 503,
+                "totalCoveredManifestEntries": 503,
+                "totalCoveredRequiredManifestEntries": 503,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -322,6 +322,7 @@
                 "api:http:GET:/users/@me/collectibles-purchases/",
                 "api:http:GET:/users/@me/connections/",
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
+                "api:http:GET:/users/@me/connections/reddit/:connection_id/subreddits/",
                 "api:http:GET:/users/@me/consumable/confetti/",
                 "api:http:GET:/users/@me/consumable/hd-streaming/",
                 "api:http:GET:/users/@me/devices/sync-token/",
@@ -826,6 +827,7 @@
                 "api:http:GET:/users/@me/collectibles-purchases/",
                 "api:http:GET:/users/@me/connections/",
                 "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
+                "api:http:GET:/users/@me/connections/reddit/:connection_id/subreddits/",
                 "api:http:GET:/users/@me/consumable/confetti/",
                 "api:http:GET:/users/@me/consumable/hd-streaming/",
                 "api:http:GET:/users/@me/devices/sync-token/",
@@ -1172,6 +1174,7 @@
                         "api:http:GET:/users/@me/collectibles-purchases/",
                         "api:http:GET:/users/@me/connections/",
                         "api:http:GET:/users/@me/connections/:connection_name/:connection_id/access-token/",
+                        "api:http:GET:/users/@me/connections/reddit/:connection_id/subreddits/",
                         "api:http:GET:/users/@me/consumable/confetti/",
                         "api:http:GET:/users/@me/consumable/hd-streaming/",
                         "api:http:GET:/users/@me/devices/sync-token/",

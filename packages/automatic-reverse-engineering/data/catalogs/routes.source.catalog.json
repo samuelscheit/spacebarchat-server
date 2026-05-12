@@ -4812,6 +4812,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ConnectedAccountSubredditsResponse"
+		],
+		"route": "/users/@me/connections/reddit/{connection_id}/subreddits",
+		"route_name": "GET_USERS__ME_CONNECTIONS_REDDIT_CONNECTION_ID_SUBREDDITS",
+		"source": "src/api/routes/users/@me/connections/reddit/#connection_id/subreddits.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ConfettiConsumableResponse"
 		],
 		"route": "/users/@me/consumable/confetti",

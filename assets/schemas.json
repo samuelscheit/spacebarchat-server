@@ -4500,6 +4500,34 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ConnectedAccountSubredditResponse": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "subscribers": {
+                "type": "integer"
+            },
+            "url": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "subscribers",
+            "url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ConnectedAccountSubredditsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ConnectedAccountSubredditResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ConfettiConsumableResponse": {
         "type": "object",
         "properties": {

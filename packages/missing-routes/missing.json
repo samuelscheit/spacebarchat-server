@@ -1,6 +1,6 @@
 {
-    "missing": 601,
-    "spacebar": 579,
+    "missing": 600,
+    "spacebar": 580,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -377,7 +377,6 @@
         "/users/@me/connections/contacts/{param}/external-friend-list-entries",
         "/users/@me/connections/contacts/{param}/external-friend-list-entries/settings",
         "/users/@me/connections/domain/{param}",
-        "/users/@me/connections/reddit/{param}/subreddits",
         "/users/@me/connections/{param}/{param}",
         "/users/@me/connections/{param}/{param}/refresh",
         "/users/@me/consent",
@@ -1723,14 +1722,6 @@
             "sources": ["userdoccers:resources/connected-accounts.mdx"],
             "source_routes": ["/users/@me/connections/contacts/{connection_id}/external-friend-list-entries/settings"],
             "summaries": ["Contact Sync Settings"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/connections/reddit/{param}/subreddits",
-            "route_name": "GET_USERS__ME_CONNECTIONS_REDDIT_CONNECTION_ID_SUBREDDITS",
-            "sources": ["userdoccers:resources/connected-accounts.mdx"],
-            "source_routes": ["/users/@me/connections/reddit/{connection_id}/subreddits"],
-            "summaries": ["Get User Connection Subreddits"]
         },
         {
             "method": "GET",
