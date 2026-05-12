@@ -1497,6 +1497,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"StoreListingResponse"
+		],
+		"route": "/channels/{channel_id}/store-listings/{sku_id}",
+		"route_name": "GET_CHANNELS_CHANNEL_ID_STORE_LISTINGS_SKU_ID",
+		"source": "src/api/routes/channels/#channel_id/store-listings/#sku_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ConversationSummariesResponse"
 		],
 		"route": "/channels/{channel_id}/summaries",

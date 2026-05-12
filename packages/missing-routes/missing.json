@@ -1,6 +1,6 @@
 {
-    "missing": 603,
-    "spacebar": 577,
+    "missing": 602,
+    "spacebar": 578,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -87,7 +87,6 @@
         "/channels/{param}/safety-warning/report-false-positive",
         "/channels/{param}/send-soundboard-sound",
         "/channels/{param}/store-listing/entitlement-grant",
-        "/channels/{param}/store-listings/{param}",
         "/channels/{param}/voice-channel-effects",
         "/channels/{param}/voice-status",
         "/checkpoint/loot",
@@ -1140,13 +1139,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/media-post-preview"],
             "summaries": ["Get Channel Media Preview"]
-        },
-        {
-            "method": "GET",
-            "route": "/channels/{param}/store-listings/{param}",
-            "route_name": "CHANNEL_STORE_LISTING_SKU",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/store-listings/{param}"]
         },
         { "method": "GET", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/connections/{param}/callback", "route_name": "CONNECTIONS_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },

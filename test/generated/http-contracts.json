@@ -3,26 +3,26 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 657,
+        "totalContracts": 658,
         "byService": {
-            "api": 584,
+            "api": 585,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 507,
-        "runtimeMalformedAuthContracts": 507,
-        "runtimeRevokedSessionAuthContracts": 507,
-        "runtimeStaleTokenAuthContracts": 507,
+        "runtimeAuthBoundaryContracts": 508,
+        "runtimeMalformedAuthContracts": 508,
+        "runtimeRevokedSessionAuthContracts": 508,
+        "runtimeStaleTokenAuthContracts": 508,
         "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 71,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 21,
         "runtimeRightOnlyDenialContracts": 12,
-        "runtimePermissionOnlyDenialContracts": 126,
+        "runtimePermissionOnlyDenialContracts": 127,
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 227,
+        "runtimeRateLimitHeaderContracts": 228,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -9621,6 +9621,78 @@
             "samplePath": "/channels/100000000000000002/store-listing/",
             "sourceFile": "src/api/routes/channels/#channel_id/store-listing.ts",
             "line": 81,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "channels", "messages", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "StoreListingResponse"],
+                "responseStatuses": [200, 400, 401, 403, 404],
+                "permission": "VIEW_CHANNEL"
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "permission": "VIEW_CHANNEL"
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "channel",
+                        "configPath": "limits.rate.routes.channel",
+                        "pathPrefix": "/channels/:channel_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 220
+                    }
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/channels/:channel_id/store-listings/:sku_id/",
+            "service": "api",
+            "method": "GET",
+            "path": "/channels/:channel_id/store-listings/:sku_id/",
+            "samplePath": "/channels/100000000000000002/store-listings/value/",
+            "sourceFile": "src/api/routes/channels/#channel_id/store-listings/#sku_id.ts",
+            "line": 91,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

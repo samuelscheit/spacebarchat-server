@@ -9,7 +9,7 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
@@ -26,24 +26,23 @@ import { ChannelType, type StoreSkuResponse } from "@spacebar/schemas";
 import { DiscordApiErrors, Permissions } from "@spacebar/util";
 import express from "express";
 import {
-    assertChannelSupportsStoreListing,
-    createChannelStoreListingRouter,
-    getChannelStoreListing,
-    getConfiguredChannelStoreListing,
-    UNKNOWN_STORE_LISTING_ERROR,
-    type ChannelStoreListingProvider,
-    type ChannelStoreListingProviderOptions,
-    type ChannelStoreListingRouteDependencies,
-} from "../../src/api/routes/channels/#channel_id/store-listing";
-import { parseStoreSkuQuery, toStoreListingResponse, type StoreListingSource } from "../../src/api/routes/store/listings/#store_listing_id";
+    createChannelStoreListingSkuRouter,
+    getChannelStoreListingSku,
+    getConfiguredChannelStoreListingSku,
+    type ChannelStoreListingSkuProvider,
+    type ChannelStoreListingSkuProviderOptions,
+    type ChannelStoreListingSkuRouteDependencies,
+} from "../../src/api/routes/channels/#channel_id/store-listings/#sku_id";
+import { parseStoreSkuQuery, UNKNOWN_STORE_SKU_ERROR } from "../../src/api/util/utility/StoreSkuRoute";
+import { toStoreListingResponse, UNKNOWN_STORE_LISTING_ERROR, type StoreListingSource } from "../../src/api/routes/store/listings/#store_listing_id";
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
 const requireModule = require;
-const coveredManifestIds = ["api:http:GET:/channels/:channel_id/store-listing/"];
-const assignedPath = "/channels/{param}/store-listing";
-const assignedSourcePath = "/channels/{channel_id}/store-listing";
-const assignedRouteName = "GET_CHANNELS_CHANNEL_ID_STORE_LISTING";
+const coveredManifestIds = ["api:http:GET:/channels/:channel_id/store-listings/:sku_id/"];
+const assignedPath = "/channels/{param}/store-listings/{param}";
+const assignedSourcePath = "/channels/{channel_id}/store-listings/{sku_id}";
+const assignedRouteName = "GET_CHANNELS_CHANNEL_ID_STORE_LISTINGS_SKU_ID";
 
 type JsonSchema = {
     $ref?: string;
@@ -53,23 +52,23 @@ type JsonSchema = {
     items?: JsonSchema;
 };
 
-describe("GET /channels/:channel_id/store-listing", () => {
+describe("GET /channels/:channel_id/store-listings/:sku_id", () => {
     test("documents the assigned manifest id and stays behind bearer auth", async () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:GET:/channels/:channel_id/store-listing/"]);
-        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/channels/200000000000000001/store-listing?country_code=DE"), false);
-        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/channels/200000000000000001/store-listing/"), false);
+        assert.deepEqual(coveredManifestIds, ["api:http:GET:/channels/:channel_id/store-listings/:sku_id/"]);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v10/channels/200000000000000001/store-listings/300000000000000001?country_code=DE"), false);
+        assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/channels/200000000000000001/store-listings/300000000000000001/"), false);
 
-        const response = await requestJson(createAuthenticatedApp(), "/channels/200000000000000001/store-listing");
+        const response = await requestJson(createAuthenticatedApp(), "/channels/200000000000000001/store-listings/300000000000000001");
 
         assert.equal(response.status, 401);
         assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
     });
 
-    test("requires a guild store channel and returns provider-backed listings for channel viewers", async (t) => {
+    test("requires a guild store channel and returns provider-backed listings for the requested SKU", async (t) => {
         mockViewChannelPermission(t);
 
-        let receivedOptions: ChannelStoreListingProviderOptions | undefined;
-        const listingProvider: ChannelStoreListingProvider = (options) => {
+        let receivedOptions: ChannelStoreListingSkuProviderOptions | undefined;
+        const listingProvider: ChannelStoreListingSkuProvider = (options) => {
             receivedOptions = options;
             return sampleListing;
         };
@@ -84,77 +83,111 @@ describe("GET /channels/:channel_id/store-listing", () => {
                 listingProvider,
                 channelRepository: channelRepositoryFor(ChannelType.GUILD_STORE),
             }),
-            "/channels/200000000000000001/store-listing?country_code=DE&localize=false",
+            "/channels/200000000000000001/store-listings/300000000000000001?country_code=DE&localize=false",
         );
 
         assert.equal(response.status, 200);
         assert.deepEqual(receivedOptions, {
             channel_id: "200000000000000001",
+            guild_id: "900000000000000001",
+            sku_id: "300000000000000001",
             country_code: "DE",
             localize: false,
         });
         assert.deepEqual(response.body, toStoreListingResponse(sampleListing));
     });
 
-    test("fails closed for non-store channels and unbacked store listing catalogs", async (t) => {
+    test("fails closed for malformed SKU ids, non-store channels, missing listings, and mismatched listings", async (t) => {
         mockViewChannelPermission(t);
 
-        let providerCalled = false;
-
-        assert.doesNotThrow(() => assertChannelSupportsStoreListing({ type: ChannelType.GUILD_STORE }));
-        assert.throws(() => assertChannelSupportsStoreListing({ type: ChannelType.GUILD_TEXT }), {
-            code: DiscordApiErrors.CANNOT_EXECUTE_ON_THIS_CHANNEL_TYPE.code,
-        });
-        assert.deepEqual(getConfiguredChannelStoreListing({ channel_id: "200000000000000001", localize: true }), undefined);
+        assert.deepEqual(
+            getConfiguredChannelStoreListingSku({
+                channel_id: "200000000000000001",
+                guild_id: "900000000000000001",
+                sku_id: "300000000000000001",
+                localize: true,
+            }),
+            undefined,
+        );
 
         await assert.rejects(
             () =>
-                getChannelStoreListing(
+                getChannelStoreListingSku(
                     "200000000000000001",
+                    "not-a-sku",
+                    { localize: true },
+                    {
+                        channelRepository: channelRepositoryFor(ChannelType.GUILD_STORE),
+                        listingProvider: () => sampleListing,
+                    },
+                ),
+            { code: UNKNOWN_STORE_SKU_ERROR.code },
+        );
+
+        await assert.rejects(
+            () =>
+                getChannelStoreListingSku(
+                    "200000000000000001",
+                    "300000000000000001",
                     { localize: true },
                     {
                         channelRepository: channelRepositoryFor(ChannelType.GUILD_TEXT),
-                        listingProvider: () => {
-                            providerCalled = true;
-                            return sampleListing;
-                        },
+                        listingProvider: () => sampleListing,
                     },
                 ),
             { code: DiscordApiErrors.CANNOT_EXECUTE_ON_THIS_CHANNEL_TYPE.code },
         );
-        assert.equal(providerCalled, false);
 
         await assert.rejects(
             () =>
-                getChannelStoreListing(
+                getChannelStoreListingSku(
                     "200000000000000001",
+                    "300000000000000001",
                     { localize: true },
                     {
                         channelRepository: channelRepositoryFor(ChannelType.GUILD_STORE),
-                        listingProvider: () => {
-                            providerCalled = true;
-                            return undefined;
-                        },
+                        listingProvider: () => undefined,
                     },
                 ),
             isUnknownListingError,
         );
-        assert.equal(providerCalled, true);
 
+        const invalidSku = await requestJson(
+            createRouteApp({
+                channelRepository: channelRepositoryFor(ChannelType.GUILD_STORE),
+                listingProvider: () => sampleListing,
+            }),
+            "/channels/200000000000000001/store-listings/not-a-sku",
+        );
         const wrongType = await requestJson(
             createRouteApp({
                 channelRepository: channelRepositoryFor(ChannelType.GUILD_TEXT),
                 listingProvider: () => sampleListing,
             }),
-            "/channels/200000000000000001/store-listing",
+            "/channels/200000000000000001/store-listings/300000000000000001",
         );
         const missingListing = await requestJson(
             createRouteApp({
                 channelRepository: channelRepositoryFor(ChannelType.GUILD_STORE),
             }),
-            "/channels/200000000000000001/store-listing",
+            "/channels/200000000000000001/store-listings/300000000000000001",
+        );
+        const mismatchedListing = await requestJson(
+            createRouteApp({
+                channelRepository: channelRepositoryFor(ChannelType.GUILD_STORE),
+                listingProvider: () => ({
+                    ...sampleListing,
+                    sku: { ...sampleSku, id: "300000000000000002" },
+                }),
+            }),
+            "/channels/200000000000000001/store-listings/300000000000000001",
         );
 
+        assert.equal(invalidSku.status, 404);
+        assert.deepEqual(invalidSku.body, {
+            code: UNKNOWN_STORE_SKU_ERROR.code,
+            message: UNKNOWN_STORE_SKU_ERROR.message,
+        });
         assert.equal(wrongType.status, 400);
         assert.deepEqual(wrongType.body, {
             code: DiscordApiErrors.CANNOT_EXECUTE_ON_THIS_CHANNEL_TYPE.code,
@@ -162,6 +195,11 @@ describe("GET /channels/:channel_id/store-listing", () => {
         });
         assert.equal(missingListing.status, 404);
         assert.deepEqual(missingListing.body, {
+            code: UNKNOWN_STORE_LISTING_ERROR.code,
+            message: UNKNOWN_STORE_LISTING_ERROR.message,
+        });
+        assert.equal(mismatchedListing.status, 404);
+        assert.deepEqual(mismatchedListing.body, {
             code: UNKNOWN_STORE_LISTING_ERROR.code,
             message: UNKNOWN_STORE_LISTING_ERROR.message,
         });
@@ -179,7 +217,7 @@ describe("GET /channels/:channel_id/store-listing", () => {
                 channelRepository: channelRepositoryFor(ChannelType.GUILD_STORE),
                 listingProvider: () => sampleListing,
             }),
-            "/channels/200000000000000001/store-listing?localize=sometimes",
+            "/channels/200000000000000001/store-listings/300000000000000001?localize=sometimes",
         );
 
         assert.equal(response.status, 400);
@@ -187,7 +225,7 @@ describe("GET /channels/:channel_id/store-listing", () => {
     });
 
     test("declares source-backed metadata and generated artifacts for the exact owned path", () => {
-        const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "channels", "#channel_id", "store-listing.ts"), "utf8");
+        const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "channels", "#channel_id", "store-listings", "#sku_id.ts"), "utf8");
         const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonSchema>;
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
             paths?: Record<
@@ -242,8 +280,8 @@ describe("GET /channels/:channel_id/store-listing", () => {
         };
 
         assert.match(routeSource, /permission:\s*"VIEW_CHANNEL"/);
-        assert.match(routeSource, /summary:\s*"Get Channel Store Listing"/);
-        assert.match(routeSource, /description:\s*"Returns the locally backed store listing object for a guild store channel/s);
+        assert.match(routeSource, /summary:\s*"Get Channel Store Listing SKU"/);
+        assert.match(routeSource, /description:\s*"Returns the locally backed store listing object for a SKU available through a guild store channel/s);
         assert.match(routeSource, /country_code:\s*\{\s*type:\s*"string"/s);
         assert.match(routeSource, /localize:\s*\{\s*type:\s*"boolean"/s);
         assert.match(routeSource, /200:\s*\{\s*body:\s*"StoreListingResponse"/s);
@@ -255,12 +293,16 @@ describe("GET /channels/:channel_id/store-listing", () => {
         assert.equal(schemas.StoreListingResponse.type, "object");
         assert.equal(schemas.StoreListingResponse.properties?.sku?.$ref, "#/definitions/StoreSkuResponse");
 
-        const route = openapi.paths?.["/channels/{channel_id}/store-listing/"]?.get;
-        assert.equal(route?.summary, "Get Channel Store Listing");
+        const route = openapi.paths?.["/channels/{channel_id}/store-listings/{sku_id}/"]?.get;
+        assert.equal(route?.summary, "Get Channel Store Listing SKU");
         assert.equal(route?.["x-permission-required"], "VIEW_CHANNEL");
         assert.deepEqual(route?.security, [{ bearer: [] }]);
         assert.equal(
             route?.parameters?.some((parameter) => parameter.name === "channel_id" && parameter.in === "path" && parameter.required === true),
+            true,
+        );
+        assert.equal(
+            route?.parameters?.some((parameter) => parameter.name === "sku_id" && parameter.in === "path" && parameter.required === true),
             true,
         );
         assert.equal(
@@ -277,8 +319,8 @@ describe("GET /channels/:channel_id/store-listing", () => {
         }
 
         const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
-        assert.equal(manifestEntry?.path, "/channels/:channel_id/store-listing/");
-        assert.equal(manifestEntry?.sourceFile, "src/api/routes/channels/#channel_id/store-listing.ts");
+        assert.equal(manifestEntry?.path, "/channels/:channel_id/store-listings/:sku_id/");
+        assert.equal(manifestEntry?.sourceFile, "src/api/routes/channels/#channel_id/store-listings/#sku_id.ts");
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.routeMetadata?.permission, "VIEW_CHANNEL");
         assert.equal(manifestEntry?.routeMetadata?.hasQuery, true);
@@ -291,20 +333,16 @@ describe("GET /channels/:channel_id/store-listing", () => {
 
         const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === assignedSourcePath);
         assert.equal(catalogEntry?.route_name, assignedRouteName);
-        assert.equal(catalogEntry?.source, "src/api/routes/channels/#channel_id/store-listing.ts");
+        assert.equal(catalogEntry?.source, "src/api/routes/channels/#channel_id/store-listings/#sku_id.ts");
         assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "StoreListingResponse"]);
 
         assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === assignedPath),
+            missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === assignedPath && entry.route_name === "CHANNEL_STORE_LISTING_SKU"),
             false,
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "POST" && entry.route === "/channels/{param}/store-listing/entitlement-grant"),
             true,
-        );
-        assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/channels/{param}/store-listings/{param}"),
-            false,
         );
 
         const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);
@@ -335,8 +373,8 @@ const sampleSku: StoreSkuResponse = {
 
 const sampleListing: StoreListingSource = {
     id: "500000000000000001",
-    summary: "Example listing",
-    description: { default: "Example store listing" },
+    summary: "Example channel listing",
+    description: { default: "Example channel store listing" },
     tagline: null,
     flavor_text: null,
     published: true,
@@ -371,7 +409,7 @@ function mockViewChannelPermission(t: TestContext) {
     t.mock.method(permissionsModule, "getPermission", async () => new Permissions(Permissions.FLAGS.VIEW_CHANNEL));
 }
 
-function createRouteApp(dependencies: ChannelStoreListingRouteDependencies = {}) {
+function createRouteApp(dependencies: ChannelStoreListingSkuRouteDependencies = {}) {
     const app = express();
 
     app.use((req, _res, next) => {
@@ -379,7 +417,7 @@ function createRouteApp(dependencies: ChannelStoreListingRouteDependencies = {})
         req.permission = new Permissions(Permissions.FLAGS.VIEW_CHANNEL);
         next();
     });
-    app.use("/channels/:channel_id/store-listing", createChannelStoreListingRouter(dependencies));
+    app.use("/channels/:channel_id/store-listings/:sku_id", createChannelStoreListingSkuRouter(dependencies));
     app.use(ErrorHandler);
 
     return app;
@@ -389,7 +427,7 @@ function createAuthenticatedApp() {
     const app = express();
 
     app.use(Authentication);
-    app.use("/channels/:channel_id/store-listing", createChannelStoreListingRouter());
+    app.use("/channels/:channel_id/store-listings/:sku_id", createChannelStoreListingSkuRouter());
     app.use(ErrorHandler);
 
     return app;
