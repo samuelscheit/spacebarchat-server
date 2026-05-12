@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 715,
+        "totalEntries": 716,
         "byService": {
-            "api": 618,
+            "api": 619,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 690,
+            "http-route": 691,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 176,
-            "stateful-domain": 387,
+            "stateful-domain": 388,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 573,
+            "route-class": 574,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -13985,6 +13985,58 @@
                     403
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "coverage": {
+                "policyId": "api-guild-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "members",
+                    "roles",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/guilds/:guild_id/members/supplemental/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/members/supplemental/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/members/supplemental.ts",
+            "line": 83,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "MANAGE_GUILD",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GuildMembersSupplementalResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
             },
             "rateLimit": {
                 "group": "guild",

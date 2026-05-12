@@ -8370,6 +8370,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildMembersSupplementalResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildMemberSupplemental"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildMessagesSearchResponse": {
         "type": "object",
         "properties": {
@@ -27494,6 +27501,57 @@
             "guild_id",
             "unusual_dm_activity_until",
             "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildMemberSupplemental": {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "join_source_type": {
+                "$ref": "#/definitions/GuildMemberJoinSourceType"
+            },
+            "source_invite_code": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "inviter_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "integration_type": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "join_source_type",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildMemberJoinSourceType": {
+        "type": "number",
+        "enum": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

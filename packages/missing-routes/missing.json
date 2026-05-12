@@ -1,6 +1,6 @@
 {
-    "missing": 570,
-    "spacebar": 610,
+    "missing": 569,
+    "spacebar": 611,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1236,13 +1236,6 @@
             "route_name": "GUILD_LEADERBOARD",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/leaderboards/{param}"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/members/supplemental",
-            "route_name": "MEMBER_SAFETY_SUPPLEMENTAL",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/members/supplemental"]
         },
         {
             "method": "GET",

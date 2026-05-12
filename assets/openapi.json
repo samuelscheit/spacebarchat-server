@@ -7948,6 +7948,12 @@
                     "$ref": "#/components/schemas/GuildMemberUnusualDmActivity"
                 }
             },
+            "GuildMembersSupplementalResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildMemberSupplemental"
+                }
+            },
             "GuildMessagesSearchResponse": {
                 "type": "object",
                 "properties": {
@@ -26057,6 +26063,54 @@
                     "guild_id",
                     "unusual_dm_activity_until",
                     "user_id"
+                ]
+            },
+            "GuildMemberSupplemental": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "join_source_type": {
+                        "$ref": "#/components/schemas/GuildMemberJoinSourceType"
+                    },
+                    "source_invite_code": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "inviter_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "integration_type": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "join_source_type",
+                    "user_id"
+                ]
+            },
+            "GuildMemberJoinSourceType": {
+                "type": "number",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8
                 ]
             },
             "GuildMessagesSearchMessage": {
@@ -51433,6 +51487,74 @@
                             "type": "string"
                         },
                         "description": "Get members after this member ID."
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/members/supplemental/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally persisted guild member join provenance. Spacebar does not currently persist Discord's private member-safety risk signals or invite-source graph, so this endpoint only exposes supported joined_by provenance.",
+                "summary": "Get Guild Members Supplemental",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildMembersSupplementalResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
                     }
                 ],
                 "tags": [
