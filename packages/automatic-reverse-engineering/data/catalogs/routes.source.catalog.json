@@ -907,6 +907,16 @@
 		"source": "src/api/routes/beaker.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "BillingPopupBridgeCallbackSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/billing/popup-bridge/{payment_source_type}/callback",
+		"route_name": "POST_BILLING_POPUP_BRIDGE_PAYMENT_SOURCE_TYPE_CALLBACK",
+		"source": "src/api/routes/billing/popup-bridge/#payment_source_type/callback.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

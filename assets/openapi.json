@@ -790,6 +790,27 @@
                     "message_id"
                 ]
             },
+            "BillingPopupBridgeCallbackSchema": {
+                "type": "object",
+                "properties": {
+                    "state": {
+                        "type": "string"
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "query": {
+                        "$ref": "#/components/schemas/BillingPopupBridgeCallbackQuery"
+                    },
+                    "insecure": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "path",
+                    "state"
+                ]
+            },
             "AutomodMentionSpamRuleSchema": {
                 "type": "object",
                 "properties": {
@@ -19515,6 +19536,12 @@
                     5
                 ]
             },
+            "BillingPopupBridgeCallbackQuery": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
             "AutomodKeywordPresetType": {
                 "type": "number",
                 "enum": [
@@ -37046,6 +37073,9 @@
         },
         {
             "name": "beaker"
+        },
+        {
+            "name": "billing"
         },
         {
             "name": "bogo-promotions"
@@ -67707,6 +67737,76 @@
                 ],
                 "tags": [
                     "bogo-promotions"
+                ]
+            }
+        },
+        "/billing/popup-bridge/{payment_source_type}/callback/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Completes a third-party billing popup flow after the authenticated client receives the provider redirect. Spacebar does not currently persist popup bridge state or provider callback verification data, so the default implementation fails closed instead of accepting unverifiable payment callbacks.",
+                "summary": "Create Billing Popup Bridge Callback",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BillingPopupBridgeCallbackSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "payment_source_type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "payment_source_type"
+                    }
+                ],
+                "tags": [
+                    "billing"
                 ]
             }
         },

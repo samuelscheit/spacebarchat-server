@@ -794,6 +794,29 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "BillingPopupBridgeCallbackSchema": {
+        "type": "object",
+        "properties": {
+            "state": {
+                "type": "string"
+            },
+            "path": {
+                "type": "string"
+            },
+            "query": {
+                "$ref": "#/definitions/BillingPopupBridgeCallbackQuery"
+            },
+            "insecure": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "path",
+            "state"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "AutomodMentionSpamRuleSchema": {
         "type": "object",
         "properties": {
@@ -20609,6 +20632,13 @@
             4,
             5
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "BillingPopupBridgeCallbackQuery": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "string"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "AutomodKeywordPresetType": {
