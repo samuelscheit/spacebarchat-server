@@ -8448,6 +8448,91 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildRoleConnectionRuleApplicationsResponse": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/APIIntegrationApplication"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildRoleConnectionRequirementResponse": {
+        "type": "object",
+        "properties": {
+            "connection_type": {
+                "type": "string"
+            },
+            "connection_metadata_field": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "operator": {
+                "type": [
+                    "null",
+                    "integer"
+                ]
+            },
+            "value": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "application_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "connection_type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildRoleConnectionConfigurationResponse": {
+        "type": "array",
+        "items": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/GuildRoleConnectionRequirementResponse"
+            }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildRoleConnectionRuleResponse": {
+        "type": "object",
+        "properties": {
+            "role_id": {
+                "type": "string"
+            },
+            "rules": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/GuildRoleConnectionRequirementResponse"
+                    }
+                }
+            },
+            "applications": {
+                "$ref": "#/definitions/GuildRoleConnectionRuleApplicationsResponse"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "applications",
+            "role_id",
+            "rules"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildRoleConnectionsConfigurationsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildRoleConnectionRuleResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildScheduledEventExceptionResponse": {
         "type": "object",
         "properties": {

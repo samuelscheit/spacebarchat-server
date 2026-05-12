@@ -1,6 +1,6 @@
 {
-    "missing": 580,
-    "spacebar": 600,
+    "missing": 579,
+    "spacebar": 601,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1322,14 +1322,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/roles/{role_id}/connections/eligibility"],
             "summaries": ["Get Guild Role Connection Eligibility"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/roles/connections-configurations",
-            "route_name": "GET_GUILDS_GUILD_ID_ROLES_CONNECTIONS_CONFIGURATIONS",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/roles/connections-configurations"],
-            "summaries": ["Get Guild Role Connections Configurations"]
         },
         {
             "method": "GET",

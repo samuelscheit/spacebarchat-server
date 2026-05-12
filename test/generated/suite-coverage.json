@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 541,
+        "totalCoveredManifestEntries": 542,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 519,
-                "totalCoveredManifestEntries": 519,
-                "totalCoveredRequiredManifestEntries": 519,
+                "totalRequiredManifestEntries": 520,
+                "totalCoveredManifestEntries": 520,
+                "totalCoveredRequiredManifestEntries": 520,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 378,
+            "stateful-domain": 379,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 519,
-                "totalCoveredManifestEntries": 519,
-                "totalCoveredRequiredManifestEntries": 519,
+                "totalRequiredManifestEntries": 520,
+                "totalCoveredManifestEntries": 520,
+                "totalCoveredRequiredManifestEntries": 520,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -266,6 +266,7 @@
                 "api:http:GET:/guilds/:guild_id/roles/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
+                "api:http:GET:/guilds/:guild_id/roles/connections-configurations/",
                 "api:http:GET:/guilds/:guild_id/roles/member-counts/",
                 "api:http:GET:/guilds/:guild_id/scheduled-events/",
                 "api:http:GET:/guilds/:guild_id/shield.svg/",
@@ -787,6 +788,7 @@
                 "api:http:GET:/guilds/:guild_id/roles/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
+                "api:http:GET:/guilds/:guild_id/roles/connections-configurations/",
                 "api:http:GET:/guilds/:guild_id/roles/member-counts/",
                 "api:http:GET:/guilds/:guild_id/scheduled-events/",
                 "api:http:GET:/guilds/:guild_id/shield.svg/",
@@ -1368,6 +1370,7 @@
                         "api:http:GET:/guilds/:guild_id/roles/",
                         "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                         "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
+                        "api:http:GET:/guilds/:guild_id/roles/connections-configurations/",
                         "api:http:GET:/guilds/:guild_id/roles/member-counts/",
                         "api:http:GET:/guilds/:guild_id/scheduled-events/",
                         "api:http:GET:/guilds/:guild_id/shield.svg/",

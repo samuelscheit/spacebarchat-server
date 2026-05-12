@@ -3120,6 +3120,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildRoleConnectionsConfigurationsResponse"
+		],
+		"route": "/guilds/{guild_id}/roles/connections-configurations",
+		"route_name": "GET_GUILDS_GUILD_ID_ROLES_CONNECTIONS_CONFIGURATIONS",
+		"source": "src/api/routes/guilds/#guild_id/roles/connections-configurations.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/roles/member-counts",
 		"route_name": "GET_GUILDS_GUILD_ID_ROLES_MEMBER_COUNTS",

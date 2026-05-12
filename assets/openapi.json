@@ -8022,6 +8022,84 @@
                     "purged"
                 ]
             },
+            "GuildRoleConnectionRuleApplicationsResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/APIIntegrationApplication"
+                }
+            },
+            "GuildRoleConnectionRequirementResponse": {
+                "type": "object",
+                "properties": {
+                    "connection_type": {
+                        "type": "string"
+                    },
+                    "connection_metadata_field": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "operator": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "value": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "application_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "connection_type"
+                ]
+            },
+            "GuildRoleConnectionConfigurationResponse": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/components/schemas/GuildRoleConnectionRequirementResponse"
+                    }
+                }
+            },
+            "GuildRoleConnectionRuleResponse": {
+                "type": "object",
+                "properties": {
+                    "role_id": {
+                        "type": "string"
+                    },
+                    "rules": {
+                        "type": "array",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/GuildRoleConnectionRequirementResponse"
+                            }
+                        }
+                    },
+                    "applications": {
+                        "$ref": "#/components/schemas/GuildRoleConnectionRuleApplicationsResponse"
+                    }
+                },
+                "required": [
+                    "applications",
+                    "role_id",
+                    "rules"
+                ]
+            },
+            "GuildRoleConnectionsConfigurationsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildRoleConnectionRuleResponse"
+                }
+            },
             "GuildScheduledEventExceptionResponse": {
                 "type": "object",
                 "properties": {
@@ -49382,6 +49460,63 @@
                         }
                     },
                     "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/roles/connections-configurations/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally persisted linked-role connection rules for a guild. Spacebar does not currently persist Discord linked-role configuration state, so this compatibility endpoint returns an empty list for guild members instead of fabricating role requirements.",
+                "summary": "Get Guild Role Connections Configurations",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildRoleConnectionsConfigurationsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
                         "description": "",
                         "content": {
                             "application/json": {
