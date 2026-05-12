@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 556,
+        "totalCoveredManifestEntries": 557,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 534,
-                "totalCoveredManifestEntries": 534,
-                "totalCoveredRequiredManifestEntries": 534,
+                "totalRequiredManifestEntries": 535,
+                "totalCoveredManifestEntries": 535,
+                "totalCoveredRequiredManifestEntries": 535,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 393,
+            "stateful-domain": 394,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 534,
-                "totalCoveredManifestEntries": 534,
-                "totalCoveredRequiredManifestEntries": 534,
+                "totalRequiredManifestEntries": 535,
+                "totalCoveredManifestEntries": 535,
+                "totalCoveredRequiredManifestEntries": 535,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -381,6 +381,7 @@
                 "api:http:GET:/users/@me/survey/",
                 "api:http:GET:/users/@me/valid-collectibles-gift-recipient/",
                 "api:http:GET:/users/@me/valid-collectibles-gift-recipients-batch/",
+                "api:http:GET:/users/@me/video-filters/assets/",
                 "api:http:GET:/users/@me/virtual-currency/balance/",
                 "api:http:GET:/users/@me/widgets/suggested-games/",
                 "api:http:GET:/webhooks/:webhook_id/",
@@ -917,6 +918,7 @@
                 "api:http:GET:/users/@me/survey/",
                 "api:http:GET:/users/@me/valid-collectibles-gift-recipient/",
                 "api:http:GET:/users/@me/valid-collectibles-gift-recipients-batch/",
+                "api:http:GET:/users/@me/video-filters/assets/",
                 "api:http:GET:/users/@me/virtual-currency/balance/",
                 "api:http:GET:/users/@me/widgets/suggested-games/",
                 "api:http:GET:/webhooks/:webhook_id/",
@@ -1284,6 +1286,7 @@
                         "api:http:GET:/users/@me/survey/",
                         "api:http:GET:/users/@me/valid-collectibles-gift-recipient/",
                         "api:http:GET:/users/@me/valid-collectibles-gift-recipients-batch/",
+                        "api:http:GET:/users/@me/video-filters/assets/",
                         "api:http:GET:/users/@me/virtual-currency/balance/",
                         "api:http:GET:/users/@me/widgets/suggested-games/",
                         "api:http:PATCH:/users/:user_id/profile/",

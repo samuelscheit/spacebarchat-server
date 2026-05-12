@@ -229,6 +229,7 @@ export * from "./UserProfileEffectsResponse";
 export * from "./UserProfileResponse";
 export * from "./UserSurveyResponse";
 export * from "./VirtualCurrencyBalanceResponse";
+export * from "./VideoFilterAssetsResponse";
 export * from "./VoiceFiltersCatalogResponse";
 export * from "./UserInviteResponse";
 export * from "./UserGuildsResponse";

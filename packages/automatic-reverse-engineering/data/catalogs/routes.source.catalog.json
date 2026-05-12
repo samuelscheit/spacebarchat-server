@@ -5685,6 +5685,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"VideoFilterAssetsResponse"
+		],
+		"route": "/users/@me/video-filters/assets",
+		"route_name": "GET_USERS__ME_VIDEO_FILTERS_ASSETS",
+		"source": "src/api/routes/users/@me/video-filters/assets.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"VirtualCurrencyBalanceResponse"
 		],
 		"route": "/users/@me/virtual-currency/balance",
