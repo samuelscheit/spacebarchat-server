@@ -1,6 +1,6 @@
 {
-    "missing": 590,
-    "spacebar": 590,
+    "missing": 589,
+    "spacebar": 591,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -315,7 +315,6 @@
         "/teams/{param}/identity/verification",
         "/teams/{param}/members",
         "/teams/{param}/members/{param}",
-        "/teams/{param}/payouts/onboarding",
         "/teams/{param}/payouts/{param}/report",
         "/teams/{param}/stripe/connect/redirect-url",
         "/tutorial/indicators/suppress",
@@ -1519,14 +1518,6 @@
             "sources": ["userdoccers:resources/team.mdx"],
             "source_routes": ["/teams/{team_id}/payouts/{payout_id}/report"],
             "summaries": ["Get Team Payout Report"]
-        },
-        {
-            "method": "GET",
-            "route": "/teams/{param}/payouts/onboarding",
-            "route_name": "GET_TEAMS_TEAM_ID_PAYOUTS_ONBOARDING",
-            "sources": ["userdoccers:resources/team.mdx"],
-            "source_routes": ["/teams/{team_id}/payouts/onboarding"],
-            "summaries": ["Get Team Payout Onboarding"]
         },
         {
             "method": "GET",

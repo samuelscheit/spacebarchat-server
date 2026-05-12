@@ -4458,6 +4458,15 @@
 		"source": "src/api/routes/teams/#team_id/payouts.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/teams/{team_id}/payouts/onboarding",
+		"route_name": "GET_TEAMS_TEAM_ID_PAYOUTS_ONBOARDING",
+		"source": "src/api/routes/teams/#team_id/payouts/onboarding.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [],
 		"route": "/track",
