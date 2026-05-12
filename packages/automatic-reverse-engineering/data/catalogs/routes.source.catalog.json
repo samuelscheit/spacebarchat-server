@@ -2545,6 +2545,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildWelcomeScreenUsersResponse"
+		],
+		"route": "/guilds/{guild_id}/analytics/welcome-screen/users",
+		"route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_WELCOME_SCREEN_USERS",
+		"source": "src/api/routes/guilds/#guild_id/analytics/welcome-screen/users.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/application-command-index",
 		"route_name": "GET_GUILDS_GUILD_ID_APPLICATION_COMMAND_INDEX",

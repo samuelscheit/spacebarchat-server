@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 575,
+        "totalCoveredManifestEntries": 576,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 553,
-                "totalCoveredManifestEntries": 553,
-                "totalCoveredRequiredManifestEntries": 553,
+                "totalRequiredManifestEntries": 554,
+                "totalCoveredManifestEntries": 554,
+                "totalCoveredRequiredManifestEntries": 554,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 412,
+            "stateful-domain": 413,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 553,
-                "totalCoveredManifestEntries": 553,
-                "totalCoveredRequiredManifestEntries": 553,
+                "totalRequiredManifestEntries": 554,
+                "totalCoveredManifestEntries": 554,
+                "totalCoveredRequiredManifestEntries": 554,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -235,6 +235,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/leavers/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/membership/",
                 "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/funnel/",
+                "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/users/",
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
                 "api:http:GET:/guilds/:guild_id/applications/",
                 "api:http:GET:/guilds/:guild_id/audit-logs/",
@@ -790,6 +791,7 @@
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/leavers/",
                 "api:http:GET:/guilds/:guild_id/analytics/growth-activation/membership/",
                 "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/funnel/",
+                "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/users/",
                 "api:http:GET:/guilds/:guild_id/application-command-index/",
                 "api:http:GET:/guilds/:guild_id/applications/",
                 "api:http:GET:/guilds/:guild_id/audit-logs/",
@@ -1420,6 +1422,7 @@
                         "api:http:GET:/guilds/:guild_id/analytics/growth-activation/leavers/",
                         "api:http:GET:/guilds/:guild_id/analytics/growth-activation/membership/",
                         "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/funnel/",
+                        "api:http:GET:/guilds/:guild_id/analytics/welcome-screen/users/",
                         "api:http:GET:/guilds/:guild_id/application-command-index/",
                         "api:http:GET:/guilds/:guild_id/applications/",
                         "api:http:GET:/guilds/:guild_id/audit-logs/",

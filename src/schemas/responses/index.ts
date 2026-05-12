@@ -123,6 +123,7 @@ export * from "./GuildGrowthActivationMembershipResponse";
 export * from "./GuildPreviewResponse";
 export * from "./GuildJoinRequestsResponse";
 export * from "./GuildWelcomeScreenFunnelResponse";
+export * from "./GuildWelcomeScreenUsersResponse";
 export * from "./GravityAttachmentsResponse";
 export * from "./GravityIcyMiResponse";
 export * from "./GravityCustomChannelScoresResponse";

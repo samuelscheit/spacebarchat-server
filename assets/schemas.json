@@ -8498,6 +8498,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildWelcomeScreenUsersResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GuildWelcomeScreenUsersBucket"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GravityAttachmentsResponse": {
         "type": "object",
         "properties": {
@@ -27705,6 +27712,23 @@
             "users_clicked_any_option",
             "users_clicked_option",
             "users_sent_message",
+            "users_viewed_welcome_screen"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildWelcomeScreenUsersBucket": {
+        "type": "object",
+        "properties": {
+            "day_pt": {
+                "type": "string"
+            },
+            "users_viewed_welcome_screen": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "day_pt",
             "users_viewed_welcome_screen"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"

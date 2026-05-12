@@ -1,6 +1,6 @@
 {
-    "missing": 539,
-    "spacebar": 641,
+    "missing": 538,
+    "spacebar": 642,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -120,7 +120,6 @@
         "/guilds/{param}/active-channels",
         "/guilds/{param}/analytics/growth-activation/overview",
         "/guilds/{param}/analytics/growth-activation/retention",
-        "/guilds/{param}/analytics/welcome-screen/users",
         "/guilds/{param}/application-commands/{param}",
         "/guilds/{param}/auto-moderation/alert-action",
         "/guilds/{param}/auto-moderation/clear-mention-raid",
@@ -1108,14 +1107,6 @@
             "sources": ["userdoccers:resources/guild-analytics.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/analytics/growth-activation/retention"],
             "summaries": ["Get Guild Growth Activation Retention"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/analytics/welcome-screen/users",
-            "route_name": "GET_GUILDS_GUILD_ID_ANALYTICS_WELCOME_SCREEN_USERS",
-            "sources": ["userdoccers:resources/guild-analytics.mdx"],
-            "source_routes": ["/guilds/{guild_id}/analytics/welcome-screen/users"],
-            "summaries": ["Get Guild Welcome Screen Users"]
         },
         {
             "method": "GET",
