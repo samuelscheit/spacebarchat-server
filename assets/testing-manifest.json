@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 717,
+        "totalEntries": 718,
         "byService": {
-            "api": 620,
+            "api": 621,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 692,
+            "http-route": 693,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 176,
-            "stateful-domain": 389,
+            "stateful-domain": 390,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 575,
+            "route-class": 576,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2491,6 +2491,47 @@
                     200
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/applications/games-supplemental/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications/games-supplemental/",
+            "sourceFile": "src/api/routes/applications/games-supplemental.ts",
+            "line": 106,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationsGamesSupplementalResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-applications",

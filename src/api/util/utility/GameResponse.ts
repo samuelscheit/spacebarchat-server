@@ -20,6 +20,7 @@ import type { GameResponse, GameSupplementalData } from "@spacebar/schemas";
 import type { Application } from "@spacebar/util";
 
 export type GameApplication = Pick<Application, "id" | "name" | "icon" | "cover_image" | "summary" | "hook" | "announcements_channel_id">;
+export type GameSupplementalApplication = Pick<Application, "id" | "name" | "icon" | "summary" | "announcements_channel_id">;
 
 export function shouldIncludeGameSupplementalData(value: unknown): boolean {
     if (Array.isArray(value)) return shouldIncludeGameSupplementalData(value[0]);
@@ -34,7 +35,7 @@ function nonEmptyString(value: string | null | undefined): string | undefined {
     return trimmed ? trimmed : undefined;
 }
 
-function createGameSupplementalData(application: GameApplication): GameSupplementalData {
+export function serializeApplicationGameSupplementalData(application: GameSupplementalApplication): GameSupplementalData {
     const supplemental: GameSupplementalData = {
         application_id: application.id,
         name: application.name,
@@ -65,7 +66,7 @@ export function serializeApplicationGame(application: GameApplication, includeSu
         companies: [],
     };
 
-    if (includeSupplementalData) response.supplemental_game_data = createGameSupplementalData(application);
+    if (includeSupplementalData) response.supplemental_game_data = serializeApplicationGameSupplementalData(application);
 
     return response;
 }

@@ -5937,6 +5937,12 @@
                     "$ref": "#/components/schemas/GameResponse"
                 }
             },
+            "ApplicationsGamesSupplementalResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GameSupplementalData"
+                }
+            },
             "GameServerRegionResponse": {
                 "type": "object",
                 "properties": {
@@ -66311,6 +66317,63 @@
                         }
                     }
                 },
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
+        "/applications/games-supplemental/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally supported supplemental game metadata for the given application IDs.",
+                "summary": "Get Application Game Supplemental Data",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationsGamesSupplementalResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_ids",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "Application IDs to retrieve supplemental game data for (1-100)."
+                    }
+                ],
                 "tags": [
                     "applications"
                 ]

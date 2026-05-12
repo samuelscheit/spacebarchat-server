@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 552,
+        "totalCoveredManifestEntries": 553,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 530,
-                "totalCoveredManifestEntries": 530,
-                "totalCoveredRequiredManifestEntries": 530,
+                "totalRequiredManifestEntries": 531,
+                "totalCoveredManifestEntries": 531,
+                "totalCoveredRequiredManifestEntries": 531,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 389,
+            "stateful-domain": 390,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 530,
-                "totalCoveredManifestEntries": 530,
-                "totalCoveredRequiredManifestEntries": 530,
+                "totalRequiredManifestEntries": 531,
+                "totalCoveredManifestEntries": 531,
+                "totalCoveredRequiredManifestEntries": 531,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -147,6 +147,7 @@
                 "api:http:GET:/applications/:application_id/verification/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
+                "api:http:GET:/applications/games-supplemental/",
                 "api:http:GET:/auth/generate-registration-tokens/",
                 "api:http:GET:/auth/location-metadata/",
                 "api:http:GET:/auth/sessions/",
@@ -679,6 +680,7 @@
                 "api:http:GET:/applications/:application_id/verification/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
+                "api:http:GET:/applications/games-supplemental/",
                 "api:http:GET:/auth/generate-registration-tokens/",
                 "api:http:GET:/auth/location-metadata/",
                 "api:http:GET:/auth/sessions/",
@@ -1649,6 +1651,7 @@
                         "api:http:GET:/applications/:application_id/verification/",
                         "api:http:GET:/applications/@me/",
                         "api:http:GET:/applications/detectable/",
+                        "api:http:GET:/applications/games-supplemental/",
                         "api:http:PATCH:/applications/:application_id/",
                         "api:http:PATCH:/applications/:application_id/bot/",
                         "api:http:PATCH:/applications/:application_id/commands/:command_id/",

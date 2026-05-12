@@ -6272,6 +6272,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationsGamesSupplementalResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GameSupplementalData"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GameServerRegionResponse": {
         "type": "object",
         "properties": {

@@ -1,6 +1,6 @@
 {
-    "missing": 568,
-    "spacebar": 612,
+    "missing": 567,
+    "spacebar": 613,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1075,7 +1075,6 @@
             "source_routes": ["/applications/{application_id}/users/{user_id}/identities/{external_user_id}/profile"],
             "summaries": ["Get User Application Profile"]
         },
-        { "method": "GET", "route": "/applications/games-supplemental", "route_name": "APPLICATIONS_GAMES_SUPPLEMENTAL", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
             "route": "/applications/public",

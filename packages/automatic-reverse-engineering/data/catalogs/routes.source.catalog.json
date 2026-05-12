@@ -571,6 +571,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ApplicationsGamesSupplementalResponse"
+		],
+		"route": "/applications/games-supplemental",
+		"route_name": "GET_APPLICATIONS_GAMES_SUPPLEMENTAL",
+		"source": "src/api/routes/applications/games-supplemental.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ApplicationDetectableResponse"
 		],
 		"route": "/applications/non-games/detectable",

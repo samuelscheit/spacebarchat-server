@@ -124,3 +124,5 @@ export interface GameResponse {
 }
 
 export type GamesResponse = GameResponse[];
+
+export type ApplicationsGamesSupplementalResponse = GameSupplementalData[];
