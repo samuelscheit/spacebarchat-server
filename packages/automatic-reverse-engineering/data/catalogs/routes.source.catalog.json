@@ -2911,6 +2911,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"GuildOnboardingResponse"
+		],
+		"route": "/guilds/{guild_id}/onboarding",
+		"route_name": "GET_GUILDS_GUILD_ID_ONBOARDING",
+		"source": "src/api/routes/guilds/#guild_id/onboarding.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildOnboardingAllowedApplicationsResponse"
 		],
 		"route": "/guilds/{guild_id}/onboarding/allowed-applications",

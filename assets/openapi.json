@@ -7946,6 +7946,44 @@
                     "application_ids"
                 ]
             },
+            "GuildOnboardingResponse": {
+                "type": "object",
+                "properties": {
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "prompts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GuildOnboardingPrompt"
+                        }
+                    },
+                    "default_channel_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "below_requirements": {
+                        "type": "boolean"
+                    },
+                    "mode": {
+                        "$ref": "#/components/schemas/GuildOnboardingMode"
+                    }
+                },
+                "required": [
+                    "below_requirements",
+                    "default_channel_ids",
+                    "enabled",
+                    "guild_id",
+                    "mode",
+                    "prompts"
+                ]
+            },
             "GuildPruneResponse": {
                 "type": "object",
                 "properties": {
@@ -26081,6 +26119,123 @@
                     "description",
                     "title"
                 ]
+            },
+            "GuildOnboardingPrompt": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "options": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GuildOnboardingPromptOption"
+                        }
+                    },
+                    "single_select": {
+                        "type": "boolean"
+                    },
+                    "required": {
+                        "type": "boolean"
+                    },
+                    "in_onboarding": {
+                        "type": "boolean"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/GuildOnboardingPromptType"
+                    }
+                },
+                "required": [
+                    "id",
+                    "in_onboarding",
+                    "options",
+                    "required",
+                    "single_select",
+                    "title",
+                    "type"
+                ]
+            },
+            "GuildOnboardingPromptOption": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "emoji": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/GuildOnboardingEmoji"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "role_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "channel_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "channel_ids",
+                    "description",
+                    "id",
+                    "role_ids",
+                    "title"
+                ]
+            },
+            "GuildOnboardingEmoji": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "animated": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "GuildOnboardingPromptType": {
+                "enum": [
+                    0,
+                    1
+                ],
+                "type": "number"
+            },
+            "GuildOnboardingMode": {
+                "enum": [
+                    0,
+                    1
+                ],
+                "type": "number"
             },
             "GuildScheduledEventPrivacyLevel": {
                 "type": "number",
@@ -49784,6 +49939,74 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/onboarding/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the guild onboarding configuration. Spacebar does not currently persist Discord's onboarding prompts, default channel opt-ins, or enabled state, so this compatibility endpoint returns a disabled onboarding object with empty prompts and default channels. Discord requires MANAGE_GUILD when onboarding is disabled.",
+                "summary": "Get Guild Onboarding",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildOnboardingResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

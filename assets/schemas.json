@@ -8363,6 +8363,46 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildOnboardingResponse": {
+        "type": "object",
+        "properties": {
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "prompts": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildOnboardingPrompt"
+                }
+            },
+            "default_channel_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "enabled": {
+                "type": "boolean"
+            },
+            "below_requirements": {
+                "type": "boolean"
+            },
+            "mode": {
+                "$ref": "#/definitions/GuildOnboardingMode"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "below_requirements",
+            "default_channel_ids",
+            "enabled",
+            "guild_id",
+            "mode",
+            "prompts"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildPruneResponse": {
         "type": "object",
         "properties": {
@@ -27498,6 +27538,131 @@
             "description",
             "title"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildOnboardingPrompt": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            },
+            "options": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GuildOnboardingPromptOption"
+                }
+            },
+            "single_select": {
+                "type": "boolean"
+            },
+            "required": {
+                "type": "boolean"
+            },
+            "in_onboarding": {
+                "type": "boolean"
+            },
+            "type": {
+                "$ref": "#/definitions/GuildOnboardingPromptType"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "in_onboarding",
+            "options",
+            "required",
+            "single_select",
+            "title",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildOnboardingPromptOption": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "title": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
+            "emoji": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/GuildOnboardingEmoji"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "role_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "channel_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "channel_ids",
+            "description",
+            "id",
+            "role_ids",
+            "title"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildOnboardingEmoji": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "animated": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildOnboardingPromptType": {
+        "enum": [
+            0,
+            1
+        ],
+        "type": "number",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GuildOnboardingMode": {
+        "enum": [
+            0,
+            1
+        ],
+        "type": "number",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "GuildScheduledEventPrivacyLevel": {

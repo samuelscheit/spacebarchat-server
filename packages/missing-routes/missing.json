@@ -1,6 +1,6 @@
 {
-    "missing": 587,
-    "spacebar": 593,
+    "missing": 586,
+    "spacebar": 594,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1264,14 +1264,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/new-member-actions"],
             "summaries": ["Get Guild New Member Actions"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/onboarding",
-            "route_name": "GET_GUILDS_GUILD_ID_ONBOARDING",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/onboarding"],
-            "summaries": ["Get Guild Onboarding"]
         },
         {
             "method": "GET",

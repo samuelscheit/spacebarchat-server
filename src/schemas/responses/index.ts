@@ -123,6 +123,7 @@ export * from "./GuildIntegrationResponse";
 export * from "./GuildMessagesSearchResponse";
 export * from "./GuildNewMemberWelcomeResponse";
 export * from "./GuildOnboardingAllowedApplicationsResponse";
+export * from "./GuildOnboardingResponse";
 export * from "./GuildPruneResponse";
 export * from "./GuildRecommendationsResponse";
 export * from "./GuildScheduledEventResponse";
