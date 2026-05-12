@@ -27,6 +27,8 @@ import { DiscordApiErrors } from "@spacebar/util";
 import express from "express";
 import {
     createApplicationSubscriptionGroupListingRouter,
+    deleteApplicationSubscriptionGroupListing,
+    deleteConfiguredApplicationSubscriptionGroupListing,
     getApplicationSubscriptionGroupListing,
     getConfiguredApplicationSubscriptionGroupListing,
     UNKNOWN_APPLICATION_SUBSCRIPTION_GROUP_LISTING_ERROR,
@@ -36,7 +38,8 @@ import {
 const applicationId = "100000000000000001";
 const listingId = "100000000000000002";
 const otherListingId = "100000000000000003";
-const manifestId = "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/";
+const getManifestId = "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/";
+const deleteManifestId = "api:http:DELETE:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/";
 const assignedRoute = "/applications/{param}/subscription-group-listings/{param}";
 const sourceRoute = "/applications/{application_id}/subscription-group-listings/{subscription_group_listing_id}";
 const sourceFile = "src/api/routes/applications/#application_id/subscription-group-listings/#subscription_group_listing_id.ts";
@@ -55,6 +58,12 @@ type OpenApiDocument = {
         string,
         {
             get?: {
+                summary?: string;
+                description?: string;
+                responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                security?: unknown;
+            };
+            delete?: {
                 summary?: string;
                 description?: string;
                 responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
@@ -124,7 +133,7 @@ function createRouteApp(userId: string, dependencies: ApplicationSubscriptionGro
     return app;
 }
 
-async function requestJson(app: express.Express, requestPath: string) {
+async function requestJson(app: express.Express, requestPath: string, init: { method?: string } = {}) {
     const server = http.createServer(app);
     await new Promise<void>((resolve) => {
         server.listen(0, "127.0.0.1", resolve);
@@ -134,7 +143,7 @@ async function requestJson(app: express.Express, requestPath: string) {
     if (!address || typeof address === "string") throw new Error("Expected HTTP server to listen on a TCP port");
 
     try {
-        const response = await fetch(`http://127.0.0.1:${(address as AddressInfo).port}${requestPath}`);
+        const response = await fetch(`http://127.0.0.1:${(address as AddressInfo).port}${requestPath}`, init);
         const text = await response.text();
         return {
             status: response.status,
@@ -217,12 +226,75 @@ describe("GET /applications/:application_id/subscription-group-listings/:subscri
         assert.equal(listingProvider.mock.callCount(), 1);
     });
 
+    test("deletes provider-backed listing data for users with application store access", async (t) => {
+        const applicationRepository = createApplicationRepository(t);
+        const listingDeleter = t.mock.fn(async (_options: unknown) => true);
+
+        const result = await deleteApplicationSubscriptionGroupListing(applicationId, listingId, "owner", {
+            applicationRepository,
+            listingDeleter,
+        });
+
+        assert.equal(result, true);
+        assert.deepEqual(applicationRepository.findOne.mock.calls[0].arguments[0], {
+            where: { id: applicationId },
+            relations: {
+                owner: true,
+                bot: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+        assert.deepEqual(listingDeleter.mock.calls[0].arguments[0], {
+            application_id: applicationId,
+            subscription_group_listing_id: listingId,
+        });
+
+        const response = await requestJson(
+            createRouteApp("owner", { applicationRepository, listingDeleter }),
+            `/applications/${applicationId}/subscription-group-listings/${listingId}`,
+            { method: "DELETE" },
+        );
+
+        assert.equal(response.status, 204);
+        assert.equal(response.body, undefined);
+        assert.equal(listingDeleter.mock.callCount(), 2);
+    });
+
+    test("fails closed with a not-found store listing error when no local deleter exists", async (t) => {
+        const applicationRepository = createApplicationRepository(t);
+        const listingDeleter = t.mock.fn(deleteConfiguredApplicationSubscriptionGroupListing);
+
+        assert.equal(
+            await deleteApplicationSubscriptionGroupListing(applicationId, listingId, "owner", {
+                applicationRepository,
+                listingDeleter,
+            }),
+            false,
+        );
+
+        const response = await requestJson(
+            createRouteApp("owner", { applicationRepository, listingDeleter }),
+            `/applications/${applicationId}/subscription-group-listings/${listingId}`,
+            { method: "DELETE" },
+        );
+
+        assert.equal(response.status, 404);
+        assert.deepEqual(response.body, {
+            code: DiscordApiErrors.UNKNOWN_STORE_LISTING.code,
+            message: DiscordApiErrors.UNKNOWN_STORE_LISTING.message,
+        });
+        assert.equal(listingDeleter.mock.callCount(), 2);
+    });
+
     test("returns 403 before consulting subscription group listing data for unauthorized application users", async (t) => {
         const applicationRepository = createApplicationRepository(t);
         const listingProvider = t.mock.fn(async (_options: unknown) => ({
             id: listingId,
             application_id: applicationId,
         }));
+        const listingDeleter = t.mock.fn(async (_options: unknown) => true);
 
         const response = await requestJson(
             createRouteApp("viewer", { applicationRepository, listingProvider }),
@@ -235,6 +307,19 @@ describe("GET /applications/:application_id/subscription-group-listings/:subscri
             message: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.message,
         });
         assert.equal(listingProvider.mock.callCount(), 0);
+
+        const deleteResponse = await requestJson(
+            createRouteApp("viewer", { applicationRepository, listingDeleter }),
+            `/applications/${applicationId}/subscription-group-listings/${listingId}`,
+            { method: "DELETE" },
+        );
+
+        assert.equal(deleteResponse.status, 403);
+        assert.deepEqual(deleteResponse.body, {
+            code: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.code,
+            message: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.message,
+        });
+        assert.equal(listingDeleter.mock.callCount(), 0);
     });
 
     test("rejects malformed or mismatched route identifiers without returning unrelated listings", async (t) => {
@@ -243,6 +328,7 @@ describe("GET /applications/:application_id/subscription-group-listings/:subscri
             id: otherListingId,
             application_id: applicationId,
         }));
+        const listingDeleter = t.mock.fn(async (options: { subscription_group_listing_id: string }) => options.subscription_group_listing_id === listingId);
 
         await assert.rejects(
             () => getApplicationSubscriptionGroupListing("not-a-snowflake", listingId, "owner", { applicationRepository, listingProvider }),
@@ -256,9 +342,29 @@ describe("GET /applications/:application_id/subscription-group-listings/:subscri
             () => getApplicationSubscriptionGroupListing(applicationId, listingId, "owner", { applicationRepository, listingProvider }),
             (error: { code?: unknown }) => error.code === DiscordApiErrors.UNKNOWN_STORE_LISTING.code,
         );
+        await assert.rejects(
+            () => deleteApplicationSubscriptionGroupListing("not-a-snowflake", listingId, "owner", { applicationRepository, listingDeleter }),
+            (error: { code?: unknown }) => error.code === DiscordApiErrors.UNKNOWN_APPLICATION.code,
+        );
+        await assert.rejects(
+            () => deleteApplicationSubscriptionGroupListing(applicationId, "not-a-snowflake", "owner", { applicationRepository, listingDeleter }),
+            (error: { code?: unknown }) => error.code === DiscordApiErrors.UNKNOWN_STORE_LISTING.code,
+        );
+
+        assert.equal(
+            await deleteApplicationSubscriptionGroupListing(applicationId, otherListingId, "owner", {
+                applicationRepository,
+                listingDeleter,
+            }),
+            false,
+        );
+        assert.deepEqual(listingDeleter.mock.calls[0].arguments[0], {
+            application_id: applicationId,
+            subscription_group_listing_id: otherListingId,
+        });
     });
 
-    test("generated artifacts cover the assigned GET route and leave adjacent mutation routes missing", () => {
+    test("generated artifacts cover the assigned route methods and leave adjacent routes untouched", () => {
         const routeSource = readFileSync(join(process.cwd(), sourceFile), "utf8");
         const schemas = readJson<Record<string, JsonSchema>>(join("assets", "schemas.json"));
         const openapi = readJson<OpenApiDocument>(join("assets", "openapi.json"));
@@ -269,19 +375,29 @@ describe("GET /applications/:application_id/subscription-group-listings/:subscri
         const suiteCoverage = readJson<SuiteCoverage>(join("test", "generated", "suite-coverage.json"));
 
         assert.match(routeSource, /router\.get\(\s*["']\/["']/);
-        assert.doesNotMatch(routeSource, /router\.(?:post|put|patch|delete)\(/);
+        assert.match(routeSource, /router\.delete\(\s*["']\/["']/);
+        assert.doesNotMatch(routeSource, /router\.(?:post|put|patch)\(/);
         assert.doesNotMatch(routeSource, /role-subscriptions|subscription-listings|trial|trials|products|purchase|payout|entitlement|billing|sku/i);
 
         assert.equal(schemas.ApplicationSubscriptionGroupListingResponse?.type, "object");
         assert.deepEqual(schemas.ApplicationSubscriptionGroupListingResponse?.additionalProperties, {});
 
-        const route = openapi.paths?.["/applications/{application_id}/subscription-group-listings/{subscription_group_listing_id}/"]?.get;
-        assert.equal(route?.summary, "Get Application Subscription Group Listing");
-        assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/ApplicationSubscriptionGroupListingResponse");
-        assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.deepEqual(route?.security, [{ bearer: [] }]);
+        const path = openapi.paths?.["/applications/{application_id}/subscription-group-listings/{subscription_group_listing_id}/"];
+        const getRoute = path?.get;
+        assert.equal(getRoute?.summary, "Get Application Subscription Group Listing");
+        assert.equal(getRoute?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/ApplicationSubscriptionGroupListingResponse");
+        assert.equal(getRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(getRoute?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(getRoute?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(getRoute?.security, [{ bearer: [] }]);
+
+        const deleteRoute = path?.delete;
+        assert.equal(deleteRoute?.summary, "Delete Application Subscription Group Listing");
+        assert.equal(deleteRoute?.responses?.["204"]?.content, undefined);
+        assert.equal(deleteRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(deleteRoute?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(deleteRoute?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(deleteRoute?.security, [{ bearer: [] }]);
 
         const getSourceRoute = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === sourceRoute);
         assert.equal(getSourceRoute?.route_name, "GET_APPLICATIONS_APPLICATION_ID_SUBSCRIPTION_GROUP_LISTINGS_SUBSCRIPTION_GROUP_LISTING_ID");
@@ -289,30 +405,44 @@ describe("GET /applications/:application_id/subscription-group-listings/:subscri
         assert.equal(getSourceRoute?.response_schema_refs?.includes("ApplicationSubscriptionGroupListingResponse"), true);
         assert.equal(getSourceRoute?.response_schema_refs?.includes("APIErrorResponse"), true);
 
-        assert.equal(
-            missingRoutes.missing_entries.some((entry) => entry.method === "GET" && entry.route === assignedRoute && entry.route_name === "APPLICATION_SUBSCRIPTION_GROUP_LISTING"),
-            false,
-        );
-        assert.equal(
-            missingRoutes.missing_entries.some(
-                (entry) => entry.method === "DELETE" && entry.route === assignedRoute && entry.route_name === "APPLICATION_SUBSCRIPTION_GROUP_LISTING",
-            ),
-            true,
-        );
+        const deleteSourceRoute = sourceCatalog.find((entry) => entry.method === "DELETE" && entry.route === sourceRoute);
+        assert.equal(deleteSourceRoute?.route_name, "DELETE_APPLICATIONS_APPLICATION_ID_SUBSCRIPTION_GROUP_LISTINGS_SUBSCRIPTION_GROUP_LISTING_ID");
+        assert.equal(deleteSourceRoute?.source, sourceFile);
+        assert.equal(deleteSourceRoute?.response_schema_refs?.includes("APIErrorResponse"), true);
+        assert.equal(deleteSourceRoute?.response_schema_refs?.includes("ApplicationSubscriptionGroupListingResponse"), false);
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === manifestId);
-        assert.equal(manifestEntry?.authMode, "bearer");
-        assert.equal(manifestEntry?.sourceFile, sourceFile);
-        assert.equal(manifestEntry?.routeMetadata?.present, true);
-        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("ApplicationSubscriptionGroupListingResponse"), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
-        assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [200, 401, 403, 404]);
+        for (const method of ["GET", "DELETE"]) {
+            assert.equal(
+                missingRoutes.missing_entries.some(
+                    (entry) => entry.method === method && entry.route === assignedRoute && entry.route_name === "APPLICATION_SUBSCRIPTION_GROUP_LISTING",
+                ),
+                false,
+            );
+        }
 
-        assert.equal(
-            contractMatrix.contracts?.some((contract) => contract.manifestId === manifestId),
-            true,
-        );
+        const getManifestEntry = manifest.entries?.find((entry) => entry.id === getManifestId);
+        assert.equal(getManifestEntry?.authMode, "bearer");
+        assert.equal(getManifestEntry?.sourceFile, sourceFile);
+        assert.equal(getManifestEntry?.routeMetadata?.present, true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseBodies?.includes("ApplicationSubscriptionGroupListingResponse"), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.deepEqual(getManifestEntry?.routeMetadata?.responseStatuses, [200, 401, 403, 404]);
+
+        const deleteManifestEntry = manifest.entries?.find((entry) => entry.id === deleteManifestId);
+        assert.equal(deleteManifestEntry?.authMode, "bearer");
+        assert.equal(deleteManifestEntry?.sourceFile, sourceFile);
+        assert.equal(deleteManifestEntry?.routeMetadata?.present, true);
+        assert.deepEqual(deleteManifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(deleteManifestEntry?.routeMetadata?.responseStatuses, [204, 401, 403, 404]);
+
+        for (const id of [getManifestId, deleteManifestId]) {
+            assert.equal(
+                contractMatrix.contracts?.some((contract) => contract.manifestId === id),
+                true,
+            );
+        }
         const applicationsSuite = suiteCoverage.groups?.flatMap((group) => group.suites ?? []).find((suite) => suite.id === "applications-commands");
-        assert.equal(applicationsSuite?.manifestIds?.includes(manifestId), true);
+        assert.equal(applicationsSuite?.manifestIds?.includes(getManifestId), true);
+        assert.equal(applicationsSuite?.manifestIds?.includes(deleteManifestId), true);
     });
 });

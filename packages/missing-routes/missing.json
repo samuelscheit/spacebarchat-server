@@ -1,6 +1,6 @@
 {
-    "missing": 542,
-    "spacebar": 638,
+    "missing": 541,
+    "spacebar": 639,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -44,7 +44,6 @@
         "/applications/{param}/social-sdk/enable",
         "/applications/{param}/store-layout",
         "/applications/{param}/storefront/publish",
-        "/applications/{param}/subscription-group-listings/{param}",
         "/applications/{param}/transfer",
         "/applications/{param}/users/{param}/identities/{param}/profile",
         "/attachments/refresh-urls",
@@ -516,13 +515,6 @@
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/applications/{application_id}/managed-links/{activity_link_id}", "/applications/{application_id}/managed-links/{param}"],
             "summaries": ["Delete Application Managed Link"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/applications/{param}/subscription-group-listings/{param}",
-            "route_name": "APPLICATION_SUBSCRIPTION_GROUP_LISTING",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/applications/{application_id}/subscription-group-listings/{param}"]
         },
         {
             "method": "DELETE",

@@ -35,9 +35,12 @@ export type ApplicationSubscriptionGroupListingProvider = (
     options: ApplicationSubscriptionGroupListingProviderOptions,
 ) => ApplicationSubscriptionGroupListingSource | undefined | Promise<ApplicationSubscriptionGroupListingSource | undefined>;
 
+export type ApplicationSubscriptionGroupListingDeleter = (options: ApplicationSubscriptionGroupListingProviderOptions) => boolean | Promise<boolean>;
+
 export type ApplicationSubscriptionGroupListingRouteDependencies = {
     applicationRepository?: ApplicationCommandAuthorizationRepository;
     listingProvider?: ApplicationSubscriptionGroupListingProvider;
+    listingDeleter?: ApplicationSubscriptionGroupListingDeleter;
 };
 
 export const UNKNOWN_APPLICATION_SUBSCRIPTION_GROUP_LISTING_ERROR = new ApiError(DiscordApiErrors.UNKNOWN_STORE_LISTING.message, DiscordApiErrors.UNKNOWN_STORE_LISTING.code, 404);
@@ -51,6 +54,11 @@ export function getConfiguredApplicationSubscriptionGroupListing(
 ): ApplicationSubscriptionGroupListingSource | undefined {
     // Spacebar does not currently persist Discord application subscription group listing catalogs.
     return undefined;
+}
+
+export function deleteConfiguredApplicationSubscriptionGroupListing(_options: ApplicationSubscriptionGroupListingProviderOptions): boolean {
+    // Spacebar does not currently persist Discord application subscription group listing catalogs.
+    return false;
 }
 
 export function toApplicationSubscriptionGroupListingResponse(listing: ApplicationSubscriptionGroupListingSource): ApplicationSubscriptionGroupListingResponse {
@@ -84,10 +92,37 @@ export async function getApplicationSubscriptionGroupListing(
     return toApplicationSubscriptionGroupListingResponse(listing);
 }
 
+export async function deleteApplicationSubscriptionGroupListing(
+    applicationId: string,
+    subscriptionGroupListingId: string,
+    userId: string,
+    dependencies: ApplicationSubscriptionGroupListingRouteDependencies = {},
+): Promise<boolean> {
+    if (!isApplicationSubscriptionGroupListingRouteSnowflake(applicationId)) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+    if (!isApplicationSubscriptionGroupListingRouteSnowflake(subscriptionGroupListingId)) throw UNKNOWN_APPLICATION_SUBSCRIPTION_GROUP_LISTING_ERROR;
+
+    await requireApplicationStoreAccess(applicationId, userId, dependencies.applicationRepository);
+
+    const deleter = dependencies.listingDeleter ?? deleteConfiguredApplicationSubscriptionGroupListing;
+    const deleted = await deleter({
+        application_id: applicationId,
+        subscription_group_listing_id: subscriptionGroupListingId,
+    });
+
+    return deleted === true;
+}
+
 function sendApplicationAuthorizationError(res: Response) {
     return res.status(403).json({
         code: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.code,
         message: DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION.message,
+    });
+}
+
+function sendUnknownApplicationSubscriptionGroupListing(res: Response) {
+    return res.status(404).json({
+        code: UNKNOWN_APPLICATION_SUBSCRIPTION_GROUP_LISTING_ERROR.code,
+        message: UNKNOWN_APPLICATION_SUBSCRIPTION_GROUP_LISTING_ERROR.message,
     });
 }
 
@@ -129,6 +164,43 @@ export function createApplicationSubscriptionGroupListingRouter(dependencies: Ap
                 );
 
                 return res.status(200).json(listing);
+            } catch (error) {
+                if (isApplicationAuthorizationError(error)) return sendApplicationAuthorizationError(res);
+                throw error;
+            }
+        },
+    );
+
+    router.delete(
+        "/",
+        route({
+            summary: "Delete Application Subscription Group Listing",
+            description:
+                "Deletes a provider-backed application subscription group listing after verifying the current user can access the owning application's store data. Spacebar does not persist Discord subscription group listing catalogs, so the default behavior is a not-found response rather than deleting fabricated commerce state.",
+            responses: {
+                204: {},
+                401: {
+                    body: "APIErrorResponse",
+                },
+                403: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            try {
+                const deleted = await deleteApplicationSubscriptionGroupListing(
+                    req.params.application_id as string,
+                    req.params.subscription_group_listing_id as string,
+                    req.user_id,
+                    dependencies,
+                );
+                if (!deleted) return sendUnknownApplicationSubscriptionGroupListing(res);
+
+                return res.status(204).send();
             } catch (error) {
                 if (isApplicationAuthorizationError(error)) return sendApplicationAuthorizationError(res);
                 throw error;

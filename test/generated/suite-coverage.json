@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 572,
+        "totalCoveredManifestEntries": 573,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 550,
-                "totalCoveredManifestEntries": 550,
-                "totalCoveredRequiredManifestEntries": 550,
+                "totalRequiredManifestEntries": 551,
+                "totalCoveredManifestEntries": 551,
+                "totalCoveredRequiredManifestEntries": 551,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 409,
+            "stateful-domain": 410,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 550,
-                "totalCoveredManifestEntries": 550,
-                "totalCoveredRequiredManifestEntries": 550,
+                "totalRequiredManifestEntries": 551,
+                "totalCoveredManifestEntries": 551,
+                "totalCoveredRequiredManifestEntries": 551,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -78,6 +78,7 @@
                 "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:DELETE:/applications/:application_id/external-identity-provider-configurations/:identity_provider_type",
                 "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
+                "api:http:DELETE:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
                 "api:http:DELETE:/attachments/report-false-positive/",
                 "api:http:DELETE:/attachments/sender-report-false-positive/",
                 "api:http:DELETE:/channels/:channel_id/",
@@ -630,6 +631,7 @@
                 "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:DELETE:/applications/:application_id/external-identity-provider-configurations/:identity_provider_type",
                 "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
+                "api:http:DELETE:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
                 "api:http:DELETE:/attachments/report-false-positive/",
                 "api:http:DELETE:/attachments/sender-report-false-positive/",
                 "api:http:DELETE:/channels/:channel_id/",
@@ -1684,6 +1686,7 @@
                         "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:DELETE:/applications/:application_id/external-identity-provider-configurations/:identity_provider_type",
                         "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
+                        "api:http:DELETE:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
                         "api:http:GET:/applications-with-assets/",
                         "api:http:GET:/applications/",
                         "api:http:GET:/applications/:application_id/",

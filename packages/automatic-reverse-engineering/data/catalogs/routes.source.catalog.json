@@ -538,6 +538,15 @@
 		"source": "src/api/routes/applications/#application_id/skus.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/{application_id}/subscription-group-listings/{subscription_group_listing_id}",
+		"route_name": "DELETE_APPLICATIONS_APPLICATION_ID_SUBSCRIPTION_GROUP_LISTINGS_SUBSCRIPTION_GROUP_LISTING_ID",
+		"source": "src/api/routes/applications/#application_id/subscription-group-listings/#subscription_group_listing_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
