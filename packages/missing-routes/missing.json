@@ -1,9 +1,8 @@
 {
-    "missing": 515,
-    "spacebar": 665,
+    "missing": 514,
+    "spacebar": 666,
     "discord": 1128,
     "routes": [
-        "/activities/{param}/{param}",
         "/ai/summarize-thread/{param}",
         "/ai/title",
         "/ai/translate",
@@ -1911,14 +1910,6 @@
             "sources": ["userdoccers:interactions/receiving-and-responding.mdx"],
             "source_routes": ["/webhooks/{application_id}/{interaction_token}/messages/@original"],
             "summaries": ["Modify Original Interaction Response"]
-        },
-        {
-            "method": "POST",
-            "route": "/activities/{param}/{param}",
-            "route_name": "POST_ACTIVITIES_CHANNEL_ID_APPLICATION_ID",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/activities/{channel_id}/{application_id}"],
-            "summaries": ["Launch Embedded Activity"]
         },
         {
             "method": "POST",

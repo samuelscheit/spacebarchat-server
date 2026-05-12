@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 770,
+        "totalEntries": 771,
         "byService": {
-            "api": 673,
+            "api": 674,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 745,
+            "http-route": 746,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 194,
+            "contract": 195,
             "stateful-domain": 423,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 627,
+            "route-class": 628,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -407,6 +407,45 @@
                     204,
                     400,
                     401,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/activities/:channel_id/:application_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/activities/:channel_id/:application_id/",
+            "sourceFile": "src/api/routes/activities/#channel_id/#application_id.ts",
+            "line": 319,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "ActivityLaunchSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    403,
                     404
                 ],
                 "hasQuery": false

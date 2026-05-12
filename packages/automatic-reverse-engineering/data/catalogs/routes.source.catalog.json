@@ -72,6 +72,16 @@
 		"source": "src/api/routes/activities/#application_id/test-mode.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "ActivityLaunchSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/activities/{channel_id}/{application_id}",
+		"route_name": "POST_ACTIVITIES_CHANNEL_ID_APPLICATION_ID",
+		"source": "src/api/routes/activities/#channel_id/#application_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

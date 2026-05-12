@@ -16,6 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 export * from "./AIFixGrammarSchema";
+export * from "./ActivityLaunchSchema";
 export * from "./ActivitySessionUpdateSchema";
 export * from "./ActivitySchema";
 export * from "./AgeVerificationVerifySchema";

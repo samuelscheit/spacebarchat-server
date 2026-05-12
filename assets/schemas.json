@@ -573,6 +573,20 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ActivityLaunchSchema": {
+        "type": "object",
+        "properties": {
+            "session_id": {
+                "minLength": 1,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "session_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ActivitySessionUpdateSchema": {
         "type": "object",
         "properties": {
