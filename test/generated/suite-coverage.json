@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 523,
+        "totalCoveredManifestEntries": 524,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 501,
-                "totalCoveredManifestEntries": 501,
-                "totalCoveredRequiredManifestEntries": 501,
+                "totalRequiredManifestEntries": 502,
+                "totalCoveredManifestEntries": 502,
+                "totalCoveredRequiredManifestEntries": 502,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 361,
+            "stateful-domain": 362,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 501,
-                "totalCoveredManifestEntries": 501,
-                "totalCoveredRequiredManifestEntries": 501,
+                "totalRequiredManifestEntries": 502,
+                "totalCoveredManifestEntries": 502,
+                "totalCoveredRequiredManifestEntries": 502,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -302,6 +302,7 @@
                 "api:http:GET:/users/:user_id/messages/",
                 "api:http:GET:/users/:user_id/profile/",
                 "api:http:GET:/users/:user_id/relationships/",
+                "api:http:GET:/users/:user_id/sessions/:session_id/activities/:application_id/metadata/",
                 "api:http:GET:/users/@me/",
                 "api:http:GET:/users/@me/activities/statistics/applications/",
                 "api:http:GET:/users/@me/affinities/channels/",
@@ -805,6 +806,7 @@
                 "api:http:GET:/users/:user_id/messages/",
                 "api:http:GET:/users/:user_id/profile/",
                 "api:http:GET:/users/:user_id/relationships/",
+                "api:http:GET:/users/:user_id/sessions/:session_id/activities/:application_id/metadata/",
                 "api:http:GET:/users/@me/",
                 "api:http:GET:/users/@me/activities/statistics/applications/",
                 "api:http:GET:/users/@me/affinities/channels/",
@@ -1150,6 +1152,7 @@
                         "api:http:GET:/users/:user_id/messages/",
                         "api:http:GET:/users/:user_id/profile/",
                         "api:http:GET:/users/:user_id/relationships/",
+                        "api:http:GET:/users/:user_id/sessions/:session_id/activities/:application_id/metadata/",
                         "api:http:GET:/users/@me/",
                         "api:http:GET:/users/@me/activities/statistics/applications/",
                         "api:http:GET:/users/@me/affinities/channels/",

@@ -4572,6 +4572,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ActivityMetadataResponse"
+		],
+		"route": "/users/{user_id}/sessions/{session_id}/activities/{application_id}/metadata",
+		"route_name": "GET_USERS_USER_ID_SESSIONS_SESSION_ID_ACTIVITIES_APPLICATION_ID_METADATA",
+		"source": "src/api/routes/users/#user_id/sessions/#session_id/activities/#application_id/metadata.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIPrivateUser"
 		],
 		"route": "/users/@me",

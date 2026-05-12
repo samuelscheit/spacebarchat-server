@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 683,
+        "totalEntries": 684,
         "byService": {
-            "api": 586,
+            "api": 587,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 658,
+            "http-route": 659,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 171,
-            "stateful-domain": 361,
+            "stateful-domain": 362,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 22,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 541,
+            "route-class": 542,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -7357,7 +7357,7 @@
             "method": "GET",
             "path": "/channels/:channel_id/store-listings/:sku_id/",
             "sourceFile": "src/api/routes/channels/#channel_id/store-listings/#sku_id.ts",
-            "line": 91,
+            "line": 89,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -21221,6 +21221,49 @@
                 ],
                 "responseStatuses": [
                     200,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/:user_id/sessions/:session_id/activities/:application_id/metadata/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/:user_id/sessions/:session_id/activities/:application_id/metadata/",
+            "sourceFile": "src/api/routes/users/#user_id/sessions/#session_id/activities/#application_id/metadata.ts",
+            "line": 111,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "ActivityMetadataResponse",
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    204,
+                    401,
+                    403,
                     404
                 ],
                 "hasQuery": false
