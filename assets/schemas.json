@@ -11324,6 +11324,22 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PaymentInvoiceBreakdownResponse": {
+        "type": "object",
+        "properties": {
+            "invoiceLink": {
+                "type": "string"
+            },
+            "refundInvoiceLinks": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PaymentSourceBillingAddressResponse": {
         "type": "object",
         "properties": {

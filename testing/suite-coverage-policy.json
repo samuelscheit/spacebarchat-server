@@ -62,6 +62,7 @@
                         "test/scenarios/users-entitlements-gifts.test.ts",
                         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",
                         "src/api/routes/users/@me/guilds/premium/subscriptions.test.ts",
+                        "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",

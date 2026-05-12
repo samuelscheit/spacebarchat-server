@@ -1,6 +1,6 @@
 {
-    "missing": 550,
-    "spacebar": 630,
+    "missing": 549,
+    "spacebar": 631,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -334,7 +334,6 @@
         "/users/@me/billing/churn-user-offer",
         "/users/@me/billing/eligible-application-subscription-guilds",
         "/users/@me/billing/invoice",
-        "/users/@me/billing/invoice/breakdown",
         "/users/@me/billing/localized-pricing-promo",
         "/users/@me/billing/nitro-affinity",
         "/users/@me/billing/payment-sources/validate-billing-address",
@@ -1438,13 +1437,6 @@
             "route": "/users/@me/billing/eligible-application-subscription-guilds",
             "route_name": "ELIGIBLE_APPLICATION_SUBSCRIPTION_GUILDS",
             "sources": ["xhyrom:data/client/routes.json"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/billing/invoice/breakdown",
-            "route_name": "GET_USERS__ME_BILLING_INVOICE_BREAKDOWN",
-            "sources": ["userdoccers:resources/payment.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Payment Invoice Breakdown"]
         },
         {
             "method": "GET",

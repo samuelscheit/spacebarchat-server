@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 564,
+        "totalCoveredManifestEntries": 565,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 542,
-                "totalCoveredManifestEntries": 542,
-                "totalCoveredRequiredManifestEntries": 542,
+                "totalRequiredManifestEntries": 543,
+                "totalCoveredManifestEntries": 543,
+                "totalCoveredRequiredManifestEntries": 543,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 401,
+            "stateful-domain": 402,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 542,
-                "totalCoveredManifestEntries": 542,
-                "totalCoveredRequiredManifestEntries": 542,
+                "totalRequiredManifestEntries": 543,
+                "totalCoveredManifestEntries": 543,
+                "totalCoveredRequiredManifestEntries": 543,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -332,6 +332,7 @@
                 "api:http:GET:/users/@me/applications/role-connections/",
                 "api:http:GET:/users/@me/avatars/",
                 "api:http:GET:/users/@me/billing/country-code/",
+                "api:http:GET:/users/@me/billing/invoice/breakdown/",
                 "api:http:GET:/users/@me/billing/location-info/",
                 "api:http:GET:/users/@me/billing/payment-sources/",
                 "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
@@ -876,6 +877,7 @@
                 "api:http:GET:/users/@me/applications/role-connections/",
                 "api:http:GET:/users/@me/avatars/",
                 "api:http:GET:/users/@me/billing/country-code/",
+                "api:http:GET:/users/@me/billing/invoice/breakdown/",
                 "api:http:GET:/users/@me/billing/location-info/",
                 "api:http:GET:/users/@me/billing/payment-sources/",
                 "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
@@ -1212,6 +1214,7 @@
                         "test/scenarios/users-entitlements-gifts.test.ts",
                         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",
                         "src/api/routes/users/@me/guilds/premium/subscriptions.test.ts",
+                        "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
@@ -1248,6 +1251,7 @@
                         "api:http:GET:/users/@me/applications/role-connections/",
                         "api:http:GET:/users/@me/avatars/",
                         "api:http:GET:/users/@me/billing/country-code/",
+                        "api:http:GET:/users/@me/billing/invoice/breakdown/",
                         "api:http:GET:/users/@me/billing/location-info/",
                         "api:http:GET:/users/@me/billing/payment-sources/",
                         "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",

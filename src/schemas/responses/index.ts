@@ -180,6 +180,7 @@ export * from "./PartnerSdkApplicationStorefrontResponse";
 export * from "./PartnerSdkApplicationSkuRecommendationsResponse";
 export * from "./PartnerSdkApplicationSkusResponse";
 export * from "./PartnerSdkUserMessageSummariesResponse";
+export * from "./PaymentInvoiceBreakdownResponse";
 export * from "./PaymentSourceResponse";
 export * from "./PresencesResponse";
 export * from "./PreloadMessagesResponseSchema";

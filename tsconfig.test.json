@@ -17,6 +17,7 @@
         "src/api/routes/users/#user_id/sessions/#session_id/activities/#application_id/#activity_action_type.test.ts",
         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",
         "src/api/routes/users/@me/guilds/premium/subscriptions.test.ts",
+        "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
         "src/api/routes/users/@me/guilds/#guild_id/member.test.ts",
         "src/api/routes/warp/license.test.ts",
         "src/api/routes/guild-recommendations.test.ts",
