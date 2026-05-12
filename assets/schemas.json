@@ -8327,6 +8327,22 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GravityAttachmentsResponse": {
+        "type": "object",
+        "properties": {
+            "attachments": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GravityAttachment"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "attachments"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GravityCustomChannelScoresResponse": {
         "type": "array",
         "items": {
@@ -27299,6 +27315,52 @@
             "users_clicked_option",
             "users_sent_message",
             "users_viewed_welcome_screen"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GravityAttachment": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "filename": {
+                "type": "string"
+            },
+            "upload_filename": {
+                "type": "string"
+            },
+            "upload_url": {
+                "type": "string"
+            },
+            "file_size": {
+                "minimum": 0,
+                "type": "integer"
+            },
+            "original_content_type": {
+                "type": "string"
+            },
+            "content_type": {
+                "type": "string"
+            },
+            "height": {
+                "minimum": 0,
+                "type": "integer"
+            },
+            "width": {
+                "minimum": 0,
+                "type": "integer"
+            },
+            "is_clip": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "filename",
+            "id",
+            "upload_filename",
+            "upload_url"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

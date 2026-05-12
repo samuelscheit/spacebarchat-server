@@ -1,6 +1,6 @@
 {
-    "missing": 563,
-    "spacebar": 617,
+    "missing": 562,
+    "spacebar": 618,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1569,7 +1569,6 @@
             "source_routes": ["/users/@me/connections/contacts/{connection_id}/external-friend-list-entries/settings"],
             "summaries": ["Contact Sync Settings"]
         },
-        { "method": "GET", "route": "/users/@me/gravity-attachments", "route_name": "GRAVITY_ATTACHMENTS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/users/@me/gravity-icymi", "route_name": "GRAVITY_ITEMS_DEHYDRATED", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",

@@ -5190,6 +5190,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GravityAttachmentsResponse"
+		],
+		"route": "/users/@me/gravity-attachments",
+		"route_name": "GET_USERS__ME_GRAVITY_ATTACHMENTS",
+		"source": "src/api/routes/users/@me/gravity-attachments.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"UserGuildsResponse"
 		],
 		"route": "/users/@me/guilds",

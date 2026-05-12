@@ -7910,6 +7910,20 @@
                     "$ref": "#/components/schemas/GuildWelcomeScreenFunnelBucket"
                 }
             },
+            "GravityAttachmentsResponse": {
+                "type": "object",
+                "properties": {
+                    "attachments": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GravityAttachment"
+                        }
+                    }
+                },
+                "required": [
+                    "attachments"
+                ]
+            },
             "GravityCustomChannelScoresResponse": {
                 "type": "array",
                 "items": {
@@ -25867,6 +25881,50 @@
                     "users_viewed_welcome_screen"
                 ]
             },
+            "GravityAttachment": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "filename": {
+                        "type": "string"
+                    },
+                    "upload_filename": {
+                        "type": "string"
+                    },
+                    "upload_url": {
+                        "type": "string"
+                    },
+                    "file_size": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "original_content_type": {
+                        "type": "string"
+                    },
+                    "content_type": {
+                        "type": "string"
+                    },
+                    "height": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "width": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "is_clip": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "filename",
+                    "id",
+                    "upload_filename",
+                    "upload_url"
+                ]
+            },
             "GravityCustomChannelScore": {
                 "type": "object",
                 "properties": {
@@ -39590,6 +39648,42 @@
                         "description": "guild_id"
                     }
                 ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/gravity-attachments/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's locally persisted cloud attachment metadata for Discord gravity attachment compatibility without fabricating recommendation, upload, media, channel, or message state.",
+                "summary": "Get Current User Gravity Attachments",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GravityAttachmentsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "users"
                 ]
