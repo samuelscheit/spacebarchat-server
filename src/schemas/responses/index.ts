@@ -64,6 +64,7 @@ export * from "./ConnectedAccountSubredditsResponse";
 export * from "./ConfettiConsumableResponse";
 export * from "./HDStreamingConsumableResponse";
 export * from "./ContentInventoryOutboxResponse";
+export * from "./ContentInventorySimilarGamesResponse";
 export * from "./ConsoleDevicesResponse";
 export * from "./ConversationSummariesResponse";
 export * from "./CurrentGuildMemberResponse";

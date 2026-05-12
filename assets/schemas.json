@@ -5035,6 +5035,11 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ContentInventorySimilarGamesResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ConsoleDeviceResponse": {
         "type": "object",
         "properties": {

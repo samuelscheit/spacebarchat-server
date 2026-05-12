@@ -4769,6 +4769,10 @@
                 "type": "array",
                 "items": {}
             },
+            "ContentInventorySimilarGamesResponse": {
+                "type": "array",
+                "items": {}
+            },
             "ConsoleDeviceResponse": {
                 "type": "object",
                 "properties": {
@@ -58929,6 +58933,53 @@
                 ],
                 "tags": [
                     "discoverable-guilds"
+                ]
+            }
+        },
+        "/content-inventory/users/@me/similar-games/{application_id}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns current-user content inventory similar game entries for the target application. Spacebar does not currently persist source-backed content inventory recommendation state, so this compatibility endpoint returns an empty list.",
+                "summary": "Get Similar Games",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContentInventorySimilarGamesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "content-inventory"
                 ]
             }
         },

@@ -1,6 +1,6 @@
 {
-    "missing": 557,
-    "spacebar": 623,
+    "missing": 556,
+    "spacebar": 624,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -97,7 +97,6 @@
         "/consoles/{param}/devices/{param}/commands",
         "/content-inventory/users/@me/applications/{param}",
         "/content-inventory/users/@me/outbox/entries/id/{param}/history",
-        "/content-inventory/users/@me/similar-games/{param}",
         "/content-inventory/users/@me/spotify",
         "/content-inventory/users/@me?refresh_token={param}",
         "/debug-logs/multi/{param}",
@@ -1129,7 +1128,6 @@
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/content-inventory/users/@me?refresh_token=:param"]
         },
-        { "method": "GET", "route": "/content-inventory/users/@me/similar-games/{param}", "route_name": "SIMILAR_GAMES", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
             "route": "/discovery/{param}",

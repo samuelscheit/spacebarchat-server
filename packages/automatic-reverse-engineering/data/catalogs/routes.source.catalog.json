@@ -1873,6 +1873,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"ContentInventorySimilarGamesResponse"
+		],
+		"route": "/content-inventory/users/@me/similar-games/{application_id}",
+		"route_name": "GET_CONTENT_INVENTORY_USERS__ME_SIMILAR_GAMES_APPLICATION_ID",
+		"source": "src/api/routes/content-inventory/users/@me/similar-games/#application_id.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"DiscoverableGuildsResponse"
 		],
 		"route": "/discoverable-guilds",
