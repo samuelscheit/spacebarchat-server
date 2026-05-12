@@ -23008,6 +23008,45 @@
             }
         },
         {
+            "id": "api:http:GET:/users/@me/billing/adyen/payment-methods/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/billing/adyen/payment-methods/",
+            "sourceFile": "src/api/routes/users/@me/billing/adyen/payment-methods.ts",
+            "line": 32,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/billing/country-code/",
             "type": "http-route",
             "service": "api",
