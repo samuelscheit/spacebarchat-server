@@ -1,6 +1,6 @@
 {
-    "missing": 550,
-    "spacebar": 630,
+    "missing": 549,
+    "spacebar": 631,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1052,13 +1052,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/applications/{application_id}/store-layout"],
             "summaries": ["Get Application Store Layout"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/subscription-group-listings/{param}",
-            "route_name": "APPLICATION_SUBSCRIPTION_GROUP_LISTING",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/applications/{application_id}/subscription-group-listings/{param}"]
         },
         {
             "method": "GET",

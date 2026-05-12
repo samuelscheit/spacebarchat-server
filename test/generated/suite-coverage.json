@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 564,
+        "totalCoveredManifestEntries": 565,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 542,
-                "totalCoveredManifestEntries": 542,
-                "totalCoveredRequiredManifestEntries": 542,
+                "totalRequiredManifestEntries": 543,
+                "totalCoveredManifestEntries": 543,
+                "totalCoveredRequiredManifestEntries": 543,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 401,
+            "stateful-domain": 402,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 542,
-                "totalCoveredManifestEntries": 542,
-                "totalCoveredRequiredManifestEntries": 542,
+                "totalRequiredManifestEntries": 543,
+                "totalCoveredManifestEntries": 543,
+                "totalCoveredRequiredManifestEntries": 543,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -144,6 +144,7 @@
                 "api:http:GET:/applications/:application_id/public/",
                 "api:http:GET:/applications/:application_id/rpc/",
                 "api:http:GET:/applications/:application_id/skus/",
+                "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
                 "api:http:GET:/applications/:application_id/verification/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -688,6 +689,7 @@
                 "api:http:GET:/applications/:application_id/public/",
                 "api:http:GET:/applications/:application_id/rpc/",
                 "api:http:GET:/applications/:application_id/skus/",
+                "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
                 "api:http:GET:/applications/:application_id/verification/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -1682,6 +1684,7 @@
                         "api:http:GET:/applications/:application_id/public/",
                         "api:http:GET:/applications/:application_id/rpc/",
                         "api:http:GET:/applications/:application_id/skus/",
+                        "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
                         "api:http:GET:/applications/:application_id/verification/",
                         "api:http:GET:/applications/@me/",
                         "api:http:GET:/applications/detectable/",

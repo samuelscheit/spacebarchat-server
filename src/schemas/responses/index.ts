@@ -41,6 +41,7 @@ export * from "./ApplicationLiveBuildResponse";
 export * from "./ApplicationRoleConnectionsResponse";
 export * from "./ApplicationRpcResponse";
 export * from "./ApplicationStoreAssetsResponse";
+export * from "./ApplicationSubscriptionGroupListingResponse";
 export * from "./ApplicationTestersResponse";
 export * from "./ApplicationsWithAssetsResponse";
 export * from "./ArchivedThreadsResponse";

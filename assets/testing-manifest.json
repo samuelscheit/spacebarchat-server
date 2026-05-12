@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 735,
+        "totalEntries": 736,
         "byService": {
-            "api": 638,
+            "api": 639,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 710,
+            "http-route": 711,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 182,
-            "stateful-domain": 401,
+            "stateful-domain": 402,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 593,
+            "route-class": 594,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2252,6 +2252,48 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
+            "sourceFile": "src/api/routes/applications/#application_id/subscription-group-listings/#subscription_group_listing_id.ts",
+            "line": 101,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationSubscriptionGroupListingResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
                 ],
                 "hasQuery": false
             },
