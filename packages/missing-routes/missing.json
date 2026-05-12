@@ -1,6 +1,6 @@
 {
-    "missing": 532,
-    "spacebar": 648,
+    "missing": 531,
+    "spacebar": 649,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -3616,13 +3616,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/members/@me"],
             "summaries": ["Join Guild"]
-        },
-        {
-            "method": "PUT",
-            "route": "/guilds/{param}/members/supplemental",
-            "route_name": "MEMBER_SAFETY_SUPPLEMENTAL",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/members/supplemental"]
         },
         {
             "method": "PUT",

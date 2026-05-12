@@ -18,9 +18,11 @@
 
 import { route } from "@spacebar/api";
 import { GuildMemberJoinSourceType, type GuildMemberSupplemental, type GuildMembersSupplementalResponse } from "@spacebar/schemas";
-import { Guild, Member } from "@spacebar/util";
+import { ApiError, Guild, Member } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { IsNull, Not } from "typeorm";
+
+export const GUILD_MEMBERS_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE = "Modifying guild member supplemental safety data is not supported on this Spacebar instance.";
 
 export type GuildMembersSupplementalMemberSource = Pick<Member, "id" | "joined_by">;
 
@@ -45,6 +47,19 @@ function getMemberRepository(repository?: GuildMembersSupplementalMemberReposito
     return repository ?? (Member as unknown as GuildMembersSupplementalMemberRepository);
 }
 
+export function createGuildMembersSupplementalMutationUnsupportedError(): ApiError {
+    return new ApiError(GUILD_MEMBERS_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE, 0, 501);
+}
+
+export async function assertGuildMembersSupplementalGuildExists(guildId: string, repositories: GuildMembersSupplementalRepositories = {}) {
+    const guildRepository = getGuildRepository(repositories.guildRepository);
+
+    await guildRepository.findOneOrFail({
+        where: { id: guildId },
+        select: { id: true },
+    });
+}
+
 export function toGuildMemberSupplemental(member: GuildMembersSupplementalMemberSource): GuildMemberSupplemental | undefined {
     if (!member.joined_by) return undefined;
 
@@ -60,13 +75,9 @@ export function buildGuildMembersSupplementalResponse(members: GuildMembersSuppl
 }
 
 export async function getGuildMembersSupplemental(guildId: string, repositories: GuildMembersSupplementalRepositories = {}): Promise<GuildMembersSupplementalResponse> {
-    const guildRepository = getGuildRepository(repositories.guildRepository);
     const memberRepository = getMemberRepository(repositories.memberRepository);
 
-    await guildRepository.findOneOrFail({
-        where: { id: guildId },
-        select: { id: true },
-    });
+    await assertGuildMembersSupplementalGuildExists(guildId, repositories);
 
     const members = await memberRepository.find({
         where: { guild_id: guildId, joined_by: Not(IsNull()) },
@@ -75,6 +86,12 @@ export async function getGuildMembersSupplemental(guildId: string, repositories:
     });
 
     return buildGuildMembersSupplementalResponse(members);
+}
+
+export async function updateGuildMembersSupplemental(guildId: string, repositories: GuildMembersSupplementalRepositories = {}): Promise<never> {
+    await assertGuildMembersSupplementalGuildExists(guildId, repositories);
+
+    throw createGuildMembersSupplementalMutationUnsupportedError();
 }
 
 export function createGuildMembersSupplementalRouter(repositories: GuildMembersSupplementalRepositories = {}) {
@@ -106,6 +123,35 @@ export function createGuildMembersSupplementalRouter(repositories: GuildMembersS
             const guildId = req.params.guild_id as string;
 
             return res.status(200).json(await getGuildMembersSupplemental(guildId, repositories));
+        },
+    );
+
+    router.put(
+        "/",
+        route({
+            summary: "Update Guild Members Supplemental",
+            description:
+                "Discord exposes this client route for mutating member-safety supplemental data. Spacebar only persists locally backed member join provenance and does not persist Discord's private member-safety supplemental state, so this compatibility endpoint fails closed after MANAGE_GUILD access checks instead of fabricating or mutating safety state.",
+            permission: "MANAGE_GUILD",
+            responses: {
+                401: {
+                    body: "APIErrorResponse",
+                },
+                403: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, _res: Response) => {
+            const guildId = req.params.guild_id as string;
+
+            await updateGuildMembersSupplemental(guildId, repositories);
         },
     );
 

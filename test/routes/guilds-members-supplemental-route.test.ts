@@ -24,7 +24,9 @@ import express from "express";
 import { EntityNotFoundError } from "typeorm";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "../../src/api/middlewares";
 import {
+    GUILD_MEMBERS_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE,
     buildGuildMembersSupplementalResponse,
+    createGuildMembersSupplementalMutationUnsupportedError,
     createGuildMembersSupplementalRouter,
     type GuildMembersSupplementalMemberSource,
     type GuildMembersSupplementalRepositories,
@@ -36,7 +38,8 @@ const requireModule = require;
 
 const guildId = "200000000000000002";
 const viewerId = "100000000000000001";
-const coveredManifestId = "api:http:GET:/guilds/:guild_id/members/supplemental/";
+const coveredGetManifestId = "api:http:GET:/guilds/:guild_id/members/supplemental/";
+const coveredPutManifestId = "api:http:PUT:/guilds/:guild_id/members/supplemental/";
 
 describe("GET /guilds/:guild_id/members/supplemental helpers", () => {
     test("serializes only locally persisted join provenance", () => {
@@ -56,6 +59,14 @@ describe("GET /guilds/:guild_id/members/supplemental helpers", () => {
         assert.equal("member" in response[0], false);
         assert.equal("source_invite_code" in response[0], false);
         assert.equal("integration_type" in response[0], false);
+    });
+
+    test("uses an explicit unsupported mutation API error", () => {
+        const error = createGuildMembersSupplementalMutationUnsupportedError();
+
+        assert.equal(error.httpStatus, 501);
+        assert.equal(error.code, 0);
+        assert.equal(error.message, GUILD_MEMBERS_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE);
     });
 });
 
@@ -176,7 +187,7 @@ describe("GET /guilds/:guild_id/members/supplemental route", () => {
         assert.equal(mockOf(repositories.memberRepository!.find).mock.callCount(), 0);
     });
 
-    test("declares schemas, generated route artifacts, GET missing-route removal, and adjacent methods untouched", () => {
+    test("declares schemas, generated route artifacts, GET and PUT missing-route removal, and adjacent methods untouched", () => {
         const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "guilds", "#guild_id", "members", "supplemental.ts"), "utf8");
         const schemas = readJson<Record<string, JsonSchema>>(join("assets", "schemas.json"));
         const openapi = readJson<OpenApiDocument>(join("assets", "openapi.json"));
@@ -191,6 +202,10 @@ describe("GET /guilds/:guild_id/members/supplemental route", () => {
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /403:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(routeSource, /router\.put\(/);
+        assert.match(routeSource, /summary:\s*"Update Guild Members Supplemental"/);
+        assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.doesNotMatch(routeSource, /router\.(delete|patch|post)\(/);
 
         assert.equal(schemas.GuildMembersSupplementalResponse?.type, "array");
         assert.equal(schemas.GuildMembersSupplementalResponse?.items?.$ref, "#/definitions/GuildMemberSupplemental");
@@ -208,7 +223,18 @@ describe("GET /guilds/:guild_id/members/supplemental route", () => {
         assert.equal(route?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.deepEqual(route?.security, [{ bearer: [] }]);
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId || entry.id === coveredManifestId.slice(0, -1));
+        const putRoute = openapi.paths?.["/guilds/{guild_id}/members/supplemental/"]?.put ?? openapi.paths?.["/guilds/{guild_id}/members/supplemental"]?.put;
+        assert.equal(putRoute?.summary, "Update Guild Members Supplemental");
+        assert.equal(putRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(putRoute?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(putRoute?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(putRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(putRoute?.security, [{ bearer: [] }]);
+        assert.equal(openapi.paths?.["/guilds/{guild_id}/members/supplemental/"]?.delete, undefined);
+        assert.equal(openapi.paths?.["/guilds/{guild_id}/members/supplemental/"]?.patch, undefined);
+        assert.equal(openapi.paths?.["/guilds/{guild_id}/members/supplemental/"]?.post, undefined);
+
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredGetManifestId || entry.id === coveredGetManifestId.slice(0, -1));
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.sourceFile, "src/api/routes/guilds/#guild_id/members/supplemental.ts");
         assert.equal(manifestEntry?.routeMetadata?.permission, "MANAGE_GUILD");
@@ -219,18 +245,50 @@ describe("GET /guilds/:guild_id/members/supplemental route", () => {
             [200, 401, 403, 404],
         );
 
-        const contractEntry = contracts.contracts.find((entry) => entry.manifestId === coveredManifestId || entry.manifestId === coveredManifestId.slice(0, -1));
+        const putManifestEntry = manifest.entries?.find((entry) => entry.id === coveredPutManifestId || entry.id === coveredPutManifestId.slice(0, -1));
+        assert.equal(putManifestEntry?.authMode, "bearer");
+        assert.equal(putManifestEntry?.sourceFile, "src/api/routes/guilds/#guild_id/members/supplemental.ts");
+        assert.equal(putManifestEntry?.routeMetadata?.permission, "MANAGE_GUILD");
+        assert.deepEqual(putManifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(
+            putManifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            [401, 403, 404, 501],
+        );
+
+        const contractEntry = contracts.contracts.find((entry) => entry.manifestId === coveredGetManifestId || entry.manifestId === coveredGetManifestId.slice(0, -1));
         assert.equal(contractEntry?.sourceFile, "src/api/routes/guilds/#guild_id/members/supplemental.ts");
         assert.equal(contractEntry?.routeMetadata?.permission, "MANAGE_GUILD");
         assert.deepEqual(contractEntry?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "GuildMembersSupplementalResponse"]);
+
+        const putContractEntry = contracts.contracts.find((entry) => entry.manifestId === coveredPutManifestId || entry.manifestId === coveredPutManifestId.slice(0, -1));
+        assert.equal(putContractEntry?.sourceFile, "src/api/routes/guilds/#guild_id/members/supplemental.ts");
+        assert.equal(putContractEntry?.routeMetadata?.permission, "MANAGE_GUILD");
+        assert.deepEqual(putContractEntry?.routeMetadata?.responses, ["APIErrorResponse"]);
+        assert.deepEqual(
+            putContractEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            [401, 403, 404, 501],
+        );
 
         const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/members/supplemental");
         assert.equal(catalogEntry?.route_name, "GET_GUILDS_GUILD_ID_MEMBERS_SUPPLEMENTAL");
         assert.equal(catalogEntry?.source, "src/api/routes/guilds/#guild_id/members/supplemental.ts");
         assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "GuildMembersSupplementalResponse"]);
 
+        const putCatalogEntry = sourceCatalog.find((entry) => entry.method === "PUT" && entry.route === "/guilds/{guild_id}/members/supplemental");
+        assert.equal(putCatalogEntry?.route_name, "PUT_GUILDS_GUILD_ID_MEMBERS_SUPPLEMENTAL");
+        assert.equal(putCatalogEntry?.source, "src/api/routes/guilds/#guild_id/members/supplemental.ts");
+        assert.deepEqual(putCatalogEntry?.response_schema_refs, ["APIErrorResponse"]);
+        assert.equal(
+            sourceCatalog.some((entry) => ["DELETE", "PATCH", "POST"].includes(entry.method ?? "") && entry.route === "/guilds/{guild_id}/members/supplemental"),
+            false,
+        );
+
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "GET" && entry.route === "/guilds/{param}/members/supplemental"),
+            false,
+        );
+        assert.equal(
+            missingRoutes.missing_entries.some((entry) => entry.method === "PUT" && entry.route === "/guilds/{param}/members/supplemental"),
             false,
         );
         assert.deepEqual(
@@ -238,8 +296,110 @@ describe("GET /guilds/:guild_id/members/supplemental route", () => {
                 .filter((entry) => entry.route === "/guilds/{param}/members/supplemental")
                 .map((entry) => entry.method)
                 .sort(),
-            ["DELETE", "PATCH", "POST", "PUT"],
+            ["DELETE", "PATCH", "POST"],
         );
+    });
+});
+
+describe("PUT /guilds/:guild_id/members/supplemental route", () => {
+    test("stays behind bearer authentication", async (t) => {
+        const repositories = createThrowingRepositories(t);
+
+        assert.equal(isNoAuthorizationRoute("PUT", `/api/v9/guilds/${guildId}/members/supplemental`), false);
+
+        const app = express();
+        app.use(Authentication);
+        app.use("/guilds/:guild_id/members/supplemental", createGuildMembersSupplementalRouter(repositories));
+        app.use(ErrorHandler);
+
+        const response = await requestJson(app, `/guilds/${guildId}/members/supplemental`, { method: "PUT" });
+
+        assert.equal(response.status, 401);
+        assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(mockOf(repositories.guildRepository!.findOneOrFail).mock.callCount(), 0);
+        assert.equal(mockOf(repositories.memberRepository!.find).mock.callCount(), 0);
+    });
+
+    test("declares MANAGE_GUILD route metadata before unsupported mutation handling", (t) => {
+        const { repositories, putRouteOptions } = createApp(t, {
+            repositories: createThrowingRepositories(t),
+        });
+
+        assert.equal(putRouteOptions.permission, "MANAGE_GUILD");
+        assert.equal(putRouteOptions.responses?.["401"]?.body, "APIErrorResponse");
+        assert.equal(putRouteOptions.responses?.["403"]?.body, "APIErrorResponse");
+        assert.equal(putRouteOptions.responses?.["404"]?.body, "APIErrorResponse");
+        assert.equal(putRouteOptions.responses?.["501"]?.body, "APIErrorResponse");
+        assert.equal(mockOf(repositories.guildRepository!.findOneOrFail).mock.callCount(), 0);
+        assert.equal(mockOf(repositories.memberRepository!.find).mock.callCount(), 0);
+    });
+
+    test("requires MANAGE_GUILD before checking guild state or failing closed", async (t) => {
+        const permissionLookups: { userId: string; checkedGuildId: string; checkedChannelId: unknown }[] = [];
+        const permissionsModule = requireModule(join(process.cwd(), "dist", "util", "util", "Permissions.js")) as PermissionModule;
+        const repositories = createThrowingRepositories(t);
+
+        t.mock.method(permissionsModule, "getPermission", async (userId: unknown, checkedGuildId: unknown, checkedChannelId: unknown) => {
+            permissionLookups.push({
+                userId: String(userId),
+                checkedGuildId: String(checkedGuildId),
+                checkedChannelId,
+            });
+
+            return {
+                has: () => false,
+            };
+        });
+
+        const app = express();
+        app.use((req, _res, next) => {
+            req.user_id = viewerId;
+            next();
+        });
+        app.use("/guilds/:guild_id/members/supplemental", createGuildMembersSupplementalRouter(repositories));
+        app.use(ErrorHandler);
+
+        const response = await requestJson(app, `/guilds/${guildId}/members/supplemental`, { method: "PUT" });
+
+        assert.equal(response.status, 403);
+        assert.match((response.body as { message?: string }).message ?? "", /MANAGE_GUILD/);
+        assert.deepEqual(permissionLookups, [{ userId: viewerId, checkedGuildId: guildId, checkedChannelId: undefined }]);
+        assert.equal(mockOf(repositories.guildRepository!.findOneOrFail).mock.callCount(), 0);
+        assert.equal(mockOf(repositories.memberRepository!.find).mock.callCount(), 0);
+    });
+
+    test("fails closed for guild managers without mutating local supplemental provenance", async (t) => {
+        const repositories = createRepositories(t, {
+            members: [{ id: "member-a", joined_by: "actor-a" }],
+        });
+        const { app } = createApp(t, { repositories });
+
+        const response = await requestJson(app, `/guilds/${guildId}/members/supplemental`, { method: "PUT" });
+
+        assert.equal(response.status, 501);
+        assert.deepEqual(response.body, {
+            code: 0,
+            message: GUILD_MEMBERS_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE,
+        });
+        assert.deepEqual(mockOf(repositories.guildRepository!.findOneOrFail).mock.calls[0].arguments, [
+            {
+                where: { id: guildId },
+                select: { id: true },
+            },
+        ]);
+        assert.equal(mockOf(repositories.memberRepository!.find).mock.callCount(), 0);
+    });
+
+    test("returns the existing API 404 when the guild does not exist", async (t) => {
+        const repositories = createRepositories(t, { missingGuild: true });
+        const { app } = createApp(t, { repositories });
+
+        const response = await requestJson(app, `/guilds/missing-guild/members/supplemental`, { method: "PUT" });
+
+        assert.equal(response.status, 404);
+        assert.equal((response.body as { code?: number }).code, 404);
+        assert.equal((response.body as { message?: string }).message, "Guild could not be found");
+        assert.equal(mockOf(repositories.memberRepository!.find).mock.callCount(), 0);
     });
 });
 
@@ -265,6 +425,9 @@ function createApp(t: TestContext, options: { repositories: GuildMembersSuppleme
         repositories: options.repositories,
         get routeOptions() {
             return routeOptions[0] ?? {};
+        },
+        get putRouteOptions() {
+            return routeOptions[1] ?? {};
         },
     };
 }
@@ -358,15 +521,21 @@ type JsonSchemaRef = {
     $ref?: string;
 };
 
+type OpenApiOperation = {
+    summary?: string;
+    responses?: Record<string, { content?: Record<string, { schema?: JsonSchemaRef }> }>;
+    security?: unknown;
+};
+
 type OpenApiDocument = {
     paths?: Record<
         string,
         {
-            get?: {
-                summary?: string;
-                responses?: Record<string, { content?: Record<string, { schema?: JsonSchemaRef }> }>;
-                security?: unknown;
-            };
+            delete?: unknown;
+            get?: OpenApiOperation;
+            patch?: unknown;
+            post?: unknown;
+            put?: OpenApiOperation;
         }
     >;
 };
@@ -391,6 +560,7 @@ type HttpContractCatalog = {
         routeMetadata?: {
             permission?: string;
             responses?: string[];
+            responseStatuses?: number[];
         };
     }[];
 };

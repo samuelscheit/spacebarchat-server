@@ -3012,6 +3012,15 @@
 		"source": "src/api/routes/guilds/#guild_id/members/supplemental.ts"
 	},
 	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/members/supplemental",
+		"route_name": "PUT_GUILDS_GUILD_ID_MEMBERS_SUPPLEMENTAL",
+		"source": "src/api/routes/guilds/#guild_id/members/supplemental.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
