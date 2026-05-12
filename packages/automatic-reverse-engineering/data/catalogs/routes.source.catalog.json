@@ -5214,6 +5214,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"UserPremiumUsageResponse"
+		],
+		"route": "/users/@me/premium-usage",
+		"route_name": "GET_USERS__ME_PREMIUM_USAGE",
+		"source": "src/api/routes/users/@me/premium-usage.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"PremiumReferralIncentiveEligibilityResponse"
 		],
 		"route": "/users/@me/referrals/incentive-eligibility",

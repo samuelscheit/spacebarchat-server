@@ -211,6 +211,7 @@ export * from "./UniqueUsernameAttemptResponse";
 export * from "./UniqueUsernameSuggestionResponse";
 export * from "./UserConsentsResponse";
 export * from "./UserNoteResponse";
+export * from "./UserPremiumUsageResponse";
 export * from "./UserProfileEffectsResponse";
 export * from "./UserProfileResponse";
 export * from "./VoiceFiltersCatalogResponse";

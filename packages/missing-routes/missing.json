@@ -1,6 +1,6 @@
 {
-    "missing": 594,
-    "spacebar": 586,
+    "missing": 593,
+    "spacebar": 587,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -426,7 +426,6 @@
         "/users/@me/phone/verify",
         "/users/@me/pomelo",
         "/users/@me/pomelo-attempt",
-        "/users/@me/premium-usage",
         "/users/@me/profile",
         "/users/@me/referrals/eligibility",
         "/users/@me/referrals/eligible-users",
@@ -1784,13 +1783,6 @@
             "sources": ["userdoccers:resources/user-settings.mdx"],
             "source_routes": ["/users/@me/notification-settings/snapshots/{notification_settings_snapshot_id}"],
             "summaries": ["Delete Notification Settings Snapshot"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/premium-usage",
-            "route_name": "GET_USERS__ME_PREMIUM_USAGE",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Premium Usage"]
         },
         {
             "method": "GET",

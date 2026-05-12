@@ -13841,6 +13841,44 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserPremiumUsageFeatureResponse": {
+        "type": "object",
+        "properties": {
+            "used": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "used"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserPremiumUsageResponse": {
+        "type": "object",
+        "properties": {
+            "premium_usage_flags": {
+                "type": "integer"
+            },
+            "premium_discriminator": {
+                "$ref": "#/definitions/UserPremiumUsageFeatureResponse"
+            },
+            "animated_avatar": {
+                "$ref": "#/definitions/UserPremiumUsageFeatureResponse"
+            },
+            "profile_banner": {
+                "$ref": "#/definitions/UserPremiumUsageFeatureResponse"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "animated_avatar",
+            "premium_discriminator",
+            "premium_usage_flags",
+            "profile_banner"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserProfileEffectsResponse": {
         "type": "object",
         "properties": {

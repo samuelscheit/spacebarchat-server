@@ -13118,6 +13118,40 @@
                     "type": "string"
                 }
             },
+            "UserPremiumUsageFeatureResponse": {
+                "type": "object",
+                "properties": {
+                    "used": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "used"
+                ]
+            },
+            "UserPremiumUsageResponse": {
+                "type": "object",
+                "properties": {
+                    "premium_usage_flags": {
+                        "type": "integer"
+                    },
+                    "premium_discriminator": {
+                        "$ref": "#/components/schemas/UserPremiumUsageFeatureResponse"
+                    },
+                    "animated_avatar": {
+                        "$ref": "#/components/schemas/UserPremiumUsageFeatureResponse"
+                    },
+                    "profile_banner": {
+                        "$ref": "#/components/schemas/UserPremiumUsageFeatureResponse"
+                    }
+                },
+                "required": [
+                    "animated_avatar",
+                    "premium_discriminator",
+                    "premium_usage_flags",
+                    "profile_banner"
+                ]
+            },
             "UserProfileEffectsResponse": {
                 "type": "object",
                 "properties": {
@@ -37390,6 +37424,42 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PremiumReferralIncentiveEligibilityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/premium-usage/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns Spacebar's durable current-user premium usage flags. Detailed Discord Nitro usage counters are not persisted locally, so this route exposes only the source-documented premium_usage_flags bitfield and decoded flag names.",
+                "summary": "Get User Premium Usage",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserPremiumUsageResponse"
                                 }
                             }
                         }
