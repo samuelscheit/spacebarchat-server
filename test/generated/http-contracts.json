@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 706,
+        "totalContracts": 707,
         "byService": {
-            "api": 633,
+            "api": 634,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 556,
-        "runtimeMalformedAuthContracts": 556,
-        "runtimeRevokedSessionAuthContracts": 556,
-        "runtimeStaleTokenAuthContracts": 556,
+        "runtimeAuthBoundaryContracts": 557,
+        "runtimeMalformedAuthContracts": 557,
+        "runtimeRevokedSessionAuthContracts": 557,
+        "runtimeStaleTokenAuthContracts": 557,
         "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 71,
@@ -25177,6 +25177,50 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse", "PartnerSdkApplicationSkuRecommendationsResponse"],
                 "responseStatuses": [200, 400, 401, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/partner-sdk/applications/:application_id/storefront/",
+            "service": "api",
+            "method": "GET",
+            "path": "/partner-sdk/applications/:application_id/storefront/",
+            "samplePath": "/partner-sdk/applications/100000000000000007/storefront/",
+            "sourceFile": "src/api/routes/partner-sdk/applications/#application_id/storefront.ts",
+            "line": 186,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "PartnerSdkApplicationStorefrontResponse"],
+                "responseStatuses": [200, 401, 403, 404]
             },
             "cases": [
                 {

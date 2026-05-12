@@ -175,6 +175,7 @@ export * from "./PollAnswersResponse";
 export * from "./PollAnswerVotersResponse";
 export * from "./PartialConnectedAccountResponse";
 export * from "./PartnerSdkStorefrontConfigResponse";
+export * from "./PartnerSdkApplicationStorefrontResponse";
 export * from "./PartnerSdkApplicationSkuRecommendationsResponse";
 export * from "./PartnerSdkApplicationSkusResponse";
 export * from "./PartnerSdkUserMessageSummariesResponse";

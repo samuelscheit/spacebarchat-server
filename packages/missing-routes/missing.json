@@ -1,6 +1,6 @@
 {
-    "missing": 554,
-    "spacebar": 626,
+    "missing": 553,
+    "spacebar": 627,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1335,14 +1335,6 @@
         },
         { "method": "GET", "route": "/oauth2/samsung/authorize", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize/callback", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/partner-sdk/applications/{param}/storefront",
-            "route_name": "GET_PARTNER_SDK_APPLICATIONS_APPLICATION_ID_STOREFRONT",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/partner-sdk/applications/{application_id}/storefront"],
-            "summaries": ["Get Application Storefront"]
-        },
         {
             "method": "GET",
             "route": "/partner-sdk/guilds/{param}/application-storefront",

@@ -3893,6 +3893,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"PartnerSdkApplicationStorefrontResponse"
+		],
+		"route": "/partner-sdk/applications/{application_id}/storefront",
+		"route_name": "GET_PARTNER_SDK_APPLICATIONS_APPLICATION_ID_STOREFRONT",
+		"source": "src/api/routes/partner-sdk/applications/#application_id/storefront.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"PartnerSdkStorefrontConfigResponse"
 		],
 		"route": "/partner-sdk/storefront-config",

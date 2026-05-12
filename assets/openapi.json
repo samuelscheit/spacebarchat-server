@@ -10445,6 +10445,246 @@
                     "type"
                 ]
             },
+            "StoreListingResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "sku": {
+                        "$ref": "#/components/schemas/StoreSkuResponse"
+                    },
+                    "child_skus": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StoreSkuResponse"
+                        }
+                    },
+                    "alternative_skus": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StoreSkuResponse"
+                        }
+                    },
+                    "summary": {
+                        "$ref": "#/components/schemas/StoreSkuLocalizedString"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {},
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "tagline": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {},
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": [
+                                    "null",
+                                    "string"
+                                ]
+                            }
+                        ]
+                    },
+                    "flavor_text": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "benefits": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {},
+                                    "additionalProperties": true
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "published": {
+                        "type": "boolean"
+                    },
+                    "carousel_items": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {},
+                                    "additionalProperties": true
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "staff_notes": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "guild": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {},
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "assets": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    },
+                    "thumbnail": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "preview_video": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "header_background": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "header_logo_dark_theme": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "header_logo_light_theme": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "box_art": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "hero_background": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "hero_video": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "entitlement_branch_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "published_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "unpublished_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "powerup_metadata": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "sku",
+                    "summary"
+                ]
+            },
+            "PartnerSdkApplicationStorefrontResponse": {
+                "type": "object",
+                "properties": {
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "logo_asset_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "light_theme_logo_asset_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "pages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartnerSdkApplicationStorefrontPage"
+                        }
+                    },
+                    "store_listings": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StoreListingResponse"
+                        }
+                    },
+                    "assets": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartnerSdkApplicationStorefrontAsset"
+                        }
+                    }
+                },
+                "required": [
+                    "application_id",
+                    "assets",
+                    "pages",
+                    "store_listings",
+                    "title"
+                ]
+            },
             "PartnerSdkApplicationSkuRecommendationsResponse": {
                 "type": "object",
                 "properties": {
@@ -12731,192 +12971,6 @@
                     "content",
                     "id",
                     "name"
-                ]
-            },
-            "StoreListingResponse": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    },
-                    "sku": {
-                        "$ref": "#/components/schemas/StoreSkuResponse"
-                    },
-                    "child_skus": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/StoreSkuResponse"
-                        }
-                    },
-                    "alternative_skus": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/StoreSkuResponse"
-                        }
-                    },
-                    "summary": {
-                        "$ref": "#/components/schemas/StoreSkuLocalizedString"
-                    },
-                    "description": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {},
-                                "additionalProperties": true
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    },
-                    "tagline": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {},
-                                "additionalProperties": true
-                            },
-                            {
-                                "type": [
-                                    "null",
-                                    "string"
-                                ]
-                            }
-                        ]
-                    },
-                    "flavor_text": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "benefits": {
-                        "anyOf": [
-                            {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {},
-                                    "additionalProperties": true
-                                }
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "published": {
-                        "type": "boolean"
-                    },
-                    "carousel_items": {
-                        "anyOf": [
-                            {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "properties": {},
-                                    "additionalProperties": true
-                                }
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "staff_notes": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "guild": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {},
-                                "additionalProperties": true
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "assets": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "thumbnail": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "preview_video": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "header_background": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "header_logo_dark_theme": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "header_logo_light_theme": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "box_art": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "hero_background": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "hero_video": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "entitlement_branch_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "published_at": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "unpublished_at": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "powerup_metadata": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    }
-                },
-                "required": [
-                    "id",
-                    "sku",
-                    "summary"
                 ]
             },
             "StorefrontProductResponse": {
@@ -33227,6 +33281,99 @@
                     }
                 ]
             },
+            "PartnerSdkApplicationStorefrontPage": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "leaderboard": {
+                        "$ref": "#/components/schemas/PartnerSdkApplicationStorefrontLeaderboard"
+                    },
+                    "sku_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "sections": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PartnerSdkApplicationStorefrontPageSection"
+                        }
+                    }
+                },
+                "required": [
+                    "sku_ids"
+                ]
+            },
+            "PartnerSdkApplicationStorefrontLeaderboard": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "background_image_asset_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                }
+            },
+            "PartnerSdkApplicationStorefrontPageSection": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "sku_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "sku_ids"
+                ]
+            },
+            "PartnerSdkApplicationStorefrontAsset": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "size": {
+                        "type": "integer"
+                    },
+                    "mime_type": {
+                        "type": "string"
+                    },
+                    "filename": {
+                        "type": "string"
+                    },
+                    "width": {
+                        "type": "integer"
+                    },
+                    "height": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "height",
+                    "id",
+                    "mime_type",
+                    "size",
+                    "width"
+                ]
+            },
             "PartnerSdkApplicationSkuRecommendationMap": {
                 "type": "object",
                 "additionalProperties": {
@@ -46646,6 +46793,73 @@
                         }
                     }
                 },
+                "tags": [
+                    "partner-sdk"
+                ]
+            }
+        },
+        "/partner-sdk/applications/{application_id}/storefront/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the locally backed application storefront layout when the current user can access the owning application.",
+                "summary": "Get Application Storefront",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PartnerSdkApplicationStorefrontResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    }
+                ],
                 "tags": [
                     "partner-sdk"
                 ]
