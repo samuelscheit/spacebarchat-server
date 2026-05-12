@@ -5419,6 +5419,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"VirtualCurrencyBalanceResponse"
+		],
+		"route": "/users/@me/virtual-currency/balance",
+		"route_name": "GET_USERS__ME_VIRTUAL_CURRENCY_BALANCE",
+		"source": "src/api/routes/users/@me/virtual-currency/balance.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ProfileWidgetsSuggestedGamesResponse"
 		],
 		"route": "/users/@me/widgets/suggested-games",

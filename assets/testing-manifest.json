@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 693,
+        "totalEntries": 694,
         "byService": {
-            "api": 596,
+            "api": 597,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 668,
+            "http-route": 669,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 171,
-            "stateful-domain": 371,
+            "stateful-domain": 372,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 22,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 551,
+            "route-class": 552,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -12747,7 +12747,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/creator-monetization/marketing/onboarding/",
             "sourceFile": "src/api/routes/guilds/#guild_id/creator-monetization/marketing/onboarding.ts",
-            "line": 65,
+            "line": 57,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -24770,6 +24770,46 @@
                     401
                 ],
                 "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/virtual-currency/balance/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/virtual-currency/balance/",
+            "sourceFile": "src/api/routes/users/@me/virtual-currency/balance.ts",
+            "line": 36,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "VirtualCurrencyBalanceResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-user-state",

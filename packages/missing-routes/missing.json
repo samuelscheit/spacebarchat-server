@@ -1,6 +1,6 @@
 {
-    "missing": 592,
-    "spacebar": 588,
+    "missing": 591,
+    "spacebar": 589,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -447,7 +447,6 @@
         "/users/@me/video-filters/assets",
         "/users/@me/video-filters/assets/{param}",
         "/users/@me/video-filters/assets/{param}/last-used",
-        "/users/@me/virtual-currency/balance",
         "/users/@me/widgets",
         "/users/@me/{param}/{param}/ack",
         "/users/disable-email-notifications",
@@ -1807,13 +1806,6 @@
             "summaries": ["Get User Survey"]
         },
         { "method": "GET", "route": "/users/@me/video-filters/assets", "route_name": "VIDEO_FILTER_ASSETS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/users/@me/virtual-currency/balance",
-            "route_name": "GET_USERS__ME_VIRTUAL_CURRENCY_BALANCE",
-            "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Virtual Currency Balance"]
-        },
         { "method": "GET", "route": "/users/disable-email-notifications", "route_name": "DISABLE_EMAIL_NOTIFICATIONS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",

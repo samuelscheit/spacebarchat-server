@@ -13995,6 +13995,20 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "VirtualCurrencyBalanceResponse": {
+        "type": "object",
+        "properties": {
+            "balance": {
+                "minimum": 0,
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "balance"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "VoiceFiltersCatalogResponse": {
         "type": "object",
         "properties": {
