@@ -1,6 +1,6 @@
 {
-    "missing": 591,
-    "spacebar": 589,
+    "missing": 590,
+    "spacebar": 590,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -249,7 +249,6 @@
         "/oauth2/token/revoke",
         "/outbound-promotions/{param}/claim",
         "/partner-sdk/application/{param}/skus",
-        "/partner-sdk/applications/{param}/skus/recommendations",
         "/partner-sdk/applications/{param}/storefront",
         "/partner-sdk/child-token",
         "/partner-sdk/dms/{param}/{param}/messages/{param}/moderation-metadata",
@@ -1437,14 +1436,6 @@
             "sources": ["userdoccers:resources/store.mdx"],
             "source_routes": ["/partner-sdk/application/{application_id}/skus"],
             "summaries": ["Get Social Layer SKUs"]
-        },
-        {
-            "method": "GET",
-            "route": "/partner-sdk/applications/{param}/skus/recommendations",
-            "route_name": "GET_PARTNER_SDK_APPLICATIONS_APPLICATION_ID_SKUS_RECOMMENDATIONS",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/partner-sdk/applications/{application_id}/skus/recommendations"],
-            "summaries": ["Get Application SKU Recommendations"]
         },
         {
             "method": "GET",

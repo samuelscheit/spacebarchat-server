@@ -9920,6 +9920,273 @@
                     "storefronts"
                 ]
             },
+            "StoreSkuResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "application": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "product_line": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
+                    "product_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "$ref": "#/components/schemas/StoreSkuLocalizedString"
+                    },
+                    "summary": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {},
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {},
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "legal_notice": {
+                        "anyOf": [
+                            {
+                                "type": "object",
+                                "properties": {},
+                                "additionalProperties": true
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "thumbnail_asset_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "dependent_sku_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "bundled_skus": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StoreSkuResponse"
+                        }
+                    },
+                    "bundled_sku_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "access_type": {
+                        "type": "integer"
+                    },
+                    "manifest_labels": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "features": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "locales": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "genres": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "available_regions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "content_rating": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "content_rating_agency": {
+                        "type": "integer"
+                    },
+                    "content_ratings": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "system_requirements": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "price": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "price_tier": {
+                        "type": "integer"
+                    },
+                    "sale_price_tier": {
+                        "type": "integer"
+                    },
+                    "sale_price": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "release_date": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "preorder_approximate_release_date": {
+                        "type": "string"
+                    },
+                    "preorder_released_at": {
+                        "type": "string"
+                    },
+                    "external_purchase_url": {
+                        "type": "string"
+                    },
+                    "external_sku_strategies": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "eligible_payment_gateways": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "premium": {
+                        "type": "boolean"
+                    },
+                    "show_age_gate": {
+                        "type": "boolean"
+                    },
+                    "restricted": {
+                        "type": "boolean"
+                    },
+                    "exclusive": {
+                        "type": "boolean"
+                    },
+                    "deleted": {
+                        "type": "boolean"
+                    },
+                    "tenant_metadata": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "powerup_metadata": {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    "orbs_reward": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "access_type",
+                    "application_id",
+                    "features",
+                    "flags",
+                    "id",
+                    "name",
+                    "premium",
+                    "product_line",
+                    "show_age_gate",
+                    "slug",
+                    "type"
+                ]
+            },
+            "PartnerSdkApplicationSkuRecommendationsResponse": {
+                "type": "object",
+                "properties": {
+                    "skus": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StoreSkuResponse"
+                        }
+                    },
+                    "skus_to_user_ids": {
+                        "$ref": "#/components/schemas/PartnerSdkApplicationSkuRecommendationMap"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/PartnerSdkApplicationSkuRecommendationApplication"
+                    }
+                },
+                "required": [
+                    "application",
+                    "skus",
+                    "skus_to_user_ids"
+                ]
+            },
             "PartnerSdkUserMessageSummariesResponse": {
                 "type": "array",
                 "items": {
@@ -12110,251 +12377,6 @@
                     "content",
                     "id",
                     "name"
-                ]
-            },
-            "StoreSkuResponse": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "integer"
-                    },
-                    "application_id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    },
-                    "application": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "product_line": {
-                        "type": [
-                            "null",
-                            "integer"
-                        ]
-                    },
-                    "product_id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    },
-                    "flags": {
-                        "type": "integer"
-                    },
-                    "name": {
-                        "$ref": "#/components/schemas/StoreSkuLocalizedString"
-                    },
-                    "summary": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {},
-                                "additionalProperties": true
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    },
-                    "description": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {},
-                                "additionalProperties": true
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    },
-                    "legal_notice": {
-                        "anyOf": [
-                            {
-                                "type": "object",
-                                "properties": {},
-                                "additionalProperties": true
-                            },
-                            {
-                                "type": "string"
-                            }
-                        ]
-                    },
-                    "slug": {
-                        "type": "string"
-                    },
-                    "thumbnail_asset_id": {
-                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
-                        "type": "string"
-                    },
-                    "dependent_sku_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "bundled_skus": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/StoreSkuResponse"
-                        }
-                    },
-                    "bundled_sku_ids": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "access_type": {
-                        "type": "integer"
-                    },
-                    "manifest_labels": {
-                        "anyOf": [
-                            {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "features": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "locales": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "genres": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "available_regions": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "content_rating": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "content_rating_agency": {
-                        "type": "integer"
-                    },
-                    "content_ratings": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "system_requirements": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "price": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "price_tier": {
-                        "type": "integer"
-                    },
-                    "sale_price_tier": {
-                        "type": "integer"
-                    },
-                    "sale_price": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "created_at": {
-                        "type": "string"
-                    },
-                    "updated_at": {
-                        "type": "string"
-                    },
-                    "release_date": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "preorder_approximate_release_date": {
-                        "type": "string"
-                    },
-                    "preorder_released_at": {
-                        "type": "string"
-                    },
-                    "external_purchase_url": {
-                        "type": "string"
-                    },
-                    "external_sku_strategies": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "eligible_payment_gateways": {
-                        "type": "array",
-                        "items": {
-                            "type": "integer"
-                        }
-                    },
-                    "premium": {
-                        "type": "boolean"
-                    },
-                    "show_age_gate": {
-                        "type": "boolean"
-                    },
-                    "restricted": {
-                        "type": "boolean"
-                    },
-                    "exclusive": {
-                        "type": "boolean"
-                    },
-                    "deleted": {
-                        "type": "boolean"
-                    },
-                    "tenant_metadata": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "powerup_metadata": {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    "orbs_reward": {
-                        "type": "integer"
-                    }
-                },
-                "required": [
-                    "access_type",
-                    "application_id",
-                    "features",
-                    "flags",
-                    "id",
-                    "name",
-                    "premium",
-                    "product_line",
-                    "show_age_gate",
-                    "slug",
-                    "type"
                 ]
             },
             "StoreListingResponse": {
@@ -32457,6 +32479,95 @@
                     "version"
                 ]
             },
+            "StoreSkuLocalizedString": {
+                "anyOf": [
+                    {
+                        "type": "object",
+                        "properties": {},
+                        "additionalProperties": true
+                    },
+                    {
+                        "type": "string"
+                    }
+                ]
+            },
+            "PartnerSdkApplicationSkuRecommendationMap": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/PartnerSdkApplicationSkuRecommendation"
+                }
+            },
+            "PartnerSdkApplicationSkuRecommendation": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "reason": {
+                        "$ref": "#/components/schemas/PartnerSdkApplicationSkuRecommendationReason"
+                    }
+                },
+                "required": [
+                    "reason",
+                    "user_id"
+                ]
+            },
+            "PartnerSdkApplicationSkuRecommendationReason": {
+                "enum": [
+                    "RECOMMENDATION",
+                    "WISHLIST"
+                ],
+                "type": "string"
+            },
+            "PartnerSdkApplicationSkuRecommendationApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "flags": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "description",
+                    "flags",
+                    "icon",
+                    "id",
+                    "name",
+                    "type"
+                ]
+            },
             "PresenceResponseVoiceGuild": {
                 "type": "object",
                 "properties": {
@@ -32963,18 +33074,6 @@
                     "download_url",
                     "filename",
                     "size_bytes"
-                ]
-            },
-            "StoreSkuLocalizedString": {
-                "anyOf": [
-                    {
-                        "type": "object",
-                        "properties": {},
-                        "additionalProperties": true
-                    },
-                    {
-                        "type": "string"
-                    }
                 ]
             },
             "StorefrontProductSku": {
@@ -44808,6 +44907,98 @@
                         }
                     }
                 },
+                "tags": [
+                    "partner-sdk"
+                ]
+            }
+        },
+        "/partner-sdk/applications/{application_id}/skus/recommendations/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed giftable SKU recommendations for the requested users and application.",
+                "summary": "Get Application SKU Recommendations",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PartnerSdkApplicationSkuRecommendationsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "user_ids",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "User IDs to retrieve application SKU recommendations for (1-100)."
+                    },
+                    {
+                        "name": "max_recommendations",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "description": "Maximum number of recommendations to return (1-25)."
+                    },
+                    {
+                        "name": "include_wishlists",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to include wishlist-backed recommendations."
+                    }
+                ],
                 "tags": [
                     "partner-sdk"
                 ]

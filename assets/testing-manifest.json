@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 694,
+        "totalEntries": 695,
         "byService": {
-            "api": 597,
+            "api": 598,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 669,
+            "http-route": 670,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 171,
+            "contract": 172,
             "stateful-domain": 372,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 552,
+            "route-class": 553,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18021,6 +18021,44 @@
             "routeMetadata": {
                 "present": true,
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/partner-sdk/applications/:application_id/skus/recommendations/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/partner-sdk/applications/:application_id/skus/recommendations/",
+            "sourceFile": "src/api/routes/partner-sdk/applications/#application_id/skus/recommendations.ts",
+            "line": 252,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PartnerSdkApplicationSkuRecommendationsResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

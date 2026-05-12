@@ -3734,6 +3734,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"PartnerSdkApplicationSkuRecommendationsResponse"
+		],
+		"route": "/partner-sdk/applications/{application_id}/skus/recommendations",
+		"route_name": "GET_PARTNER_SDK_APPLICATIONS_APPLICATION_ID_SKUS_RECOMMENDATIONS",
+		"source": "src/api/routes/partner-sdk/applications/#application_id/skus/recommendations.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"PartnerSdkStorefrontConfigResponse"
 		],
 		"route": "/partner-sdk/storefront-config",
