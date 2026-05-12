@@ -67,6 +67,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /scheduled-maintenances/upcoming.json",
     "GET /discovery/search",
     "GET /reporting/unauthenticated/experiment",
+    "POST /reporting/unauthenticated/experiment",
     // Public kubernetes integration
     "GET /-/readyz",
     "GET /-/healthz",

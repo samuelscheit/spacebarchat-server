@@ -18,10 +18,17 @@
 
 import { route } from "@spacebar/api";
 import type { ReportingUnauthenticatedExperimentResponse } from "@spacebar/schemas";
+import { ApiError } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router = Router({ mergeParams: true });
 const response: ReportingUnauthenticatedExperimentResponse = {};
+
+export const UNAUTHENTICATED_DSA_EXPERIMENT_UNSUPPORTED_MESSAGE = "Unauthenticated DSA reporting experiments are not supported on this Spacebar instance.";
+
+export function createUnauthenticatedDsaExperimentUnsupportedError(): ApiError {
+    return new ApiError(UNAUTHENTICATED_DSA_EXPERIMENT_UNSUPPORTED_MESSAGE, 0, 501);
+}
 
 router.get(
     "/",
@@ -37,6 +44,24 @@ router.get(
     }),
     (_req: Request, res: Response) => {
         res.json(response);
+    },
+);
+
+router.post(
+    "/",
+    route({
+        summary: "Track Unauthenticated DSA Reporting Experiment",
+        description:
+            "Records unauthenticated DSA reporting experiment state when a real experiment provider is configured. Spacebar does not persist Discord's unauthenticated DSA experiment or reporting verification state, so this compatibility endpoint fails closed with 501 instead of accepting unsupported state.",
+        responses: {
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+        spacebarOnly: false,
+    }),
+    (_req: Request, _res: Response) => {
+        throw createUnauthenticatedDsaExperimentUnsupportedError();
     },
 );
 

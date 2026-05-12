@@ -1,6 +1,6 @@
 {
-    "missing": 513,
-    "spacebar": 667,
+    "missing": 512,
+    "spacebar": 668,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -253,7 +253,6 @@
         "/quests/{param}/video-progress",
         "/report",
         "/reporting/review",
-        "/reporting/unauthenticated/experiment",
         "/reporting/unauthenticated/{param}",
         "/reporting/unauthenticated/{param}/code",
         "/reporting/unauthenticated/{param}/verify",
@@ -2841,7 +2840,6 @@
             "source_routes": ["/reporting/unauthenticated/{type}/verify"],
             "summaries": ["Verify Unauthenticated Report"]
         },
-        { "method": "POST", "route": "/reporting/unauthenticated/experiment", "route_name": "DSA_EXPERIMENT_UNAUTHENTICATED", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "POST",
             "route": "/reports",

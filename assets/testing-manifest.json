@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 772,
+        "totalEntries": 773,
         "byService": {
-            "api": 675,
+            "api": 676,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 747,
+            "http-route": 748,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 195,
+            "contract": 196,
             "stateful-domain": 424,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 629,
+            "route-class": 630,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -1207,7 +1207,7 @@
             "method": "POST",
             "path": "/applications/:application_id/activities/:instance_location_id/instances/:instance_instance_id/leave/",
             "sourceFile": "src/api/routes/applications/#application_id/activities/#instance_location_id/instances/#instance_instance_id/leave.ts",
-            "line": 233,
+            "line": 228,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -21009,7 +21009,7 @@
             "method": "GET",
             "path": "/reporting/unauthenticated/experiment/",
             "sourceFile": "src/api/routes/reporting/unauthenticated/experiment.ts",
-            "line": 26,
+            "line": 33,
             "authMode": "public",
             "routeMetadata": {
                 "present": true,
@@ -21018,6 +21018,40 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/reporting/unauthenticated/experiment/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/reporting/unauthenticated/experiment/",
+            "sourceFile": "src/api/routes/reporting/unauthenticated/experiment.ts",
+            "line": 50,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    501
                 ],
                 "hasQuery": false
             },

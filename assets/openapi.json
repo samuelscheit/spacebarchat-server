@@ -46434,6 +46434,25 @@
                 "tags": [
                     "reporting"
                 ]
+            },
+            "post": {
+                "description": "Records unauthenticated DSA reporting experiment state when a real experiment provider is configured. Spacebar does not persist Discord's unauthenticated DSA experiment or reporting verification state, so this compatibility endpoint fails closed with 501 instead of accepting unsupported state.",
+                "summary": "Track Unauthenticated DSA Reporting Experiment",
+                "responses": {
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "reporting"
+                ]
             }
         },
         "/reporting/unauthenticated/capabilities": {
