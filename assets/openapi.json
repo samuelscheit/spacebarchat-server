@@ -59033,6 +59033,42 @@
                 ]
             }
         },
+        "/google-play/downgrade-subscription/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Downgrades the authenticated user's Google Play subscription when a Google Play billing provider and purchase-token state are available. Spacebar does not currently integrate with Google Play Billing or persist Google purchase-token lineage, so this compatibility endpoint fails closed instead of fabricating subscription changes.",
+                "summary": "Downgrade Google Play Subscription",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "google-play"
+                ]
+            }
+        },
         "/gifs/trending/": {
             "get": {
                 "security": [

@@ -63,6 +63,7 @@
                         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",
                         "src/api/routes/users/@me/guilds/premium/subscriptions.test.ts",
                         "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
+                        "test/routes/google-play-downgrade-subscription-post.test.ts",
                         "test/routes/google-play-validate-purchase-route.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
@@ -71,7 +72,7 @@
                         "src/util/dtos/ConnectedAccountDTO.test.ts",
                         "src/api/util/UserUpdateEvents.test.ts"
                     ],
-                    "manifestIds": ["api:http:POST:/google-play/validate-purchase/"],
+                    "manifestIds": ["api:http:POST:/google-play/downgrade-subscription/", "api:http:POST:/google-play/validate-purchase/"],
                     "selectors": [{ "service": "api", "type": "http-route", "pathPrefix": "/users" }],
                     "fixtures": ["users", "sessions", "relationships", "settings"],
                     "checks": ["ownership-boundary", "schema-validation", "db-state", "events"]

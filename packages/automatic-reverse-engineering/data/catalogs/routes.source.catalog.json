@@ -2366,6 +2366,15 @@
 	},
 	{
 		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/google-play/downgrade-subscription",
+		"route_name": "POST_GOOGLE_PLAY_DOWNGRADE_SUBSCRIPTION",
+		"source": "src/api/routes/google-play/downgrade-subscription.ts"
+	},
+	{
+		"method": "POST",
 		"request_schema_ref": "GooglePlayValidatePurchaseSchema",
 		"response_schema_refs": [
 			"APIErrorResponse"

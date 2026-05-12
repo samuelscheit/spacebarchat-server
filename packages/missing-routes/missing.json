@@ -1,6 +1,6 @@
 {
-    "missing": 519,
-    "spacebar": 661,
+    "missing": 518,
+    "spacebar": 662,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -97,7 +97,6 @@
         "/entitlements/gift-codes/{param}/redeem",
         "/family-center/more-activity/{param}/{param}/{param}/{param}",
         "/gifs/select",
-        "/google-play/downgrade-subscription",
         "/google-play/verify-purchase-token",
         "/gravity-content",
         "/gravity-custom-guild-score",
@@ -2283,7 +2282,6 @@
             "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Track Selected GIF"]
         },
-        { "method": "POST", "route": "/google-play/downgrade-subscription", "route_name": "DOWNGRADE_SUBSCRIPTION", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/google-play/verify-purchase-token", "route_name": "VERIFY_PURCHASE", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/gravity-content", "route_name": "GRAVITY_ITEMS_HYDRATE", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/gravity-topic-guilds", "route_name": "GRAVITY_TOPIC_GUILDS", "sources": ["xhyrom:data/client/routes.json"] },
