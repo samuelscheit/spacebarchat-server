@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 752,
+        "totalEntries": 753,
         "byService": {
-            "api": 655,
+            "api": 656,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 727,
+            "http-route": 728,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 184,
-            "stateful-domain": 416,
+            "stateful-domain": 417,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 610,
+            "route-class": 611,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -26331,7 +26331,7 @@
             "method": "DELETE",
             "path": "/users/@me/relationships/:user_id",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 151,
+            "line": 177,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -26374,7 +26374,7 @@
             "method": "PATCH",
             "path": "/users/@me/relationships/:user_id",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 79,
+            "line": 105,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -26418,7 +26418,7 @@
             "method": "PUT",
             "path": "/users/@me/relationships/:user_id",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 51,
+            "line": 77,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -26463,7 +26463,7 @@
             "method": "GET",
             "path": "/users/@me/relationships/",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 27,
+            "line": 33,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -26503,7 +26503,7 @@
             "method": "POST",
             "path": "/users/@me/relationships/",
             "sourceFile": "src/api/routes/users/@me/relationships.ts",
-            "line": 120,
+            "line": 146,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -26521,6 +26521,45 @@
                     "RELATIONSHIP_ADD",
                     "RELATIONSHIP_REMOVE"
                 ]
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/users/@me/relationships/bulk",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/users/@me/relationships/bulk",
+            "sourceFile": "src/api/routes/users/@me/relationships.ts",
+            "line": 57,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-user-state",

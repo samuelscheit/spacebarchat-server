@@ -5815,6 +5815,15 @@
 		"source": "src/api/routes/users/@me/relationships.ts"
 	},
 	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/relationships/bulk",
+		"route_name": "PUT_USERS__ME_RELATIONSHIPS_BULK",
+		"source": "src/api/routes/users/@me/relationships.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

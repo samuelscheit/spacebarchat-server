@@ -17,12 +17,18 @@
 */
 
 import { relationshipUserProjection, route, updateRelationship } from "@spacebar/api";
-import { Relationship, RelationshipRemoveEvent, RelationshipUpdateEvent, User, emitEvent } from "@spacebar/util";
+import { ApiError, Relationship, RelationshipRemoveEvent, RelationshipUpdateEvent, User, emitEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 import { HTTPError } from "lambert-server";
 import { RelationshipType, RelationshipPatchSchema } from "@spacebar/schemas";
 
 const router = Router({ mergeParams: true });
+
+export const USER_BULK_RELATIONSHIPS_PUT_UNSUPPORTED_MESSAGE = "Bulk relationship replacement is not supported on this Spacebar instance.";
+
+export function createUserBulkRelationshipsPutUnsupportedError(): ApiError {
+    return new ApiError(USER_BULK_RELATIONSHIPS_PUT_UNSUPPORTED_MESSAGE, 0, 501);
+}
 
 router.get(
     "/",
@@ -45,6 +51,26 @@ router.get(
 
         const related_users = user.relationships.map((r) => r.toPublicRelationship());
         return res.json(related_users);
+    },
+);
+
+router.put(
+    "/bulk",
+    route({
+        summary: "Bulk Replace Relationships",
+        description:
+            "Registers Discord client's PUT /users/@me/relationships/bulk route without mutating local relationship state. The only local evidence for PUT is the xHyroM client route catalog, while public Userdoccers source documents POST contact-sync bulk add for this path, so Spacebar fails closed instead of creating, deleting, or rewriting relationships.",
+        responses: {
+            401: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (_req: Request, _res: Response) => {
+        throw createUserBulkRelationshipsPutUnsupportedError();
     },
 );
 

@@ -1,6 +1,6 @@
 {
-    "missing": 533,
-    "spacebar": 647,
+    "missing": 532,
+    "spacebar": 648,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -3871,7 +3871,6 @@
             "source_routes": ["/users/@me/relationships/{user_id}/ignore"],
             "summaries": ["Ignore User"]
         },
-        { "method": "PUT", "route": "/users/@me/relationships/bulk", "route_name": "USER_BULK_RELATIONSHIPS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PUT",
             "route": "/users/@me/saved-messages/{param}/{param}",

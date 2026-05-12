@@ -38842,6 +38842,42 @@
                 ]
             }
         },
+        "/users/@me/relationships/bulk": {
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Registers Discord client's PUT /users/@me/relationships/bulk route without mutating local relationship state. The only local evidence for PUT is the xHyroM client route catalog, while public Userdoccers source documents POST contact-sync bulk add for this path, so Spacebar fails closed instead of creating, deleting, or rewriting relationships.",
+                "summary": "Bulk Replace Relationships",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/relationships/{user_id}": {
             "put": {
                 "security": [

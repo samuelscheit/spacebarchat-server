@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 579,
+        "totalCoveredManifestEntries": 580,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 557,
-                "totalCoveredManifestEntries": 557,
-                "totalCoveredRequiredManifestEntries": 557,
+                "totalRequiredManifestEntries": 558,
+                "totalCoveredManifestEntries": 558,
+                "totalCoveredRequiredManifestEntries": 558,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 416,
+            "stateful-domain": 417,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 557,
-                "totalCoveredManifestEntries": 557,
-                "totalCoveredRequiredManifestEntries": 557,
+                "totalRequiredManifestEntries": 558,
+                "totalCoveredManifestEntries": 558,
+                "totalCoveredRequiredManifestEntries": 558,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -556,6 +556,7 @@
                 "api:http:PUT:/guilds/:guild_id/templates/:code",
                 "api:http:PUT:/users/@me/notes/:user_id",
                 "api:http:PUT:/users/@me/relationships/:user_id",
+                "api:http:PUT:/users/@me/relationships/bulk",
                 "api:middleware:auth-rate-limit-error",
                 "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
                 "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:message_id/:filename",
@@ -1115,6 +1116,7 @@
                 "api:http:PUT:/guilds/:guild_id/templates/:code",
                 "api:http:PUT:/users/@me/notes/:user_id",
                 "api:http:PUT:/users/@me/relationships/:user_id",
+                "api:http:PUT:/users/@me/relationships/bulk",
                 "api:middleware:auth-rate-limit-error",
                 "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:batch_id/:attachment_id/:filename",
                 "cdn:http:DELETE:/_spacebar/cdn/attachments/:channel_id/:message_id/:filename",
@@ -1372,7 +1374,8 @@
                         "api:http:POST:/users/@me/mfa/webauthn/credentials/",
                         "api:http:POST:/users/@me/relationships/",
                         "api:http:PUT:/users/@me/notes/:user_id",
-                        "api:http:PUT:/users/@me/relationships/:user_id"
+                        "api:http:PUT:/users/@me/relationships/:user_id",
+                        "api:http:PUT:/users/@me/relationships/bulk"
                     ]
                 },
                 {
