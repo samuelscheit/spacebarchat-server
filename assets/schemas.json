@@ -8754,6 +8754,26 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildScheduledEventUserCountResponse": {
+        "type": "object",
+        "properties": {
+            "guild_scheduled_event_count": {
+                "type": "integer"
+            },
+            "guild_scheduled_event_exception_counts": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "guild_scheduled_event_count",
+            "guild_scheduled_event_exception_counts"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildTopEmojisResponse": {
         "type": "object",
         "properties": {

@@ -129,3 +129,10 @@ export interface GuildScheduledEventUserResponse {
 }
 
 export type GuildScheduledEventUsersResponse = GuildScheduledEventUserResponse[];
+
+export interface GuildScheduledEventUserCountResponse {
+    guild_scheduled_event_count: number;
+    guild_scheduled_event_exception_counts: {
+        [guildScheduledEventExceptionId: Snowflake]: number;
+    };
+}

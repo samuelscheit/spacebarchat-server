@@ -3158,6 +3158,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildScheduledEventUserCountResponse"
+		],
+		"route": "/guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users/counts",
+		"route_name": "GET_GUILDS_GUILD_ID_SCHEDULED_EVENTS_GUILD_SCHEDULED_EVENT_ID_USERS_COUNTS",
+		"source": "src/api/routes/guilds/#guild_id/scheduled-events/index.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/guilds/{guild_id}/shield.svg",

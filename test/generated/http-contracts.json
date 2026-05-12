@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 685,
+        "totalContracts": 686,
         "byService": {
-            "api": 612,
+            "api": 613,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 535,
-        "runtimeMalformedAuthContracts": 535,
-        "runtimeRevokedSessionAuthContracts": 535,
-        "runtimeStaleTokenAuthContracts": 535,
+        "runtimeAuthBoundaryContracts": 536,
+        "runtimeMalformedAuthContracts": 536,
+        "runtimeRevokedSessionAuthContracts": 536,
+        "runtimeStaleTokenAuthContracts": 536,
         "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 71,
@@ -22,7 +22,7 @@
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
         "runtimeEventEmissionContracts": 6,
-        "runtimeRateLimitHeaderContracts": 237,
+        "runtimeRateLimitHeaderContracts": 238,
         "runtimeCdnMissingObjectContracts": 35,
         "runtimeCdnHeadMissingObjectContracts": 35,
         "runtimeCdnValidObjectContracts": 35,
@@ -20630,13 +20630,83 @@
             ]
         },
         {
+            "manifestId": "api:http:GET:/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users/counts",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users/counts",
+            "samplePath": "/guilds/100000000000000001/scheduled-events/100000000000000001/users/counts",
+            "sourceFile": "src/api/routes/guilds/#guild_id/scheduled-events/index.ts",
+            "line": 167,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "guilds", "members", "roles", "permissions"],
+            "contractChecks": ["authenticated", "permission-denied", "schema-validation", "db-state", "events"],
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "routeMetadata": {
+                "responses": ["APIErrorResponse", "GuildScheduledEventUserCountResponse"],
+                "responseStatuses": [200, 400, 401, 403, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "rate-limit-headers",
+                    "checks": ["rate-limit-headers"],
+                    "rateLimit": {
+                        "group": "guild",
+                        "configPath": "limits.rate.routes.guild",
+                        "pathPrefix": "/guilds/:guild_id",
+                        "sourceFile": "src/api/middlewares/RateLimit.ts",
+                        "line": 218
+                    }
+                },
+                {
+                    "id": "policy-permission-denied",
+                    "checks": ["permission-denied"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                },
+                {
+                    "id": "policy-events",
+                    "checks": ["events"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/guilds/:guild_id/scheduled-events/",
             "service": "api",
             "method": "GET",
             "path": "/guilds/:guild_id/scheduled-events/",
             "samplePath": "/guilds/100000000000000001/scheduled-events/",
             "sourceFile": "src/api/routes/guilds/#guild_id/scheduled-events/index.ts",
-            "line": 67,
+            "line": 132,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
@@ -31209,7 +31279,7 @@
             "path": "/users/@me/entitlements/gifts",
             "samplePath": "/users/@me/entitlements/gifts",
             "sourceFile": "src/api/routes/users/@me/entitlements.ts",
-            "line": 103,
+            "line": 102,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

@@ -17,18 +17,23 @@
 */
 
 import { assertGuildMember, route } from "@spacebar/api";
-import type { GuildScheduledEventsResponse } from "@spacebar/schemas";
-import { Guild } from "@spacebar/util";
+import type { GuildScheduledEventUserCountResponse, GuildScheduledEventsResponse } from "@spacebar/schemas";
+import { DiscordApiErrors, Guild } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 export type GuildScheduledEventsListOptions = {
     withUserCount: boolean;
 };
 
+export type GuildScheduledEventUserCountOptions = {
+    guildScheduledEventExceptionIds: string[];
+};
+
 export interface GuildScheduledEventsDependencies {
     assertGuildExists(guildId: string): Promise<void>;
     assertRequesterGuildMember(userId: string | undefined, guildId: string): Promise<void>;
     listGuildScheduledEvents(guildId: string, options: GuildScheduledEventsListOptions): Promise<GuildScheduledEventsResponse>;
+    countGuildScheduledEventUsers(guildId: string, guildScheduledEventId: string, options: GuildScheduledEventUserCountOptions): Promise<GuildScheduledEventUserCountResponse>;
 }
 
 export const defaultGuildScheduledEventsDependencies: GuildScheduledEventsDependencies = {
@@ -42,11 +47,49 @@ export const defaultGuildScheduledEventsDependencies: GuildScheduledEventsDepend
     async listGuildScheduledEvents() {
         return [];
     },
+    async countGuildScheduledEventUsers(_guildId, _guildScheduledEventId, options) {
+        return getEmptyGuildScheduledEventUserCount(options.guildScheduledEventExceptionIds);
+    },
 };
+
+const snowflakePattern = /^\d{1,20}$/;
+
+function queryValues(value: unknown): string[] {
+    if (value === undefined) return [];
+    if (Array.isArray(value)) return value.flatMap(queryValues);
+    if (typeof value !== "string") throw DiscordApiErrors.INVALID_FORM_BODY;
+
+    return value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+}
 
 export function parseWithUserCount(value: unknown): boolean {
     if (Array.isArray(value)) return parseWithUserCount(value[0]);
     return value === true || value === "true" || value === "1";
+}
+
+export function parseGuildScheduledEventUserCountsQuery(query: Request["query"]): GuildScheduledEventUserCountOptions {
+    const guildScheduledEventExceptionIds = [
+        ...new Set([...queryValues(query.guild_scheduled_event_exception_ids), ...queryValues(query["guild_scheduled_event_exception_ids[]"])]),
+    ];
+
+    if (guildScheduledEventExceptionIds.length > 10) throw DiscordApiErrors.INVALID_FORM_BODY;
+    if (guildScheduledEventExceptionIds.some((guildScheduledEventExceptionId) => !snowflakePattern.test(guildScheduledEventExceptionId))) {
+        throw DiscordApiErrors.INVALID_FORM_BODY;
+    }
+
+    return { guildScheduledEventExceptionIds };
+}
+
+export function getEmptyGuildScheduledEventUserCount(guildScheduledEventExceptionIds: string[] = []): GuildScheduledEventUserCountResponse {
+    const guildScheduledEventExceptionCounts = Object.fromEntries(guildScheduledEventExceptionIds.map((guildScheduledEventExceptionId) => [guildScheduledEventExceptionId, 0]));
+
+    return {
+        guild_scheduled_event_count: 0,
+        guild_scheduled_event_exception_counts: guildScheduledEventExceptionCounts,
+    };
 }
 
 export async function getGuildScheduledEvents(
@@ -59,6 +102,19 @@ export async function getGuildScheduledEvents(
     await dependencies.assertRequesterGuildMember(requesterId, guildId);
 
     return dependencies.listGuildScheduledEvents(guildId, options);
+}
+
+export async function getGuildScheduledEventUserCount(
+    requesterId: string | undefined,
+    guildId: string,
+    guildScheduledEventId: string,
+    options: GuildScheduledEventUserCountOptions,
+    dependencies: GuildScheduledEventsDependencies = defaultGuildScheduledEventsDependencies,
+): Promise<GuildScheduledEventUserCountResponse> {
+    await dependencies.assertGuildExists(guildId);
+    await dependencies.assertRequesterGuildMember(requesterId, guildId);
+
+    return dependencies.countGuildScheduledEventUsers(guildId, guildScheduledEventId, options);
 }
 
 export function createGuildScheduledEventsRouter(dependencies: GuildScheduledEventsDependencies = defaultGuildScheduledEventsDependencies) {
@@ -96,6 +152,48 @@ export function createGuildScheduledEventsRouter(dependencies: GuildScheduledEve
             const scheduledEvents = await getGuildScheduledEvents(req.user_id, guild_id, { withUserCount }, dependencies);
 
             return res.status(200).json(scheduledEvents);
+        },
+    );
+
+    router.get(
+        "/:guild_scheduled_event_id/users/counts",
+        route({
+            summary: "Get Guild Scheduled Event User Count",
+            description:
+                "Returns locally persisted subscriber counts for a guild scheduled event. Spacebar does not currently persist scheduled-event subscriptions, so counts are zero until that backing state exists.",
+            query: {
+                guild_scheduled_event_exception_ids: {
+                    type: "array",
+                    description: "Exception IDs to return subscriber counts for (max 10).",
+                },
+            },
+            responses: {
+                200: {
+                    body: "GuildScheduledEventUserCountResponse",
+                },
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                403: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const { guild_id, guild_scheduled_event_id } = req.params as {
+                guild_id: string;
+                guild_scheduled_event_id: string;
+            };
+            const options = parseGuildScheduledEventUserCountsQuery(req.query);
+            const counts = await getGuildScheduledEventUserCount(req.user_id, guild_id, guild_scheduled_event_id, options, dependencies);
+
+            return res.status(200).json(counts);
         },
     );
 

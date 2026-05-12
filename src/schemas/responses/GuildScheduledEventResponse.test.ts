@@ -7,6 +7,7 @@ import {
     GuildScheduledEventRecurrenceRuleWeekday,
     type GuildScheduledEventResponse,
     GuildScheduledEventStatus,
+    type GuildScheduledEventUserCountResponse,
     type GuildScheduledEventUserResponse,
     GuildScheduledEventUserResponseType,
 } from "./GuildScheduledEventResponse";
@@ -85,4 +86,18 @@ test("guild scheduled event user response describes user subscription payloads",
 
     assert.equal(eventUser.response, GuildScheduledEventUserResponseType.Interested);
     assert.equal(eventUser.guild_scheduled_event_exception_id, "2117779587072000000");
+});
+
+test("guild scheduled event user count response describes event and exception counts", () => {
+    const counts = {
+        guild_scheduled_event_count: 18,
+        guild_scheduled_event_exception_counts: {
+            "2117779587072000000": 4,
+        },
+    } satisfies GuildScheduledEventUserCountResponse;
+
+    assert.equal(counts.guild_scheduled_event_count, 18);
+    assert.deepEqual(counts.guild_scheduled_event_exception_counts, {
+        "2117779587072000000": 4,
+    });
 });

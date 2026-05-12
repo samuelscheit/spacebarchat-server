@@ -1,6 +1,6 @@
 {
-    "missing": 575,
-    "spacebar": 605,
+    "missing": 574,
+    "spacebar": 606,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -207,7 +207,6 @@
         "/guilds/{param}/scheduled-events/{param}/exceptions/{param}",
         "/guilds/{param}/scheduled-events/{param}/users",
         "/guilds/{param}/scheduled-events/{param}/users/@me",
-        "/guilds/{param}/scheduled-events/{param}/users/counts",
         "/guilds/{param}/scheduled-events/{param}/{param}/users",
         "/guilds/{param}/scheduled-events/{param}/{param}/users/@me",
         "/guilds/{param}/skus/{param}",
@@ -1340,14 +1339,6 @@
             "sources": ["userdoccers:resources/guild-scheduled-event.mdx"],
             "source_routes": ["/guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users"],
             "summaries": ["Get Guild Scheduled Event Users"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/scheduled-events/{param}/users/counts",
-            "route_name": "GET_GUILDS_GUILD_ID_SCHEDULED_EVENTS_GUILD_SCHEDULED_EVENT_ID_USERS_COUNTS",
-            "sources": ["userdoccers:resources/guild-scheduled-event.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users/counts", "/guilds/{guild_id}/scheduled-events/{param}/users/counts"],
-            "summaries": ["Get Guild Scheduled Event User Count"]
         },
         {
             "method": "GET",
