@@ -47,6 +47,7 @@ export * from "./ContentInventoryApplicationUpdateSchema";
 export * from "./ConnectedAccountSchema";
 export * from "./ConnectionCallbackSchema";
 export * from "./ConnectionUpdateSchema";
+export * from "./DevPortalCsatSurveyResponseSchema";
 export * from "./DmChannelCreateSchema";
 export * from "./EmailDomainLookupSchema";
 export * from "./EmailDomainLookupVerifyCodeSchema";

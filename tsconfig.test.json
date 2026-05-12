@@ -26,6 +26,7 @@
         "src/api/routes/modules/#release_channel/#module_name/#module_version.test.ts",
         "src/api/routes/application-identities.test.ts",
         "src/api/routes/applications-with-assets.test.ts",
+        "src/api/routes/dev-portal-csat-survey-response.test.ts",
         "src/api/routes/attachments/report-false-positive.test.ts",
         "src/api/routes/attachments/sender-report-false-positive.test.ts",
         "src/api/routes/messages/explicit-media.test.ts",

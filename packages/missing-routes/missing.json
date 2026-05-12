@@ -1,6 +1,6 @@
 {
-    "missing": 525,
-    "spacebar": 655,
+    "missing": 524,
+    "spacebar": 656,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -95,7 +95,6 @@
         "/content-inventory/users/@me?refresh_token={param}",
         "/debug-logs/multi/{param}",
         "/debug-logs/{param}/{param}",
-        "/dev-portal-csat-survey-response",
         "/discovery/{param}",
         "/entitlements/gift-codes/{param}/redeem",
         "/entitlements/partner-promotions/{param}",
@@ -2290,13 +2289,6 @@
         { "method": "POST", "route": "/content-inventory/users/@me/spotify", "route_name": "MY_SPOTIFY_CONTENT_INVENTORY", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/debug-logs/{param}/{param}", "route_name": "DEBUG_LOG", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/debug-logs/multi/{param}", "route_name": "DEBUG_LOGS", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/dev-portal-csat-survey-response",
-            "route_name": "POST_DEV_PORTAL_CSAT_SURVEY_RESPONSE",
-            "sources": ["userdoccers:resources/user.mdx"],
-            "summaries": ["Submit Developer Portal CSAT Survey"]
-        },
         {
             "method": "POST",
             "route": "/entitlements/gift-codes/{param}/redeem",

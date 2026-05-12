@@ -1826,6 +1826,25 @@
                     }
                 }
             },
+            "DevPortalCsatSurveyResponseSchema": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "pattern": "^\\d{1,20}$",
+                        "type": "string"
+                    },
+                    "csat_response": {
+                        "minimum": 1,
+                        "maximum": 5,
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "csat_response",
+                    "user_id"
+                ]
+            },
             "DmChannelCreateSchema": {
                 "type": "object",
                 "properties": {
@@ -37062,6 +37081,9 @@
             "name": "content-inventory"
         },
         {
+            "name": "dev-portal-csat-survey-response"
+        },
+        {
             "name": "discoverable-guilds"
         },
         {
@@ -60413,6 +60435,65 @@
                 ],
                 "tags": [
                     "discoverable-guilds"
+                ]
+            }
+        },
+        "/dev-portal-csat-survey-response/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Submits a customer satisfaction survey response for the developer portal. Spacebar validates and acknowledges the authenticated user's response without fabricating Discord's private CSAT persistence.",
+                "summary": "Submit Developer Portal CSAT Survey",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DevPortalCsatSurveyResponseSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "dev-portal-csat-survey-response"
                 ]
             }
         },

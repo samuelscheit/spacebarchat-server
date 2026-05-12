@@ -2013,6 +2013,16 @@
 		"source": "src/api/routes/content-inventory/users/@me/similar-games/#application_id.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "DevPortalCsatSurveyResponseSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/dev-portal-csat-survey-response",
+		"route_name": "POST_DEV_PORTAL_CSAT_SURVEY_RESPONSE",
+		"source": "src/api/routes/dev-portal-csat-survey-response.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"DiscoverableGuildsResponse"

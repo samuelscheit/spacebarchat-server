@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 760,
+        "totalEntries": 761,
         "byService": {
-            "api": 663,
+            "api": 664,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 735,
+            "http-route": 736,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 187,
+            "contract": 188,
             "stateful-domain": 420,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 617,
+            "route-class": 618,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -9818,6 +9818,44 @@
                 "responseStatuses": [
                     200,
                     401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/dev-portal-csat-survey-response/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/dev-portal-csat-survey-response/",
+            "sourceFile": "src/api/routes/dev-portal-csat-survey-response.ts",
+            "line": 32,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "DevPortalCsatSurveyResponseSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    403
                 ],
                 "hasQuery": false
             },
