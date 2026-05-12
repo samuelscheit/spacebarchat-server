@@ -9873,6 +9873,34 @@
                     "$ref": "#/components/schemas/PaymentSourceResponse"
                 }
             },
+            "PresencesResponse": {
+                "type": "object",
+                "properties": {
+                    "guilds": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PresenceResponseVoiceGuild"
+                        }
+                    },
+                    "presences": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PresenceResponsePresence"
+                        }
+                    },
+                    "applications": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PresenceResponseApplication"
+                        }
+                    }
+                },
+                "required": [
+                    "applications",
+                    "guilds",
+                    "presences"
+                ]
+            },
             "PreloadMessageResponse": {
                 "type": "object",
                 "properties": {
@@ -32040,6 +32068,223 @@
                     "version"
                 ]
             },
+            "PresenceResponseVoiceGuild": {
+                "type": "object",
+                "properties": {
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "guild_name": {
+                        "type": "string"
+                    },
+                    "guild_icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "voice_channels": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PresenceResponseVoiceChannel"
+                        }
+                    }
+                },
+                "required": [
+                    "guild_icon",
+                    "guild_id",
+                    "guild_name",
+                    "voice_channels"
+                ]
+            },
+            "PresenceResponseVoiceChannel": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "channel_name": {
+                        "type": "string"
+                    },
+                    "users": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "streams": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PresenceResponseVoiceStream"
+                        }
+                    }
+                },
+                "required": [
+                    "channel_id",
+                    "channel_name",
+                    "users"
+                ]
+            },
+            "PresenceResponseVoiceStream": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "user_id"
+                ]
+            },
+            "PresenceResponsePresence": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/PresenceResponseStatus"
+                    },
+                    "activities": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PresenceResponseActivity"
+                        }
+                    },
+                    "hidden_activities": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PresenceResponseActivity"
+                        }
+                    },
+                    "client_status": {
+                        "$ref": "#/components/schemas/PresenceResponseClientStatus"
+                    },
+                    "has_played_game": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "activities",
+                    "client_status",
+                    "status",
+                    "user"
+                ]
+            },
+            "PresenceResponseStatus": {
+                "enum": [
+                    "dnd",
+                    "idle",
+                    "offline",
+                    "online"
+                ],
+                "type": "string"
+            },
+            "PresenceResponseActivity": {
+                "type": "object",
+                "additionalProperties": {},
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "url": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ]
+                    },
+                    "session_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "platform": {
+                        "type": "string"
+                    },
+                    "application_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "details": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "state": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "flags": {
+                        "type": [
+                            "string",
+                            "integer"
+                        ]
+                    }
+                },
+                "required": [
+                    "name",
+                    "type"
+                ]
+            },
+            "PresenceResponseClientStatus": {
+                "type": "object",
+                "properties": {
+                    "desktop": {
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "type": "string"
+                    },
+                    "web": {
+                        "type": "string"
+                    },
+                    "embedded": {
+                        "type": "string"
+                    },
+                    "vr": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PresenceResponseApplication": {
+                "type": "object",
+                "additionalProperties": {},
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                }
+            },
             "PromotionMarketingComponentType": {
                 "type": "number",
                 "enum": [
@@ -35108,6 +35353,9 @@
         },
         {
             "name": "policies"
+        },
+        {
+            "name": "presences"
         },
         {
             "name": "promotions"
@@ -43401,6 +43649,41 @@
                 ],
                 "tags": [
                     "promotions"
+                ]
+            }
+        },
+        "/presences/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get Presences",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresencesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "presences"
                 ]
             }
         },

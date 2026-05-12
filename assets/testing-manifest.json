@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 679,
+        "totalEntries": 680,
         "byService": {
-            "api": 582,
+            "api": 583,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 654,
+            "http-route": 655,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 170,
+            "contract": 171,
             "stateful-domain": 358,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 537,
+            "route-class": 538,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18146,6 +18146,42 @@
             }
         },
         {
+            "id": "api:http:GET:/presences/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/presences/",
+            "sourceFile": "src/api/routes/presences.ts",
+            "line": 126,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PresencesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/promotions/",
             "type": "http-route",
             "service": "api",
@@ -18377,7 +18413,7 @@
             "method": "GET",
             "path": "/quests/@me/claimed/",
             "sourceFile": "src/api/routes/quests/@me/claimed.ts",
-            "line": 242,
+            "line": 244,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

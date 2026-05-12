@@ -3779,6 +3779,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"PresencesResponse"
+		],
+		"route": "/presences",
+		"route_name": "GET_PRESENCES",
+		"source": "src/api/routes/presences.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"PromotionsResponse"
 		],
 		"route": "/promotions",
