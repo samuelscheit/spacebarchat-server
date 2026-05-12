@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 768,
+        "totalEntries": 769,
         "byService": {
-            "api": 671,
+            "api": 672,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 743,
+            "http-route": 744,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 192,
+            "contract": 193,
             "stateful-domain": 423,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 625,
+            "route-class": 626,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -216,6 +216,41 @@
                 "contractChecks": [
                     "public-auth-boundary",
                     "status"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/:param/force-send-prompt/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/:param/force-send-prompt/",
+            "sourceFile": "src/api/routes/#param/force-send-prompt.ts",
+            "line": 37,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
                 ],
                 "allowMissingRouteMetadata": false
             }

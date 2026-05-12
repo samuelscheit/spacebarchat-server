@@ -37237,6 +37237,9 @@
             "name": "family-center"
         },
         {
+            "name": "force-send-prompt"
+        },
+        {
             "name": "friend-finder"
         },
         {
@@ -73034,6 +73037,53 @@
                         "label": "Spacebar-only",
                         "color": "red"
                     }
+                ]
+            }
+        },
+        "/{param}/force-send-prompt/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Registers Discord client's POST /{param}/force-send-prompt route. The only local evidence is the xHyroM client route catalog, and Spacebar has no durable prompt-delivery state or provider integration, so this compatibility endpoint fails closed instead of fabricating prompt side effects.",
+                "summary": "Force Send Prompt",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "param",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "param"
+                    }
+                ],
+                "tags": [
+                    "force-send-prompt"
                 ]
             }
         }

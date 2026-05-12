@@ -32,6 +32,7 @@
         "src/api/routes/attachments/sender-report-false-positive.test.ts",
         "src/api/routes/friend-finder/find-friends.test.ts",
         "src/api/routes/messages/explicit-media.test.ts",
+        "src/api/routes/#param/force-send-prompt.test.ts",
         "src/api/routes/checkpoint.test.ts",
         "src/api/util/handlers/Instance.test.ts",
         "src/api/util/handlers/Voice.test.ts",

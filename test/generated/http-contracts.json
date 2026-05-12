@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 743,
+        "totalContracts": 744,
         "byService": {
-            "api": 670,
+            "api": 671,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 592,
-        "runtimeMalformedAuthContracts": 592,
-        "runtimeRevokedSessionAuthContracts": 592,
-        "runtimeStaleTokenAuthContracts": 592,
+        "runtimeAuthBoundaryContracts": 593,
+        "runtimeMalformedAuthContracts": 593,
+        "runtimeRevokedSessionAuthContracts": 593,
+        "runtimeStaleTokenAuthContracts": 593,
         "runtimePublicAuthBoundaryContracts": 70,
         "runtimePublicInvalidBodyContracts": 17,
         "runtimeProtectedInvalidBodyContracts": 78,
@@ -216,6 +216,50 @@
                 {
                     "id": "response-shape",
                     "checks": ["response-shape"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/:param/force-send-prompt/",
+            "service": "api",
+            "method": "POST",
+            "path": "/:param/force-send-prompt/",
+            "samplePath": "/value/force-send-prompt/",
+            "sourceFile": "src/api/routes/#param/force-send-prompt.ts",
+            "line": 37,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [401, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
                 }
             ]
         },

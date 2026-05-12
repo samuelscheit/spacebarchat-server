@@ -14,6 +14,15 @@
 		"source": "src/api/routes/-/readyz.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/{param}/force-send-prompt",
+		"route_name": "POST_PARAM_FORCE_SEND_PROMPT",
+		"source": "src/api/routes/#param/force-send-prompt.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

@@ -1,6 +1,6 @@
 {
-    "missing": 517,
-    "spacebar": 663,
+    "missing": 516,
+    "spacebar": 664,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -424,8 +424,7 @@
         "/voice/public-keys",
         "/voice/{param}/match-public-key",
         "/webhooks/{param}/{param}/messages/@original",
-        "/webhooks/{param}/{param}/{param}",
-        "/{param}/force-send-prompt"
+        "/webhooks/{param}/{param}/{param}"
     ],
     "additional": [
         "/-/healthz",
@@ -1914,7 +1913,6 @@
             "source_routes": ["/webhooks/{application_id}/{interaction_token}/messages/@original"],
             "summaries": ["Modify Original Interaction Response"]
         },
-        { "method": "POST", "route": "/{param}/force-send-prompt", "route_name": "FORCE_SEND_PROMPT", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "POST",
             "route": "/activities/{param}/{param}",
