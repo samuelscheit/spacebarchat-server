@@ -12967,6 +12967,7 @@
                     "price"
                 ]
             },
+            "StoreDirectoryResponse": {},
             "StoreEulaResponse": {
                 "type": "object",
                 "properties": {
@@ -44243,6 +44244,89 @@
                             "type": "string"
                         },
                         "description": "eula_id"
+                    }
+                ],
+                "tags": [
+                    "store"
+                ]
+            }
+        },
+        "/store/directory/{param}/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a locally backed store directory object for the given directory ID when one is configured.",
+                "summary": "Get Store Directory",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StoreDirectoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "param",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "param"
+                    },
+                    {
+                        "name": "country_code",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "ISO 3166-1 alpha-2 country code used for localized store content."
+                    },
+                    {
+                        "name": "localize",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to localize the directory for the viewer's location (default true)."
                     }
                 ],
                 "tags": [

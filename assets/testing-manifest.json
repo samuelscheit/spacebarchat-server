@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 733,
+        "totalEntries": 734,
         "byService": {
-            "api": 636,
+            "api": 637,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 708,
+            "http-route": 709,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 181,
+            "contract": 182,
             "stateful-domain": 400,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 591,
+            "route-class": 592,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -20738,6 +20738,44 @@
                     404
                 ],
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/store/directory/:param/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/store/directory/:param/",
+            "sourceFile": "src/api/routes/store/directory/#param.ts",
+            "line": 99,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StoreDirectoryResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-public-contract",

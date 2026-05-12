@@ -208,6 +208,7 @@ export * from "./SoundboardDefaultSoundsResponse";
 export * from "./SocialSDKReleasesResponse";
 export * from "./StageInstanceResponse";
 export * from "./StoreConsumableSkuPricingResponse";
+export * from "./StoreDirectoryResponse";
 export * from "./StoreEulaResponse";
 export * from "./StoreListingResponse";
 export * from "./StorefrontCollectionResponse";
