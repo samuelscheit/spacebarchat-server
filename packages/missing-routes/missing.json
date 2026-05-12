@@ -1,6 +1,6 @@
 {
-    "missing": 545,
-    "spacebar": 635,
+    "missing": 544,
+    "spacebar": 636,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -77,7 +77,6 @@
         "/channels/{param}/application-commands/search",
         "/channels/{param}/directory-entry/{param}",
         "/channels/{param}/explicit-media",
-        "/channels/{param}/integrations/{param}",
         "/channels/{param}/linked-lobby",
         "/channels/{param}/media-post-preview",
         "/channels/{param}/messages/search",
@@ -549,14 +548,6 @@
             "sources": ["userdoccers:resources/directory-entry.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/directory-entry/{entity_id}", "/channels/{channel_id}/directory-entry/{param}"],
             "summaries": ["Delete Directory Entry"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/channels/{param}/integrations/{param}",
-            "route_name": "DELETE_CHANNELS_CHANNEL_ID_INTEGRATIONS_INTEGRATION_ID",
-            "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/integrations/{integration_id}", "/channels/{channel_id}/integrations/{param}"],
-            "summaries": ["Delete Channel Integration"]
         },
         {
             "method": "DELETE",

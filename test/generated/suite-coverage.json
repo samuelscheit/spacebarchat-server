@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 569,
+        "totalCoveredManifestEntries": 570,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 547,
-                "totalCoveredManifestEntries": 547,
-                "totalCoveredRequiredManifestEntries": 547,
+                "totalRequiredManifestEntries": 548,
+                "totalCoveredManifestEntries": 548,
+                "totalCoveredRequiredManifestEntries": 548,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 406,
+            "stateful-domain": 407,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 547,
-                "totalCoveredManifestEntries": 547,
-                "totalCoveredRequiredManifestEntries": 547,
+                "totalRequiredManifestEntries": 548,
+                "totalCoveredManifestEntries": 548,
+                "totalCoveredRequiredManifestEntries": 548,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -81,6 +81,7 @@
                 "api:http:DELETE:/attachments/sender-report-false-positive/",
                 "api:http:DELETE:/channels/:channel_id/",
                 "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
+                "api:http:DELETE:/channels/:channel_id/integrations/:integration_id",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/",
@@ -630,6 +631,7 @@
                 "api:http:DELETE:/attachments/sender-report-false-positive/",
                 "api:http:DELETE:/channels/:channel_id/",
                 "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
+                "api:http:DELETE:/channels/:channel_id/integrations/:integration_id",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                 "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/",
@@ -1533,6 +1535,7 @@
                     "manifestIds": [
                         "api:http:DELETE:/channels/:channel_id/",
                         "api:http:DELETE:/channels/:channel_id/attachments/:cloud_attachment_url",
+                        "api:http:DELETE:/channels/:channel_id/integrations/:integration_id",
                         "api:http:DELETE:/channels/:channel_id/messages/:message_id/",
                         "api:http:DELETE:/channels/:channel_id/messages/:message_id/hide-guild-feed/",
                         "api:http:DELETE:/channels/:channel_id/messages/:message_id/reactions/",

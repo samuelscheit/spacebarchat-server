@@ -23,6 +23,7 @@ import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
 const channelIdPattern = /^\d{1,20}$/;
+const integrationIdPattern = /^\d{1,20}$/;
 
 type ChannelIntegrationRecipient = Pick<Recipient, "closed" | "user_id">;
 type ChannelIntegrationChannel = Pick<Channel, "type"> & {
@@ -33,8 +34,16 @@ function unknownChannelError() {
     return new ApiError(DiscordApiErrors.UNKNOWN_CHANNEL.message, DiscordApiErrors.UNKNOWN_CHANNEL.code, 404);
 }
 
+function unknownIntegrationError() {
+    return new ApiError(DiscordApiErrors.UNKNOWN_INTEGRATION.message, DiscordApiErrors.UNKNOWN_INTEGRATION.code, 404);
+}
+
 function assertValidChannelId(channelId: string) {
     if (!channelIdPattern.test(channelId)) throw unknownChannelError();
+}
+
+function assertValidIntegrationId(integrationId: string) {
+    if (!integrationIdPattern.test(integrationId)) throw unknownIntegrationError();
 }
 
 function isPrivateIntegrationChannel(channel: Pick<ChannelIntegrationChannel, "type">) {
@@ -89,6 +98,46 @@ router.get(
         if (!channel) throw unknownChannelError();
 
         return res.json(listChannelIntegrations(channel, req.user_id));
+    },
+);
+
+router.delete(
+    "/:integration_id",
+    route({
+        summary: "Delete Channel Integration",
+        description: "Removes the given integration ID from the private channel when locally persisted private-channel integration records are available.",
+        responses: {
+            204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, _res: Response) => {
+        const { channel_id, integration_id } = req.params as { [key: string]: string };
+        assertValidChannelId(channel_id);
+        assertValidIntegrationId(integration_id);
+
+        const channel = await Channel.findOne({
+            where: { id: channel_id },
+            relations: { recipients: true },
+        });
+        if (!channel) throw unknownChannelError();
+
+        assertChannelIntegrationAccess(channel, req.user_id);
+
+        // Spacebar does not currently persist private-channel integration records,
+        // so there is no safe local deletion target or Integration Delete event.
+        throw unknownIntegrationError();
     },
 );
 

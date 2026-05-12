@@ -1027,6 +1027,15 @@
 		"source": "src/api/routes/channels/#channel_id/integrations.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/integrations/{integration_id}",
+		"route_name": "DELETE_CHANNELS_CHANNEL_ID_INTEGRATIONS_INTEGRATION_ID",
+		"source": "src/api/routes/channels/#channel_id/integrations.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIInviteArray"

@@ -144,6 +144,117 @@ describe("GET /channels/:channel_id/integrations", () => {
     });
 });
 
+describe("DELETE /channels/:channel_id/integrations/:integration_id", () => {
+    test("declares authenticated private-channel integration deletion metadata", (t) => {
+        const harness = setupChannelIntegrationsRoute(t, {});
+
+        assert.deepEqual(harness.routeOptions[1], {
+            summary: "Delete Channel Integration",
+            description: "Removes the given integration ID from the private channel when locally persisted private-channel integration records are available.",
+            responses: {
+                204: {},
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                403: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        });
+    });
+
+    test("rejects invalid integration IDs before database lookup", async (t) => {
+        const harness = setupChannelIntegrationsRoute(t, {});
+
+        const response = await requestJson(harness.app, "/channels/133713371337133713/integrations/not-a-snowflake", "DELETE");
+
+        assert.equal(response.status, 404);
+        assert.deepEqual(response.body, {
+            code: 10005,
+            message: "Unknown integration",
+        });
+        assert.equal(harness.channelFindOptions.length, 0);
+    });
+
+    test("maps missing channels to Discord's unknown-channel error before integration state", async (t) => {
+        const harness = setupChannelIntegrationsRoute(t, { channel: null });
+
+        const response = await requestJson(harness.app, "/channels/133713371337133713/integrations/222222222222222222", "DELETE");
+
+        assert.equal(response.status, 404);
+        assert.deepEqual(response.body, {
+            code: 10003,
+            message: "Unknown channel",
+        });
+        assert.deepEqual(harness.channelFindOptions, [
+            {
+                where: { id: "133713371337133713" },
+                relations: { recipients: true },
+            },
+        ]);
+    });
+
+    test("rejects non-private channel types before integration deletion", async (t) => {
+        const harness = setupChannelIntegrationsRoute(t, {
+            channel: {
+                type: ChannelType.GUILD_TEXT,
+                recipients: [{ user_id: "viewer", closed: false }],
+            },
+        });
+
+        const response = await requestJson(harness.app, "/channels/133713371337133713/integrations/222222222222222222", "DELETE");
+
+        assert.equal(response.status, 400);
+        assert.deepEqual(response.body, {
+            code: 50024,
+            message: "Cannot execute action on this channel type",
+        });
+    });
+
+    test("requires the token user to be an active private-channel recipient before integration deletion", async (t) => {
+        const harness = setupChannelIntegrationsRoute(t, {
+            channel: {
+                type: ChannelType.GROUP_DM,
+                recipients: [
+                    { user_id: "viewer", closed: true },
+                    { user_id: "other-user", closed: false },
+                ],
+            },
+        });
+
+        const response = await requestJson(harness.app, "/channels/133713371337133713/integrations/222222222222222222", "DELETE");
+
+        assert.equal(response.status, 403);
+        assert.equal((response.body as { code?: unknown }).code, 50013);
+    });
+
+    test("fails closed for accessible private channels without persisted integration records", async (t) => {
+        const harness = setupChannelIntegrationsRoute(t, {
+            channel: {
+                type: ChannelType.DM,
+                recipients: [
+                    { user_id: "viewer", closed: false },
+                    { user_id: "other-user", closed: true },
+                ],
+            },
+        });
+
+        const response = await requestJson(harness.app, "/channels/133713371337133713/integrations/222222222222222222", "DELETE");
+
+        assert.equal(response.status, 404);
+        assert.deepEqual(response.body, {
+            code: 10005,
+            message: "Unknown integration",
+        });
+    });
+});
+
 type TestChannel = {
     type: ChannelType;
     recipients?: { user_id: string; closed?: boolean }[];
@@ -204,11 +315,11 @@ function setupChannelIntegrationsRoute(t: TestContext, options: SetupOptions) {
     };
 }
 
-async function requestJson(app: express.Express, requestPath: string): Promise<{ status: number; body: unknown }> {
+async function requestJson(app: express.Express, requestPath: string, method = "GET"): Promise<{ status: number; body: unknown }> {
     const server = app.listen(0);
     try {
         const address = server.address() as AddressInfo;
-        const response = await fetch(`http://127.0.0.1:${address.port}${requestPath}`);
+        const response = await fetch(`http://127.0.0.1:${address.port}${requestPath}`, { method });
 
         return {
             status: response.status,
