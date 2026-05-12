@@ -1,6 +1,6 @@
 {
-    "missing": 560,
-    "spacebar": 620,
+    "missing": 559,
+    "spacebar": 621,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -383,7 +383,6 @@
         "/users/@me/game-relationships/{param}/{param}",
         "/users/@me/gravity-attachments",
         "/users/@me/gravity-attachments-upload",
-        "/users/@me/gravity-icymi",
         "/users/@me/guilds/integration-application-ids",
         "/users/@me/guilds/premium/subscription-slots/{param}/cancel",
         "/users/@me/guilds/premium/subscription-slots/{param}/uncancel",
@@ -1569,7 +1568,6 @@
             "source_routes": ["/users/@me/connections/contacts/{connection_id}/external-friend-list-entries/settings"],
             "summaries": ["Contact Sync Settings"]
         },
-        { "method": "GET", "route": "/users/@me/gravity-icymi", "route_name": "GRAVITY_ITEMS_DEHYDRATED", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
             "route": "/users/@me/join-request-guilds",

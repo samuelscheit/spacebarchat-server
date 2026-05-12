@@ -5200,6 +5200,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"GravityIcyMiResponse"
+		],
+		"route": "/users/@me/gravity-icymi",
+		"route_name": "GET_USERS__ME_GRAVITY_ICYMI",
+		"source": "src/api/routes/users/@me/gravity-icymi.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"UserGuildsResponse"
 		],
 		"route": "/users/@me/guilds",

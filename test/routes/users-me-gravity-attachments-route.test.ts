@@ -220,10 +220,6 @@ describe("GET /users/@me/gravity-attachments", () => {
             sourceCatalog.some((entry) => entry.route === "/users/@me/gravity-attachments-upload"),
             false,
         );
-        assert.equal(
-            sourceCatalog.some((entry) => entry.route === "/users/@me/gravity-icymi"),
-            false,
-        );
 
         const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
         assert.equal(manifestEntry?.authMode, "bearer");
@@ -255,10 +251,6 @@ describe("GET /users/@me/gravity-attachments", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "POST" && entry.route === "/users/@me/gravity-attachments-upload"),
-            true,
-        );
-        assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/users/@me/gravity-icymi"),
             true,
         );
     });

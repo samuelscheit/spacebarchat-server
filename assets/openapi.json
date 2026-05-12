@@ -7924,6 +7924,24 @@
                     "attachments"
                 ]
             },
+            "GravityIcyMiResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GravityIcyMiDehydratedItem"
+                        }
+                    },
+                    "load_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "items",
+                    "load_id"
+                ]
+            },
             "GravityCustomChannelScoresResponse": {
                 "type": "array",
                 "items": {
@@ -25973,6 +25991,86 @@
                     "upload_url"
                 ]
             },
+            "GravityIcyMiDehydratedItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "integer"
+                    },
+                    "score": {
+                        "type": "integer"
+                    },
+                    "timestamp": {
+                        "type": "integer"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/GravityIcyMiItemData"
+                    },
+                    "score_components": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": [
+                    "id",
+                    "type"
+                ]
+            },
+            "GravityIcyMiItemData": {
+                "type": "object",
+                "additionalProperties": {},
+                "properties": {
+                    "channel_id": {
+                        "type": "string"
+                    },
+                    "message_id": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "content_id": {
+                        "type": "string"
+                    },
+                    "channel_type": {
+                        "type": "integer"
+                    },
+                    "has_mention": {
+                        "type": "boolean"
+                    },
+                    "message_context": {
+                        "$ref": "#/components/schemas/GravityIcyMiMessageContext"
+                    }
+                }
+            },
+            "GravityIcyMiMessageContext": {
+                "type": "object",
+                "properties": {
+                    "reply_message_id": {
+                        "type": "string"
+                    },
+                    "before_message_id": {
+                        "type": "string"
+                    },
+                    "after_message_id": {
+                        "type": "string"
+                    },
+                    "external_content_application_id": {
+                        "type": "string"
+                    },
+                    "reference_message_id": {
+                        "type": "string"
+                    }
+                }
+            },
             "GravityCustomChannelScore": {
                 "type": "object",
                 "properties": {
@@ -39759,6 +39857,52 @@
                             "type": "string"
                         },
                         "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/gravity-icymi/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's locally backed Gravity ICYMI item envelope without fabricating Discord private feed state.",
+                "summary": "Get Current User Gravity ICYMI Items",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GravityIcyMiResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "refresh",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether the client is forcing a refreshed Gravity ICYMI feed."
                     }
                 ],
                 "tags": [

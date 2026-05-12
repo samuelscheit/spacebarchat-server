@@ -8343,6 +8343,26 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GravityIcyMiResponse": {
+        "type": "object",
+        "properties": {
+            "items": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/GravityIcyMiDehydratedItem"
+                }
+            },
+            "load_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "items",
+            "load_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GravityCustomChannelScoresResponse": {
         "type": "array",
         "items": {
@@ -27412,6 +27432,91 @@
             "upload_filename",
             "upload_url"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GravityIcyMiDehydratedItem": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string"
+            },
+            "type": {
+                "type": "integer"
+            },
+            "score": {
+                "type": "integer"
+            },
+            "timestamp": {
+                "type": "integer"
+            },
+            "data": {
+                "$ref": "#/definitions/GravityIcyMiItemData"
+            },
+            "score_components": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "id",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GravityIcyMiItemData": {
+        "type": "object",
+        "additionalProperties": {},
+        "properties": {
+            "channel_id": {
+                "type": "string"
+            },
+            "message_id": {
+                "type": "string"
+            },
+            "guild_id": {
+                "type": "string"
+            },
+            "user_id": {
+                "type": "string"
+            },
+            "content_id": {
+                "type": "string"
+            },
+            "channel_type": {
+                "type": "integer"
+            },
+            "has_mention": {
+                "type": "boolean"
+            },
+            "message_context": {
+                "$ref": "#/definitions/GravityIcyMiMessageContext"
+            }
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "GravityIcyMiMessageContext": {
+        "type": "object",
+        "properties": {
+            "reply_message_id": {
+                "type": "string"
+            },
+            "before_message_id": {
+                "type": "string"
+            },
+            "after_message_id": {
+                "type": "string"
+            },
+            "external_content_application_id": {
+                "type": "string"
+            },
+            "reference_message_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "GravityCustomChannelScore": {

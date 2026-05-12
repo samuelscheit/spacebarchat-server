@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 560,
+        "totalCoveredManifestEntries": 561,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 538,
-                "totalCoveredManifestEntries": 538,
-                "totalCoveredRequiredManifestEntries": 538,
+                "totalRequiredManifestEntries": 539,
+                "totalCoveredManifestEntries": 539,
+                "totalCoveredRequiredManifestEntries": 539,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 397,
+            "stateful-domain": 398,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 538,
-                "totalCoveredManifestEntries": 538,
-                "totalCoveredRequiredManifestEntries": 538,
+                "totalRequiredManifestEntries": 539,
+                "totalCoveredManifestEntries": 539,
+                "totalCoveredRequiredManifestEntries": 539,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -351,6 +351,7 @@
                 "api:http:GET:/users/@me/entitlements/gifts",
                 "api:http:GET:/users/@me/game-relationships/",
                 "api:http:GET:/users/@me/gravity-attachments/",
+                "api:http:GET:/users/@me/gravity-icymi/",
                 "api:http:GET:/users/@me/guilds/",
                 "api:http:GET:/users/@me/guilds/:guild_id/member/",
                 "api:http:GET:/users/@me/guilds/:guild_id/settings/",
@@ -891,6 +892,7 @@
                 "api:http:GET:/users/@me/entitlements/gifts",
                 "api:http:GET:/users/@me/game-relationships/",
                 "api:http:GET:/users/@me/gravity-attachments/",
+                "api:http:GET:/users/@me/gravity-icymi/",
                 "api:http:GET:/users/@me/guilds/",
                 "api:http:GET:/users/@me/guilds/:guild_id/member/",
                 "api:http:GET:/users/@me/guilds/:guild_id/settings/",
@@ -1262,6 +1264,7 @@
                         "api:http:GET:/users/@me/entitlements/gifts",
                         "api:http:GET:/users/@me/game-relationships/",
                         "api:http:GET:/users/@me/gravity-attachments/",
+                        "api:http:GET:/users/@me/gravity-icymi/",
                         "api:http:GET:/users/@me/guilds/",
                         "api:http:GET:/users/@me/guilds/:guild_id/member/",
                         "api:http:GET:/users/@me/guilds/:guild_id/settings/",
