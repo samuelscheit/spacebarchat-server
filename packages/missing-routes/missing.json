@@ -1,6 +1,6 @@
 {
-    "missing": 582,
-    "spacebar": 598,
+    "missing": 581,
+    "spacebar": 599,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1455,14 +1455,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/store/skus/{sku_id}/purchase"],
             "summaries": ["Get SKU Purchase Preview"]
-        },
-        {
-            "method": "GET",
-            "route": "/streams/{param}/preview",
-            "route_name": "GET_STREAMS_STREAM_KEY_PREVIEW",
-            "sources": ["userdoccers:resources/voice.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/streams/{stream_key}/preview"],
-            "summaries": ["Get Stream Preview"]
         },
         {
             "method": "GET",

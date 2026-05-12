@@ -36138,6 +36138,9 @@
             "name": "storefront"
         },
         {
+            "name": "streams"
+        },
+        {
             "name": "teams"
         },
         {
@@ -41652,6 +41655,66 @@
                 ],
                 "tags": [
                     "teams"
+                ]
+            }
+        },
+        "/streams/{stream_key}/preview/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Checks access to an active stream preview. Spacebar does not currently persist uploaded stream preview images or video metadata, so a readable stream with no local preview source returns no content.",
+                "summary": "Get Stream Preview",
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "stream_key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "stream_key"
+                    }
+                ],
+                "tags": [
+                    "streams"
                 ]
             }
         },

@@ -4453,6 +4453,15 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/streams/{stream_key}/preview",
+		"route_name": "GET_STREAMS_STREAM_KEY_PREVIEW",
+		"source": "src/api/routes/streams/#stream_key/preview.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"TeamListResponse"
 		],
 		"route": "/teams",
