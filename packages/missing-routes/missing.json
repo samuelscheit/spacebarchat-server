@@ -1,6 +1,6 @@
 {
-    "missing": 583,
-    "spacebar": 597,
+    "missing": 582,
+    "spacebar": 598,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1445,7 +1445,6 @@
         },
         { "method": "GET", "route": "/sso", "route_name": "SSO", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/sso-token", "route_name": "SSO_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "GET", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/sticker-packs/directory-v2/{param}", "route_name": "STORE_DIRECTORY_LAYOUT_STICKER_PACKS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/store/directory-layouts/{param}", "route_name": "STORE_DIRECTORY_LAYOUT", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/store/directory/{param}", "route_name": "STORE_DIRECTORY", "sources": ["xhyrom:data/client/routes.json"] },

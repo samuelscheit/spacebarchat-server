@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 702,
+        "totalEntries": 703,
         "byService": {
-            "api": 605,
+            "api": 606,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 677,
+            "http-route": 678,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 173,
+            "contract": 174,
             "stateful-domain": 377,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 560,
+            "route-class": 561,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -19804,6 +19804,42 @@
                     400,
                     403,
                     404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/stage-instances/extra/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/stage-instances/extra/",
+            "sourceFile": "src/api/routes/stage-instances/extra.ts",
+            "line": 25,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StageInstancesExtraResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
                 ],
                 "hasQuery": false
             },

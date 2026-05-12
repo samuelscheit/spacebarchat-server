@@ -13027,6 +13027,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StageInstancesExtraResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/StageInstanceResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "StoreSkuPremiumPriceResponse": {
         "type": "object",
         "properties": {

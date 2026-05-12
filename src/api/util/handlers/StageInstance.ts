@@ -1,5 +1,13 @@
-import { Channel, DiscordApiErrors, emitEvent, FieldErrors, getPermission, Permissions, StageInstance } from "@spacebar/util";
-import { ChannelType, StageInstanceCreateSchema, StageInstanceModifySchema, StageInstancePrivacyLevel, StageInstanceResponse } from "@spacebar/schemas";
+import { Channel, DiscordApiErrors, emitEvent, FieldErrors, getPermission, isExpectedPermissionMiss, Member, Permissions, StageInstance } from "@spacebar/util";
+import {
+    ChannelType,
+    StageInstanceCreateSchema,
+    StageInstanceModifySchema,
+    StageInstancePrivacyLevel,
+    StageInstanceResponse,
+    StageInstancesExtraResponse,
+} from "@spacebar/schemas";
+import { In } from "typeorm";
 
 export const STAGE_INSTANCE_TOPIC_MIN_LENGTH = 1;
 export const STAGE_INSTANCE_TOPIC_MAX_LENGTH = 120;
@@ -13,6 +21,8 @@ type StageChannel = Pick<Channel, "id" | "guild_id" | "type">;
 
 type StageInstanceRecord = Pick<StageInstance, "id" | "guild_id" | "channel_id" | "topic" | "privacy_level" | "discoverable_disabled" | "guild_scheduled_event_id">;
 
+type StageInstanceMembership = Pick<Member, "guild_id">;
+
 export interface StageInstanceDependencies {
     findChannel(channel_id: string): Promise<StageChannel | null>;
     findStageInstance(channel_id: string): Promise<StageInstanceRecord | null>;
@@ -21,6 +31,12 @@ export interface StageInstanceDependencies {
     deleteStageInstance(stageInstance: StageInstanceRecord): Promise<void>;
     getPermission(user_id: string, guild_id: string, channel_id: string): Promise<PermissionGuard>;
     emitStageInstanceEvent(event: "STAGE_INSTANCE_CREATE" | "STAGE_INSTANCE_UPDATE" | "STAGE_INSTANCE_DELETE", channel_id: string, data: StageInstanceResponse): Promise<void>;
+}
+
+export interface StageInstancesExtraDependencies {
+    listRequesterGuildMemberships(user_id: string): Promise<StageInstanceMembership[]>;
+    listStageInstancesByGuildIds(guild_ids: string[]): Promise<StageInstanceRecord[]>;
+    canViewStageInstance(user_id: string, stageInstance: StageInstanceRecord): Promise<boolean>;
 }
 
 export const defaultStageInstanceDependencies: StageInstanceDependencies = {
@@ -33,6 +49,27 @@ export const defaultStageInstanceDependencies: StageInstanceDependencies = {
     },
     getPermission,
     emitStageInstanceEvent: (event, channel_id, data) => emitEvent({ event, channel_id, data }),
+};
+
+export const defaultStageInstancesExtraDependencies: StageInstancesExtraDependencies = {
+    listRequesterGuildMemberships: (user_id) =>
+        Member.find({
+            where: { id: user_id },
+            select: { guild_id: true },
+        }),
+    listStageInstancesByGuildIds: (guild_ids) =>
+        StageInstance.find({
+            where: { guild_id: In(guild_ids) },
+            order: { id: "ASC" },
+        }),
+    async canViewStageInstance(user_id, stageInstance) {
+        try {
+            return (await getPermission(user_id, stageInstance.guild_id, stageInstance.channel_id)).has("VIEW_CHANNEL");
+        } catch (error) {
+            if (isExpectedPermissionMiss(error)) return false;
+            throw error;
+        }
+    },
 };
 
 export function stageInstanceToResponse(stageInstance: StageInstanceRecord): StageInstanceResponse {
@@ -111,6 +148,23 @@ export async function createStageInstance(user_id: string, body: StageInstanceCr
 export async function getStageInstance(channel_id: string, deps = defaultStageInstanceDependencies): Promise<StageInstanceResponse> {
     await getExistingStageChannel(channel_id, deps);
     return stageInstanceToResponse(await getExistingStageInstance(channel_id, deps));
+}
+
+export async function getStageInstancesExtra(
+    user_id: string,
+    deps: StageInstancesExtraDependencies = defaultStageInstancesExtraDependencies,
+): Promise<StageInstancesExtraResponse> {
+    const guildIds = [...new Set((await deps.listRequesterGuildMemberships(user_id)).map((member) => member.guild_id))];
+    if (!guildIds.length) return [];
+
+    const stageInstances = await deps.listStageInstancesByGuildIds(guildIds);
+    const visibleStageInstances: StageInstanceResponse[] = [];
+
+    for (const stageInstance of stageInstances) {
+        if (await deps.canViewStageInstance(user_id, stageInstance)) visibleStageInstances.push(stageInstanceToResponse(stageInstance));
+    }
+
+    return visibleStageInstances;
 }
 
 export async function modifyStageInstance(

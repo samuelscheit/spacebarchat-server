@@ -4190,6 +4190,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"StageInstancesExtraResponse"
+		],
+		"route": "/stage-instances/extra",
+		"route_name": "GET_STAGE_INSTANCES_EXTRA",
+		"source": "src/api/routes/stage-instances/extra.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"StickersResponse"
 		],
 		"route": "/sticker-packs",

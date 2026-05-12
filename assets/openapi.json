@@ -12359,6 +12359,12 @@
                     "topic"
                 ]
             },
+            "StageInstancesExtraResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/StageInstanceResponse"
+                }
+            },
             "StoreSkuPremiumPriceResponse": {
                 "type": "object",
                 "properties": {
@@ -43227,6 +43233,42 @@
                         }
                     },
                     "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "stage-instances"
+                ]
+            }
+        },
+        "/stage-instances/extra/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the authenticated user's visible persisted stage instances. Spacebar does not currently persist Discord-only extra stage discovery, participant, voice-state, or guild metadata.",
+                "summary": "Get Stage Instance Extra Data",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StageInstancesExtraResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
                         "description": "",
                         "content": {
                             "application/json": {

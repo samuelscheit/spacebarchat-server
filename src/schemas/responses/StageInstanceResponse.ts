@@ -14,3 +14,5 @@ export interface StageInstanceResponse {
     discoverable_disabled: boolean;
     guild_scheduled_event_id?: Snowflake | null;
 }
+
+export type StageInstancesExtraResponse = StageInstanceResponse[];

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { StageInstanceDependencies } from "./StageInstance";
+import type { StageInstanceDependencies, StageInstancesExtraDependencies } from "./StageInstance";
 
 const ChannelType = {
     GUILD_VOICE: 2,
@@ -153,6 +153,47 @@ test("getStageInstance returns a singular stage instance and rejects missing ins
         () => getStageInstance("733488538393510049", missing.deps),
         (error) => error === DiscordApiErrors.UNKNOWN_STAGE_INSTANCE,
     );
+});
+
+test("getStageInstancesExtra returns only persisted stage instances visible to the current user", async () => {
+    const { getStageInstancesExtra } = await loadRuntime();
+    const visible = makeStageInstance({ id: "840647391636226061", guild_id: "guild-1", channel_id: "visible-stage" });
+    const hidden = makeStageInstance({ id: "840647391636226062", guild_id: "guild-1", channel_id: "hidden-stage" });
+    const otherGuild = makeStageInstance({ id: "840647391636226063", guild_id: "guild-2", channel_id: "other-stage" });
+    const calls = {
+        listedGuildIds: [] as string[],
+        visibility: [] as string[],
+    };
+    const deps: StageInstancesExtraDependencies = {
+        listRequesterGuildMemberships: async () => [{ guild_id: "guild-1" }, { guild_id: "guild-1" }],
+        listStageInstancesByGuildIds: async (guildIds) => {
+            calls.listedGuildIds = guildIds;
+            return [visible, hidden, otherGuild].filter((stageInstance) => guildIds.includes(stageInstance.guild_id));
+        },
+        canViewStageInstance: async (_userId, stageInstance) => {
+            calls.visibility.push(stageInstance.channel_id);
+            return stageInstance.channel_id === visible.channel_id;
+        },
+    };
+
+    assert.deepEqual(await getStageInstancesExtra("user_id", deps), [visible]);
+    assert.deepEqual(calls.listedGuildIds, ["guild-1"]);
+    assert.deepEqual(calls.visibility, ["visible-stage", "hidden-stage"]);
+});
+
+test("getStageInstancesExtra returns an empty local representation when the user has no guilds", async () => {
+    const { getStageInstancesExtra } = await loadRuntime();
+    const deps: StageInstancesExtraDependencies = {
+        listRequesterGuildMemberships: async () => [],
+        listStageInstancesByGuildIds: async () => {
+            throw new Error("stage instance lookup should not run without memberships");
+        },
+        canViewStageInstance: async () => {
+            throw new Error("visibility checks should not run without memberships");
+        },
+    };
+
+    assert.deepEqual(await getStageInstancesExtra("user_id", deps), []);
 });
 
 test("modifyStageInstance updates privacy level and emits an update event", async () => {

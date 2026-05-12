@@ -62,6 +62,7 @@ function getGeneratedStageRouteDescriptions(): Map<string, { permission?: string
                             ...loaded,
                             traverseDirectory(options, callback) {
                                 callback(path.join(options.dirname, "stage-instances", "index.js"));
+                                callback(path.join(options.dirname, "stage-instances", "extra.js"));
                                 callback(path.join(options.dirname, "stage-instances", "#channel_id", "index.js"));
                             },
                         };
@@ -98,6 +99,8 @@ test("stage instance response schema describes Discord stage instance fields", (
     assert.deepEqual(rawSchemas.StageInstancePrivacyLevel.enum, [1, 2]);
     assert.ok(!schema.required.includes("guild_scheduled_event_id"));
     assert.equal(rawSchemas.StageInstancesResponse, undefined);
+    assert.equal(rawSchemas.StageInstancesExtraResponse.type, "array");
+    assert.equal(rawSchemas.StageInstancesExtraResponse.items.$ref, "#/definitions/StageInstanceResponse");
 });
 
 test("stage instance request schemas describe create and modify payloads", () => {
@@ -136,24 +139,35 @@ test("stage instance OpenAPI paths use Discord-compatible channel-scoped routes"
 });
 
 test("stage instance generated artifacts match current TypeScript route and schema sources", () => {
-    const generatedSchemas = getGeneratedSchemas(["StageInstanceResponse", "StageInstanceCreateSchema", "StageInstanceModifySchema", "StageInstancePrivacyLevel"]);
+    const generatedSchemas = getGeneratedSchemas([
+        "StageInstanceResponse",
+        "StageInstancesExtraResponse",
+        "StageInstanceCreateSchema",
+        "StageInstanceModifySchema",
+        "StageInstancePrivacyLevel",
+    ]);
 
     assert.deepEqual(generatedSchemas.StageInstanceResponse, sanitizeGeneratedSchema(rawSchemas.StageInstanceResponse));
+    assert.deepEqual(generatedSchemas.StageInstancesExtraResponse, sanitizeGeneratedSchema(rawSchemas.StageInstancesExtraResponse));
     assert.deepEqual(generatedSchemas.StageInstanceCreateSchema, sanitizeGeneratedSchema(rawSchemas.StageInstanceCreateSchema));
     assert.deepEqual(generatedSchemas.StageInstanceModifySchema, sanitizeGeneratedSchema(rawSchemas.StageInstanceModifySchema));
     assert.deepEqual(generatedSchemas.StageInstancePrivacyLevel, sanitizeGeneratedSchema(rawSchemas.StageInstancePrivacyLevel));
 
     const generatedRoutes = getGeneratedStageRouteDescriptions();
     const rootRoute = generatedRoutes.get("/stage-instances/|post");
+    const extraRoute = generatedRoutes.get("/stage-instances/extra/|get");
     const getRoute = generatedRoutes.get("/stage-instances/:channel_id/|get");
     const patchRoute = generatedRoutes.get("/stage-instances/:channel_id/|patch");
     const deleteRoute = generatedRoutes.get("/stage-instances/:channel_id/|delete");
     const openApiRootRoute = rawOpenApi.paths["/stage-instances/"].post;
+    const openApiExtraRoute = rawOpenApi.paths["/stage-instances/extra/"].get;
     const openApiGetRoute = rawOpenApi.paths["/stage-instances/{channel_id}/"].get;
     const openApiPatchRoute = rawOpenApi.paths["/stage-instances/{channel_id}/"].patch;
 
     assert.equal(rootRoute?.requestBody, schemaName(openApiRootRoute.requestBody.content["application/json"].schema.$ref));
     assert.equal(rootRoute?.responses?.["200"]?.body, schemaName(openApiRootRoute.responses["200"].content["application/json"].schema.$ref));
+    assert.equal(extraRoute?.responses?.["200"]?.body, schemaName(openApiExtraRoute.responses["200"].content["application/json"].schema.$ref));
+    assert.equal(extraRoute?.responses?.["401"]?.body, schemaName(openApiExtraRoute.responses["401"].content["application/json"].schema.$ref));
     assert.equal(getRoute?.permission, "VIEW_CHANNEL");
     assert.equal(getRoute?.responses?.["200"]?.body, schemaName(openApiGetRoute.responses["200"].content["application/json"].schema.$ref));
     assert.equal(patchRoute?.requestBody, schemaName(openApiPatchRoute.requestBody.content["application/json"].schema.$ref));
@@ -185,23 +199,49 @@ test("stage instance schemas validate documented request and response shapes", (
     });
 
     const validateResponse = ajv.getSchema("StageInstanceResponse");
+    const validateExtraResponse = ajv.getSchema("StageInstancesExtraResponse");
     const validateCreate = ajv.getSchema("StageInstanceCreateSchema");
     const validateModify = ajv.getSchema("StageInstanceModifySchema");
     assert.ok(validateResponse);
+    assert.ok(validateExtraResponse);
     assert.ok(validateCreate);
     assert.ok(validateModify);
 
+    const sampleResponse = {
+        id: "840647391636226060",
+        guild_id: "197038439483310086",
+        channel_id: "733488538393510049",
+        topic: "Server Q&A",
+        privacy_level: 2,
+        discoverable_disabled: false,
+        guild_scheduled_event_id: null,
+    };
+
+    assert.equal(validateResponse(sampleResponse), true);
+
     assert.equal(
-        validateResponse({
-            id: "840647391636226060",
-            guild_id: "197038439483310086",
-            channel_id: "733488538393510049",
-            topic: "Server Q&A",
-            privacy_level: 2,
-            discoverable_disabled: false,
-            guild_scheduled_event_id: null,
-        }),
+        validateExtraResponse([
+            sampleResponse,
+            {
+                id: "840647391636226061",
+                guild_id: "197038439483310086",
+                channel_id: "733488538393510050",
+                topic: "Another Q&A",
+                privacy_level: 2,
+                discoverable_disabled: false,
+                guild_scheduled_event_id: null,
+            },
+        ]),
         true,
+    );
+    assert.equal(
+        validateExtraResponse([
+            {
+                id: "840647391636226060",
+                privacy_level: 2,
+            },
+        ]),
+        false,
     );
     assert.equal(validateCreate({ channel_id: "733488538393510049", topic: "Server Q&A", privacy_level: 2 }), true);
     assert.equal(validateModify({ privacy_level: 1 }), true);
