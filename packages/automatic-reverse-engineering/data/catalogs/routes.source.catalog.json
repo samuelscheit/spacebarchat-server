@@ -3084,6 +3084,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildRoleSubscriptionListingTemplatesResponse"
+		],
+		"route": "/guilds/{guild_id}/role-subscriptions/templates",
+		"route_name": "GET_GUILDS_GUILD_ID_ROLE_SUBSCRIPTIONS_TEMPLATES",
+		"source": "src/api/routes/guilds/#guild_id/role-subscriptions/templates.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/roles",
 		"route_name": "GET_GUILDS_GUILD_ID_ROLES",

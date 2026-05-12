@@ -8684,6 +8684,11 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildRoleSubscriptionListingTemplatesResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildScheduledEventExceptionResponse": {
         "type": "object",
         "properties": {

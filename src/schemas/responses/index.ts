@@ -137,6 +137,7 @@ export * from "./GuildOnboardingResponse";
 export * from "./GuildPruneResponse";
 export * from "./GuildRecommendationsResponse";
 export * from "./GuildRoleConnectionsConfigurationsResponse";
+export * from "./GuildRoleSubscriptionListingTemplatesResponse";
 export * from "./GuildScheduledEventResponse";
 export * from "./GuildTopEmojisResponse";
 export * from "./GuildTopGamesResponse";

@@ -8232,6 +8232,10 @@
                     "$ref": "#/components/schemas/GuildRoleConnectionRuleResponse"
                 }
             },
+            "GuildRoleSubscriptionListingTemplatesResponse": {
+                "type": "array",
+                "items": {}
+            },
             "GuildScheduledEventExceptionResponse": {
                 "type": "object",
                 "properties": {
@@ -51714,6 +51718,74 @@
                             "type": "string"
                         },
                         "description": "role_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/role-subscriptions/templates/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed role-subscription listing templates for a guild. Spacebar does not currently persist Discord role-subscription template state, so this compatibility endpoint returns an empty list after MANAGE_GUILD access checks.",
+                "summary": "Get Guild Role Subscription Listing Templates",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildRoleSubscriptionListingTemplatesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
                     }
                 ],
                 "tags": [

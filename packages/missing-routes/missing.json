@@ -1,6 +1,6 @@
 {
-    "missing": 551,
-    "spacebar": 629,
+    "missing": 550,
+    "spacebar": 630,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -192,7 +192,6 @@
         "/guilds/{param}/role-subscriptions/settings",
         "/guilds/{param}/role-subscriptions/subscription-listings/{param}/trial",
         "/guilds/{param}/role-subscriptions/subscription-listings/{param}/trial/{param}/eligibility",
-        "/guilds/{param}/role-subscriptions/templates",
         "/guilds/{param}/role-subscriptions/trials",
         "/guilds/{param}/roles/connections-configurations",
         "/guilds/{param}/roles/member-counts",
@@ -1263,13 +1262,6 @@
             "route_name": "GUILD_ROLE_SUBSCRIPTION_TRIAL_ELIGIBILITY",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/role-subscriptions/subscription-listings/{param}/trial/{param}/eligibility"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/role-subscriptions/templates",
-            "route_name": "GUILD_ROLE_SUBSCRIPTION_LISTING_TEMPLATES",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/role-subscriptions/templates"]
         },
         {
             "method": "GET",
