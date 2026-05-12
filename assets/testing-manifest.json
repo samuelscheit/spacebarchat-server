@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 762,
+        "totalEntries": 763,
         "byService": {
-            "api": 665,
+            "api": 666,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 737,
+            "http-route": 738,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 189,
+            "contract": 190,
             "stateful-domain": 420,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 619,
+            "route-class": 620,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -3904,6 +3904,42 @@
                 "present": true,
                 "responseStatuses": [
                     204
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/billing/popup-bridge/:payment_source_type/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/billing/popup-bridge/:payment_source_type/",
+            "sourceFile": "src/api/routes/billing/popup-bridge/#payment_source_type.ts",
+            "line": 42,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    400,
+                    401,
+                    501
                 ],
                 "hasQuery": false
             },

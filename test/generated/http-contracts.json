@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 737,
+        "totalContracts": 738,
         "byService": {
-            "api": 664,
+            "api": 665,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 586,
-        "runtimeMalformedAuthContracts": 586,
-        "runtimeRevokedSessionAuthContracts": 586,
-        "runtimeStaleTokenAuthContracts": 586,
+        "runtimeAuthBoundaryContracts": 587,
+        "runtimeMalformedAuthContracts": 587,
+        "runtimeRevokedSessionAuthContracts": 587,
+        "runtimeStaleTokenAuthContracts": 587,
         "runtimePublicAuthBoundaryContracts": 70,
         "runtimePublicInvalidBodyContracts": 17,
         "runtimeProtectedInvalidBodyContracts": 76,
@@ -4812,6 +4812,50 @@
                 {
                     "id": "response-shape",
                     "checks": ["response-shape"]
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/billing/popup-bridge/:payment_source_type/",
+            "service": "api",
+            "method": "POST",
+            "path": "/billing/popup-bridge/:payment_source_type/",
+            "samplePath": "/billing/popup-bridge/value/",
+            "sourceFile": "src/api/routes/billing/popup-bridge/#payment_source_type.ts",
+            "line": 42,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [400, 401, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
                 },
                 {
                     "id": "policy-auth-boundary",

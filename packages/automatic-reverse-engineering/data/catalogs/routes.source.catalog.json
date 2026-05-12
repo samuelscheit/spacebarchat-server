@@ -908,6 +908,15 @@
 	},
 	{
 		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/billing/popup-bridge/{payment_source_type}",
+		"route_name": "POST_BILLING_POPUP_BRIDGE_PAYMENT_SOURCE_TYPE",
+		"source": "src/api/routes/billing/popup-bridge/#payment_source_type.ts"
+	},
+	{
+		"method": "POST",
 		"request_schema_ref": "BillingPopupBridgeCallbackSchema",
 		"response_schema_refs": [
 			"APIErrorResponse"

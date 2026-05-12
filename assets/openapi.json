@@ -67810,6 +67810,63 @@
                 ]
             }
         },
+        "/billing/popup-bridge/{payment_source_type}/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Creates a third-party billing popup bridge state in Discord. Spacebar does not currently persist provider-backed billing popup bridge state or implement the paired callback flow, so this compatibility endpoint validates the payment source type and fails closed instead of returning an unusable synthetic state token.",
+                "summary": "Create Billing Popup Bridge",
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "payment_source_type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "payment_source_type"
+                    }
+                ],
+                "tags": [
+                    "billing"
+                ]
+            }
+        },
         "/beaker/": {
             "post": {
                 "responses": {

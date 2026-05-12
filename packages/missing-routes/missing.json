@@ -1,6 +1,6 @@
 {
-    "missing": 523,
-    "spacebar": 657,
+    "missing": 522,
+    "spacebar": 658,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -59,7 +59,6 @@
         "/auth/sessions/debug/notifications",
         "/billing/apple/apply-receipt",
         "/billing/apple/jwt-token",
-        "/billing/popup-bridge/{param}",
         "/billing/popup-bridge/{param}/callback/{param}/{param}",
         "/billing/verify-purchase-request",
         "/branches",
@@ -2168,14 +2167,6 @@
         { "method": "POST", "route": "/auth/sessions/debug/notifications", "route_name": "AUTH_SESSION_NOTIFICATIONS_DEBUG", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/billing/apple/apply-receipt", "route_name": "BILLING_APPLY_APPLE_RECEIPT", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/billing/apple/jwt-token", "route_name": "BILLING_CREATE_APPLE_IAP_JWT_TOKEN", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/billing/popup-bridge/{param}",
-            "route_name": "POST_BILLING_POPUP_BRIDGE_PAYMENT_SOURCE_TYPE",
-            "sources": ["userdoccers:resources/billing.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/billing/popup-bridge/{payment_source_type}"],
-            "summaries": ["Create Billing Popup Bridge"]
-        },
         {
             "method": "POST",
             "route": "/billing/verify-purchase-request",
