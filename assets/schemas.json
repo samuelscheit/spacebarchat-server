@@ -11531,6 +11531,13 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PremiumMarketingResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/PromotionMarketingComponentResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PremiumReferralIncentiveEligibilityResponse": {
         "type": "object",
         "properties": {

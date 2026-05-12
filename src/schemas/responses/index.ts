@@ -175,6 +175,7 @@ export * from "./PresencesResponse";
 export * from "./PreloadMessagesResponseSchema";
 export * from "./ProfileWidgetsSuggestedGamesResponse";
 export * from "./PromotionResponse";
+export * from "./PremiumMarketingResponse";
 export * from "./PremiumReferralIncentiveEligibilityResponse";
 export * from "./PremiumReferralResponse";
 export * from "./PublicApplicationResponse";

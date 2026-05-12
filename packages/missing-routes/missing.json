@@ -1,6 +1,6 @@
 {
-    "missing": 577,
-    "spacebar": 603,
+    "missing": 576,
+    "spacebar": 604,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1409,7 +1409,6 @@
             "source_routes": ["/partner-sdk/guilds/{guild_id}/application-storefront/skus/{sku_id}"],
             "summaries": ["Get Guild Application SKU Storefront"]
         },
-        { "method": "GET", "route": "/premium-marketing", "route_name": "PREMIUM_MARKETING", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/private/bug-reports", "route_name": "BUG_REPORTS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
