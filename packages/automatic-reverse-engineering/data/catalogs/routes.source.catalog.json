@@ -557,6 +557,15 @@
 		"source": "src/api/routes/applications/#application_id/skus.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/{application_id}/store-layout",
+		"route_name": "POST_APPLICATIONS_APPLICATION_ID_STORE_LAYOUT",
+		"source": "src/api/routes/applications/#application_id/store-layout.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"

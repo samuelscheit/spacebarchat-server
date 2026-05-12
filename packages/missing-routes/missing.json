@@ -1,6 +1,6 @@
 {
-    "missing": 527,
-    "spacebar": 653,
+    "missing": 526,
+    "spacebar": 654,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -2086,13 +2086,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/applications/{application_id}/social-sdk/enable"],
             "summaries": ["Enable Social SDK"]
-        },
-        {
-            "method": "POST",
-            "route": "/applications/{param}/store-layout",
-            "route_name": "STORE_LAYOUT",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/applications/{application_id}/store-layout"]
         },
         {
             "method": "POST",

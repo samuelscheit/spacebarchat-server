@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 758,
+        "totalEntries": 759,
         "byService": {
-            "api": 661,
+            "api": 662,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 733,
+            "http-route": 734,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 187,
-            "stateful-domain": 419,
+            "stateful-domain": 420,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 616,
+            "route-class": 617,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2368,6 +2368,47 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/applications/:application_id/store-layout/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/applications/:application_id/store-layout/",
+            "sourceFile": "src/api/routes/applications/#application_id/store-layout.ts",
+            "line": 74,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    403,
+                    404,
+                    501
                 ],
                 "hasQuery": false
             },
