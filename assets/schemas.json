@@ -13106,6 +13106,11 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ScheduledMessagesResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "SoundboardDefaultSoundsResponse": {
         "type": "array",
         "items": {

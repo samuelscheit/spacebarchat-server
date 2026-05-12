@@ -12424,6 +12424,10 @@
                 "type": "array",
                 "items": {}
             },
+            "ScheduledMessagesResponse": {
+                "type": "array",
+                "items": {}
+            },
             "SoundboardDefaultSoundsResponse": {
                 "type": "array",
                 "items": {
@@ -37857,6 +37861,42 @@
                         "label": "Spacebar-only",
                         "color": "red"
                     }
+                ]
+            }
+        },
+        "/users/@me/scheduled-messages/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's scheduled messages. Spacebar does not currently persist user scheduled-message state, so the local representation is empty until that backing state exists.",
+                "summary": "Get User Scheduled Messages",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ScheduledMessagesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
                 ]
             }
         },

@@ -5529,6 +5529,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ScheduledMessagesResponse"
+		],
+		"route": "/users/@me/scheduled-messages",
+		"route_name": "GET_USERS__ME_SCHEDULED_MESSAGES",
+		"source": "src/api/routes/users/@me/scheduled-messages.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"UserSettings"
 		],
 		"route": "/users/@me/settings",

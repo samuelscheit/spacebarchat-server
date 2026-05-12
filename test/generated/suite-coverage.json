@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 553,
+        "totalCoveredManifestEntries": 554,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 531,
-                "totalCoveredManifestEntries": 531,
-                "totalCoveredRequiredManifestEntries": 531,
+                "totalRequiredManifestEntries": 532,
+                "totalCoveredManifestEntries": 532,
+                "totalCoveredRequiredManifestEntries": 532,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 390,
+            "stateful-domain": 391,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 531,
-                "totalCoveredManifestEntries": 531,
-                "totalCoveredRequiredManifestEntries": 531,
+                "totalRequiredManifestEntries": 532,
+                "totalCoveredManifestEntries": 532,
+                "totalCoveredRequiredManifestEntries": 532,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -370,6 +370,7 @@
                 "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                 "api:http:GET:/users/@me/relationships/",
                 "api:http:GET:/users/@me/scheduled-events/",
+                "api:http:GET:/users/@me/scheduled-messages/",
                 "api:http:GET:/users/@me/settings-proto/1/",
                 "api:http:GET:/users/@me/settings-proto/1/json",
                 "api:http:GET:/users/@me/settings-proto/2/",
@@ -903,6 +904,7 @@
                 "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                 "api:http:GET:/users/@me/relationships/",
                 "api:http:GET:/users/@me/scheduled-events/",
+                "api:http:GET:/users/@me/scheduled-messages/",
                 "api:http:GET:/users/@me/settings-proto/1/",
                 "api:http:GET:/users/@me/settings-proto/1/json",
                 "api:http:GET:/users/@me/settings-proto/2/",
@@ -1266,6 +1268,7 @@
                         "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                         "api:http:GET:/users/@me/relationships/",
                         "api:http:GET:/users/@me/scheduled-events/",
+                        "api:http:GET:/users/@me/scheduled-messages/",
                         "api:http:GET:/users/@me/settings-proto/1/",
                         "api:http:GET:/users/@me/settings-proto/1/json",
                         "api:http:GET:/users/@me/settings-proto/2/",
