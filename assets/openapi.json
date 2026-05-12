@@ -45443,6 +45443,40 @@
                 "tags": [
                     "stage-instances"
                 ]
+            },
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Discord exposes this client route for mutating provider-backed stage extra metadata. Spacebar persists only normal stage instance records, so this compatibility endpoint fails closed instead of mutating unrelated stage instance, channel, voice, or scheduled event state.",
+                "summary": "Update Stage Instance Extra Data",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "stage-instances"
+                ]
             }
         },
         "/stage-instances/{channel_id}/": {

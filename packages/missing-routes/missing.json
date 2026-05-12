@@ -1,6 +1,6 @@
 {
-    "missing": 534,
-    "spacebar": 646,
+    "missing": 533,
+    "spacebar": 647,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1785,7 +1785,6 @@
             "source_routes": ["/lobbies/{lobby_id}/channel-linking"],
             "summaries": ["Modify Lobby Linked Channel"]
         },
-        { "method": "PATCH", "route": "/stage-instances/extra", "route_name": "STAGE_INSTANCES_EXTRA", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PATCH",
             "route": "/store/listings/{param}",

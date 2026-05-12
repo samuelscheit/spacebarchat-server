@@ -4431,6 +4431,15 @@
 		"source": "src/api/routes/stage-instances/extra.ts"
 	},
 	{
+		"method": "PATCH",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/stage-instances/extra",
+		"route_name": "PATCH_STAGE_INSTANCES_EXTRA",
+		"source": "src/api/routes/stage-instances/extra.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"StickersResponse"

@@ -28,7 +28,8 @@ import { requestJson } from "../../tests/helpers/UserRouteTestHelpers";
 const requireModule = require;
 const routeModulePath = require.resolve("./extra");
 const userId = "100000000000000001";
-const coveredManifestId = "api:http:GET:/stage-instances/extra/";
+const getCoveredManifestId = "api:http:GET:/stage-instances/extra/";
+const patchCoveredManifestId = "api:http:PATCH:/stage-instances/extra/";
 
 function distModulePath(...segments: string[]) {
     return path.join(process.cwd(), "dist", ...segments);
@@ -39,7 +40,7 @@ afterEach(() => {
 });
 
 describe("GET /stage-instances/extra", () => {
-    test("declares authenticated local stage-instance extra metadata", (t) => {
+    test("declares authenticated local stage-instance extra metadata and fail-closed PATCH metadata", (t) => {
         const routeOptions = captureRouteOptions(t);
 
         assert.deepEqual(routeOptions[0], {
@@ -55,6 +56,19 @@ describe("GET /stage-instances/extra", () => {
                 },
             },
         });
+        assert.deepEqual(routeOptions[1], {
+            summary: "Update Stage Instance Extra Data",
+            description:
+                "Discord exposes this client route for mutating provider-backed stage extra metadata. Spacebar persists only normal stage instance records, so this compatibility endpoint fails closed instead of mutating unrelated stage instance, channel, voice, or scheduled event state.",
+            responses: {
+                401: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        });
     });
 
     test("stays behind bearer authentication", async () => {
@@ -65,11 +79,15 @@ describe("GET /stage-instances/extra", () => {
 
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/stage-instances/extra"), false);
         assert.equal(isNoAuthorizationRoute("HEAD", "/api/v9/stage-instances/extra/"), false);
+        assert.equal(isNoAuthorizationRoute("PATCH", "/api/v9/stage-instances/extra"), false);
 
         const response = await requestJson(app, "/stage-instances/extra");
+        const patchResponse = await requestJson(app, "/stage-instances/extra", { method: "PATCH" });
 
         assert.equal(response.status, 401);
         assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(patchResponse.status, 401);
+        assert.match((patchResponse.body as { message?: string }).message ?? "", /Missing Authorization Header/);
     });
 
     test("returns the dependency-backed visible stage-instance subset", async () => {
@@ -114,11 +132,42 @@ describe("GET /stage-instances/extra", () => {
         assert.deepEqual(calls, [`memberships:${userId}`, "stage-instances:197038439483310086", `visible:${userId}:733488538393510049`]);
     });
 
-    test("generated artifacts own only the xHyroM-backed GET extra route", () => {
+    test("PATCH fails closed instead of mutating unsupported provider-backed extra metadata", async () => {
+        const routeModule = loadRouteModule();
+        const unsupportedError = routeModule.createStageInstancesExtraMutationUnsupportedError();
+        const app = express();
+        app.use((req, _res, next) => {
+            req.user_id = userId;
+            next();
+        });
+        app.use("/stage-instances/extra", routeModule.default);
+        app.use(ErrorHandler);
+
+        assert.equal(unsupportedError.httpStatus, 501);
+        assert.equal(unsupportedError.code, 0);
+        assert.equal(unsupportedError.message, routeModule.STAGE_INSTANCES_EXTRA_MUTATION_UNSUPPORTED_MESSAGE);
+
+        const response = await requestJson(app, "/stage-instances/extra", { method: "PATCH", body: { participant_count: 1 } });
+
+        assert.equal(response.status, 501);
+        assert.deepEqual(response.body, {
+            code: 0,
+            message: routeModule.STAGE_INSTANCES_EXTRA_MUTATION_UNSUPPORTED_MESSAGE,
+        });
+    });
+
+    test("generated artifacts own the xHyroM-backed GET and assigned PATCH extra routes", () => {
         const routeSource = readFileSync(path.join(process.cwd(), "src", "api", "routes", "stage-instances", "extra.ts"), "utf8");
         const schemas = readJson<Record<string, { type?: string; items?: { $ref?: string } }>>(path.join("assets", "schemas.json"));
         const openapi = readJson<{
-            paths?: Record<string, { get?: { responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>; security?: unknown } }>;
+            paths?: Record<
+                string,
+                {
+                    get?: { responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>; security?: unknown };
+                    patch?: { responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>; security?: unknown };
+                    delete?: unknown;
+                }
+            >;
         }>(path.join("assets", "openapi.json"));
         const sourceCatalog = readJson<
             {
@@ -141,13 +190,22 @@ describe("GET /stage-instances/extra", () => {
                 };
             }[];
         }>(path.join("assets", "testing-manifest.json"));
-        const contractMatrix = readJson<{ contracts?: { manifestId?: string; sourceFile?: string; routeMetadata?: { responses?: string[] } }[] }>(
-            path.join("test", "generated", "http-contracts.json"),
-        );
+        const contractMatrix = readJson<{
+            contracts?: {
+                manifestId?: string;
+                sourceFile?: string;
+                routeMetadata?: {
+                    responses?: string[];
+                    responseStatuses?: number[];
+                };
+            }[];
+        }>(path.join("test", "generated", "http-contracts.json"));
 
         assert.match(routeSource, /router\.get\(\s*["']\/["']/);
+        assert.match(routeSource, /router\.patch\(\s*["']\/["']/);
         assert.match(routeSource, /body:\s*"StageInstancesExtraResponse"/);
-        assert.doesNotMatch(routeSource, /router\.(delete|patch|post)\(/);
+        assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.doesNotMatch(routeSource, /router\.(delete|post)\(/);
         assert.doesNotMatch(routeSource, /\b(GuildScheduledEvent|VoiceState|Participant|DiscoverableGuild)\b/);
 
         assert.equal(schemas.StageInstancesExtraResponse?.type, "array");
@@ -157,12 +215,21 @@ describe("GET /stage-instances/extra", () => {
         assert.equal(openapiRoute?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/StageInstancesExtraResponse");
         assert.equal(openapiRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.deepEqual(openapiRoute?.security, [{ bearer: [] }]);
+        const openapiPatchRoute = openapi.paths?.["/stage-instances/extra/"]?.patch;
+        assert.equal(openapiPatchRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(openapiPatchRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(openapiPatchRoute?.security, [{ bearer: [] }]);
+        assert.equal(openapi.paths?.["/stage-instances/extra/"]?.delete, undefined);
 
         const sourceRoute = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/stage-instances/extra");
         assert.equal(sourceRoute?.route_name, "GET_STAGE_INSTANCES_EXTRA");
         assert.equal(sourceRoute?.source, "src/api/routes/stage-instances/extra.ts");
         assert.equal(sourceRoute?.response_schema_refs?.includes("StageInstancesExtraResponse"), true);
         assert.equal(sourceRoute?.response_schema_refs?.includes("APIErrorResponse"), true);
+        const patchSourceRoute = sourceCatalog.find((entry) => entry.method === "PATCH" && entry.route === "/stage-instances/extra");
+        assert.equal(patchSourceRoute?.route_name, "PATCH_STAGE_INSTANCES_EXTRA");
+        assert.equal(patchSourceRoute?.source, "src/api/routes/stage-instances/extra.ts");
+        assert.deepEqual(patchSourceRoute?.response_schema_refs, ["APIErrorResponse"]);
 
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/stage-instances/extra"),
@@ -174,19 +241,28 @@ describe("GET /stage-instances/extra", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "PATCH" && entry.route === "/stage-instances/extra"),
-            true,
+            false,
         );
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === getCoveredManifestId);
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.sourceFile, "src/api/routes/stage-instances/extra.ts");
         assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("StageInstancesExtraResponse"), true);
         assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
         assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [200, 401]);
+        const patchManifestEntry = manifest.entries?.find((entry) => entry.id === patchCoveredManifestId);
+        assert.equal(patchManifestEntry?.authMode, "bearer");
+        assert.equal(patchManifestEntry?.sourceFile, "src/api/routes/stage-instances/extra.ts");
+        assert.equal(patchManifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.deepEqual(patchManifestEntry?.routeMetadata?.responseStatuses, [401, 501]);
 
-        const contractEntry = contractMatrix.contracts?.find((contract) => contract.manifestId === coveredManifestId);
+        const contractEntry = contractMatrix.contracts?.find((contract) => contract.manifestId === getCoveredManifestId);
         assert.equal(contractEntry?.sourceFile, "src/api/routes/stage-instances/extra.ts");
         assert.equal(contractEntry?.routeMetadata?.responses?.includes("StageInstancesExtraResponse"), true);
+        const patchContractEntry = contractMatrix.contracts?.find((contract) => contract.manifestId === patchCoveredManifestId);
+        assert.equal(patchContractEntry?.sourceFile, "src/api/routes/stage-instances/extra.ts");
+        assert.equal(patchContractEntry?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
+        assert.deepEqual(patchContractEntry?.routeMetadata?.responseStatuses, [401, 501]);
     });
 });
 

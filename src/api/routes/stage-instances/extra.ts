@@ -17,7 +17,14 @@
 */
 
 import { getStageInstancesExtra, route, type StageInstancesExtraDependencies } from "@spacebar/api";
+import { ApiError } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+
+export const STAGE_INSTANCES_EXTRA_MUTATION_UNSUPPORTED_MESSAGE = "Stage instance extra metadata updates are not supported on this Spacebar instance.";
+
+export function createStageInstancesExtraMutationUnsupportedError(): ApiError {
+    return new ApiError(STAGE_INSTANCES_EXTRA_MUTATION_UNSUPPORTED_MESSAGE, 0, 501);
+}
 
 export function createStageInstancesExtraRouter(dependencies?: StageInstancesExtraDependencies) {
     const router: Router = Router({ mergeParams: true });
@@ -40,6 +47,26 @@ export function createStageInstancesExtraRouter(dependencies?: StageInstancesExt
         async (req: Request, res: Response) => {
             const response = await getStageInstancesExtra(req.user_id, dependencies);
             return res.status(200).json(response);
+        },
+    );
+
+    router.patch(
+        "/",
+        route({
+            summary: "Update Stage Instance Extra Data",
+            description:
+                "Discord exposes this client route for mutating provider-backed stage extra metadata. Spacebar persists only normal stage instance records, so this compatibility endpoint fails closed instead of mutating unrelated stage instance, channel, voice, or scheduled event state.",
+            responses: {
+                401: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        (_req: Request, _res: Response) => {
+            throw createStageInstancesExtraMutationUnsupportedError();
         },
     );
 
