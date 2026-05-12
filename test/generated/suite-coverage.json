@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 537,
+        "totalCoveredManifestEntries": 538,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 515,
-                "totalCoveredManifestEntries": 515,
-                "totalCoveredRequiredManifestEntries": 515,
+                "totalRequiredManifestEntries": 516,
+                "totalCoveredManifestEntries": 516,
+                "totalCoveredRequiredManifestEntries": 516,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 374,
+            "stateful-domain": 375,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 515,
-                "totalCoveredManifestEntries": 515,
-                "totalCoveredRequiredManifestEntries": 515,
+                "totalRequiredManifestEntries": 516,
+                "totalCoveredManifestEntries": 516,
+                "totalCoveredRequiredManifestEntries": 516,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -250,6 +250,7 @@
                 "api:http:GET:/guilds/:guild_id/members/:member_id/",
                 "api:http:GET:/guilds/:guild_id/members/@me/",
                 "api:http:GET:/guilds/:guild_id/members/search/",
+                "api:http:GET:/guilds/:guild_id/members/unusual-dm-activity/",
                 "api:http:GET:/guilds/:guild_id/messages/search/",
                 "api:http:GET:/guilds/:guild_id/new-member-welcome/",
                 "api:http:GET:/guilds/:guild_id/onboarding/",
@@ -767,6 +768,7 @@
                 "api:http:GET:/guilds/:guild_id/members/:member_id/",
                 "api:http:GET:/guilds/:guild_id/members/@me/",
                 "api:http:GET:/guilds/:guild_id/members/search/",
+                "api:http:GET:/guilds/:guild_id/members/unusual-dm-activity/",
                 "api:http:GET:/guilds/:guild_id/messages/search/",
                 "api:http:GET:/guilds/:guild_id/new-member-welcome/",
                 "api:http:GET:/guilds/:guild_id/onboarding/",
@@ -1344,6 +1346,7 @@
                         "api:http:GET:/guilds/:guild_id/members/:member_id/",
                         "api:http:GET:/guilds/:guild_id/members/@me/",
                         "api:http:GET:/guilds/:guild_id/members/search/",
+                        "api:http:GET:/guilds/:guild_id/members/unusual-dm-activity/",
                         "api:http:GET:/guilds/:guild_id/messages/search/",
                         "api:http:GET:/guilds/:guild_id/new-member-welcome/",
                         "api:http:GET:/guilds/:guild_id/onboarding/",

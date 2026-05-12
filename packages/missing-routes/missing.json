@@ -1,6 +1,6 @@
 {
-    "missing": 586,
-    "spacebar": 594,
+    "missing": 585,
+    "spacebar": 595,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1248,14 +1248,6 @@
             "route_name": "MEMBER_SAFETY_SUPPLEMENTAL",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/members/supplemental"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/members/unusual-dm-activity",
-            "route_name": "GET_GUILDS_GUILD_ID_MEMBERS_UNUSUAL_DM_ACTIVITY",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/members/unusual-dm-activity"],
-            "summaries": ["Get Guild Members With Unusual DM Activity"]
         },
         {
             "method": "GET",
