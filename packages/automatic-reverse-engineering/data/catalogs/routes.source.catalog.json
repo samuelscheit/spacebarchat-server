@@ -3843,6 +3843,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"PartnerSdkApplicationSkusResponse"
+		],
+		"route": "/partner-sdk/application/{application_id}/skus",
+		"route_name": "GET_PARTNER_SDK_APPLICATION_APPLICATION_ID_SKUS",
+		"source": "src/api/routes/partner-sdk/application/#application_id/skus.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"PartnerSdkApplicationSkuRecommendationsResponse"
 		],
 		"route": "/partner-sdk/applications/{application_id}/skus/recommendations",

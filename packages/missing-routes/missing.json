@@ -1,6 +1,6 @@
 {
-    "missing": 558,
-    "spacebar": 622,
+    "missing": 557,
+    "spacebar": 623,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1346,14 +1346,6 @@
         },
         { "method": "GET", "route": "/oauth2/samsung/authorize", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/oauth2/samsung/authorize/callback", "route_name": "OAUTH2_AUTHORIZE_SAMSUNG_CALLBACK", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/partner-sdk/application/{param}/skus",
-            "route_name": "GET_PARTNER_SDK_APPLICATION_APPLICATION_ID_SKUS",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/partner-sdk/application/{application_id}/skus"],
-            "summaries": ["Get Social Layer SKUs"]
-        },
         {
             "method": "GET",
             "route": "/partner-sdk/applications/{param}/storefront",

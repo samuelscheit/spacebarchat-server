@@ -11021,6 +11021,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PartnerSdkApplicationSkusResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/StoreSkuResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PartnerSdkUserMessageSummariesResponse": {
         "type": "array",
         "items": {

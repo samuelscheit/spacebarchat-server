@@ -10463,6 +10463,12 @@
                     "skus_to_user_ids"
                 ]
             },
+            "PartnerSdkApplicationSkusResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/StoreSkuResponse"
+                }
+            },
             "PartnerSdkUserMessageSummariesResponse": {
                 "type": "array",
                 "items": {
@@ -46726,6 +46732,73 @@
                             "type": "boolean"
                         },
                         "description": "Whether to include wishlist-backed recommendations."
+                    }
+                ],
+                "tags": [
+                    "partner-sdk"
+                ]
+            }
+        },
+        "/partner-sdk/application/{application_id}/skus/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed Social Layer game item SKUs for the given application when the current user can access the owning application.",
+                "summary": "Get Social Layer SKUs",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PartnerSdkApplicationSkusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
                     }
                 ],
                 "tags": [

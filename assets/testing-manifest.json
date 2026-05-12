@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 727,
+        "totalEntries": 728,
         "byService": {
-            "api": 630,
+            "api": 631,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 702,
+            "http-route": 703,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 177,
+            "contract": 178,
             "stateful-domain": 398,
             "cdn-integration": 78,
             "auth-scenario": 17,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 585,
+            "route-class": 586,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -18562,6 +18562,44 @@
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/partner-sdk/application/:application_id/skus/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/partner-sdk/application/:application_id/skus/",
+            "sourceFile": "src/api/routes/partner-sdk/application/#application_id/skus.ts",
+            "line": 97,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PartnerSdkApplicationSkusResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
+                ],
                 "hasQuery": false
             },
             "coverage": {
