@@ -17,3 +17,7 @@
 */
 
 export type GuildJoinRequestsResponse = unknown[];
+
+export type GuildJoinRequestCooldownResponse = {
+    cooldown: number;
+};

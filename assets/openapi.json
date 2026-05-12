@@ -7837,6 +7837,17 @@
                 "type": "array",
                 "items": {}
             },
+            "GuildJoinRequestCooldownResponse": {
+                "type": "object",
+                "properties": {
+                    "cooldown": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "cooldown"
+                ]
+            },
             "GuildWelcomeScreenFunnelResponse": {
                 "type": "array",
                 "items": {
@@ -50036,6 +50047,63 @@
                 "responses": {
                     "204": {
                         "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/requests/@me/cooldown": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the authenticated user's remaining guild join request cooldown in seconds. Spacebar currently has no durable current-user guild join request cooldown store, so the locally backed conservative response is zero seconds.",
+                "summary": "Get Guild Join Request Cooldown",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildJoinRequestCooldownResponse"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "",

@@ -3034,6 +3034,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildJoinRequestCooldownResponse"
+		],
+		"route": "/guilds/{guild_id}/requests/@me/cooldown",
+		"route_name": "GET_GUILDS_GUILD_ID_REQUESTS__ME_COOLDOWN",
+		"source": "src/api/routes/guilds/#guild_id/requests.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/roles",
 		"route_name": "GET_GUILDS_GUILD_ID_ROLES",

@@ -17,7 +17,7 @@
 */
 
 import { route } from "@spacebar/api";
-import type { GuildJoinRequestsResponse } from "@spacebar/schemas";
+import type { GuildJoinRequestCooldownResponse, GuildJoinRequestsResponse } from "@spacebar/schemas";
 import { Guild } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
@@ -37,6 +37,10 @@ function getGuildRepository(repository?: GuildJoinRequestsGuildRepository): Guil
 
 export function buildGuildJoinRequestsResponse(): GuildJoinRequestsResponse {
     return [];
+}
+
+export function buildGuildJoinRequestCooldownResponse(): GuildJoinRequestCooldownResponse {
+    return { cooldown: 0 };
 }
 
 export async function getGuildJoinRequests(guildId: string, repositories: GuildJoinRequestsRepositories = {}): Promise<GuildJoinRequestsResponse> {
@@ -67,6 +71,23 @@ export async function getCurrentUserGuildJoinRequest(
     void userId;
     // Spacebar does not currently persist Discord's current-user guild join request state.
     return null;
+}
+
+export async function getCurrentUserGuildJoinRequestCooldown(
+    guildId: string,
+    userId: string,
+    repositories: GuildJoinRequestsRepositories = {},
+): Promise<GuildJoinRequestCooldownResponse> {
+    const guildRepository = getGuildRepository(repositories.guildRepository);
+
+    await guildRepository.findOneOrFail({
+        where: { id: guildId },
+        select: { id: true },
+    });
+
+    void userId;
+    // Spacebar does not currently persist Discord's current-user guild join request cooldown state.
+    return buildGuildJoinRequestCooldownResponse();
 }
 
 export function createGuildJoinRequestsRouter(repositories: GuildJoinRequestsRepositories = {}) {
@@ -124,6 +145,31 @@ export function createGuildJoinRequestsRouter(repositories: GuildJoinRequestsRep
             if (joinRequest === null) return res.sendStatus(204);
 
             return res.status(200).json(joinRequest);
+        },
+    );
+
+    router.get(
+        "/@me/cooldown",
+        route({
+            summary: "Get Guild Join Request Cooldown",
+            description:
+                "Returns the authenticated user's remaining guild join request cooldown in seconds. Spacebar currently has no durable current-user guild join request cooldown store, so the locally backed conservative response is zero seconds.",
+            responses: {
+                200: {
+                    body: "GuildJoinRequestCooldownResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const guildId = req.params.guild_id as string;
+
+            return res.status(200).json(await getCurrentUserGuildJoinRequestCooldown(guildId, req.user_id, repositories));
         },
     );
 

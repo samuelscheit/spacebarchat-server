@@ -98,7 +98,7 @@ describe("GET /guilds/:guild_id/requests/@me", () => {
 
     test("declares source-backed route metadata in source and generated artifacts", () => {
         const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "guilds", "#guild_id", "requests.ts"), "utf8");
-        const currentUserSegment = routeSource.slice(routeSource.indexOf('router.get(\n        "/@me"'));
+        const currentUserSegment = routeSource.slice(routeSource.indexOf('router.get(\n        "/@me"'), routeSource.indexOf('router.get(\n        "/@me/cooldown"'));
         const openapi = readJson<OpenApi>(join(process.cwd(), "assets", "openapi.json"));
         const manifest = readJson<TestingManifest>(join(process.cwd(), "assets", "testing-manifest.json"));
         const sourceCatalog = readJson<SourceCatalogEntry[]>(join(process.cwd(), "packages", "automatic-reverse-engineering", "data", "catalogs", "routes.source.catalog.json"));
@@ -159,7 +159,7 @@ describe("GET /guilds/:guild_id/requests/@me", () => {
 
         assert.equal(JSON.stringify(suiteCoverage).includes(coveredManifestId), true);
         assert.equal(hasMissingRoute(missingRoutes, "GET", "/guilds/{param}/requests/@me"), false);
-        assert.equal(hasMissingRoute(missingRoutes, "GET", "/guilds/{param}/requests/@me/cooldown"), true);
+        assert.equal(hasMissingRoute(missingRoutes, "GET", "/guilds/{param}/requests/@me/cooldown"), false);
         assert.equal(hasMissingRoute(missingRoutes, "PATCH", "/guilds/{param}/requests/@me"), true);
         assert.equal(hasMissingRoute(missingRoutes, "POST", "/guilds/{param}/requests/@me"), true);
         assert.equal(hasMissingRoute(missingRoutes, "PUT", "/guilds/{param}/requests/@me"), true);
