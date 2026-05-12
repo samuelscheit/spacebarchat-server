@@ -4216,6 +4216,18 @@
                 "type": "array",
                 "items": {}
             },
+            "BurstCreditBalanceResponse": {
+                "type": "object",
+                "properties": {
+                    "balance": {
+                        "minimum": 0,
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "balance"
+                ]
+            },
             "ChannelCallEligibilityResponse": {
                 "type": "object",
                 "properties": {
@@ -40208,6 +40220,42 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/DmChannelDTO"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/burst-credits/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's locally backed burst-credit balance without fabricating Discord private client state.",
+                "summary": "Get Burst Credit Balance",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BurstCreditBalanceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
                                 }
                             }
                         }

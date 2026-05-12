@@ -1,6 +1,6 @@
 {
-    "missing": 573,
-    "spacebar": 607,
+    "missing": 572,
+    "spacebar": 608,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -361,7 +361,6 @@
         "/users/@me/billing/user-offer/redeem",
         "/users/@me/billing/user-trial-offer",
         "/users/@me/billing/user-trial-offer/{param}/ack",
-        "/users/@me/burst-credits",
         "/users/@me/captcha/verify",
         "/users/@me/claim-premium-collectibles-product",
         "/users/@me/clan",
@@ -1581,7 +1580,6 @@
             "sources": ["userdoccers:resources/billing.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Trial Offer"]
         },
-        { "method": "GET", "route": "/users/@me/burst-credits", "route_name": "BURST_CREDIT_BALANCE", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
             "route": "/users/@me/connections/contacts/{param}/external-friend-list-entries/settings",

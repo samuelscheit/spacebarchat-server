@@ -4919,6 +4919,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"BurstCreditBalanceResponse"
+		],
+		"route": "/users/@me/burst-credits",
+		"route_name": "GET_USERS__ME_BURST_CREDITS",
+		"source": "src/api/routes/users/@me/burst-credits.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIDMChannelArray"
 		],
 		"route": "/users/@me/channels",

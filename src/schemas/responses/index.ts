@@ -46,6 +46,7 @@ export * from "./ArchivedThreadsResponse";
 export * from "./BackupCodesChallengeResponse";
 export * from "./BillingLocationInfoResponse";
 export * from "./BillingSubscriptionsResponse";
+export * from "./BurstCreditBalanceResponse";
 export * from "./CaptchaRequiredResponse";
 export * from "./ChannelCallEligibilityResponse";
 export * from "./ChannelFollowerMessageStatsResponse";
