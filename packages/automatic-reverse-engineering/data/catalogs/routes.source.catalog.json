@@ -2365,6 +2365,16 @@
 		"source": "src/api/routes/gifs/trending-search.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "GooglePlayValidatePurchaseSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/google-play/validate-purchase",
+		"route_name": "POST_GOOGLE_PLAY_VALIDATE_PURCHASE",
+		"source": "src/api/routes/google-play/validate-purchase.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

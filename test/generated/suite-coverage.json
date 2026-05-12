@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 584,
+        "totalCoveredManifestEntries": 585,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 562,
-                "totalCoveredManifestEntries": 562,
-                "totalCoveredRequiredManifestEntries": 562,
+                "totalRequiredManifestEntries": 563,
+                "totalCoveredManifestEntries": 563,
+                "totalCoveredRequiredManifestEntries": 563,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 420,
+            "stateful-domain": 421,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 562,
-                "totalCoveredManifestEntries": 562,
-                "totalCoveredRequiredManifestEntries": 562,
+                "totalRequiredManifestEntries": 563,
+                "totalCoveredManifestEntries": 563,
+                "totalCoveredRequiredManifestEntries": 563,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -503,6 +503,7 @@
                 "api:http:POST:/channels/preload-messages/",
                 "api:http:POST:/connections/:connection_name/:connection_id/refresh/",
                 "api:http:POST:/connections/:connection_name/callback/",
+                "api:http:POST:/google-play/validate-purchase/",
                 "api:http:POST:/guilds/",
                 "api:http:POST:/guilds/:guild_id/auto-moderation/rules/",
                 "api:http:POST:/guilds/:guild_id/bulk-ban/",
@@ -1067,6 +1068,7 @@
                 "api:http:POST:/channels/preload-messages/",
                 "api:http:POST:/connections/:connection_name/:connection_id/refresh/",
                 "api:http:POST:/connections/:connection_name/callback/",
+                "api:http:POST:/google-play/validate-purchase/",
                 "api:http:POST:/guilds/",
                 "api:http:POST:/guilds/:guild_id/auto-moderation/rules/",
                 "api:http:POST:/guilds/:guild_id/bulk-ban/",
@@ -1254,6 +1256,7 @@
                         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",
                         "src/api/routes/users/@me/guilds/premium/subscriptions.test.ts",
                         "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
+                        "test/routes/google-play-validate-purchase-route.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
@@ -1367,6 +1370,7 @@
                         "api:http:PATCH:/users/@me/settings-proto/2/",
                         "api:http:PATCH:/users/@me/settings-proto/2/json",
                         "api:http:PATCH:/users/@me/settings/",
+                        "api:http:POST:/google-play/validate-purchase/",
                         "api:http:POST:/users/:user_id/delete/",
                         "api:http:POST:/users/:user_id/messages/",
                         "api:http:POST:/users/@me/billing/payment-sources/",

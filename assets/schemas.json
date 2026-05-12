@@ -2564,6 +2564,76 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GooglePlayValidatePurchaseSchema": {
+        "type": "object",
+        "additionalProperties": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/JsonObject"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/JsonValue"
+                    }
+                },
+                {
+                    "type": [
+                        "null",
+                        "string",
+                        "number",
+                        "boolean"
+                    ]
+                }
+            ]
+        },
+        "properties": {
+            "purchase_token": {
+                "minLength": 1,
+                "maxLength": 4096,
+                "type": "string"
+            },
+            "sku_id": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+            },
+            "product_id": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+            },
+            "package_name": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+            },
+            "purchase_data": {
+                "minLength": 1,
+                "maxLength": 65536,
+                "type": "string"
+            },
+            "signature": {
+                "minLength": 1,
+                "maxLength": 8192,
+                "type": "string"
+            },
+            "subscription_id": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+            },
+            "subscription_plan_id": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+            }
+        },
+        "required": [
+            "purchase_token"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "HubWaitlistSignupSchema": {
         "type": "object",
         "properties": {
@@ -20924,6 +20994,35 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "JsonObject": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/JsonValue"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "JsonValue": {
+        "anyOf": [
+            {
+                "$ref": "#/definitions/JsonObject"
+            },
+            {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/JsonValue"
+                }
+            },
+            {
+                "type": [
+                    "null",
+                    "string",
+                    "number",
+                    "boolean"
+                ]
+            }
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "HypeSquadOnlineHouse": {
         "type": "number",
         "enum": [
@@ -22615,35 +22714,6 @@
         "additionalProperties": false,
         "required": [
             "url"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "JsonObject": {
-        "type": "object",
-        "additionalProperties": {
-            "$ref": "#/definitions/JsonValue"
-        },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "JsonValue": {
-        "anyOf": [
-            {
-                "$ref": "#/definitions/JsonObject"
-            },
-            {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/JsonValue"
-                }
-            },
-            {
-                "type": [
-                    "null",
-                    "string",
-                    "number",
-                    "boolean"
-                ]
-            }
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

@@ -64,6 +64,7 @@ export * from "./GuildSubscriptionsBulkSchema";
 export * from "./GuildTemplateCreateSchema";
 export * from "./GuildUpdateSchema";
 export * from "./GuildUpdateWelcomeScreenSchema";
+export * from "./GooglePlayValidatePurchaseSchema";
 export * from "./HubWaitlistSignupSchema";
 export * from "./HypeSquadOnlineCreateSchema";
 export * from "./InviteCreateSchema";

@@ -2460,6 +2460,75 @@
                     }
                 }
             },
+            "GooglePlayValidatePurchaseSchema": {
+                "type": "object",
+                "additionalProperties": {
+                    "anyOf": [
+                        {
+                            "$ref": "#/components/schemas/JsonObject"
+                        },
+                        {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/JsonValue"
+                            }
+                        },
+                        {
+                            "type": [
+                                "null",
+                                "string",
+                                "number",
+                                "boolean"
+                            ]
+                        }
+                    ]
+                },
+                "properties": {
+                    "purchase_token": {
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "type": "string"
+                    },
+                    "sku_id": {
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "type": "string"
+                    },
+                    "product_id": {
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "type": "string"
+                    },
+                    "package_name": {
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "type": "string"
+                    },
+                    "purchase_data": {
+                        "minLength": 1,
+                        "maxLength": 65536,
+                        "type": "string"
+                    },
+                    "signature": {
+                        "minLength": 1,
+                        "maxLength": 8192,
+                        "type": "string"
+                    },
+                    "subscription_id": {
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "type": "string"
+                    },
+                    "subscription_plan_id": {
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "purchase_token"
+                ]
+            },
             "HubWaitlistSignupSchema": {
                 "type": "object",
                 "properties": {
@@ -19796,6 +19865,33 @@
                     }
                 }
             },
+            "JsonObject": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/JsonValue"
+                }
+            },
+            "JsonValue": {
+                "anyOf": [
+                    {
+                        "$ref": "#/components/schemas/JsonObject"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/JsonValue"
+                        }
+                    },
+                    {
+                        "type": [
+                            "null",
+                            "string",
+                            "number",
+                            "boolean"
+                        ]
+                    }
+                ]
+            },
             "HypeSquadOnlineHouse": {
                 "type": "number",
                 "enum": [
@@ -21405,33 +21501,6 @@
                 },
                 "required": [
                     "url"
-                ]
-            },
-            "JsonObject": {
-                "type": "object",
-                "additionalProperties": {
-                    "$ref": "#/components/schemas/JsonValue"
-                }
-            },
-            "JsonValue": {
-                "anyOf": [
-                    {
-                        "$ref": "#/components/schemas/JsonObject"
-                    },
-                    {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/JsonValue"
-                        }
-                    },
-                    {
-                        "type": [
-                            "null",
-                            "string",
-                            "number",
-                            "boolean"
-                        ]
-                    }
                 ]
             },
             "ApplicationTesterState": {
@@ -37154,6 +37223,9 @@
         },
         {
             "name": "gifs"
+        },
+        {
+            "name": "google-play"
         },
         {
             "name": "gravity-custom-channel-scores"
@@ -58902,6 +58974,62 @@
                 },
                 "tags": [
                     "gravity-custom-channel-scores"
+                ]
+            }
+        },
+        "/google-play/validate-purchase/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Registers Discord client's Google Play purchase-validation route. Spacebar does not currently have Google Play Developer API credentials, receipt replay protection, or durable commerce provisioning state, so this endpoint validates the request boundary and fails closed instead of granting purchases locally.",
+                "summary": "Validate Google Play Purchase",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GooglePlayValidatePurchaseSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "google-play"
                 ]
             }
         },

@@ -147,6 +147,16 @@
             "contractChecks": ["authenticated", "schema-validation", "signed-url-state"]
         },
         {
+            "id": "api-google-play-commerce",
+            "type": "http-route",
+            "service": "api",
+            "pathPrefix": "/google-play",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions"],
+            "contractChecks": ["authenticated", "schema-validation", "no-fabricated-commerce-state"]
+        },
+        {
             "id": "api-public-contract",
             "type": "http-route",
             "service": "api",
