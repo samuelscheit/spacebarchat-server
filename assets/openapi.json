@@ -7938,6 +7938,12 @@
                     "welcome_message"
                 ]
             },
+            "GuildNewMemberActionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GuildNewMemberAction"
+                }
+            },
             "GuildOnboardingAllowedApplicationsResponse": {
                 "type": "object",
                 "properties": {
@@ -50144,6 +50150,73 @@
                     },
                     "204": {
                         "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/new-member-actions/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed new member action definitions for the authenticated guild member. Spacebar does not currently persist Discord's per-member new member action completion state, so the conservative response is an empty list when no local action source exists.",
+                "summary": "Get Guild New Member Actions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildNewMemberActionsResponse"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "",

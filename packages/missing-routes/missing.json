@@ -1,6 +1,6 @@
 {
-    "missing": 585,
-    "spacebar": 595,
+    "missing": 584,
+    "spacebar": 596,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1248,14 +1248,6 @@
             "route_name": "MEMBER_SAFETY_SUPPLEMENTAL",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/members/supplemental"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/new-member-actions",
-            "route_name": "GET_GUILDS_GUILD_ID_NEW_MEMBER_ACTIONS",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/new-member-actions"],
-            "summaries": ["Get Guild New Member Actions"]
         },
         {
             "method": "GET",

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 538,
+        "totalCoveredManifestEntries": 539,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 516,
-                "totalCoveredManifestEntries": 516,
-                "totalCoveredRequiredManifestEntries": 516,
+                "totalRequiredManifestEntries": 517,
+                "totalCoveredManifestEntries": 517,
+                "totalCoveredRequiredManifestEntries": 517,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 375,
+            "stateful-domain": 376,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 516,
-                "totalCoveredManifestEntries": 516,
-                "totalCoveredRequiredManifestEntries": 516,
+                "totalRequiredManifestEntries": 517,
+                "totalCoveredManifestEntries": 517,
+                "totalCoveredRequiredManifestEntries": 517,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -252,6 +252,7 @@
                 "api:http:GET:/guilds/:guild_id/members/search/",
                 "api:http:GET:/guilds/:guild_id/members/unusual-dm-activity/",
                 "api:http:GET:/guilds/:guild_id/messages/search/",
+                "api:http:GET:/guilds/:guild_id/new-member-actions/",
                 "api:http:GET:/guilds/:guild_id/new-member-welcome/",
                 "api:http:GET:/guilds/:guild_id/onboarding/",
                 "api:http:GET:/guilds/:guild_id/onboarding/allowed-applications/",
@@ -770,6 +771,7 @@
                 "api:http:GET:/guilds/:guild_id/members/search/",
                 "api:http:GET:/guilds/:guild_id/members/unusual-dm-activity/",
                 "api:http:GET:/guilds/:guild_id/messages/search/",
+                "api:http:GET:/guilds/:guild_id/new-member-actions/",
                 "api:http:GET:/guilds/:guild_id/new-member-welcome/",
                 "api:http:GET:/guilds/:guild_id/onboarding/",
                 "api:http:GET:/guilds/:guild_id/onboarding/allowed-applications/",
@@ -1348,6 +1350,7 @@
                         "api:http:GET:/guilds/:guild_id/members/search/",
                         "api:http:GET:/guilds/:guild_id/members/unusual-dm-activity/",
                         "api:http:GET:/guilds/:guild_id/messages/search/",
+                        "api:http:GET:/guilds/:guild_id/new-member-actions/",
                         "api:http:GET:/guilds/:guild_id/new-member-welcome/",
                         "api:http:GET:/guilds/:guild_id/onboarding/",
                         "api:http:GET:/guilds/:guild_id/onboarding/allowed-applications/",
