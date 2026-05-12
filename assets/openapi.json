@@ -39293,6 +39293,35 @@
                 ]
             }
         },
+        "/users/@me/harvest/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's most recent user data harvest request when durable harvest state exists. Spacebar does not currently persist Discord data-export harvest requests, so it returns the documented 204 no-content response instead of fabricating export state.",
+                "summary": "Get User Harvest",
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/guilds/": {
             "get": {
                 "security": [

@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 698,
+        "totalContracts": 699,
         "byService": {
-            "api": 625,
+            "api": 626,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 548,
-        "runtimeMalformedAuthContracts": 548,
-        "runtimeRevokedSessionAuthContracts": 548,
-        "runtimeStaleTokenAuthContracts": 548,
+        "runtimeAuthBoundaryContracts": 549,
+        "runtimeMalformedAuthContracts": 549,
+        "runtimeRevokedSessionAuthContracts": 549,
+        "runtimeStaleTokenAuthContracts": 549,
         "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 71,
@@ -32040,6 +32040,54 @@
             "routeMetadata": {
                 "responses": ["APIErrorResponse"],
                 "responseStatuses": [400, 401]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:GET:/users/@me/harvest/",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/harvest/",
+            "samplePath": "/users/@me/harvest/",
+            "sourceFile": "src/api/routes/users/@me/harvest.ts",
+            "line": 33,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [204, 401]
             },
             "cases": [
                 {
