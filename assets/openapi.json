@@ -10840,6 +10840,10 @@
                     "$ref": "#/components/schemas/PublicMessage"
                 }
             },
+            "PrivateBugReportsResponse": {
+                "type": "array",
+                "items": {}
+            },
             "ProfileWidgetsSuggestedGamesResponse": {
                 "type": "object",
                 "properties": {
@@ -36624,6 +36628,9 @@
             "name": "presences"
         },
         {
+            "name": "private"
+        },
+        {
             "name": "promotions"
         },
         {
@@ -46247,6 +46254,42 @@
                 ],
                 "tags": [
                     "promotions"
+                ]
+            }
+        },
+        "/private/bug-reports/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns private bug reports visible to the authenticated user when durable bug-report state exists. Spacebar does not currently persist Discord private bug-report submissions, so the local representation is empty.",
+                "summary": "Get Private Bug Reports",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PrivateBugReportsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "private"
                 ]
             }
         },

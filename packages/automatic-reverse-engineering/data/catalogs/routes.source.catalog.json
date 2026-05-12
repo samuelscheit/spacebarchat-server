@@ -3957,6 +3957,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"PrivateBugReportsResponse"
+		],
+		"route": "/private/bug-reports",
+		"route_name": "GET_PRIVATE_BUG_REPORTS",
+		"source": "src/api/routes/private/bug-reports.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"PromotionsResponse"
 		],
 		"route": "/promotions",

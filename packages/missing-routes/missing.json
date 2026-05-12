@@ -1,6 +1,6 @@
 {
-    "missing": 559,
-    "spacebar": 621,
+    "missing": 558,
+    "spacebar": 622,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1386,7 +1386,6 @@
             "source_routes": ["/partner-sdk/guilds/{guild_id}/application-storefront/skus/{sku_id}"],
             "summaries": ["Get Guild Application SKU Storefront"]
         },
-        { "method": "GET", "route": "/private/bug-reports", "route_name": "BUG_REPORTS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
             "route": "/quests/decision?placement={param}&client_heartbeat_session_id={param}",

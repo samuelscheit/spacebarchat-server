@@ -11415,6 +11415,11 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PrivateBugReportsResponse": {
+        "type": "array",
+        "items": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ProfileWidgetsSuggestedGamesResponse": {
         "type": "object",
         "properties": {

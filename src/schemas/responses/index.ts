@@ -179,6 +179,7 @@ export * from "./PartnerSdkUserMessageSummariesResponse";
 export * from "./PaymentSourceResponse";
 export * from "./PresencesResponse";
 export * from "./PreloadMessagesResponseSchema";
+export * from "./PrivateBugReportsResponse";
 export * from "./ProfileWidgetsSuggestedGamesResponse";
 export * from "./PromotionResponse";
 export * from "./PremiumMarketingResponse";
