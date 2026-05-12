@@ -5111,6 +5111,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"UserEntitlementGiftCodesResponse"
+		],
+		"route": "/users/@me/entitlements/gift-codes",
+		"route_name": "GET_USERS__ME_ENTITLEMENTS_GIFT_CODES",
+		"source": "src/api/routes/users/@me/entitlements.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"UserEntitlementGiftsResponse"
 		],
 		"route": "/users/@me/entitlements/gifts",

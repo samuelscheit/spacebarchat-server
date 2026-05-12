@@ -6479,6 +6479,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserEntitlementGiftCodesResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/GiftCodeResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GlobalActivityStatisticsResponse": {
         "type": "array",
         "items": {

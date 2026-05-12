@@ -37,3 +37,5 @@ export interface GiftCodeResponse {
     subscription_trial?: JsonValue;
     promotion?: JsonValue;
 }
+
+export type UserEntitlementGiftCodesResponse = GiftCodeResponse[];

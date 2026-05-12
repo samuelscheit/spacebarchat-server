@@ -6139,6 +6139,12 @@
                     "uses"
                 ]
             },
+            "UserEntitlementGiftCodesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/GiftCodeResponse"
+                }
+            },
             "GlobalActivityStatisticsResponse": {
                 "type": "array",
                 "items": {
@@ -39185,6 +39191,60 @@
                             "type": "boolean"
                         },
                         "description": "Whether ended entitlements should be excluded when backed by local entitlement state."
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/entitlements/gift-codes": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed gift codes created by the current user without exposing application batch gift codes or fabricating Discord commerce state.",
+                "summary": "Get User Gift Codes",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserEntitlementGiftCodesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "sku_ids",
+                        "in": "query",
+                        "schema": {
+                            "type": "array"
+                        },
+                        "description": "SKU IDs to filter user-created gift codes by when backed by local user gift-code state."
+                    },
+                    {
+                        "name": "subscription_plan_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Subscription plan ID to filter user-created gift codes by when backed by local user gift-code state."
                     }
                 ],
                 "tags": [

@@ -1,6 +1,6 @@
 {
-    "missing": 576,
-    "spacebar": 604,
+    "missing": 575,
+    "spacebar": 605,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1599,13 +1599,6 @@
             "sources": ["userdoccers:resources/connected-accounts.mdx"],
             "source_routes": ["/users/@me/connections/contacts/{connection_id}/external-friend-list-entries/settings"],
             "summaries": ["Contact Sync Settings"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/entitlements/gift-codes",
-            "route_name": "GET_USERS__ME_ENTITLEMENTS_GIFT_CODES",
-            "sources": ["userdoccers:resources/entitlement.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Gift Codes"]
         },
         { "method": "GET", "route": "/users/@me/gravity-attachments", "route_name": "GRAVITY_ATTACHMENTS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/users/@me/gravity-icymi", "route_name": "GRAVITY_ITEMS_DEHYDRATED", "sources": ["xhyrom:data/client/routes.json"] },

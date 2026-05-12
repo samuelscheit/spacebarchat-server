@@ -17,11 +17,16 @@
 */
 
 import { route } from "@spacebar/api";
-import type { UserEntitlementsResponse } from "@spacebar/schemas";
+import type { UserEntitlementGiftCodesResponse, UserEntitlementsResponse } from "@spacebar/schemas";
 import { Router as createRouter, type Request, type Response, type Router } from "express";
 
 export function getCurrentUserEntitlements(): UserEntitlementsResponse {
     // Spacebar currently has no durable global current-user entitlement store.
+    return [];
+}
+
+export function getCurrentUserEntitlementGiftCodes(): UserEntitlementGiftCodesResponse {
+    // Local gift codes are application/batch-owned and do not track current-user-created gift codes.
     return [];
 }
 
@@ -62,6 +67,35 @@ export function createUserEntitlementsRouter() {
         }),
         (_req: Request, res: Response) => {
             res.status(200).json(getCurrentUserEntitlements());
+        },
+    );
+
+    router.get(
+        "/gift-codes",
+        route({
+            summary: "Get User Gift Codes",
+            description: "Returns locally backed gift codes created by the current user without exposing application batch gift codes or fabricating Discord commerce state.",
+            query: {
+                sku_ids: {
+                    type: "array",
+                    description: "SKU IDs to filter user-created gift codes by when backed by local user gift-code state.",
+                },
+                subscription_plan_id: {
+                    type: "string",
+                    description: "Subscription plan ID to filter user-created gift codes by when backed by local user gift-code state.",
+                },
+            },
+            responses: {
+                200: {
+                    body: "UserEntitlementGiftCodesResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        (_req: Request, res: Response) => {
+            res.status(200).json(getCurrentUserEntitlementGiftCodes());
         },
     );
 

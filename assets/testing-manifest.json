@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 709,
+        "totalEntries": 710,
         "byService": {
-            "api": 612,
+            "api": 613,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 684,
+            "http-route": 685,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 176,
-            "stateful-domain": 381,
+            "stateful-domain": 382,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 567,
+            "route-class": 568,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -23570,7 +23570,7 @@
             "method": "GET",
             "path": "/users/@me/entitlements/",
             "sourceFile": "src/api/routes/users/@me/entitlements.ts",
-            "line": 31,
+            "line": 36,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -23604,13 +23604,53 @@
             }
         },
         {
+            "id": "api:http:GET:/users/@me/entitlements/gift-codes",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/entitlements/gift-codes",
+            "sourceFile": "src/api/routes/users/@me/entitlements.ts",
+            "line": 73,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UserEntitlementGiftCodesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/entitlements/gifts",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/users/@me/entitlements/gifts",
             "sourceFile": "src/api/routes/users/@me/entitlements.ts",
-            "line": 68,
+            "line": 103,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
