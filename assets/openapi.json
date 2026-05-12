@@ -4213,6 +4213,12 @@
                     "valid"
                 ]
             },
+            "CollectiblesGiftRecipientsBatchEligibilityResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "$ref": "#/components/schemas/CollectiblesGiftRecipientEligibilityResponse"
+                }
+            },
             "ApplicationDetectableResponse": {
                 "type": "array",
                 "items": {}
@@ -36295,22 +36301,22 @@
                 ]
             }
         },
-        "/users/@me/valid-collectibles-gift-recipient/": {
+        "/users/@me/valid-collectibles-gift-recipients-batch/": {
             "get": {
                 "security": [
                     {
                         "bearer": []
                     }
                 ],
-                "description": "Returns gift eligibility for a recipient and collectible SKU.",
-                "summary": "Get Valid Collectibles Gift Recipient",
+                "description": "Returns gift eligibility by collectible SKU for a recipient.",
+                "summary": "Get Valid Collectibles Gift Recipients Batch",
                 "responses": {
                     "200": {
                         "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CollectiblesGiftRecipientEligibilityResponse"
+                                    "$ref": "#/components/schemas/CollectiblesGiftRecipientsBatchEligibilityResponse"
                                 }
                             }
                         }
@@ -36347,13 +36353,13 @@
                         "description": "User ID to check for gift eligibility."
                     },
                     {
-                        "name": "sku_id",
+                        "name": "sku_ids",
                         "in": "query",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "array"
                         },
-                        "description": "Collectible SKU ID to gift."
+                        "description": "Collectible SKU IDs to check for gift eligibility (1-100)."
                     }
                 ],
                 "tags": [

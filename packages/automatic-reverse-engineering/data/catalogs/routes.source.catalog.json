@@ -5290,6 +5290,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"CollectiblesGiftRecipientsBatchEligibilityResponse"
+		],
+		"route": "/users/@me/valid-collectibles-gift-recipients-batch",
+		"route_name": "GET_USERS__ME_VALID_COLLECTIBLES_GIFT_RECIPIENTS_BATCH",
+		"source": "src/api/routes/users/@me/valid-collectibles-gift-recipients-batch.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ProfileWidgetsSuggestedGamesResponse"
 		],
 		"route": "/users/@me/widgets/suggested-games",

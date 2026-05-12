@@ -4445,6 +4445,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CollectiblesGiftRecipientsBatchEligibilityResponse": {
+        "type": "object",
+        "additionalProperties": {
+            "$ref": "#/definitions/CollectiblesGiftRecipientEligibilityResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationDetectableResponse": {
         "type": "array",
         "items": {},

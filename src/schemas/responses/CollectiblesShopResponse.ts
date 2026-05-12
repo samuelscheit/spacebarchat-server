@@ -16,6 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import type { Snowflake } from "../Identifiers";
 import { CollectiblesCategory, CollectiblesStaticAnimatedAsset } from "./CollectiblesCategoriesResponse";
 
 export interface CollectiblesShopResponse {
@@ -30,6 +31,10 @@ export interface CollectiblesSearchResponse {
 
 export interface CollectiblesGiftRecipientEligibilityResponse {
     valid: boolean;
+}
+
+export interface CollectiblesGiftRecipientsBatchEligibilityResponse {
+    [skuId: Snowflake]: CollectiblesGiftRecipientEligibilityResponse;
 }
 
 export interface CollectiblesSearchPagination {

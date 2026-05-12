@@ -44,6 +44,13 @@ function assertCollectiblesDefinitionsUseScopedNames(schemas: Record<string, Jso
     assert.equal(schemas.CollectiblesShopResponse.properties?.categories?.items?.$ref, `${refPrefix}CollectiblesCategory`);
     assert.equal(schemas.CollectiblesSearchResponse.properties?.pagination?.$ref, `${refPrefix}CollectiblesSearchPagination`);
     assert.equal(schemas.CollectiblesGiftRecipientEligibilityResponse.properties?.valid?.type, "boolean");
+    assert.equal(
+        schemas.CollectiblesGiftRecipientsBatchEligibilityResponse.additionalProperties &&
+            typeof schemas.CollectiblesGiftRecipientsBatchEligibilityResponse.additionalProperties !== "boolean"
+            ? schemas.CollectiblesGiftRecipientsBatchEligibilityResponse.additionalProperties.$ref
+            : undefined,
+        `${refPrefix}CollectiblesGiftRecipientEligibilityResponse`,
+    );
     assert.equal(schemas.CollectiblesCategory.properties?.banner_asset?.$ref, `${refPrefix}CollectiblesStaticAnimatedAsset`);
     assert.equal(schemas.CollectiblesCategoryProduct.properties?.items?.items?.$ref, `${refPrefix}CollectiblesProductItem`);
     assert.equal(schemas.CollectiblesCategoryProduct.properties?.variants?.items?.$ref, `${refPrefix}CollectiblesProductVariant`);
@@ -64,6 +71,7 @@ function assertCollectiblesDefinitionsUseScopedNames(schemas: Record<string, Jso
     assert.ok(schemas.CollectiblesSearchResponse);
     assert.ok(schemas.CollectiblesSearchPagination);
     assert.ok(schemas.CollectiblesGiftRecipientEligibilityResponse);
+    assert.ok(schemas.CollectiblesGiftRecipientsBatchEligibilityResponse);
     assert.ok(schemas.CollectiblesStaticAnimatedAsset);
     assert.ok(schemas.CollectiblesCountryPrice);
     assert.ok(schemas.CollectiblesPriceEntry);
@@ -214,4 +222,18 @@ test("CollectiblesGiftRecipientEligibilityResponse validates gift eligibility wr
     assert.equal(ajv.validate("CollectiblesGiftRecipientEligibilityResponse", { valid: false }), true);
     assert.equal(ajv.validate("CollectiblesGiftRecipientEligibilityResponse", { valid: false, internal_field: true }), false);
     assert.equal(ajv.validate("CollectiblesGiftRecipientEligibilityResponse", {}), false);
+});
+
+test("CollectiblesGiftRecipientsBatchEligibilityResponse validates SKU-keyed gift eligibility wrappers", () => {
+    assert.equal(ajv.validate("CollectiblesGiftRecipientsBatchEligibilityResponse", { "300000000000000003": { valid: false } }), true);
+    assert.equal(ajv.validate("CollectiblesGiftRecipientsBatchEligibilityResponse", { "300000000000000003": {} }), false);
+    assert.equal(
+        ajv.validate("CollectiblesGiftRecipientsBatchEligibilityResponse", {
+            "300000000000000003": {
+                valid: false,
+                internal_field: true,
+            },
+        }),
+        false,
+    );
 });
