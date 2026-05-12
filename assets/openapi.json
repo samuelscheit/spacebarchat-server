@@ -10754,6 +10754,20 @@
                     "user_id"
                 ]
             },
+            "PaymentInvoiceBreakdownResponse": {
+                "type": "object",
+                "properties": {
+                    "invoiceLink": {
+                        "type": "string"
+                    },
+                    "refundInvoiceLinks": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "PaymentSourceBillingAddressResponse": {
                 "type": "object",
                 "properties": {
@@ -41448,6 +41462,73 @@
                         }
                     }
                 },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/billing/invoice/breakdown/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns invoice download URLs for a current-user payment when locally persisted billing-provider invoice state exists. Spacebar does not currently persist Discord billing payments or provider invoice URLs, so unknown payments fail closed instead of fabricating invoice links.",
+                "summary": "Get Payment Invoice Breakdown",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentInvoiceBreakdownResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "payment_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Payment ID to retrieve invoice download URLs for."
+                    }
+                ],
                 "tags": [
                     "users"
                 ]

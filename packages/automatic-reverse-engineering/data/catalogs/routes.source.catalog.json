@@ -4987,6 +4987,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"PaymentInvoiceBreakdownResponse"
+		],
+		"route": "/users/@me/billing/invoice/breakdown",
+		"route_name": "GET_USERS__ME_BILLING_INVOICE_BREAKDOWN",
+		"source": "src/api/routes/users/@me/billing/invoice/breakdown.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"BillingLocationInfoResponse"
 		],
 		"route": "/users/@me/billing/location-info",
