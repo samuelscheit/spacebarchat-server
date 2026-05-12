@@ -122,6 +122,7 @@ export * from "./GuildJoinRequestsResponse";
 export * from "./GuildWelcomeScreenFunnelResponse";
 export * from "./GravityCustomChannelScoresResponse";
 export * from "./GravityRecommendedGuildsResponse";
+export * from "./GuildIntegrationApplicationIdsResponse";
 export * from "./GuildIntegrationResponse";
 export * from "./GuildMemberUnusualDmActivityResponse";
 export * from "./GuildMembersSupplementalResponse";

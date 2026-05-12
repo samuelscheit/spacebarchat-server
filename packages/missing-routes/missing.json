@@ -1,6 +1,6 @@
 {
-    "missing": 569,
-    "spacebar": 611,
+    "missing": 568,
+    "spacebar": 612,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1574,13 +1574,6 @@
         },
         { "method": "GET", "route": "/users/@me/gravity-attachments", "route_name": "GRAVITY_ATTACHMENTS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/users/@me/gravity-icymi", "route_name": "GRAVITY_ITEMS_DEHYDRATED", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "GET",
-            "route": "/users/@me/guilds/integration-application-ids",
-            "route_name": "GET_USERS__ME_GUILDS_INTEGRATION_APPLICATION_IDS",
-            "sources": ["userdoccers:resources/integration.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Guild Integration Application IDs"]
-        },
         {
             "method": "GET",
             "route": "/users/@me/guilds/premium/subscriptions",

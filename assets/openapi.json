@@ -7942,6 +7942,15 @@
                     "guilds"
                 ]
             },
+            "GuildIntegrationApplicationIdsResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
             "GuildMemberUnusualDmActivityResponse": {
                 "type": "array",
                 "items": {
@@ -39221,6 +39230,42 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/guilds/integration-application-ids/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a mapping of guild IDs to application IDs for locally backed application integrations in the current user's guilds.",
+                "summary": "Get Guild Integration Application IDs",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildIntegrationApplicationIdsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [

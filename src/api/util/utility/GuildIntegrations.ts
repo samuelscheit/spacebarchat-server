@@ -17,7 +17,7 @@
 */
 
 import { Application, Member } from "@spacebar/util";
-import type { APIGuildIntegration, APIIntegrationApplication } from "@spacebar/schemas";
+import type { APIGuildIntegration, APIIntegrationApplication, GuildIntegrationApplicationIdsResponse } from "@spacebar/schemas";
 import { In, Repository } from "typeorm";
 
 export type MemberRepositoryLike = Pick<Repository<Member>, "find">;
@@ -118,4 +118,69 @@ export async function listGuildIntegrations(
         .map((botId) => applicationsByBotId.get(botId))
         .filter((application): application is Application => !!application)
         .map(toGuildIntegration);
+}
+
+export async function listUserGuildIntegrationApplicationIds(
+    user_id: string,
+    repositories: {
+        members?: MemberRepositoryLike;
+        applications?: ApplicationRepositoryLike;
+    } = {},
+): Promise<GuildIntegrationApplicationIdsResponse> {
+    const memberRepository = repositories.members ?? Member.getRepository();
+    const applicationRepository = repositories.applications ?? Application.getRepository();
+
+    const userGuildMembers = await memberRepository.find({
+        where: { id: user_id },
+        select: {
+            guild_id: true,
+        },
+    });
+    const guildIds = [...new Set(userGuildMembers.map((member) => member.guild_id))];
+    const response: GuildIntegrationApplicationIdsResponse = Object.fromEntries(guildIds.map((guildId) => [guildId, []]));
+
+    if (!guildIds.length) return response;
+
+    const botMembers = await memberRepository.find({
+        where: { guild_id: In(guildIds), user: { bot: true } },
+        relations: { user: true },
+        select: {
+            id: true,
+            guild_id: true,
+            user: {
+                id: true,
+                bot: true,
+            },
+        },
+    });
+    const botIds = [...new Set(botMembers.map((member) => member.id))];
+
+    if (!botIds.length) return response;
+
+    const applications = await applicationRepository.find({
+        where: { bot: { id: In(botIds) } },
+        relations: { bot: true },
+        select: {
+            id: true,
+            bot: {
+                id: true,
+            },
+        },
+    });
+    const applicationIdsByBotId = new Map(applications.filter((application) => application.bot).map((application) => [application.bot!.id, application.id]));
+    const seenApplicationIdsByGuildId = new Map<string, Set<string>>();
+
+    for (const member of botMembers) {
+        const applicationId = applicationIdsByBotId.get(member.id);
+        if (!applicationId || !response[member.guild_id]) continue;
+
+        const seenApplicationIds = seenApplicationIdsByGuildId.get(member.guild_id) ?? new Set<string>();
+        if (seenApplicationIds.has(applicationId)) continue;
+
+        response[member.guild_id].push(applicationId);
+        seenApplicationIds.add(applicationId);
+        seenApplicationIdsByGuildId.set(member.guild_id, seenApplicationIds);
+    }
+
+    return response;
 }

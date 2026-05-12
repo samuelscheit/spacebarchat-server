@@ -5224,6 +5224,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildIntegrationApplicationIdsResponse"
+		],
+		"route": "/users/@me/guilds/integration-application-ids",
+		"route_name": "GET_USERS__ME_GUILDS_INTEGRATION_APPLICATION_IDS",
+		"source": "src/api/routes/users/@me/guilds/integration-application-ids.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/users/@me/guilds/premium/subscription-slots",
 		"route_name": "GET_USERS__ME_GUILDS_PREMIUM_SUBSCRIPTION_SLOTS",

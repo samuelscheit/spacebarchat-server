@@ -87,7 +87,7 @@ function loadGuildIntegrationsWithFakeUtil(): GuildIntegrationsModule {
     }
 }
 
-const { listGuildIntegrations, toGuildIntegration } = loadGuildIntegrationsWithFakeUtil();
+const { listGuildIntegrations, listUserGuildIntegrationApplicationIds, toGuildIntegration } = loadGuildIntegrationsWithFakeUtil();
 
 function makeBot(id: string, username: string) {
     return FakeUser.create({ id, username, bot: true });
@@ -118,6 +118,10 @@ function makeApplication(id: string, name: string, bot?: FakeUser) {
 
 function botIdsFromApplicationFindOptions(options: unknown): string[] {
     return (((options as { where: { bot: { id: FindOperator<string> } } }).where.bot.id as FindOperator<string>).value ?? []) as unknown as string[];
+}
+
+function guildIdsFromMemberFindOptions(options: unknown): string[] {
+    return (((options as { where: { guild_id: FindOperator<string> } }).where.guild_id as FindOperator<string>).value ?? []) as unknown as string[];
 }
 
 describe("guild integration serialization", () => {
@@ -230,5 +234,99 @@ describe("listGuildIntegrations", () => {
         });
 
         assert.deepEqual(queriedBotIds, ["bot-1"]);
+    });
+});
+
+describe("listUserGuildIntegrationApplicationIds", () => {
+    test("maps each current-user guild to locally backed application integration IDs", async () => {
+        const bots = [makeBot("bot-a", "Alpha Bot"), makeBot("bot-b", "Beta Bot"), makeBot("bot-c", "Gamma Bot")];
+        const memberFindCalls: unknown[] = [];
+        const applicationFindCalls: unknown[] = [];
+
+        const result = await listUserGuildIntegrationApplicationIds("viewer", {
+            members: {
+                find: async (options) => {
+                    memberFindCalls.push(options);
+                    if (memberFindCalls.length === 1) {
+                        return [FakeMember.create({ id: "viewer", guild_id: "guild-a" }), FakeMember.create({ id: "viewer", guild_id: "guild-b" })] as never;
+                    }
+
+                    return [
+                        FakeMember.create({ id: bots[0].id, guild_id: "guild-a", user: bots[0] }),
+                        FakeMember.create({ id: bots[1].id, guild_id: "guild-a", user: bots[1] }),
+                        FakeMember.create({ id: bots[0].id, guild_id: "guild-a", user: bots[0] }),
+                        FakeMember.create({ id: bots[2].id, guild_id: "guild-b", user: bots[2] }),
+                    ] as never;
+                },
+            },
+            applications: {
+                find: async (options) => {
+                    applicationFindCalls.push(options);
+                    const ids = botIdsFromApplicationFindOptions(options);
+                    return [makeApplication("app-alpha", "Alpha", bots[0]), makeApplication("app-beta", "Beta", bots[1])].filter(
+                        (application) => application.bot && ids.includes(application.bot.id),
+                    ) as never;
+                },
+            },
+        });
+
+        assert.deepEqual(result, {
+            "guild-a": ["app-alpha", "app-beta"],
+            "guild-b": [],
+        });
+        assert.deepEqual(memberFindCalls[0], {
+            where: { id: "viewer" },
+            select: {
+                guild_id: true,
+            },
+        });
+        const botMemberFindOptions = memberFindCalls[1] as { where: { guild_id: FindOperator<string>; user: { bot: boolean } }; relations: unknown; select: unknown };
+        assert.deepEqual(botMemberFindOptions.where.user, { bot: true });
+        assert.deepEqual(botMemberFindOptions.relations, { user: true });
+        assert.deepEqual(botMemberFindOptions.select, {
+            id: true,
+            guild_id: true,
+            user: {
+                id: true,
+                bot: true,
+            },
+        });
+        assert.deepEqual(guildIdsFromMemberFindOptions(memberFindCalls[1]), ["guild-a", "guild-b"]);
+        assert.deepEqual(applicationFindCalls[0], {
+            where: { bot: { id: (applicationFindCalls[0] as { where: { bot: { id: FindOperator<string> } } }).where.bot.id } },
+            relations: { bot: true },
+            select: {
+                id: true,
+                bot: {
+                    id: true,
+                },
+            },
+        });
+        assert.equal(applicationFindCalls.length, 1);
+        assert.deepEqual(botIdsFromApplicationFindOptions(applicationFindCalls[0]), ["bot-a", "bot-b", "bot-c"]);
+    });
+
+    test("returns an empty mapping without querying integrations when the user is in no guilds", async () => {
+        const memberFindCalls: unknown[] = [];
+        let applicationFindCalled = false;
+
+        const result = await listUserGuildIntegrationApplicationIds("viewer", {
+            members: {
+                find: async (options) => {
+                    memberFindCalls.push(options);
+                    return [] as never;
+                },
+            },
+            applications: {
+                find: async () => {
+                    applicationFindCalled = true;
+                    return [] as never;
+                },
+            },
+        });
+
+        assert.deepEqual(result, {});
+        assert.equal(memberFindCalls.length, 1);
+        assert.equal(applicationFindCalled, false);
     });
 });
