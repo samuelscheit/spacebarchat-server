@@ -29,6 +29,8 @@ export type GuildJoinRequestsRepositories = {
     guildRepository?: GuildJoinRequestsGuildRepository;
 };
 
+export type CurrentUserGuildJoinRequestResponse = null;
+
 function getGuildRepository(repository?: GuildJoinRequestsGuildRepository): GuildJoinRequestsGuildRepository {
     return repository ?? (Guild as unknown as GuildJoinRequestsGuildRepository);
 }
@@ -48,6 +50,23 @@ export async function getGuildJoinRequests(guildId: string, repositories: GuildJ
     // Spacebar does not currently persist Discord's guild join request queue.
     // Return only locally truthful pending requests.
     return buildGuildJoinRequestsResponse();
+}
+
+export async function getCurrentUserGuildJoinRequest(
+    guildId: string,
+    userId: string,
+    repositories: GuildJoinRequestsRepositories = {},
+): Promise<CurrentUserGuildJoinRequestResponse> {
+    const guildRepository = getGuildRepository(repositories.guildRepository);
+
+    await guildRepository.findOneOrFail({
+        where: { id: guildId },
+        select: { id: true },
+    });
+
+    void userId;
+    // Spacebar does not currently persist Discord's current-user guild join request state.
+    return null;
 }
 
 export function createGuildJoinRequestsRouter(repositories: GuildJoinRequestsRepositories = {}) {
@@ -79,6 +98,32 @@ export function createGuildJoinRequestsRouter(repositories: GuildJoinRequestsRep
             const guildId = req.params.guild_id as string;
 
             return res.status(200).json(await getGuildJoinRequests(guildId, repositories));
+        },
+    );
+
+    router.get(
+        "/@me",
+        route({
+            summary: "Get Current User Guild Join Request",
+            description:
+                "Returns the authenticated user's pending guild join request when persisted state exists; otherwise returns 204 with no body. Spacebar currently has no durable current-user guild join request store.",
+            responses: {
+                204: {},
+                401: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const guildId = req.params.guild_id as string;
+            const joinRequest = await getCurrentUserGuildJoinRequest(guildId, req.user_id, repositories);
+
+            if (joinRequest === null) return res.sendStatus(204);
+
+            return res.status(200).json(joinRequest);
         },
     );
 

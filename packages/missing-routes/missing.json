@@ -1,6 +1,6 @@
 {
-    "missing": 581,
-    "spacebar": 599,
+    "missing": 580,
+    "spacebar": 600,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1263,14 +1263,6 @@
             "route_name": "GUILD_PRODUCT_LISTINGS",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/products/listings/{param}"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/requests/@me",
-            "route_name": "GET_GUILDS_GUILD_ID_REQUESTS__ME",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/requests/@me"],
-            "summaries": ["Get Current User Guild Join Request"]
         },
         {
             "method": "GET",

@@ -21,79 +21,60 @@ import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
-import { describe, test, type TestContext } from "node:test";
+import { describe, test } from "node:test";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "@spacebar/api";
-import type { GuildJoinRequestsResponse } from "@spacebar/schemas";
 import express from "express";
-import requestsRouter, {
-    buildGuildJoinRequestsResponse,
-    createGuildJoinRequestsRouter,
-    getGuildJoinRequests,
-    type GuildJoinRequestsRepositories,
-} from "../../src/api/routes/guilds/#guild_id/requests";
-import { nonCoercingAjv, validateSchema } from "../../src/schemas/Validator";
+import { createGuildJoinRequestsRouter, getCurrentUserGuildJoinRequest, type GuildJoinRequestsRepositories } from "../../src/api/routes/guilds/#guild_id/requests";
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
-const requireModule = require;
-const coveredManifestId = "api:http:GET:/guilds/:guild_id/requests/";
+const requestsRouter = createGuildJoinRequestsRouter();
+const coveredManifestId = "api:http:GET:/guilds/:guild_id/requests/@me";
 
-describe("GET /guilds/:guild_id/requests", () => {
+describe("GET /guilds/:guild_id/requests/@me", () => {
     test("declares the assigned manifest route id", () => {
-        assert.equal(coveredManifestId, "api:http:GET:/guilds/:guild_id/requests/");
-    });
-
-    test("builds a locally truthful empty join request list without shared mutable state", () => {
-        const first = buildGuildJoinRequestsResponse();
-        first.push({ id: "not-persisted" });
-
-        assert.deepEqual(buildGuildJoinRequestsResponse(), []);
+        assert.equal(coveredManifestId, "api:http:GET:/guilds/:guild_id/requests/@me");
     });
 
     test("stays behind bearer authentication", async () => {
-        assert.equal(isNoAuthorizationRoute("GET", "/guilds/100000000000000001/requests"), false);
-        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/guilds/100000000000000001/requests"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/guilds/100000000000000001/requests/@me"), false);
+        assert.equal(isNoAuthorizationRoute("GET", "/api/v9/guilds/100000000000000001/requests/@me"), false);
 
         const app = express();
         app.use(Authentication);
         app.use("/guilds/:guild_id/requests", requestsRouter);
         app.use(ErrorHandler);
 
-        const response = await requestJson(app, "/guilds/100000000000000001/requests");
+        const response = await requestJson(app, "/guilds/100000000000000001/requests/@me");
 
         assert.equal(response.status, 401);
         assert.equal((response.body as { code?: unknown }).code, 401);
     });
 
-    test("requires MANAGE_GUILD, checks guild existence, and returns an empty local join request list", async (t) => {
-        const permissionLookups: unknown[][] = [];
+    test("checks guild existence and returns 204 when no current-user join request is persisted", async () => {
         const guildLookups: unknown[] = [];
-        mockPermissions(t, true, permissionLookups);
+        const repositories = createRepositories({ guildLookups });
 
-        const app = createAuthenticatedRouteApp(createRepositories({ guildLookups }));
-        const response = await requestJson(app, "/guilds/100000000000000001/requests");
-
-        assert.equal(response.status, 200);
-        assert.deepEqual(response.body, []);
+        assert.equal(await getCurrentUserGuildJoinRequest("100000000000000001", "viewer", repositories), null);
         assert.deepEqual(guildLookups, [
             {
                 where: { id: "100000000000000001" },
                 select: { id: true },
             },
         ]);
-        assert.deepEqual(permissionLookups, [["viewer", "100000000000000001", undefined]]);
-    });
 
-    test("returns 403 when the authenticated user lacks MANAGE_GUILD", async (t) => {
-        const guildLookups: unknown[] = [];
-        mockPermissions(t, false);
+        guildLookups.length = 0;
+        const app = createAuthenticatedRouteApp(repositories);
+        const response = await requestText(app, "/guilds/100000000000000001/requests/@me");
 
-        const app = createAuthenticatedRouteApp(createRepositories({ guildLookups }));
-        const response = await requestJson(app, "/guilds/100000000000000001/requests");
-
-        assert.equal(response.status, 403);
-        assert.equal((response.body as { code?: unknown }).code, 50013);
-        assert.deepEqual(guildLookups, []);
+        assert.equal(response.status, 204);
+        assert.equal(response.body, "");
+        assert.deepEqual(guildLookups, [
+            {
+                where: { id: "100000000000000001" },
+                select: { id: true },
+            },
+        ]);
     });
 
     test("uses the existing not-found behavior when the guild does not exist", async () => {
@@ -110,25 +91,14 @@ describe("GET /guilds/:guild_id/requests", () => {
             },
         };
 
-        await assert.rejects(() => getGuildJoinRequests("missing-guild", repositories), {
+        await assert.rejects(() => getCurrentUserGuildJoinRequest("missing-guild", "viewer", repositories), {
             name: "EntityNotFoundError",
         });
     });
 
-    test("validates the documented guild join requests response shape", () => {
-        const payload: GuildJoinRequestsResponse = [];
-        const validateWithoutCoercion = nonCoercingAjv.getSchema("GuildJoinRequestsResponse");
-
-        assert.deepEqual(validateSchema("GuildJoinRequestsResponse", payload), payload);
-        assert.ok(validateWithoutCoercion, "GuildJoinRequestsResponse should be registered with the non-coercing validator");
-        assert.equal(validateWithoutCoercion(payload), true);
-        assert.equal(validateWithoutCoercion({ requests: [] }), false);
-    });
-
     test("declares source-backed route metadata in source and generated artifacts", () => {
         const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "guilds", "#guild_id", "requests.ts"), "utf8");
-        const guildRequestsSegment = routeSource.slice(routeSource.indexOf('router.get(\n        "/"'), routeSource.indexOf('router.get(\n        "/@me"'));
-        const schemas = readJson<SchemaMap>(join(process.cwd(), "assets", "schemas.json"));
+        const currentUserSegment = routeSource.slice(routeSource.indexOf('router.get(\n        "/@me"'));
         const openapi = readJson<OpenApi>(join(process.cwd(), "assets", "openapi.json"));
         const manifest = readJson<TestingManifest>(join(process.cwd(), "assets", "testing-manifest.json"));
         const sourceCatalog = readJson<SourceCatalogEntry[]>(join(process.cwd(), "packages", "automatic-reverse-engineering", "data", "catalogs", "routes.source.catalog.json"));
@@ -140,72 +110,61 @@ describe("GET /guilds/:guild_id/requests", () => {
         const contracts = readJson<HttpContractCatalog>(join(process.cwd(), "test", "generated", "http-contracts.json"));
         const suiteCoverage = readJson<unknown>(join(process.cwd(), "test", "generated", "suite-coverage.json"));
 
-        assert.match(guildRequestsSegment, /summary:\s*"Get Guild Join Requests"/);
-        assert.match(guildRequestsSegment, /does not currently persist Discord's guild join request queue/);
-        assert.match(guildRequestsSegment, /permission:\s*"MANAGE_GUILD"/);
-        assert.doesNotMatch(guildRequestsSegment, /router\.(?:post|put|patch|delete)\(/);
-        assert.doesNotMatch(guildRequestsSegment, /requests\/@me|join-requests|member-verification|new-member-action|onboarding/);
-        assert.match(guildRequestsSegment, /200:\s*\{\s*body:\s*"GuildJoinRequestsResponse"/s);
-        assert.match(guildRequestsSegment, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.match(guildRequestsSegment, /403:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.match(guildRequestsSegment, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(currentUserSegment, /summary:\s*"Get Current User Guild Join Request"/);
+        assert.match(currentUserSegment, /durable current-user guild join request store/);
+        assert.doesNotMatch(currentUserSegment, /permission:\s*"MANAGE_GUILD"/);
+        assert.doesNotMatch(currentUserSegment, /router\.(?:post|put|patch|delete)\(/);
+        assert.doesNotMatch(currentUserSegment, /requests\/@me\/cooldown|join-requests|member-verification|new-member-action|onboarding/);
+        assert.match(currentUserSegment, /204:\s*\{\s*\}/s);
+        assert.match(currentUserSegment, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(currentUserSegment, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
 
-        assert.equal(schemas.GuildJoinRequestsResponse.type, "array");
-        assert.deepEqual(schemas.GuildJoinRequestsResponse.items, {});
-
-        const route = openapi.paths?.["/guilds/{guild_id}/requests/"]?.get;
-        assert.equal(route?.summary, "Get Guild Join Requests");
-        assert.equal(route?.["x-permission-required"], "MANAGE_GUILD");
-        assert.equal(route?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/GuildJoinRequestsResponse");
+        const route = openapi.paths?.["/guilds/{guild_id}/requests/@me"]?.get;
+        assert.equal(route?.summary, "Get Current User Guild Join Request");
+        assert.equal(route?.["x-permission-required"], undefined);
+        assert.ok(route?.responses?.["204"], "204 response should be documented for absent local current-user join request state");
         assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(route?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.deepEqual(route?.security, [{ bearer: [] }]);
 
         const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.sourceFile, "src/api/routes/guilds/#guild_id/requests.ts");
-        assert.equal(manifestEntry?.routeMetadata?.permission, "MANAGE_GUILD");
-        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse", "GuildJoinRequestsResponse"]);
+        assert.equal(manifestEntry?.routeMetadata?.permission, undefined);
+        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse"]);
         assert.deepEqual(
             manifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
-            [200, 401, 403, 404],
+            [204, 401, 404],
         );
 
-        const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/requests");
-        assert.equal(catalogEntry?.route_name, "GET_GUILDS_GUILD_ID_REQUESTS");
+        const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/requests/@me");
+        assert.equal(catalogEntry?.route_name, "GET_GUILDS_GUILD_ID_REQUESTS__ME");
         assert.equal(catalogEntry?.source, "src/api/routes/guilds/#guild_id/requests.ts");
-        assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "GuildJoinRequestsResponse"]);
-        assert.equal(
-            sourceCatalog.some((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/requests/@me"),
-            true,
-        );
+        assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse"]);
 
-        const userdoccersEntry = userdoccersCatalog.find((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/requests");
+        const userdoccersEntry = userdoccersCatalog.find((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/requests/@me");
         assert.equal(userdoccersEntry?.source, "userdoccers:resources/guild.mdx");
-        assert.equal(userdoccersEntry?.summary, "Get Guild Join Requests");
-        const xhyromEntry = xhyromCatalog.find((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/requests");
-        assert.equal(xhyromEntry?.route_name, "GUILD_JOIN_REQUESTS");
+        assert.equal(userdoccersEntry?.summary, "Get Current User Guild Join Request");
+        const xhyromEntry = xhyromCatalog.find((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/requests/@me");
+        assert.equal(xhyromEntry?.route_name, "GUILD_MEMBER_REQUEST_TO_JOIN");
 
         const contract = contracts.contracts?.find((entry) => entry.manifestId === coveredManifestId);
         assert.equal(contract?.authMode, "bearer");
-        assert.equal(contract?.routeMetadata?.permission, "MANAGE_GUILD");
-        assert.equal(contract?.routeMetadata?.responses?.includes("GuildJoinRequestsResponse"), true);
+        assert.equal(contract?.routeMetadata?.permission, undefined);
+        assert.deepEqual(contract?.routeMetadata?.responses?.sort(), ["APIErrorResponse"]);
         assert.deepEqual(
             contract?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
-            [200, 401, 403, 404],
+            [204, 401, 404],
         );
 
         assert.equal(JSON.stringify(suiteCoverage).includes(coveredManifestId), true);
-        assert.equal(hasMissingRoute(missingRoutes, "GET", "/guilds/{param}/requests"), false);
         assert.equal(hasMissingRoute(missingRoutes, "GET", "/guilds/{param}/requests/@me"), false);
         assert.equal(hasMissingRoute(missingRoutes, "GET", "/guilds/{param}/requests/@me/cooldown"), true);
-        assert.equal(hasMissingRoute(missingRoutes, "PATCH", "/guilds/{param}/requests"), true);
-        assert.equal(hasMissingRoute(missingRoutes, "PATCH", "/guilds/{param}/requests/{param}"), true);
-        assert.equal(hasMissingRoute(missingRoutes, "PATCH", "/guilds/{param}/requests/id/{param}"), true);
+        assert.equal(hasMissingRoute(missingRoutes, "PATCH", "/guilds/{param}/requests/@me"), true);
         assert.equal(hasMissingRoute(missingRoutes, "POST", "/guilds/{param}/requests/@me"), true);
         assert.equal(hasMissingRoute(missingRoutes, "PUT", "/guilds/{param}/requests/@me"), true);
         assert.equal(hasMissingRoute(missingRoutes, "DELETE", "/guilds/{param}/requests/@me"), true);
+        assert.equal(hasMissingRoute(missingRoutes, "GET", "/guilds/{param}/requests"), false);
         assert.equal(hasMissingRoute(missingRoutes, "GET", "/join-requests/{param}"), true);
     });
 });
@@ -223,17 +182,6 @@ function createRepositories({
             },
         },
     };
-}
-
-function mockPermissions(t: TestContext, hasManageGuild: boolean, permissionLookups: unknown[][] = []) {
-    const permissionsModule = requireModule(join(process.cwd(), "dist", "util", "util", "Permissions.js")) as typeof import("../../src/util/util/Permissions");
-
-    t.mock.method(permissionsModule, "getPermission", async (...args: unknown[]) => {
-        permissionLookups.push(args);
-        return {
-            has: () => hasManageGuild,
-        } as never;
-    });
 }
 
 function createAuthenticatedRouteApp(repositories: GuildJoinRequestsRepositories) {
@@ -297,17 +245,6 @@ function readJson<T>(filename: string): T {
 function hasMissingRoute(report: MissingRoutesReport, method: string, route: string): boolean {
     return report.missing_entries.some((entry) => entry.method === method && entry.route === route);
 }
-
-type JsonSchema = {
-    $ref?: string;
-    type?: string | string[];
-    enum?: unknown[];
-    items?: JsonSchema;
-    properties?: Record<string, JsonSchema>;
-    required?: string[];
-};
-
-type SchemaMap = Record<string, JsonSchema>;
 
 type OpenApi = {
     paths?: Record<
