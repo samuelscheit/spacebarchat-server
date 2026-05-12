@@ -2862,6 +2862,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"CurrentGuildMemberResponse"
+		],
+		"route": "/guilds/{guild_id}/members/@me",
+		"route_name": "GET_GUILDS_GUILD_ID_MEMBERS__ME",
+		"source": "src/api/routes/guilds/#guild_id/members/@me.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"APIMemberArray"
 		],
 		"route": "/guilds/{guild_id}/members/search",

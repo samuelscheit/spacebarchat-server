@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 526,
+        "totalCoveredManifestEntries": 527,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 504,
-                "totalCoveredManifestEntries": 504,
-                "totalCoveredRequiredManifestEntries": 504,
+                "totalRequiredManifestEntries": 505,
+                "totalCoveredManifestEntries": 505,
+                "totalCoveredRequiredManifestEntries": 505,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 364,
+            "stateful-domain": 365,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 504,
-                "totalCoveredManifestEntries": 504,
-                "totalCoveredRequiredManifestEntries": 504,
+                "totalRequiredManifestEntries": 505,
+                "totalCoveredManifestEntries": 505,
+                "totalCoveredRequiredManifestEntries": 505,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -247,6 +247,7 @@
                 "api:http:GET:/guilds/:guild_id/member-verification/",
                 "api:http:GET:/guilds/:guild_id/members/",
                 "api:http:GET:/guilds/:guild_id/members/:member_id/",
+                "api:http:GET:/guilds/:guild_id/members/@me/",
                 "api:http:GET:/guilds/:guild_id/members/search/",
                 "api:http:GET:/guilds/:guild_id/messages/search/",
                 "api:http:GET:/guilds/:guild_id/new-member-welcome/",
@@ -753,6 +754,7 @@
                 "api:http:GET:/guilds/:guild_id/member-verification/",
                 "api:http:GET:/guilds/:guild_id/members/",
                 "api:http:GET:/guilds/:guild_id/members/:member_id/",
+                "api:http:GET:/guilds/:guild_id/members/@me/",
                 "api:http:GET:/guilds/:guild_id/members/search/",
                 "api:http:GET:/guilds/:guild_id/messages/search/",
                 "api:http:GET:/guilds/:guild_id/new-member-welcome/",
@@ -1312,6 +1314,7 @@
                         "api:http:GET:/guilds/:guild_id/member-verification/",
                         "api:http:GET:/guilds/:guild_id/members/",
                         "api:http:GET:/guilds/:guild_id/members/:member_id/",
+                        "api:http:GET:/guilds/:guild_id/members/@me/",
                         "api:http:GET:/guilds/:guild_id/members/search/",
                         "api:http:GET:/guilds/:guild_id/messages/search/",
                         "api:http:GET:/guilds/:guild_id/new-member-welcome/",
