@@ -1,6 +1,6 @@
 {
-    "missing": 544,
-    "spacebar": 636,
+    "missing": 543,
+    "spacebar": 637,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1039,14 +1039,6 @@
             "sources": ["userdoccers:resources/store.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/applications/{application_id}/store-layout"],
             "summaries": ["Get Application Store Layout"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/users/{param}/identities/{param}/profile",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_USERS_USER_ID_IDENTITIES_EXTERNAL_USER_ID_PROFILE",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/users/{user_id}/identities/{external_user_id}/profile"],
-            "summaries": ["Get User Application Profile"]
         },
         {
             "method": "GET",

@@ -541,6 +541,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"UserApplicationProfileResponse"
+		],
+		"route": "/applications/{application_id}/users/{user_id}/identities/{external_user_id}/profile",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_USERS_USER_ID_IDENTITIES_EXTERNAL_USER_ID_PROFILE",
+		"source": "src/api/routes/applications/#application_id/users/#user_id/identities/#external_user_id/profile.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"APIErrorResponse"
 		],
 		"route": "/applications/{application_id}/verification",

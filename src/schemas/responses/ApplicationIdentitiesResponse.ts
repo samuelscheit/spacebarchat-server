@@ -9,7 +9,7 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
@@ -70,6 +70,22 @@ export interface PartialUserApplicationProfileResponse {
     data?: UserApplicationIdentityProfileDataResponse;
     data_trusted?: boolean;
     connection_visible: boolean;
+}
+
+export interface UserApplicationProfileExternalIdResponse {
+    provider_type: string;
+    provider_issued_user_id: string;
+    provider_id?: string | null;
+    preferred_global_name?: string | null;
+}
+
+export interface UserApplicationProfileResponse {
+    username: string | null;
+    metadata: string | null;
+    data?: UserApplicationIdentityProfileDataResponse | null;
+    data_trusted?: boolean | null;
+    external_id: UserApplicationProfileExternalIdResponse;
+    avatar_hash: string | null;
 }
 
 export interface UserApplicationIdentityResponse {

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 570,
+        "totalCoveredManifestEntries": 571,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 548,
-                "totalCoveredManifestEntries": 548,
-                "totalCoveredRequiredManifestEntries": 548,
+                "totalRequiredManifestEntries": 549,
+                "totalCoveredManifestEntries": 549,
+                "totalCoveredRequiredManifestEntries": 549,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 407,
+            "stateful-domain": 408,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 548,
-                "totalCoveredManifestEntries": 548,
-                "totalCoveredRequiredManifestEntries": 548,
+                "totalRequiredManifestEntries": 549,
+                "totalCoveredManifestEntries": 549,
+                "totalCoveredRequiredManifestEntries": 549,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -146,6 +146,7 @@
                 "api:http:GET:/applications/:application_id/rpc/",
                 "api:http:GET:/applications/:application_id/skus/",
                 "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
+                "api:http:GET:/applications/:application_id/users/:user_id/identities/:external_user_id/profile/",
                 "api:http:GET:/applications/:application_id/verification/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -696,6 +697,7 @@
                 "api:http:GET:/applications/:application_id/rpc/",
                 "api:http:GET:/applications/:application_id/skus/",
                 "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
+                "api:http:GET:/applications/:application_id/users/:user_id/identities/:external_user_id/profile/",
                 "api:http:GET:/applications/:application_id/verification/",
                 "api:http:GET:/applications/@me/",
                 "api:http:GET:/applications/detectable/",
@@ -1701,6 +1703,7 @@
                         "api:http:GET:/applications/:application_id/rpc/",
                         "api:http:GET:/applications/:application_id/skus/",
                         "api:http:GET:/applications/:application_id/subscription-group-listings/:subscription_group_listing_id/",
+                        "api:http:GET:/applications/:application_id/users/:user_id/identities/:external_user_id/profile/",
                         "api:http:GET:/applications/:application_id/verification/",
                         "api:http:GET:/applications/@me/",
                         "api:http:GET:/applications/detectable/",

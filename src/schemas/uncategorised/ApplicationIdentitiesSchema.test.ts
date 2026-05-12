@@ -9,7 +9,7 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
@@ -82,5 +82,46 @@ describe("UserApplicationIdentitiesResponse", () => {
     test("rejects non-object user application identity responses", () => {
         assert.equal(ajv.validate("UserApplicationIdentitiesResponse", []), false);
         assert.equal(ajv.validate("UserApplicationIdentitiesResponse", { identities: [{ provider_issued_user_id: "external-user" }] }), false);
+    });
+});
+
+describe("UserApplicationProfileResponse", () => {
+    test("accepts the documented gateway user application profile shape", () => {
+        assert.equal(
+            ajv.validate("UserApplicationProfileResponse", {
+                username: null,
+                metadata: "",
+                data: {
+                    primary: {
+                        season: "Season 5.0",
+                        playtime_hours: 2.29,
+                    },
+                },
+                data_trusted: true,
+                external_id: {
+                    provider_type: "UNITY",
+                    provider_issued_user_id: "external-user",
+                    provider_id: "identity-provider-client",
+                    preferred_global_name: null,
+                },
+                avatar_hash: null,
+            }),
+            true,
+            JSON.stringify(ajv.errors),
+        );
+    });
+
+    test("rejects profiles without a provider-issued external id", () => {
+        assert.equal(
+            ajv.validate("UserApplicationProfileResponse", {
+                username: null,
+                metadata: "",
+                external_id: {
+                    provider_type: "UNITY",
+                },
+                avatar_hash: null,
+            }),
+            false,
+        );
     });
 });

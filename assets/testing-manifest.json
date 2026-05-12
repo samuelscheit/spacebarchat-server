@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 741,
+        "totalEntries": 742,
         "byService": {
-            "api": 644,
+            "api": 645,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 716,
+            "http-route": 717,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 182,
-            "stateful-domain": 407,
+            "stateful-domain": 408,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 599,
+            "route-class": 600,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2293,6 +2293,48 @@
                     200,
                     401,
                     403,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/applications/:application_id/users/:user_id/identities/:external_user_id/profile/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/applications/:application_id/users/:user_id/identities/:external_user_id/profile/",
+            "sourceFile": "src/api/routes/applications/#application_id/users/#user_id/identities/#external_user_id/profile.ts",
+            "line": 88,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UserApplicationProfileResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
                     404
                 ],
                 "hasQuery": false
