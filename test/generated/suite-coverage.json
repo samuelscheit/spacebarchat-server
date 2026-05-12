@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 574,
+        "totalCoveredManifestEntries": 575,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 552,
-                "totalCoveredManifestEntries": 552,
-                "totalCoveredRequiredManifestEntries": 552,
+                "totalRequiredManifestEntries": 553,
+                "totalCoveredManifestEntries": 553,
+                "totalCoveredRequiredManifestEntries": 553,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 411,
+            "stateful-domain": 412,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 552,
-                "totalCoveredManifestEntries": 552,
-                "totalCoveredRequiredManifestEntries": 552,
+                "totalRequiredManifestEntries": 553,
+                "totalCoveredManifestEntries": 553,
+                "totalCoveredRequiredManifestEntries": 553,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -120,6 +120,7 @@
                 "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
                 "api:http:DELETE:/users/@me/devices/",
                 "api:http:DELETE:/users/@me/guilds/:guild_id",
+                "api:http:DELETE:/users/@me/linked-users/",
                 "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
                 "api:http:DELETE:/users/@me/phone/",
                 "api:http:DELETE:/users/@me/relationships/:user_id",
@@ -674,6 +675,7 @@
                 "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
                 "api:http:DELETE:/users/@me/devices/",
                 "api:http:DELETE:/users/@me/guilds/:guild_id",
+                "api:http:DELETE:/users/@me/linked-users/",
                 "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
                 "api:http:DELETE:/users/@me/phone/",
                 "api:http:DELETE:/users/@me/relationships/:user_id",
@@ -1248,6 +1250,7 @@
                         "api:http:DELETE:/users/@me/connections/:connection_name/:connection_id/",
                         "api:http:DELETE:/users/@me/devices/",
                         "api:http:DELETE:/users/@me/guilds/:guild_id",
+                        "api:http:DELETE:/users/@me/linked-users/",
                         "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
                         "api:http:DELETE:/users/@me/phone/",
                         "api:http:DELETE:/users/@me/relationships/:user_id",

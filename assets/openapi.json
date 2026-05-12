@@ -39757,6 +39757,40 @@
                 "tags": [
                     "users"
                 ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Disconnects Family Center linked-user relationships for the current user. Spacebar does not persist Discord Family Center links, so deletion fails closed instead of mutating unrelated user relationships or account data.",
+                "summary": "Delete Linked Users",
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
             }
         },
         "/users/@me/linked-connections/": {

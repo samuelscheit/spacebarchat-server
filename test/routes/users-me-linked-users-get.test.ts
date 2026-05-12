@@ -22,11 +22,13 @@ import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { describe, test } from "node:test";
+import { DiscordApiErrors } from "@spacebar/util";
 import express from "express";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "../../src/api/middlewares";
-import linkedUsersRouter, { buildFamilyCenterLinkedUsersResponse } from "../../src/api/routes/users/@me/linked-users";
+import linkedUsersRouter, { buildFamilyCenterLinkedUsersResponse, getFamilyCenterLinkedUserDeletionUnavailableError } from "../../src/api/routes/users/@me/linked-users";
 
-const manifestId = "api:http:GET:/users/@me/linked-users/";
+const getManifestId = "api:http:GET:/users/@me/linked-users/";
+const deleteManifestId = "api:http:DELETE:/users/@me/linked-users/";
 
 type JsonSchema = {
     $ref?: string;
@@ -52,7 +54,7 @@ describe("GET /users/@me/linked-users", () => {
         });
     });
 
-    test("stays behind bearer authentication and leaves linked-user mutations unimplemented", async () => {
+    test("stays behind bearer authentication and leaves POST/PATCH linked-user mutations unimplemented", async () => {
         assert.equal(isNoAuthorizationRoute("GET", "/users/@me/linked-users"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/users/@me/linked-users"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/users/@me/linked-users"), false);
@@ -65,12 +67,28 @@ describe("GET /users/@me/linked-users", () => {
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.doesNotMatch(routeSource, /router\.post\(/);
         assert.doesNotMatch(routeSource, /router\.patch\(/);
-        assert.doesNotMatch(routeSource, /router\.delete\(/);
+        assert.match(routeSource, /router\.delete\(/);
+        assert.match(routeSource, /summary:\s*"Delete Linked Users"/);
 
         const response = await requestJson(createRouteApp({ authentication: true }), "/users/@me/linked-users");
+        const deleteResponse = await requestJson(createRouteApp({ authentication: true }), "/users/@me/linked-users", { method: "DELETE" });
 
         assert.equal(response.status, 401);
         assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(deleteResponse.status, 401);
+        assert.match((deleteResponse.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+    });
+
+    test("fails closed for deletion while durable Family Center links are unsupported", async () => {
+        assert.equal(getFamilyCenterLinkedUserDeletionUnavailableError(), DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED);
+
+        const response = await requestJson(createRouteApp(), "/users/@me/linked-users", { method: "DELETE" });
+
+        assert.equal(response.status, DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED.httpStatus);
+        assert.deepEqual(response.body, {
+            code: DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED.code,
+            message: DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED.message,
+        });
     });
 
     test("is present in regenerated schemas, route artifacts, contracts, and suite coverage", () => {
@@ -83,9 +101,12 @@ describe("GET /users/@me/linked-users", () => {
                         responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
                         security?: unknown;
                     };
+                    delete?: {
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                        security?: unknown;
+                    };
                     post?: unknown;
                     patch?: unknown;
-                    delete?: unknown;
                 }
             >;
         }>(path.join("assets", "openapi.json"));
@@ -135,9 +156,11 @@ describe("GET /users/@me/linked-users", () => {
         assert.deepEqual(openapiRoute?.get?.security, [{ bearer: [] }]);
         assert.equal(openapiRoute?.get?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/FamilyCenterLinkedUsersResponse");
         assert.equal(openapiRoute?.get?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(openapiRoute?.delete?.security, [{ bearer: [] }]);
+        assert.equal(openapiRoute?.delete?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(openapiRoute?.delete?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(openapiRoute?.post, undefined);
         assert.equal(openapiRoute?.patch, undefined);
-        assert.equal(openapiRoute?.delete, undefined);
 
         assert.deepEqual(
             sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/users/@me/linked-users"),
@@ -146,6 +169,16 @@ describe("GET /users/@me/linked-users", () => {
                 response_schema_refs: ["APIErrorResponse", "FamilyCenterLinkedUsersResponse"],
                 route: "/users/@me/linked-users",
                 route_name: "GET_USERS__ME_LINKED_USERS",
+                source: "src/api/routes/users/@me/linked-users.ts",
+            },
+        );
+        assert.deepEqual(
+            sourceCatalog.find((entry) => entry.method === "DELETE" && entry.route === "/users/@me/linked-users"),
+            {
+                method: "DELETE",
+                response_schema_refs: ["APIErrorResponse"],
+                route: "/users/@me/linked-users",
+                route_name: "DELETE_USERS__ME_LINKED_USERS",
                 source: "src/api/routes/users/@me/linked-users.ts",
             },
         );
@@ -164,29 +197,48 @@ describe("GET /users/@me/linked-users", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "DELETE" && entry.route === "/users/@me/linked-users"),
-            true,
+            false,
         );
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === manifestId);
-        assert.equal(manifestEntry?.authMode, "bearer");
-        assert.equal(manifestEntry?.sourceFile, "src/api/routes/users/@me/linked-users.ts");
-        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse", "FamilyCenterLinkedUsersResponse"]);
+        const getManifestEntry = manifest.entries?.find((entry) => entry.id === getManifestId);
+        assert.equal(getManifestEntry?.authMode, "bearer");
+        assert.equal(getManifestEntry?.sourceFile, "src/api/routes/users/@me/linked-users.ts");
+        assert.deepEqual(getManifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse", "FamilyCenterLinkedUsersResponse"]);
         assert.deepEqual(
-            manifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            getManifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
             [200, 401],
         );
 
-        const contract = contracts.contracts?.find((entry) => entry.manifestId === manifestId);
-        assert.equal(contract?.authMode, "bearer");
-        assert.equal(contract?.path, "/users/@me/linked-users/");
-        assert.deepEqual(contract?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "FamilyCenterLinkedUsersResponse"]);
+        const deleteManifestEntry = manifest.entries?.find((entry) => entry.id === deleteManifestId);
+        assert.equal(deleteManifestEntry?.authMode, "bearer");
+        assert.equal(deleteManifestEntry?.sourceFile, "src/api/routes/users/@me/linked-users.ts");
+        assert.deepEqual(deleteManifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse"]);
         assert.deepEqual(
-            contract?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            deleteManifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            [400, 401],
+        );
+
+        const getContract = contracts.contracts?.find((entry) => entry.manifestId === getManifestId);
+        assert.equal(getContract?.authMode, "bearer");
+        assert.equal(getContract?.path, "/users/@me/linked-users/");
+        assert.deepEqual(getContract?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "FamilyCenterLinkedUsersResponse"]);
+        assert.deepEqual(
+            getContract?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
             [200, 401],
+        );
+
+        const deleteContract = contracts.contracts?.find((entry) => entry.manifestId === deleteManifestId);
+        assert.equal(deleteContract?.authMode, "bearer");
+        assert.equal(deleteContract?.path, "/users/@me/linked-users/");
+        assert.deepEqual(deleteContract?.routeMetadata?.responses?.sort(), ["APIErrorResponse"]);
+        assert.deepEqual(
+            deleteContract?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            [400, 401],
         );
 
         const usersSuite = suiteCoverage.groups?.flatMap((group) => group.suites ?? []).find((suite) => suite.id === "users");
-        assert.ok(usersSuite?.manifestIds?.includes(manifestId));
+        assert.ok(usersSuite?.manifestIds?.includes(getManifestId));
+        assert.ok(usersSuite?.manifestIds?.includes(deleteManifestId));
         assert.ok(usersSuite?.testFiles?.includes("test/scenarios/users-profile-settings.test.ts"));
     });
 });
@@ -212,10 +264,10 @@ function readJson<T>(relativePath: string): T {
     return JSON.parse(readFileSync(path.join(process.cwd(), relativePath), "utf-8")) as T;
 }
 
-async function requestJson(app: express.Express, requestPath: string): Promise<{ status: number; body: unknown }> {
+async function requestJson(app: express.Express, requestPath: string, options: { method?: string } = {}): Promise<{ status: number; body: unknown }> {
     const { server, baseUrl } = await listen(app);
     try {
-        const response = await fetch(`${baseUrl}${requestPath}`);
+        const response = await fetch(`${baseUrl}${requestPath}`, { method: options.method });
 
         return {
             status: response.status,

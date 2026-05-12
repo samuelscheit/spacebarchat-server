@@ -1,6 +1,6 @@
 {
-    "missing": 540,
-    "spacebar": 640,
+    "missing": 539,
+    "spacebar": 641,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -847,7 +847,6 @@
             "summaries": ["Revoke User Invites"]
         },
         { "method": "DELETE", "route": "/users/@me/library/{param}/{param}", "route_name": "LIBRARY_APPLICATION_BRANCH", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "DELETE", "route": "/users/@me/linked-users", "route_name": "FAMILY_CENTER_LINKED_USERS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "DELETE",
             "route": "/users/@me/mentions/{param}",

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 745,
+        "totalEntries": 746,
         "byService": {
-            "api": 648,
+            "api": 649,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 720,
+            "http-route": 721,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 182,
-            "stateful-domain": 411,
+            "stateful-domain": 412,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 603,
+            "route-class": 604,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -25322,13 +25322,52 @@
             }
         },
         {
+            "id": "api:http:DELETE:/users/@me/linked-users/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/users/@me/linked-users/",
+            "sourceFile": "src/api/routes/users/@me/linked-users.ts",
+            "line": 58,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/linked-users/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/users/@me/linked-users/",
             "sourceFile": "src/api/routes/users/@me/linked-users.ts",
-            "line": 35,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

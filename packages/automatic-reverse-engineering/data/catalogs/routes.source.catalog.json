@@ -5511,6 +5511,15 @@
 		"source": "src/api/routes/users/@me/linked-connections.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/linked-users",
+		"route_name": "DELETE_USERS__ME_LINKED_USERS",
+		"source": "src/api/routes/users/@me/linked-users.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

@@ -18,6 +18,7 @@
 
 import { route } from "@spacebar/api";
 import type { FamilyCenterLinkedUsersResponse } from "@spacebar/schemas";
+import { DiscordApiErrors } from "@spacebar/util";
 import { type Request, type Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
@@ -30,6 +31,10 @@ export function buildFamilyCenterLinkedUsersResponse(userId: string): FamilyCent
         linked_users: [],
         users: [],
     };
+}
+
+export function getFamilyCenterLinkedUserDeletionUnavailableError() {
+    return DiscordApiErrors.FEATURE_TEMPORARILY_DISABLED;
 }
 
 router.get(
@@ -48,6 +53,26 @@ router.get(
         },
     }),
     (req: Request, res: Response) => res.status(200).json(buildFamilyCenterLinkedUsersResponse(req.user_id)),
+);
+
+router.delete(
+    "/",
+    route({
+        summary: "Delete Linked Users",
+        description:
+            "Disconnects Family Center linked-user relationships for the current user. Spacebar does not persist Discord Family Center links, so deletion fails closed instead of mutating unrelated user relationships or account data.",
+        responses: {
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (_req: Request, _res: Response) => {
+        throw getFamilyCenterLinkedUserDeletionUnavailableError();
+    },
 );
 
 export default router;
