@@ -2147,6 +2147,15 @@
 		"source": "src/api/routes/entitlements/gift-codes/#gift_code_code.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/entitlements/partner-promotions/{param}",
+		"route_name": "POST_ENTITLEMENTS_PARTNER_PROMOTIONS_PARAM",
+		"source": "src/api/routes/entitlements/partner-promotions/#param.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"ExperimentsResponse"

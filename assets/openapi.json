@@ -59847,6 +59847,53 @@
                 ]
             }
         },
+        "/entitlements/partner-promotions/{param}/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Claims a partner promotion for the authenticated user. Spacebar does not currently persist partner-promotion entitlement state or integrate with a partner promotion provider, so this compatibility endpoint fails closed instead of fabricating an entitlement.",
+                "summary": "Claim Partner Promotion",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "param",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "param"
+                    }
+                ],
+                "tags": [
+                    "entitlements"
+                ]
+            }
+        },
         "/entitlements/gift-codes/{gift_code_code}/": {
             "get": {
                 "description": "Returns a gift code object for the given code.",
