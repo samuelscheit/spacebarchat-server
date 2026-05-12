@@ -73,3 +73,7 @@ No payment-source mutation, payments, subscriptions, checkout recovery, Stripe p
 - `npm ci` installed local `node_modules` because the assigned worktree had no dependencies and `tsgo` was missing.
 - Package and lockfile guard passed with no `package.json` or `package-lock.json` changes.
 - `git diff --check` passed.
+- Current-base reconciliation after `29619d427` regenerated manifest,
+  missing-route, contract, and suite summary fields on main. The assigned route
+  is still removed and the current report is `548` missing / `632` implemented /
+  `1128` Discord.
