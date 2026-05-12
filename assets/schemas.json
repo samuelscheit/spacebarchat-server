@@ -14231,6 +14231,26 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserSurveyResponse": {
+        "type": "object",
+        "properties": {
+            "survey": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/UserSurvey"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "survey"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "VirtualCurrencyBalanceResponse": {
         "type": "object",
         "properties": {
@@ -35838,6 +35858,61 @@
             "description",
             "icon",
             "id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserSurvey": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "key": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "prompt": {
+                "type": "string"
+            },
+            "cta": {
+                "type": "string"
+            },
+            "url": {
+                "type": "string"
+            },
+            "guild_requirements": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "guild_size": {
+                "type": "array",
+                "items": {
+                    "type": [
+                        "null",
+                        "integer"
+                    ]
+                }
+            },
+            "guild_permissions": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "cta",
+            "guild_permissions",
+            "guild_requirements",
+            "guild_size",
+            "id",
+            "key",
+            "prompt",
+            "url"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

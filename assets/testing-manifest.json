@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 711,
+        "totalEntries": 712,
         "byService": {
-            "api": 614,
+            "api": 615,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 686,
+            "http-route": 687,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 176,
-            "stateful-domain": 383,
+            "stateful-domain": 384,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 569,
+            "route-class": 570,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15362,7 +15362,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users/counts",
             "sourceFile": "src/api/routes/guilds/#guild_id/scheduled-events/index.ts",
-            "line": 167,
+            "line": 158,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -15414,7 +15414,7 @@
             "method": "GET",
             "path": "/guilds/:guild_id/scheduled-events/",
             "sourceFile": "src/api/routes/guilds/#guild_id/scheduled-events/index.ts",
-            "line": 132,
+            "line": 123,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -25442,6 +25442,46 @@
                 "emittedEvents": [
                     "PRESENCE_UPDATE"
                 ]
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/survey/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/survey/",
+            "sourceFile": "src/api/routes/users/@me/survey.ts",
+            "line": 32,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UserSurveyResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": true
             },
             "coverage": {
                 "policyId": "api-user-state",

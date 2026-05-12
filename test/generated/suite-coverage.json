@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 546,
+        "totalCoveredManifestEntries": 547,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 524,
-                "totalCoveredManifestEntries": 524,
-                "totalCoveredRequiredManifestEntries": 524,
+                "totalRequiredManifestEntries": 525,
+                "totalCoveredManifestEntries": 525,
+                "totalCoveredRequiredManifestEntries": 525,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 383,
+            "stateful-domain": 384,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 524,
-                "totalCoveredManifestEntries": 524,
-                "totalCoveredRequiredManifestEntries": 524,
+                "totalRequiredManifestEntries": 525,
+                "totalCoveredManifestEntries": 525,
+                "totalCoveredRequiredManifestEntries": 525,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -369,6 +369,7 @@
                 "api:http:GET:/users/@me/settings-proto/2/",
                 "api:http:GET:/users/@me/settings-proto/2/json",
                 "api:http:GET:/users/@me/settings/",
+                "api:http:GET:/users/@me/survey/",
                 "api:http:GET:/users/@me/valid-collectibles-gift-recipient/",
                 "api:http:GET:/users/@me/valid-collectibles-gift-recipients-batch/",
                 "api:http:GET:/users/@me/virtual-currency/balance/",
@@ -895,6 +896,7 @@
                 "api:http:GET:/users/@me/settings-proto/2/",
                 "api:http:GET:/users/@me/settings-proto/2/json",
                 "api:http:GET:/users/@me/settings/",
+                "api:http:GET:/users/@me/survey/",
                 "api:http:GET:/users/@me/valid-collectibles-gift-recipient/",
                 "api:http:GET:/users/@me/valid-collectibles-gift-recipients-batch/",
                 "api:http:GET:/users/@me/virtual-currency/balance/",
@@ -1252,6 +1254,7 @@
                         "api:http:GET:/users/@me/settings-proto/2/",
                         "api:http:GET:/users/@me/settings-proto/2/json",
                         "api:http:GET:/users/@me/settings/",
+                        "api:http:GET:/users/@me/survey/",
                         "api:http:GET:/users/@me/valid-collectibles-gift-recipient/",
                         "api:http:GET:/users/@me/valid-collectibles-gift-recipients-batch/",
                         "api:http:GET:/users/@me/virtual-currency/balance/",

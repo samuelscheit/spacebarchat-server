@@ -1,6 +1,6 @@
 {
-    "missing": 574,
-    "spacebar": 606,
+    "missing": 573,
+    "spacebar": 607,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -436,7 +436,6 @@
         "/users/@me/scheduled-messages",
         "/users/@me/scheduled-messages/{param}",
         "/users/@me/settings-proto/{param}",
-        "/users/@me/survey",
         "/users/@me/survey/{param}/seen",
         "/users/@me/update-league-of-legends-leaderboard",
         "/users/@me/video-filters/assets",
@@ -1679,13 +1678,6 @@
             "sources": ["userdoccers:resources/user-settings-proto.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/users/@me/settings-proto/{user_settings_proto_type}"],
             "summaries": ["Get User Settings Proto"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/survey",
-            "route_name": "GET_USERS__ME_SURVEY",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Survey"]
         },
         { "method": "GET", "route": "/users/@me/video-filters/assets", "route_name": "VIDEO_FILTER_ASSETS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "GET", "route": "/users/disable-email-notifications", "route_name": "DISABLE_EMAIL_NOTIFICATIONS", "sources": ["xhyrom:data/client/routes.json"] },

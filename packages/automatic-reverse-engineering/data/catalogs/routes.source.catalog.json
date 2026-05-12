@@ -5566,6 +5566,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"UserSurveyResponse"
+		],
+		"route": "/users/@me/survey",
+		"route_name": "GET_USERS__ME_SURVEY",
+		"source": "src/api/routes/users/@me/survey.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"CollectiblesGiftRecipientEligibilityResponse"
 		],
 		"route": "/users/@me/valid-collectibles-gift-recipient",

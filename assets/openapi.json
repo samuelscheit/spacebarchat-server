@@ -13477,6 +13477,24 @@
                     "user_profile"
                 ]
             },
+            "UserSurveyResponse": {
+                "type": "object",
+                "properties": {
+                    "survey": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/UserSurvey"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "survey"
+                ]
+            },
             "VirtualCurrencyBalanceResponse": {
                 "type": "object",
                 "properties": {
@@ -34015,6 +34033,59 @@
                     "id"
                 ]
             },
+            "UserSurvey": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "key": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "prompt": {
+                        "type": "string"
+                    },
+                    "cta": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    },
+                    "guild_requirements": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "guild_size": {
+                        "type": "array",
+                        "items": {
+                            "type": [
+                                "null",
+                                "integer"
+                            ]
+                        }
+                    },
+                    "guild_permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "cta",
+                    "guild_permissions",
+                    "guild_requirements",
+                    "guild_size",
+                    "id",
+                    "key",
+                    "prompt",
+                    "url"
+                ]
+            },
             "XboxPresenceVoiceGuild": {
                 "type": "object",
                 "properties": {
@@ -37241,6 +37312,60 @@
                             "type": "array"
                         },
                         "description": "Collectible SKU IDs to check for gift eligibility (1-100)."
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/survey/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's active survey. Spacebar does not persist Discord's private survey eligibility or survey prompt state, so it returns no active survey instead of fabricating prompt metadata.",
+                "summary": "Get User Survey",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserSurveyResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "disable_auto_seen",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "description": "Whether to prevent automatically marking the survey as seen."
+                    },
+                    {
+                        "name": "survey_override",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Discord employee-only survey override ID. Ignored by Spacebar because local survey override state is unsupported."
                     }
                 ],
                 "tags": [
