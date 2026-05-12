@@ -19,6 +19,7 @@ export * from "./AIFixGrammarSchema";
 export * from "./ActivitySessionUpdateSchema";
 export * from "./ActivitySchema";
 export * from "./AgeVerificationVerifySchema";
+export * from "./ApplicationBranchesSchema";
 export * from "./ApplicationEmojiModifySchema";
 export * from "./ApplicationIdentitiesSchema";
 export * from "./ApplicationAuthorizeSchema";

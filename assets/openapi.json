@@ -654,6 +654,25 @@
             "AgeVerificationVerifySchema": {
                 "type": "object"
             },
+            "ApplicationBranchesSchema": {
+                "type": "object",
+                "properties": {
+                    "branch_ids": {
+                        "minItems": 1,
+                        "maxItems": 100,
+                        "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 20,
+                            "pattern": "^\\d{1,20}$"
+                        },
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "branch_ids"
+                ]
+            },
             "ApplicationEmojiModifySchema": {
                 "type": "object",
                 "properties": {
@@ -37180,6 +37199,9 @@
             "name": "bogo-promotions"
         },
         {
+            "name": "branches"
+        },
+        {
             "name": "channels"
         },
         {
@@ -68033,6 +68055,62 @@
                 ],
                 "tags": [
                     "channels"
+                ]
+            }
+        },
+        "/branches/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns branch records for requested application branch IDs. Spacebar does not currently persist application branch build metadata, so the default provider returns no branch records.",
+                "summary": "Get Application Branch Live Build IDs",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ApplicationBranchesSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationBranchesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "branches"
                 ]
             }
         },

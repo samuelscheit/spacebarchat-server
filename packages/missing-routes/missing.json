@@ -1,6 +1,6 @@
 {
-    "missing": 516,
-    "spacebar": 664,
+    "missing": 515,
+    "spacebar": 665,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -61,7 +61,6 @@
         "/billing/apple/jwt-token",
         "/billing/popup-bridge/{param}/callback/{param}/{param}",
         "/billing/verify-purchase-request",
-        "/branches",
         "/captcha/decider",
         "/channels/preload-messages",
         "/channels/recipients/@me/batch-reject",
@@ -2167,7 +2166,6 @@
             "sources": ["userdoccers:resources/payment.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Verify Purchase Request"]
         },
-        { "method": "POST", "route": "/branches", "route_name": "APPLICATION_BRANCHES", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/captcha/decider", "route_name": "CAPTCHA_TEST", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "POST",

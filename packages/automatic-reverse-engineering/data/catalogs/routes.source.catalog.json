@@ -945,6 +945,17 @@
 		"source": "src/api/routes/bogo-promotions.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "ApplicationBranchesSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationBranchesResponse"
+		],
+		"route": "/branches",
+		"route_name": "POST_BRANCHES",
+		"source": "src/api/routes/branches.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"Channel"

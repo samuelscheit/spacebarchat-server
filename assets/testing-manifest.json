@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 769,
+        "totalEntries": 770,
         "byService": {
-            "api": 672,
+            "api": 673,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 744,
+            "http-route": 745,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 193,
+            "contract": 194,
             "stateful-domain": 423,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 626,
+            "route-class": 627,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -4051,6 +4051,44 @@
                     401
                 ],
                 "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/branches/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/branches/",
+            "sourceFile": "src/api/routes/branches.ts",
+            "line": 71,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "ApplicationBranchesSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationBranchesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-public-contract",
