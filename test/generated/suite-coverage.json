@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 559,
+        "totalCoveredManifestEntries": 560,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 537,
-                "totalCoveredManifestEntries": 537,
-                "totalCoveredRequiredManifestEntries": 537,
+                "totalRequiredManifestEntries": 538,
+                "totalCoveredManifestEntries": 538,
+                "totalCoveredRequiredManifestEntries": 538,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 396,
+            "stateful-domain": 397,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 537,
-                "totalCoveredManifestEntries": 537,
-                "totalCoveredRequiredManifestEntries": 537,
+                "totalRequiredManifestEntries": 538,
+                "totalCoveredManifestEntries": 538,
+                "totalCoveredRequiredManifestEntries": 538,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -371,6 +371,7 @@
                 "api:http:GET:/users/@me/outbound-promotions/codes/",
                 "api:http:GET:/users/@me/pomelo-suggestions/",
                 "api:http:GET:/users/@me/premium-usage/",
+                "api:http:GET:/users/@me/referrals/eligibility/",
                 "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                 "api:http:GET:/users/@me/relationships/",
                 "api:http:GET:/users/@me/scheduled-events/",
@@ -910,6 +911,7 @@
                 "api:http:GET:/users/@me/outbound-promotions/codes/",
                 "api:http:GET:/users/@me/pomelo-suggestions/",
                 "api:http:GET:/users/@me/premium-usage/",
+                "api:http:GET:/users/@me/referrals/eligibility/",
                 "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                 "api:http:GET:/users/@me/relationships/",
                 "api:http:GET:/users/@me/scheduled-events/",
@@ -1280,6 +1282,7 @@
                         "api:http:GET:/users/@me/outbound-promotions/codes/",
                         "api:http:GET:/users/@me/pomelo-suggestions/",
                         "api:http:GET:/users/@me/premium-usage/",
+                        "api:http:GET:/users/@me/referrals/eligibility/",
                         "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                         "api:http:GET:/users/@me/relationships/",
                         "api:http:GET:/users/@me/scheduled-events/",

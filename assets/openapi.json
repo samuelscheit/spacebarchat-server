@@ -11068,6 +11068,54 @@
                     "$ref": "#/components/schemas/PromotionMarketingComponentResponse"
                 }
             },
+            "PremiumReferralEligibilityResponse": {
+                "type": "object",
+                "properties": {
+                    "referrals_remaining": {
+                        "type": "integer"
+                    },
+                    "sent_user_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "refresh_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "has_eligible_friends": {
+                        "type": "boolean"
+                    },
+                    "recipient_status": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    },
+                    "is_eligible_for_incentive": {
+                        "type": "boolean"
+                    },
+                    "is_qualified_for_incentive": {
+                        "type": "boolean"
+                    },
+                    "referral_incentive_status": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "has_eligible_friends",
+                    "is_eligible_for_incentive",
+                    "is_qualified_for_incentive",
+                    "recipient_status",
+                    "referral_incentive_status",
+                    "referrals_remaining",
+                    "refresh_at",
+                    "sent_user_ids"
+                ]
+            },
             "PremiumReferralIncentiveEligibilityResponse": {
                 "type": "object",
                 "properties": {
@@ -38332,6 +38380,42 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PremiumReferralIncentiveEligibilityResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/referrals/eligibility/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns a premium referral eligibility object for the user without fabricating unsupported Nitro referral campaign state.",
+                "summary": "Get Premium Referral Eligibility",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PremiumReferralEligibilityResponse"
                                 }
                             }
                         }

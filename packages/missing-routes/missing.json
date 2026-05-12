@@ -1,6 +1,6 @@
 {
-    "missing": 561,
-    "spacebar": 619,
+    "missing": 560,
+    "spacebar": 620,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1598,13 +1598,6 @@
             "sources": ["userdoccers:resources/user-settings.mdx"],
             "source_routes": ["/users/@me/notification-settings/snapshots/{notification_settings_snapshot_id}"],
             "summaries": ["Delete Notification Settings Snapshot"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/referrals/eligibility",
-            "route_name": "GET_USERS__ME_REFERRALS_ELIGIBILITY",
-            "sources": ["userdoccers:resources/premium-referral.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Premium Referral Eligibility"]
         },
         {
             "method": "GET",

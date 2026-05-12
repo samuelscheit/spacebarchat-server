@@ -5498,6 +5498,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"PremiumReferralEligibilityResponse"
+		],
+		"route": "/users/@me/referrals/eligibility",
+		"route_name": "GET_USERS__ME_REFERRALS_ELIGIBILITY",
+		"source": "src/api/routes/users/@me/referrals/eligibility.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"PremiumReferralIncentiveEligibilityResponse"
 		],
 		"route": "/users/@me/referrals/incentive-eligibility",

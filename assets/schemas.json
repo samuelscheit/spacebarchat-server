@@ -11655,6 +11655,56 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PremiumReferralEligibilityResponse": {
+        "type": "object",
+        "properties": {
+            "referrals_remaining": {
+                "type": "integer"
+            },
+            "sent_user_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            },
+            "refresh_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "has_eligible_friends": {
+                "type": "boolean"
+            },
+            "recipient_status": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "integer"
+                }
+            },
+            "is_eligible_for_incentive": {
+                "type": "boolean"
+            },
+            "is_qualified_for_incentive": {
+                "type": "boolean"
+            },
+            "referral_incentive_status": {
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "has_eligible_friends",
+            "is_eligible_for_incentive",
+            "is_qualified_for_incentive",
+            "recipient_status",
+            "referral_incentive_status",
+            "referrals_remaining",
+            "refresh_at",
+            "sent_user_ids"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PremiumReferralIncentiveEligibilityResponse": {
         "type": "object",
         "properties": {
