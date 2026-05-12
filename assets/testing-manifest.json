@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 755,
+        "totalEntries": 756,
         "byService": {
-            "api": 658,
+            "api": 659,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 730,
+            "http-route": 731,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 185,
-            "stateful-domain": 418,
+            "stateful-domain": 419,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 613,
+            "route-class": 614,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -26748,13 +26748,53 @@
             }
         },
         {
+            "id": "api:http:PATCH:/users/@me/scheduled-messages/:param",
+            "type": "http-route",
+            "service": "api",
+            "method": "PATCH",
+            "path": "/users/@me/scheduled-messages/:param",
+            "sourceFile": "src/api/routes/users/@me/scheduled-messages.ts",
+            "line": 89,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    400,
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/scheduled-messages/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/users/@me/scheduled-messages/",
             "sourceFile": "src/api/routes/users/@me/scheduled-messages.ts",
-            "line": 43,
+            "line": 67,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

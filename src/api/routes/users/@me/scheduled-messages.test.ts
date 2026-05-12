@@ -21,12 +21,15 @@ import { readFileSync } from "node:fs";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { afterEach, describe, test, type TestContext } from "node:test";
+import { DiscordApiErrors } from "@spacebar/util";
 import express from "express";
+import { ErrorHandler } from "../../../middlewares/ErrorHandler";
 import { isNoAuthorizationRoute } from "../../../middlewares/NoAuthorizationRoutes";
 import type { UserScheduledMessagesDependencies } from "./scheduled-messages";
 
 const requireModule = require;
 const routeModulePath = require.resolve("./scheduled-messages");
+const patchCoveredManifestId = "api:http:PATCH:/users/@me/scheduled-messages/:param";
 
 function distModulePath(...segments: string[]) {
     return path.join(process.cwd(), "dist", ...segments);
@@ -53,6 +56,22 @@ describe("GET /users/@me/scheduled-messages", () => {
                 },
             },
         });
+        assert.deepEqual(routeOptions[1], {
+            summary: "Update User Scheduled Message",
+            description:
+                "Discord exposes this client route for mutating a current user's scheduled message. Spacebar does not currently persist user scheduled-message state, so this compatibility endpoint validates the route identifier and fails closed instead of fabricating or mutating message data.",
+            responses: {
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        });
     });
 
     test("returns the documented empty local representation for authenticated users", async (t) => {
@@ -68,9 +87,41 @@ describe("GET /users/@me/scheduled-messages", () => {
     test("stays on the authenticated route boundary", () => {
         assert.equal(isNoAuthorizationRoute("GET", "/users/@me/scheduled-messages"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/users/@me/scheduled-messages"), false);
+        assert.equal(isNoAuthorizationRoute("PATCH", "/users/@me/scheduled-messages/123456789012345678"), false);
+        assert.equal(isNoAuthorizationRoute("PATCH", "/api/v9/users/@me/scheduled-messages/123456789012345678"), false);
     });
 
-    test("generated artifacts own only the source-backed GET scheduled-messages route", () => {
+    test("PATCH validates the scheduled message id and fails closed without mutating unsupported state", async (t) => {
+        const routeModule = loadRouteModule();
+        const unsupportedError = routeModule.createUserScheduledMessageUpdateUnsupportedError();
+        const harness = setupUserScheduledMessagesRoute(t);
+
+        assert.equal(routeModule.parseUserScheduledMessageId("123456789012345678"), "123456789012345678");
+        assert.throws(
+            () => routeModule.parseUserScheduledMessageId("not-a-snowflake"),
+            (error) => {
+                assert.equal((error as { code?: unknown }).code, DiscordApiErrors.INVALID_FORM_BODY.code);
+                return true;
+            },
+        );
+        assert.equal(unsupportedError.httpStatus, 501);
+        assert.equal(unsupportedError.code, 0);
+        assert.equal(unsupportedError.message, routeModule.USER_SCHEDULED_MESSAGE_UPDATE_UNSUPPORTED_MESSAGE);
+
+        const invalidResponse = await requestJson(harness.app, "/users/@me/scheduled-messages/not-a-snowflake", { method: "PATCH" });
+        assert.equal(invalidResponse.status, 400);
+        assert.equal((invalidResponse.body as { code?: unknown }).code, DiscordApiErrors.INVALID_FORM_BODY.code);
+
+        const response = await requestJson(harness.app, "/users/@me/scheduled-messages/123456789012345678", { method: "PATCH" });
+        assert.equal(response.status, 501);
+        assert.deepEqual(response.body, {
+            code: 0,
+            message: routeModule.USER_SCHEDULED_MESSAGE_UPDATE_UNSUPPORTED_MESSAGE,
+        });
+        assert.deepEqual(harness.calls, []);
+    });
+
+    test("generated artifacts own the source-backed GET and assigned PATCH scheduled-messages routes", () => {
         const routeSource = readFileSync(path.join(process.cwd(), "src", "api", "routes", "users", "@me", "scheduled-messages.ts"), "utf8");
         const schemas = readJson<Record<string, { type?: string; items?: unknown }>>(path.join("assets", "schemas.json"));
         const openapi = readJson<{
@@ -83,6 +134,11 @@ describe("GET /users/@me/scheduled-messages", () => {
                         security?: unknown;
                     };
                     post?: unknown;
+                    patch?: {
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                        security?: unknown;
+                    };
+                    delete?: unknown;
                 }
             >;
         }>(path.join("assets", "openapi.json"));
@@ -100,6 +156,7 @@ describe("GET /users/@me/scheduled-messages", () => {
             entries?: {
                 id?: string;
                 authMode?: string;
+                path?: string;
                 sourceFile?: string;
                 routeMetadata?: {
                     responseBodies?: string[];
@@ -108,12 +165,23 @@ describe("GET /users/@me/scheduled-messages", () => {
                 };
             }[];
         }>(path.join("assets", "testing-manifest.json"));
-        const contractMatrix = readJson<{ contracts?: { manifestId?: string }[] }>(path.join("test", "generated", "http-contracts.json"));
+        const contractMatrix = readJson<{
+            contracts?: {
+                manifestId?: string;
+                sourceFile?: string;
+                routeMetadata?: {
+                    responses?: string[];
+                    responseStatuses?: number[];
+                };
+            }[];
+        }>(path.join("test", "generated", "http-contracts.json"));
         const suiteCoverage = readJson<{ groups?: { suites?: { testFiles?: string[]; manifestIds?: string[] }[] }[] }>(path.join("test", "generated", "suite-coverage.json"));
 
         assert.match(routeSource, /router\.get\(\s*["']\/["']/);
+        assert.match(routeSource, /router\.patch\(\s*["']\/:param["']/);
         assert.match(routeSource, /body:\s*"ScheduledMessagesResponse"/);
-        assert.doesNotMatch(routeSource, /router\.(post|patch|delete)\(/);
+        assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.doesNotMatch(routeSource, /router\.(post|delete)\(/);
 
         assert.equal(schemas.ScheduledMessagesResponse?.type, "array");
         assert.deepEqual(schemas.ScheduledMessagesResponse?.items, {});
@@ -125,11 +193,22 @@ describe("GET /users/@me/scheduled-messages", () => {
         assert.deepEqual(openapiRoute?.security, [{ bearer: [] }]);
         assert.equal(openapi.paths?.["/users/@me/scheduled-messages/"]?.post, undefined);
 
+        const openapiPatchRoute = openapi.paths?.["/users/@me/scheduled-messages/{param}"]?.patch;
+        assert.equal(openapiPatchRoute?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(openapiPatchRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(openapiPatchRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(openapiPatchRoute?.security, [{ bearer: [] }]);
+        assert.equal(openapi.paths?.["/users/@me/scheduled-messages/{param}"]?.delete, undefined);
+
         const sourceRoute = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/users/@me/scheduled-messages");
         assert.equal(sourceRoute?.route_name, "GET_USERS__ME_SCHEDULED_MESSAGES");
         assert.equal(sourceRoute?.source, "src/api/routes/users/@me/scheduled-messages.ts");
         assert.equal(sourceRoute?.response_schema_refs?.includes("ScheduledMessagesResponse"), true);
         assert.equal(sourceRoute?.response_schema_refs?.includes("APIErrorResponse"), true);
+        const patchSourceRoute = sourceCatalog.find((entry) => entry.method === "PATCH" && entry.route === "/users/@me/scheduled-messages/{param}");
+        assert.equal(patchSourceRoute?.route_name, "PATCH_USERS__ME_SCHEDULED_MESSAGES_PARAM");
+        assert.equal(patchSourceRoute?.source, "src/api/routes/users/@me/scheduled-messages.ts");
+        assert.deepEqual(patchSourceRoute?.response_schema_refs, ["APIErrorResponse"]);
 
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/users/@me/scheduled-messages"),
@@ -141,7 +220,7 @@ describe("GET /users/@me/scheduled-messages", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "PATCH" && entry.route === "/users/@me/scheduled-messages/{param}"),
-            true,
+            false,
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "DELETE" && entry.route === "/users/@me/scheduled-messages/{param}"),
@@ -155,13 +234,28 @@ describe("GET /users/@me/scheduled-messages", () => {
         assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
         assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [200, 401]);
         assert.equal(manifestEntry?.routeMetadata?.hasQuery, false);
+        const patchManifestEntry = manifest.entries?.find((entry) => entry.id === patchCoveredManifestId);
+        assert.equal(patchManifestEntry?.authMode, "bearer");
+        assert.equal(patchManifestEntry?.path, "/users/@me/scheduled-messages/:param");
+        assert.equal(patchManifestEntry?.sourceFile, "src/api/routes/users/@me/scheduled-messages.ts");
+        assert.equal(patchManifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.deepEqual(patchManifestEntry?.routeMetadata?.responseStatuses, [400, 401, 501]);
+        assert.equal(patchManifestEntry?.routeMetadata?.hasQuery, false);
 
         assert.equal(
             contractMatrix.contracts?.some((contract) => contract.manifestId === "api:http:GET:/users/@me/scheduled-messages/"),
             true,
         );
+        const patchContractEntry = contractMatrix.contracts?.find((contract) => contract.manifestId === patchCoveredManifestId);
+        assert.equal(patchContractEntry?.sourceFile, "src/api/routes/users/@me/scheduled-messages.ts");
+        assert.equal(patchContractEntry?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
+        assert.deepEqual(patchContractEntry?.routeMetadata?.responseStatuses, [400, 401, 501]);
         assert.equal(
             suiteCoverage.groups?.some((group) => group.suites?.some((suite) => suite.manifestIds?.includes("api:http:GET:/users/@me/scheduled-messages/"))),
+            true,
+        );
+        assert.equal(
+            suiteCoverage.groups?.some((group) => group.suites?.some((suite) => suite.manifestIds?.includes(patchCoveredManifestId))),
             true,
         );
     });
@@ -188,7 +282,6 @@ function captureRouteOptions(t: TestContext) {
 
 function setupUserScheduledMessagesRoute(t: TestContext, options: { userId?: string } = {}) {
     const routeHandler = requireModule(distModulePath("api", "util", "handlers", "route.js")) as typeof import("../../../util/handlers/route");
-    const errorHandlerModule = requireModule(distModulePath("api", "middlewares", "ErrorHandler.js")) as typeof import("../../../middlewares/ErrorHandler");
     const routeOptions: unknown[] = [];
     const calls: string[] = [];
 
@@ -211,7 +304,7 @@ function setupUserScheduledMessagesRoute(t: TestContext, options: { userId?: str
         next();
     });
     app.use("/users/@me/scheduled-messages", router);
-    app.use(errorHandlerModule.ErrorHandler);
+    app.use(ErrorHandler);
 
     return {
         app,
@@ -224,11 +317,15 @@ function setupUserScheduledMessagesRoute(t: TestContext, options: { userId?: str
     };
 }
 
-async function requestJson(app: express.Express, requestPath: string): Promise<{ status: number; body: unknown }> {
+async function requestJson(app: express.Express, requestPath: string, options: { method?: string; body?: unknown } = {}): Promise<{ status: number; body: unknown }> {
     const server = app.listen(0);
     try {
         const address = server.address() as AddressInfo;
-        const response = await fetch(`http://127.0.0.1:${address.port}${requestPath}`);
+        const response = await fetch(`http://127.0.0.1:${address.port}${requestPath}`, {
+            method: options.method,
+            headers: options.body === undefined ? undefined : { "Content-Type": "application/json" },
+            body: options.body === undefined ? undefined : JSON.stringify(options.body),
+        });
 
         return {
             status: response.status,

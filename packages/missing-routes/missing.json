@@ -1,6 +1,6 @@
 {
-    "missing": 530,
-    "spacebar": 650,
+    "missing": 529,
+    "spacebar": 651,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1916,7 +1916,6 @@
             "summaries": ["Modify User Profile"]
         },
         { "method": "PATCH", "route": "/users/@me/relationships/bulk", "route_name": "USER_BULK_RELATIONSHIPS", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "PATCH", "route": "/users/@me/scheduled-messages/{param}", "route_name": "SCHEDULED_MESSAGE", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PATCH",
             "route": "/users/@me/settings-proto/{param}",

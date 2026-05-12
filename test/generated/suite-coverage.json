@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 581,
+        "totalCoveredManifestEntries": 582,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 559,
-                "totalCoveredManifestEntries": 559,
-                "totalCoveredRequiredManifestEntries": 559,
+                "totalRequiredManifestEntries": 560,
+                "totalCoveredManifestEntries": 560,
+                "totalCoveredRequiredManifestEntries": 560,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 418,
+            "stateful-domain": 419,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 559,
-                "totalCoveredManifestEntries": 559,
-                "totalCoveredRequiredManifestEntries": 559,
+                "totalRequiredManifestEntries": 560,
+                "totalCoveredManifestEntries": 560,
+                "totalCoveredRequiredManifestEntries": 560,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -444,6 +444,7 @@
                 "api:http:PATCH:/users/@me/connections/:connection_name/:connection_id/",
                 "api:http:PATCH:/users/@me/guilds/:guild_id/settings/",
                 "api:http:PATCH:/users/@me/relationships/:user_id",
+                "api:http:PATCH:/users/@me/scheduled-messages/:param",
                 "api:http:PATCH:/users/@me/settings-proto/1/",
                 "api:http:PATCH:/users/@me/settings-proto/1/json",
                 "api:http:PATCH:/users/@me/settings-proto/2/",
@@ -1005,6 +1006,7 @@
                 "api:http:PATCH:/users/@me/connections/:connection_name/:connection_id/",
                 "api:http:PATCH:/users/@me/guilds/:guild_id/settings/",
                 "api:http:PATCH:/users/@me/relationships/:user_id",
+                "api:http:PATCH:/users/@me/scheduled-messages/:param",
                 "api:http:PATCH:/users/@me/settings-proto/1/",
                 "api:http:PATCH:/users/@me/settings-proto/1/json",
                 "api:http:PATCH:/users/@me/settings-proto/2/",
@@ -1354,6 +1356,7 @@
                         "api:http:PATCH:/users/@me/connections/:connection_name/:connection_id/",
                         "api:http:PATCH:/users/@me/guilds/:guild_id/settings/",
                         "api:http:PATCH:/users/@me/relationships/:user_id",
+                        "api:http:PATCH:/users/@me/scheduled-messages/:param",
                         "api:http:PATCH:/users/@me/settings-proto/1/",
                         "api:http:PATCH:/users/@me/settings-proto/1/json",
                         "api:http:PATCH:/users/@me/settings-proto/2/",
