@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 539,
+        "totalCoveredManifestEntries": 540,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 517,
-                "totalCoveredManifestEntries": 517,
-                "totalCoveredRequiredManifestEntries": 517,
+                "totalRequiredManifestEntries": 518,
+                "totalCoveredManifestEntries": 518,
+                "totalCoveredRequiredManifestEntries": 518,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 376,
+            "stateful-domain": 377,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 517,
-                "totalCoveredManifestEntries": 517,
-                "totalCoveredRequiredManifestEntries": 517,
+                "totalRequiredManifestEntries": 518,
+                "totalCoveredManifestEntries": 518,
+                "totalCoveredRequiredManifestEntries": 518,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -261,6 +261,7 @@
                 "api:http:GET:/guilds/:guild_id/profile/",
                 "api:http:GET:/guilds/:guild_id/prune/",
                 "api:http:GET:/guilds/:guild_id/regions/",
+                "api:http:GET:/guilds/:guild_id/requests/",
                 "api:http:GET:/guilds/:guild_id/roles/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
@@ -780,6 +781,7 @@
                 "api:http:GET:/guilds/:guild_id/profile/",
                 "api:http:GET:/guilds/:guild_id/prune/",
                 "api:http:GET:/guilds/:guild_id/regions/",
+                "api:http:GET:/guilds/:guild_id/requests/",
                 "api:http:GET:/guilds/:guild_id/roles/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
@@ -1359,6 +1361,7 @@
                         "api:http:GET:/guilds/:guild_id/profile/",
                         "api:http:GET:/guilds/:guild_id/prune/",
                         "api:http:GET:/guilds/:guild_id/regions/",
+                        "api:http:GET:/guilds/:guild_id/requests/",
                         "api:http:GET:/guilds/:guild_id/roles/",
                         "api:http:GET:/guilds/:guild_id/roles/:role_id/",
                         "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",

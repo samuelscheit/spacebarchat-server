@@ -3015,6 +3015,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildJoinRequestsResponse"
+		],
+		"route": "/guilds/{guild_id}/requests",
+		"route_name": "GET_GUILDS_GUILD_ID_REQUESTS",
+		"source": "src/api/routes/guilds/#guild_id/requests.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/roles",
 		"route_name": "GET_GUILDS_GUILD_ID_ROLES",

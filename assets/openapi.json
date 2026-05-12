@@ -7833,6 +7833,10 @@
                     "stickers"
                 ]
             },
+            "GuildJoinRequestsResponse": {
+                "type": "array",
+                "items": {}
+            },
             "GuildWelcomeScreenFunnelResponse": {
                 "type": "array",
                 "items": {
@@ -49666,6 +49670,74 @@
                             "type": "string"
                         },
                         "description": "role_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/requests/": {
+            "get": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns pending guild join requests for the guild. Spacebar does not currently persist Discord's guild join request queue, so the locally backed conservative response is an empty array.",
+                "summary": "Get Guild Join Requests",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildJoinRequestsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
                     }
                 ],
                 "tags": [

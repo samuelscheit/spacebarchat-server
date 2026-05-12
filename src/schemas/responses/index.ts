@@ -116,6 +116,7 @@ export * from "./GuildGrowthActivationJoinsBySourceResponse";
 export * from "./GuildGrowthActivationLeaversResponse";
 export * from "./GuildGrowthActivationMembershipResponse";
 export * from "./GuildPreviewResponse";
+export * from "./GuildJoinRequestsResponse";
 export * from "./GuildWelcomeScreenFunnelResponse";
 export * from "./GravityCustomChannelScoresResponse";
 export * from "./GravityRecommendedGuildsResponse";
