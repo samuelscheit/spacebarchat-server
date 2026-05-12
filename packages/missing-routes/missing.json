@@ -1,6 +1,6 @@
 {
-    "missing": 550,
-    "spacebar": 630,
+    "missing": 549,
+    "spacebar": 631,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -327,7 +327,6 @@
         "/users/@me/audio-settings/{param}/{param}",
         "/users/@me/avatars/discordify",
         "/users/@me/background-sync",
-        "/users/@me/billing/adyen/payment-methods",
         "/users/@me/billing/apple/trial-offer-signature",
         "/users/@me/billing/campaign-context",
         "/users/@me/billing/checkout-recovery",
@@ -1410,13 +1409,6 @@
             "route_name": "USER_ACTIVITY_JOIN",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/users/{user_id}/sessions/{param}/activities/{param}/1"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/billing/adyen/payment-methods",
-            "route_name": "GET_USERS__ME_BILLING_ADYEN_PAYMENT_METHODS",
-            "sources": ["userdoccers:resources/billing.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Available Adyen Payment Methods"]
         },
         { "method": "GET", "route": "/users/@me/billing/campaign-context", "route_name": "CAMPAIGN_CONTEXT", "sources": ["xhyrom:data/client/routes.json"] },
         {

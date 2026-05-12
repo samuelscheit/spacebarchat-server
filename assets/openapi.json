@@ -41352,6 +41352,42 @@
                 ]
             }
         },
+        "/users/@me/billing/adyen/payment-methods/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Discord's endpoint proxies Adyen Checkout paymentMethods. Spacebar has no Adyen merchant integration or payment-method discovery state, so this compatibility endpoint fails closed instead of fabricating provider availability.",
+                "summary": "Get Available Adyen Payment Methods",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/avatars/": {
             "get": {
                 "security": [

@@ -4970,6 +4970,15 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/billing/adyen/payment-methods",
+		"route_name": "GET_USERS__ME_BILLING_ADYEN_PAYMENT_METHODS",
+		"source": "src/api/routes/users/@me/billing/adyen/payment-methods.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/users/@me/billing/country-code",
 		"route_name": "GET_USERS__ME_BILLING_COUNTRY_CODE",
