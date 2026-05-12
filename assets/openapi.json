@@ -16167,6 +16167,23 @@
                     "note"
                 ]
             },
+            "UserPhoneRemoveSchema": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "minLength": 1,
+                        "maxLength": 72,
+                        "type": "string"
+                    },
+                    "change_phone_reason": {
+                        "$ref": "#/components/schemas/ChangePhoneReason"
+                    }
+                },
+                "required": [
+                    "change_phone_reason",
+                    "password"
+                ]
+            },
             "UserProfileModifySchema": {
                 "type": "object",
                 "properties": {
@@ -35178,6 +35195,16 @@
                     "filename"
                 ]
             },
+            "ChangePhoneReason": {
+                "enum": [
+                    "contact_sync",
+                    "guild_phone_required",
+                    "mfa_phone_update",
+                    "user_action_required",
+                    "user_settings_update"
+                ],
+                "type": "string"
+            },
             "PushNotificationProvider": {
                 "enum": [
                     "apns",
@@ -39045,6 +39072,65 @@
                         }
                     },
                     "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/phone/": {
+            "delete": {
+                "x-fires-event": "USER_UPDATE",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Remove Phone Number",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserPhoneRemoveSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
                         "description": "",
                         "content": {
                             "application/json": {

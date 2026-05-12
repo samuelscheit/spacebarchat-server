@@ -1,6 +1,6 @@
 {
-    "missing": 541,
-    "spacebar": 639,
+    "missing": 540,
+    "spacebar": 640,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -872,13 +872,6 @@
             "sources": ["xhyrom:data/client/routes.json"]
         },
         { "method": "DELETE", "route": "/users/@me/notification-settings/snapshots/{param}", "route_name": "NOTIFICATION_SNAPSHOT", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "DELETE",
-            "route": "/users/@me/phone",
-            "route_name": "DELETE_USERS__ME_PHONE",
-            "sources": ["userdoccers:topics/phone-verification.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Remove Phone Number"]
-        },
         {
             "method": "DELETE",
             "route": "/users/@me/relationships",

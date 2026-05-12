@@ -17104,6 +17104,25 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserPhoneRemoveSchema": {
+        "type": "object",
+        "properties": {
+            "password": {
+                "minLength": 1,
+                "maxLength": 72,
+                "type": "string"
+            },
+            "change_phone_reason": {
+                "$ref": "#/definitions/ChangePhoneReason"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "change_phone_reason",
+            "password"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserProfileModifySchema": {
         "type": "object",
         "properties": {
@@ -37099,6 +37118,17 @@
             "file_size",
             "filename"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ChangePhoneReason": {
+        "enum": [
+            "contact_sync",
+            "guild_phone_required",
+            "mfa_phone_update",
+            "user_action_required",
+            "user_settings_update"
+        ],
+        "type": "string",
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "PushNotificationProvider": {

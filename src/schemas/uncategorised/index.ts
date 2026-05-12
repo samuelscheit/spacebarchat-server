@@ -107,6 +107,7 @@ export * from "./UserGuildSettingsSchema";
 export * from "./UserInviteCreateSchema";
 export * from "./UserModifySchema";
 export * from "./UserNoteUpdateSchema";
+export * from "./UserPhoneRemoveSchema";
 export * from "./UserProfileModifySchema";
 export * from "./VanityUrlSchema";
 export * from "./VerifyEmailSchema";

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 744,
+        "totalEntries": 745,
         "byService": {
-            "api": 647,
+            "api": 648,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 719,
+            "http-route": 720,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 182,
-            "stateful-domain": 410,
+            "stateful-domain": 411,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 602,
+            "route-class": 603,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -25820,6 +25820,49 @@
                     401
                 ],
                 "hasQuery": true
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/users/@me/phone/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/users/@me/phone/",
+            "sourceFile": "src/api/routes/users/@me/phone.ts",
+            "line": 91,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "UserPhoneRemoveSchema",
+                "event": "USER_UPDATE",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-user-state",

@@ -5651,6 +5651,16 @@
 		"source": "src/api/routes/users/@me/outbound-promotions/codes.ts"
 	},
 	{
+		"method": "DELETE",
+		"request_schema_ref": "UserPhoneRemoveSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/phone",
+		"route_name": "DELETE_USERS__ME_PHONE",
+		"source": "src/api/routes/users/@me/phone.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

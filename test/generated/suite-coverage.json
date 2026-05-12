@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 573,
+        "totalCoveredManifestEntries": 574,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 551,
-                "totalCoveredManifestEntries": 551,
-                "totalCoveredRequiredManifestEntries": 551,
+                "totalRequiredManifestEntries": 552,
+                "totalCoveredManifestEntries": 552,
+                "totalCoveredRequiredManifestEntries": 552,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 410,
+            "stateful-domain": 411,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 551,
-                "totalCoveredManifestEntries": 551,
-                "totalCoveredRequiredManifestEntries": 551,
+                "totalRequiredManifestEntries": 552,
+                "totalCoveredManifestEntries": 552,
+                "totalCoveredRequiredManifestEntries": 552,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -121,6 +121,7 @@
                 "api:http:DELETE:/users/@me/devices/",
                 "api:http:DELETE:/users/@me/guilds/:guild_id",
                 "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
+                "api:http:DELETE:/users/@me/phone/",
                 "api:http:DELETE:/users/@me/relationships/:user_id",
                 "api:http:DELETE:/webhooks/:webhook_id/",
                 "api:http:DELETE:/webhooks/:webhook_id/:token/",
@@ -674,6 +675,7 @@
                 "api:http:DELETE:/users/@me/devices/",
                 "api:http:DELETE:/users/@me/guilds/:guild_id",
                 "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
+                "api:http:DELETE:/users/@me/phone/",
                 "api:http:DELETE:/users/@me/relationships/:user_id",
                 "api:http:DELETE:/webhooks/:webhook_id/",
                 "api:http:DELETE:/webhooks/:webhook_id/:token/",
@@ -1247,6 +1249,7 @@
                         "api:http:DELETE:/users/@me/devices/",
                         "api:http:DELETE:/users/@me/guilds/:guild_id",
                         "api:http:DELETE:/users/@me/mfa/webauthn/credentials/:key_id/",
+                        "api:http:DELETE:/users/@me/phone/",
                         "api:http:DELETE:/users/@me/relationships/:user_id",
                         "api:http:GET:/users/:user_id/",
                         "api:http:GET:/users/:user_id/application-identities/",
