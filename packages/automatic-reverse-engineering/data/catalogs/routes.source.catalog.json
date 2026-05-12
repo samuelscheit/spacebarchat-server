@@ -278,6 +278,17 @@
 		"source": "src/api/routes/applications/#application_id/index.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "EmbeddedActivityInstanceLeaveSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"EmbeddedActivityInstanceLeaveResponse"
+		],
+		"route": "/applications/{application_id}/activities/{instance_location_id}/instances/{instance_instance_id}/leave",
+		"route_name": "POST_APPLICATIONS_APPLICATION_ID_ACTIVITIES_INSTANCE_LOCATION_ID_INSTANCES_INSTANCE_INSTANCE_ID_LEAVE",
+		"source": "src/api/routes/applications/#application_id/activities/#instance_location_id/instances/#instance_instance_id/leave.ts"
+	},
+	{
 		"method": "PATCH",
 		"request_schema_ref": "BotModifySchema",
 		"response_schema_refs": [

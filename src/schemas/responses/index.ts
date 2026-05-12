@@ -77,6 +77,7 @@ export * from "./DmMessagesResponseSchema";
 export * from "./DeviceSyncTokenResponse";
 export * from "./EmailDomainLookupResponse";
 export * from "./EmailDomainLookupVerifyCodeResponse";
+export * from "./EmbeddedActivityInstanceLeaveResponse";
 export * from "./EmbeddedActivityInstancesResponse";
 export * from "./EmojiGuildResponse";
 export * from "./EmojiSourceResponse";

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 771,
+        "totalEntries": 772,
         "byService": {
-            "api": 674,
+            "api": 675,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 746,
+            "http-route": 747,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 195,
-            "stateful-domain": 423,
+            "stateful-domain": 424,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 628,
+            "route-class": 629,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -1178,6 +1178,50 @@
                 "responseStatuses": [
                     200,
                     400
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/applications/:application_id/activities/:instance_location_id/instances/:instance_instance_id/leave/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/applications/:application_id/activities/:instance_location_id/instances/:instance_instance_id/leave/",
+            "sourceFile": "src/api/routes/applications/#application_id/activities/#instance_location_id/instances/#instance_instance_id/leave.ts",
+            "line": 233,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "EmbeddedActivityInstanceLeaveSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "EmbeddedActivityInstanceLeaveResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404
                 ],
                 "hasQuery": false
             },

@@ -657,6 +657,19 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "EmbeddedActivityInstanceLeaveSchema": {
+        "type": "object",
+        "properties": {
+            "session_id": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "session_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "AgeVerificationVerifySchema": {
         "type": "object",
         "additionalProperties": false,
@@ -5915,6 +5928,11 @@
             "guild",
             "joined"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "EmbeddedActivityInstanceLeaveResponse": {
+        "type": "object",
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "EmbeddedActivityInstancesResponse": {

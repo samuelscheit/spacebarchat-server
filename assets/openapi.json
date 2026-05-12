@@ -663,6 +663,17 @@
                     "status"
                 ]
             },
+            "EmbeddedActivityInstanceLeaveSchema": {
+                "type": "object",
+                "properties": {
+                    "session_id": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "session_id"
+                ]
+            },
             "AgeVerificationVerifySchema": {
                 "type": "object"
             },
@@ -5588,6 +5599,9 @@
                     "guild",
                     "joined"
                 ]
+            },
+            "EmbeddedActivityInstanceLeaveResponse": {
+                "type": "object"
             },
             "EmbeddedActivityInstancesResponse": {
                 "type": "object",
@@ -71957,6 +71971,111 @@
                             "type": "string"
                         },
                         "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "applications"
+                ]
+            }
+        },
+        "/applications/{application_id}/activities/{instance_location_id}/instances/{instance_instance_id}/leave/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Leaves a locally persisted embedded activity instance for the authenticated user's own session and voice location. The route fails closed when the session, voice state, or matching activity instance cannot be verified locally.",
+                "summary": "Leave Embedded Activity Instance",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EmbeddedActivityInstanceLeaveSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EmbeddedActivityInstanceLeaveResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "instance_location_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "instance_location_id"
+                    },
+                    {
+                        "name": "instance_instance_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "instance_instance_id"
                     }
                 ],
                 "tags": [

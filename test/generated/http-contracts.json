@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 746,
+        "totalContracts": 747,
         "byService": {
-            "api": 673,
+            "api": 674,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 595,
-        "runtimeMalformedAuthContracts": 595,
-        "runtimeRevokedSessionAuthContracts": 595,
-        "runtimeStaleTokenAuthContracts": 595,
+        "runtimeAuthBoundaryContracts": 596,
+        "runtimeMalformedAuthContracts": 596,
+        "runtimeRevokedSessionAuthContracts": 596,
+        "runtimeStaleTokenAuthContracts": 596,
         "runtimePublicAuthBoundaryContracts": 70,
         "runtimePublicInvalidBodyContracts": 17,
-        "runtimeProtectedInvalidBodyContracts": 80,
+        "runtimeProtectedInvalidBodyContracts": 81,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
         "runtimeRightOnlyDenialContracts": 13,
@@ -1400,6 +1400,56 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "ApplicationOwnerModifySchema"
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/applications/:application_id/activities/:instance_location_id/instances/:instance_instance_id/leave/",
+            "service": "api",
+            "method": "POST",
+            "path": "/applications/:application_id/activities/:instance_location_id/instances/:instance_instance_id/leave/",
+            "samplePath": "/applications/100000000000000007/activities/value/instances/value/leave/",
+            "sourceFile": "src/api/routes/applications/#application_id/activities/#instance_location_id/instances/#instance_instance_id/leave.ts",
+            "line": 233,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "applications", "guilds", "commands"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "requestBody": "EmbeddedActivityInstanceLeaveSchema",
+                "responses": ["APIErrorResponse", "EmbeddedActivityInstanceLeaveResponse"],
+                "responseStatuses": [200, 400, 401, 403, 404]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "EmbeddedActivityInstanceLeaveSchema"
                 },
                 {
                     "id": "policy-ownership-boundary",

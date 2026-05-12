@@ -1,6 +1,6 @@
 {
-    "missing": 514,
-    "spacebar": 666,
+    "missing": 513,
+    "spacebar": 667,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -10,7 +10,6 @@
         "/applications/public",
         "/applications/shelf",
         "/applications/storefront/interactions/premium-button/{param}",
-        "/applications/{param}/activities/{param}/instances/{param}/leave",
         "/applications/{param}/activity-instances/{param}",
         "/applications/{param}/application-command-index",
         "/applications/{param}/attachment",
@@ -1921,17 +1920,6 @@
         },
         { "method": "POST", "route": "/ai/title", "route_name": "POST_AI_TITLE", "sources": ["userdoccers:resources/ai.mdx"], "summaries": ["Paraphrase Thread Title"] },
         { "method": "POST", "route": "/ai/translate", "route_name": "POST_AI_TRANSLATE", "sources": ["userdoccers:resources/ai.mdx"], "summaries": ["Translate Message"] },
-        {
-            "method": "POST",
-            "route": "/applications/{param}/activities/{param}/instances/{param}/leave",
-            "route_name": "POST_APPLICATIONS_APPLICATION_ID_ACTIVITIES_INSTANCE_LOCATION_ID_INSTANCES_INSTANCE_INSTANCE_ID_LEAVE",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": [
-                "/applications/{application_id}/activities/{instance_location_id}/instances/{instance_instance_id}/leave",
-                "/applications/{application_id}/activities/{param}/instances/{param}/leave"
-            ],
-            "summaries": ["Leave Embedded Activity Instance"]
-        },
         {
             "method": "POST",
             "route": "/applications/{param}/attachment",
