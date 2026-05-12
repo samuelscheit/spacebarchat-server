@@ -13,6 +13,7 @@
         "src/api/routes/users/@me/linked-connections.test.ts",
         "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.test.ts",
         "src/api/routes/users/#user_id/application-identities.test.ts",
+        "src/api/routes/users/#user_id/sessions/#session_id/activities/#application_id/#activity_action_type.test.ts",
         "src/api/routes/users/@me/guilds/#guild_id/member.test.ts",
         "src/api/routes/warp/license.test.ts",
         "src/api/routes/guild-recommendations.test.ts",

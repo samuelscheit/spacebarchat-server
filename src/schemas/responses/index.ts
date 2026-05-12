@@ -21,6 +21,7 @@ export * from "./APIErrorResponse";
 export * from "./AccountStandingResponse";
 export * from "./ActiveThreadsResponse";
 export * from "./ActivityMetadataResponse";
+export * from "./ActivitySecretResponse";
 export * from "./ActivityShelfResponse";
 export * from "./ActivitySessionUpdateResponse";
 export * from "./AppRecommendationsResponse";

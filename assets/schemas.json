@@ -2747,6 +2747,19 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ActivitySecretResponse": {
+        "type": "object",
+        "properties": {
+            "secret": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "secret"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationModifySchema": {
         "type": "object",
         "properties": {

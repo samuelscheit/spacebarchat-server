@@ -4729,6 +4729,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ActivitySecretResponse"
+		],
+		"route": "/users/{user_id}/sessions/{session_id}/activities/{application_id}/{activity_action_type}",
+		"route_name": "GET_USERS_USER_ID_SESSIONS_SESSION_ID_ACTIVITIES_APPLICATION_ID_ACTIVITY_ACTION_TYPE",
+		"source": "src/api/routes/users/#user_id/sessions/#session_id/activities/#application_id/#activity_action_type.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"ActivityMetadataResponse"
 		],
 		"route": "/users/{user_id}/sessions/{session_id}/activities/{application_id}/metadata",
