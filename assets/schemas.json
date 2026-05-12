@@ -3617,6 +3617,85 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserApplicationProfileExternalIdResponse": {
+        "type": "object",
+        "properties": {
+            "provider_type": {
+                "type": "string"
+            },
+            "provider_issued_user_id": {
+                "type": "string"
+            },
+            "provider_id": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "preferred_global_name": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "provider_issued_user_id",
+            "provider_type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserApplicationProfileResponse": {
+        "type": "object",
+        "properties": {
+            "username": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "metadata": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "data": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/UserApplicationIdentityProfileDataResponse"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "data_trusted": {
+                "type": [
+                    "null",
+                    "boolean"
+                ]
+            },
+            "external_id": {
+                "$ref": "#/definitions/UserApplicationProfileExternalIdResponse"
+            },
+            "avatar_hash": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "avatar_hash",
+            "external_id",
+            "metadata",
+            "username"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserApplicationIdentityResponse": {
         "type": "object",
         "properties": {

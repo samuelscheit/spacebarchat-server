@@ -72,6 +72,22 @@ export interface PartialUserApplicationProfileResponse {
     connection_visible: boolean;
 }
 
+export interface UserApplicationProfileExternalIdResponse {
+    provider_type: string;
+    provider_issued_user_id: string;
+    provider_id?: string | null;
+    preferred_global_name?: string | null;
+}
+
+export interface UserApplicationProfileResponse {
+    username: string | null;
+    metadata: string | null;
+    data?: UserApplicationIdentityProfileDataResponse | null;
+    data_trusted?: boolean | null;
+    external_id: UserApplicationProfileExternalIdResponse;
+    avatar_hash: string | null;
+}
+
 export interface UserApplicationIdentityResponse {
     application_id: Snowflake;
     provider_issued_user_id: string;

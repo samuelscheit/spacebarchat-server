@@ -1,6 +1,6 @@
 {
-    "missing": 550,
-    "spacebar": 630,
+    "missing": 549,
+    "spacebar": 631,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1059,14 +1059,6 @@
             "route_name": "APPLICATION_SUBSCRIPTION_GROUP_LISTING",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/applications/{application_id}/subscription-group-listings/{param}"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/users/{param}/identities/{param}/profile",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_USERS_USER_ID_IDENTITIES_EXTERNAL_USER_ID_PROFILE",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/users/{user_id}/identities/{external_user_id}/profile"],
-            "summaries": ["Get User Application Profile"]
         },
         {
             "method": "GET",
