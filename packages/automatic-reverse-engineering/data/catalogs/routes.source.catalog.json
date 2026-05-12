@@ -5667,6 +5667,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"SavedMessagesResponse"
+		],
+		"route": "/users/@me/saved-messages",
+		"route_name": "GET_USERS__ME_SAVED_MESSAGES",
+		"source": "src/api/routes/users/@me/saved-messages.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"GuildScheduledEventUsersResponse"
 		],
 		"route": "/users/@me/scheduled-events",

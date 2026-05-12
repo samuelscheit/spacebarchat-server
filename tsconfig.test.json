@@ -10,6 +10,7 @@
         "src/api/routes/users/@me/invites.test.ts",
         "src/api/routes/users/@me/entitlements.test.ts",
         "src/api/routes/users/@me/scheduled-events.test.ts",
+        "src/api/routes/users/@me/saved-messages.test.ts",
         "src/api/routes/users/@me/scheduled-messages.test.ts",
         "src/api/routes/users/@me/linked-connections.test.ts",
         "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.test.ts",

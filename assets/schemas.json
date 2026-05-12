@@ -13474,6 +13474,45 @@
         "items": {},
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "SavedMessageResponse": {
+        "type": "object",
+        "properties": {
+            "message": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/PublicMessage"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "save_data": {
+                "$ref": "#/definitions/SavedMessageSaveData"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "save_data"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SavedMessagesResponse": {
+        "type": "object",
+        "properties": {
+            "results": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/SavedMessageResponse"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "results"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ScheduledMessagesResponse": {
         "type": "array",
         "items": {},
@@ -35756,6 +35795,55 @@
             "is_localized",
             "name",
             "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SavedMessageSaveData": {
+        "type": "object",
+        "properties": {
+            "channel_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "message_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "guild_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "type": "string"
+            },
+            "saved_at": {
+                "type": "string"
+            },
+            "author_summary": {
+                "type": "string"
+            },
+            "channel_summary": {
+                "type": "string"
+            },
+            "message_summary": {
+                "type": "string"
+            },
+            "notes": {
+                "type": "string"
+            },
+            "due_at": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "author_summary",
+            "channel_id",
+            "channel_summary",
+            "message_id",
+            "message_summary",
+            "notes",
+            "saved_at"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

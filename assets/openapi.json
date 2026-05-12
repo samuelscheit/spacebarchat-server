@@ -12776,6 +12776,41 @@
                 "type": "array",
                 "items": {}
             },
+            "SavedMessageResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PublicMessage"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "save_data": {
+                        "$ref": "#/components/schemas/SavedMessageSaveData"
+                    }
+                },
+                "required": [
+                    "save_data"
+                ]
+            },
+            "SavedMessagesResponse": {
+                "type": "object",
+                "properties": {
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SavedMessageResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "results"
+                ]
+            },
             "ScheduledMessagesResponse": {
                 "type": "array",
                 "items": {}
@@ -33935,6 +33970,53 @@
                     "type"
                 ]
             },
+            "SavedMessageSaveData": {
+                "type": "object",
+                "properties": {
+                    "channel_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "message_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "saved_at": {
+                        "type": "string"
+                    },
+                    "author_summary": {
+                        "type": "string"
+                    },
+                    "channel_summary": {
+                        "type": "string"
+                    },
+                    "message_summary": {
+                        "type": "string"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "due_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "author_summary",
+                    "channel_id",
+                    "channel_summary",
+                    "message_id",
+                    "message_summary",
+                    "notes",
+                    "saved_at"
+                ]
+            },
             "SoundboardVolume": {
                 "type": "number"
             },
@@ -38401,6 +38483,42 @@
                         "description": "Guild IDs to get subscribed scheduled events for."
                     }
                 ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/saved-messages/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current user's saved message bookmarks and reminders. Spacebar does not currently persist saved-message state, so the local representation is empty until that backing state exists.",
+                "summary": "Get Saved Messages",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SavedMessagesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "users"
                 ]

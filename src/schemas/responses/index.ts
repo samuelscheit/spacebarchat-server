@@ -204,6 +204,7 @@ export * from "./ReportingMenuResponse";
 export * from "./ReportingUnauthenticatedExperimentResponse";
 export * from "./SettingsProtoUpdateResponse";
 export * from "./SearchFavoritesResponse";
+export * from "./SavedMessagesResponse";
 export * from "./ScheduledMessagesResponse";
 export * from "./SoundboardDefaultSoundsResponse";
 export * from "./SocialSDKReleasesResponse";
