@@ -1,6 +1,6 @@
 {
-    "missing": 543,
-    "spacebar": 637,
+    "missing": 542,
+    "spacebar": 638,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -500,14 +500,6 @@
             "sources": ["userdoccers:resources/entitlement.mdx"],
             "source_routes": ["/applications/{application_id}/entitlements/{entitlement_id}"],
             "summaries": ["Delete Application Entitlement"]
-        },
-        {
-            "method": "DELETE",
-            "route": "/applications/{param}/external-identity-provider-configurations/{param}",
-            "route_name": "DELETE_APPLICATIONS_APPLICATION_ID_EXTERNAL_IDENTITY_PROVIDER_CONFIGURATIONS_IDENTITY_PROVIDER_TYPE",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/external-identity-provider-configurations/{identity_provider_type}"],
-            "summaries": ["Remove Application External Identity Provider Configuration"]
         },
         {
             "method": "DELETE",

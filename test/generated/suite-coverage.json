@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 571,
+        "totalCoveredManifestEntries": 572,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 549,
-                "totalCoveredManifestEntries": 549,
-                "totalCoveredRequiredManifestEntries": 549,
+                "totalRequiredManifestEntries": 550,
+                "totalCoveredManifestEntries": 550,
+                "totalCoveredRequiredManifestEntries": 550,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 408,
+            "stateful-domain": 409,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,14 +68,15 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 549,
-                "totalCoveredManifestEntries": 549,
-                "totalCoveredRequiredManifestEntries": 549,
+                "totalRequiredManifestEntries": 550,
+                "totalCoveredManifestEntries": 550,
+                "totalCoveredRequiredManifestEntries": 550,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
                 "api:http:DELETE:/applications/:application_id/commands/:command_id/",
                 "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
+                "api:http:DELETE:/applications/:application_id/external-identity-provider-configurations/:identity_provider_type",
                 "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:DELETE:/attachments/report-false-positive/",
                 "api:http:DELETE:/attachments/sender-report-false-positive/",
@@ -627,6 +628,7 @@
             "coveredManifestIds": [
                 "api:http:DELETE:/applications/:application_id/commands/:command_id/",
                 "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
+                "api:http:DELETE:/applications/:application_id/external-identity-provider-configurations/:identity_provider_type",
                 "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                 "api:http:DELETE:/attachments/report-false-positive/",
                 "api:http:DELETE:/attachments/sender-report-false-positive/",
@@ -1680,6 +1682,7 @@
                     "manifestIds": [
                         "api:http:DELETE:/applications/:application_id/commands/:command_id/",
                         "api:http:DELETE:/applications/:application_id/emojis/:emoji_id/",
+                        "api:http:DELETE:/applications/:application_id/external-identity-provider-configurations/:identity_provider_type",
                         "api:http:DELETE:/applications/:application_id/guilds/:guild_id/commands/:command_id/",
                         "api:http:GET:/applications-with-assets/",
                         "api:http:GET:/applications/",

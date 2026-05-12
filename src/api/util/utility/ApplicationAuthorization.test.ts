@@ -10,11 +10,13 @@ import {
     canAccessApplicationOAuth2Authorizations,
     canManageApplicationAssets,
     canManageApplicationCommands,
+    canManageApplicationExternalIdentityProviderConfigurations,
     requireApplicationAssetAccess,
     requireApplicationAssetManagement,
     requireApplicationBranchAccess,
     requireApplicationCommandManagement,
     requireApplicationEmojiAccess,
+    requireApplicationExternalIdentityProviderConfigurationManagement,
     requireApplicationGiftCodeBatchAccess,
     requireApplicationOAuth2AuthorizationAccess,
 } from "./ApplicationAuthorization";
@@ -631,6 +633,76 @@ describe("application asset authorization", () => {
         await assert.rejects(
             () => requireApplicationAssetManagement("app", "attacker", unauthorizedRepository),
             (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
+        );
+    });
+});
+
+describe("application external identity provider configuration authorization", () => {
+    test("allows owners, team owners, and application-management team members to manage configurations", async (t) => {
+        const application = {
+            owner: { id: "owner" },
+            team: {
+                owner_user_id: "team-owner",
+                members: [
+                    {
+                        user_id: "developer",
+                        membership_state: TeamMemberState.ACCEPTED,
+                        role: TeamMemberRole.DEVELOPER,
+                    },
+                ],
+            },
+        };
+        const repository = {
+            findOne: t.mock.fn(async (_options: unknown) => application),
+        };
+
+        assert.equal(canManageApplicationExternalIdentityProviderConfigurations(application, "owner"), true);
+        assert.equal(canManageApplicationExternalIdentityProviderConfigurations(application, "team-owner"), true);
+        assert.equal(canManageApplicationExternalIdentityProviderConfigurations(application, "developer"), true);
+        await requireApplicationExternalIdentityProviderConfigurationManagement("app", "developer", repository);
+
+        assert.deepEqual(repository.findOne.mock.calls[0].arguments[0], {
+            where: { id: "app" },
+            relations: {
+                owner: true,
+                team: {
+                    members: true,
+                },
+            },
+        });
+    });
+
+    test("rejects bot users, read-only team members, invited members, non-members, and unknown applications", async (t) => {
+        const application = {
+            owner: { id: "owner" },
+            bot: { id: "application" },
+            team: {
+                members: [
+                    {
+                        user_id: "invited",
+                        membership_state: TeamMemberState.INVITED,
+                        role: TeamMemberRole.ADMIN,
+                    },
+                    {
+                        user_id: "read-only",
+                        membership_state: TeamMemberState.ACCEPTED,
+                        role: TeamMemberRole.READ_ONLY,
+                    },
+                ],
+            },
+        };
+
+        assert.equal(canManageApplicationExternalIdentityProviderConfigurations(application, "application"), false);
+        assert.equal(canManageApplicationExternalIdentityProviderConfigurations(application, "read-only"), false);
+        assert.equal(canManageApplicationExternalIdentityProviderConfigurations(application, "invited"), false);
+        assert.equal(canManageApplicationExternalIdentityProviderConfigurations(application, "attacker"), false);
+        await assert.rejects(
+            () => requireApplicationExternalIdentityProviderConfigurationManagement("app", "attacker", { findOne: t.mock.fn(async (_options: unknown) => application) }),
+            (error) => error === DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION,
+        );
+        await assert.rejects(
+            () => requireApplicationExternalIdentityProviderConfigurationManagement("missing-app", "owner", { findOne: t.mock.fn(async (_options: unknown) => null) }),
+            (error) => error === DiscordApiErrors.UNKNOWN_APPLICATION,
         );
     });
 });

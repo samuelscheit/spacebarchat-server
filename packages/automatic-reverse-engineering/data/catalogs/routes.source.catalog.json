@@ -416,6 +416,15 @@
 		"source": "src/api/routes/applications/#application_id/external-identity-provider-configurations.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/{application_id}/external-identity-provider-configurations/{identity_provider_type}",
+		"route_name": "DELETE_APPLICATIONS_APPLICATION_ID_EXTERNAL_IDENTITY_PROVIDER_CONFIGURATIONS_IDENTITY_PROVIDER_TYPE",
+		"source": "src/api/routes/applications/#application_id/external-identity-provider-configurations.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
