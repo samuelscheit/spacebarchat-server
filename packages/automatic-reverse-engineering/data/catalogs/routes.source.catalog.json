@@ -5194,6 +5194,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ClaimedPromotionsResponse"
+		],
+		"route": "/users/@me/outbound-promotions/codes",
+		"route_name": "GET_USERS__ME_OUTBOUND_PROMOTIONS_CODES",
+		"source": "src/api/routes/users/@me/outbound-promotions/codes.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"UniqueUsernameSuggestionResponse"
 		],
 		"route": "/users/@me/pomelo-suggestions",

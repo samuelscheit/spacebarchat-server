@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 530,
+        "totalCoveredManifestEntries": 531,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 508,
-                "totalCoveredManifestEntries": 508,
-                "totalCoveredRequiredManifestEntries": 508,
+                "totalRequiredManifestEntries": 509,
+                "totalCoveredManifestEntries": 509,
+                "totalCoveredRequiredManifestEntries": 509,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 368,
+            "stateful-domain": 369,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 508,
-                "totalCoveredManifestEntries": 508,
-                "totalCoveredRequiredManifestEntries": 508,
+                "totalRequiredManifestEntries": 509,
+                "totalCoveredManifestEntries": 509,
+                "totalCoveredRequiredManifestEntries": 509,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -345,6 +345,7 @@
                 "api:http:GET:/users/@me/notes/",
                 "api:http:GET:/users/@me/notes/:user_id",
                 "api:http:GET:/users/@me/notification-center/items/",
+                "api:http:GET:/users/@me/outbound-promotions/codes/",
                 "api:http:GET:/users/@me/pomelo-suggestions/",
                 "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                 "api:http:GET:/users/@me/relationships/",
@@ -855,6 +856,7 @@
                 "api:http:GET:/users/@me/notes/",
                 "api:http:GET:/users/@me/notes/:user_id",
                 "api:http:GET:/users/@me/notification-center/items/",
+                "api:http:GET:/users/@me/outbound-promotions/codes/",
                 "api:http:GET:/users/@me/pomelo-suggestions/",
                 "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                 "api:http:GET:/users/@me/relationships/",
@@ -1206,6 +1208,7 @@
                         "api:http:GET:/users/@me/notes/",
                         "api:http:GET:/users/@me/notes/:user_id",
                         "api:http:GET:/users/@me/notification-center/items/",
+                        "api:http:GET:/users/@me/outbound-promotions/codes/",
                         "api:http:GET:/users/@me/pomelo-suggestions/",
                         "api:http:GET:/users/@me/referrals/incentive-eligibility/",
                         "api:http:GET:/users/@me/relationships/",

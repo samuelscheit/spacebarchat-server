@@ -1,6 +1,6 @@
 {
-    "missing": 595,
-    "spacebar": 585,
+    "missing": 594,
+    "spacebar": 586,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -421,7 +421,6 @@
         "/users/@me/notification-settings/snapshots",
         "/users/@me/notification-settings/snapshots/{param}",
         "/users/@me/notification-settings/snapshots/{param}/restore-guilds",
-        "/users/@me/outbound-promotions/codes",
         "/users/@me/phone",
         "/users/@me/phone/reverify",
         "/users/@me/phone/verify",
@@ -1785,13 +1784,6 @@
             "sources": ["userdoccers:resources/user-settings.mdx"],
             "source_routes": ["/users/@me/notification-settings/snapshots/{notification_settings_snapshot_id}"],
             "summaries": ["Delete Notification Settings Snapshot"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/outbound-promotions/codes",
-            "route_name": "GET_USERS__ME_OUTBOUND_PROMOTIONS_CODES",
-            "sources": ["userdoccers:resources/promotion.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Claimed Promotions"]
         },
         {
             "method": "GET",

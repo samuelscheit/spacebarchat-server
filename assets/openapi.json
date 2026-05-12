@@ -10496,6 +10496,29 @@
                     "start_date"
                 ]
             },
+            "ClaimedPromotionResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "claimed_at": {
+                        "type": "string"
+                    },
+                    "promotion": {
+                        "$ref": "#/components/schemas/PromotionResponse"
+                    }
+                },
+                "required": [
+                    "claimed_at",
+                    "code",
+                    "promotion",
+                    "user_id"
+                ]
+            },
             "PromotionsResponse": {
                 "type": "array",
                 "items": {
@@ -10506,6 +10529,12 @@
                 "type": "array",
                 "items": {
                     "$ref": "#/components/schemas/BogoPromotionResponse"
+                }
+            },
+            "ClaimedPromotionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ClaimedPromotionResponse"
                 }
             },
             "PremiumReferralIncentiveEligibilityResponse": {
@@ -37412,6 +37441,52 @@
                         }
                     }
                 },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/outbound-promotions/codes/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally backed claimed outbound promotions for the current user without fabricating Discord promotion-code state.",
+                "summary": "Get Claimed Promotions",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ClaimedPromotionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "locale",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Locale to return promotions in."
+                    }
+                ],
                 "tags": [
                     "users"
                 ]

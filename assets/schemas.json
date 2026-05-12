@@ -11043,6 +11043,31 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ClaimedPromotionResponse": {
+        "type": "object",
+        "properties": {
+            "code": {
+                "type": "string"
+            },
+            "user_id": {
+                "type": "string"
+            },
+            "claimed_at": {
+                "type": "string"
+            },
+            "promotion": {
+                "$ref": "#/definitions/PromotionResponse"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "claimed_at",
+            "code",
+            "promotion",
+            "user_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PromotionsResponse": {
         "type": "array",
         "items": {
@@ -11054,6 +11079,13 @@
         "type": "array",
         "items": {
             "$ref": "#/definitions/BogoPromotionResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ClaimedPromotionsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/ClaimedPromotionResponse"
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
