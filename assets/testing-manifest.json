@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 764,
+        "totalEntries": 765,
         "byService": {
-            "api": 667,
+            "api": 668,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 739,
+            "http-route": 740,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 191,
+            "contract": 192,
             "stateful-domain": 420,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 621,
+            "route-class": 622,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -10503,6 +10503,41 @@
                     200,
                     400,
                     401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/friend-finder/find-friends/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/friend-finder/find-friends/",
+            "sourceFile": "src/api/routes/friend-finder/find-friends.ts",
+            "line": 31,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
                 ],
                 "hasQuery": false
             },

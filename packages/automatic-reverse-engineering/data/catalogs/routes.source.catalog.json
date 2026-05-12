@@ -2195,6 +2195,15 @@
 		"source": "src/api/routes/family-center/@me.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/friend-finder/find-friends",
+		"route_name": "POST_FRIEND_FINDER_FIND_FRIENDS",
+		"source": "src/api/routes/friend-finder/find-friends.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

@@ -37138,6 +37138,9 @@
             "name": "family-center"
         },
         {
+            "name": "friend-finder"
+        },
+        {
             "name": "friend-suggestions"
         },
         {
@@ -59699,6 +59702,42 @@
                 ],
                 "tags": [
                     "friend-suggestions"
+                ]
+            }
+        },
+        "/friend-finder/find-friends/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Discord's friend finder route uploads contact data and returns provider-backed friend or invite suggestions. Spacebar does not persist contact-sync state or the eligibility model needed to safely create those suggestions, so this compatibility endpoint fails closed instead of fabricating matches or invites.",
+                "summary": "Find Friends",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "friend-finder"
                 ]
             }
         },

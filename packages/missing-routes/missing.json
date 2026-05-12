@@ -1,6 +1,6 @@
 {
-    "missing": 521,
-    "spacebar": 659,
+    "missing": 520,
+    "spacebar": 660,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -96,7 +96,6 @@
         "/discovery/{param}",
         "/entitlements/gift-codes/{param}/redeem",
         "/family-center/more-activity/{param}/{param}/{param}/{param}",
-        "/friend-finder/find-friends",
         "/gifs/select",
         "/google-play/downgrade-subscription",
         "/google-play/validate-purchase",
@@ -2278,7 +2277,6 @@
             "source_routes": ["/entitlements/gift-codes/{gift_code_code}/redeem"],
             "summaries": ["Redeem Gift Code"]
         },
-        { "method": "POST", "route": "/friend-finder/find-friends", "route_name": "FRIEND_FINDER", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "POST",
             "route": "/gifs/select",
