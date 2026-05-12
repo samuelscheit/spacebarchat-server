@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 565,
+        "totalCoveredManifestEntries": 566,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 543,
-                "totalCoveredManifestEntries": 543,
-                "totalCoveredRequiredManifestEntries": 543,
+                "totalRequiredManifestEntries": 544,
+                "totalCoveredManifestEntries": 544,
+                "totalCoveredRequiredManifestEntries": 544,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 402,
+            "stateful-domain": 403,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 543,
-                "totalCoveredManifestEntries": 543,
-                "totalCoveredRequiredManifestEntries": 543,
+                "totalRequiredManifestEntries": 544,
+                "totalCoveredManifestEntries": 544,
+                "totalCoveredRequiredManifestEntries": 544,
                 "totalSuites": 12
             },
             "requiredManifestIds": [

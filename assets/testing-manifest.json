@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 736,
+        "totalEntries": 737,
         "byService": {
-            "api": 639,
+            "api": 640,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 711,
+            "http-route": 712,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 182,
-            "stateful-domain": 402,
+            "stateful-domain": 403,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 594,
+            "route-class": 595,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -25924,7 +25924,7 @@
             "method": "GET",
             "path": "/users/@me/saved-messages/",
             "sourceFile": "src/api/routes/users/@me/saved-messages.ts",
-            "line": 43,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
