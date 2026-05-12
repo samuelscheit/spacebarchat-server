@@ -9013,6 +9013,12 @@
                     "uses"
                 ]
             },
+            "UserInvitesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/UserInviteResponse"
+                }
+            },
             "InviteResponse": {
                 "anyOf": [
                     {
@@ -38616,6 +38622,39 @@
             }
         },
         "/users/@me/invites/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get User Invites",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserInvitesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            },
             "post": {
                 "x-right-required": "INVITE_USERS",
                 "security": [

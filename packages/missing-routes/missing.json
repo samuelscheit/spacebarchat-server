@@ -1,6 +1,6 @@
 {
-    "missing": 579,
-    "spacebar": 601,
+    "missing": 578,
+    "spacebar": 602,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1646,13 +1646,6 @@
             "route_name": "GET_USERS__ME_HARVEST",
             "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get User Harvest"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/invites",
-            "route_name": "GET_USERS__ME_INVITES",
-            "sources": ["userdoccers:resources/invite.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Invites"]
         },
         {
             "method": "GET",

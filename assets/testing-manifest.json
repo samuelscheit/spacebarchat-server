@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 706,
+        "totalEntries": 707,
         "byService": {
-            "api": 609,
+            "api": 610,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 681,
+            "http-route": 682,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 175,
-            "stateful-domain": 379,
+            "stateful-domain": 380,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 564,
+            "route-class": 565,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -23868,13 +23868,53 @@
             }
         },
         {
+            "id": "api:http:GET:/users/@me/invites/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/invites/",
+            "sourceFile": "src/api/routes/users/@me/invites.ts",
+            "line": 33,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UserInvitesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:POST:/users/@me/invites/",
             "type": "http-route",
             "service": "api",
             "method": "POST",
             "path": "/users/@me/invites/",
             "sourceFile": "src/api/routes/users/@me/invites.ts",
-            "line": 25,
+            "line": 51,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

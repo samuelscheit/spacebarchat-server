@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { RelationshipType, UserInviteResponse } from "@spacebar/schemas";
+import { RelationshipType, type UserInviteResponse, type UserInvitesResponse } from "@spacebar/schemas";
 import { Config, DiscordApiErrors, Invite, User } from "@spacebar/util";
 import { type InviteCodeRepository, INVITE_CODE_MAX_LENGTH, INVITE_CODE_REGEX, generateUnusedInviteCode, randomString, validateInviteCode } from "./RandomInviteID";
 import { UpdateRelationshipOptions, relationshipUserProjection, updateRelationship } from "./Relationships";
@@ -28,6 +28,25 @@ export interface UserInviteCreateBody {
 type InviteRecord = {
     toJSON?: () => object;
 };
+
+type PotentialInviteRecord = {
+    guild_id?: string | null;
+    channel_id?: string | null;
+    inviter_id?: string | null;
+};
+
+type UserInviteRecord = InviteRecord &
+    PotentialInviteRecord & {
+        code: string;
+        temporary: boolean;
+        uses: number;
+        max_uses: number;
+        max_age: number;
+        created_at: Date;
+        expires_at?: Date | null;
+        flags: number;
+        isExpired: (now?: Date) => boolean;
+    };
 
 type UnsavedInvite = InviteRecord & {
     save: () => Promise<InviteRecord>;
@@ -41,6 +60,17 @@ export interface CreateUserInviteOptions {
     inviteRepository?: InviteRepository;
     getPublicUser?: (user_id: string) => Promise<UserInviteResponse["inviter"]>;
     generateCode?: () => string;
+    now?: () => Date;
+}
+
+type UserInviteListRepository = {
+    find: (options: { where: { inviter_id: string }; order: { created_at: "DESC"; code: "ASC" } }) => Promise<UserInviteRecord[]>;
+};
+
+export interface ListUserInvitesOptions {
+    inviteRepository?: UserInviteListRepository;
+    deleteInvite?: (criteria: { code: string }) => Promise<unknown>;
+    getPublicUser?: (user_id: string) => Promise<UserInviteResponse["inviter"]>;
     now?: () => Date;
 }
 
@@ -62,9 +92,7 @@ export const USER_INVITE_MAX_USES = 5;
 export const USER_INVITE_CODE_MAX_LENGTH = INVITE_CODE_MAX_LENGTH;
 export const USER_INVITE_CODE_REGEX = INVITE_CODE_REGEX;
 
-export function isUserInvite(
-    invite: Pick<Invite, "guild_id" | "channel_id" | "inviter_id">,
-): invite is Pick<Invite, "guild_id" | "channel_id" | "inviter_id"> & { inviter_id: string } {
+export function isUserInvite(invite: PotentialInviteRecord): invite is PotentialInviteRecord & { inviter_id: string } {
     return !invite.guild_id && !invite.channel_id && !!invite.inviter_id;
 }
 
@@ -96,6 +124,36 @@ export async function createUserInvite(user_id: string, body: UserInviteCreateBo
         .save();
 
     return toUserInviteResponse(invite, await getPublicUser(user_id));
+}
+
+export async function listUserInvites(user_id: string, options: ListUserInvitesOptions = {}): Promise<UserInvitesResponse> {
+    const inviteRepository = options.inviteRepository ?? (Invite as unknown as UserInviteListRepository);
+    const deleteInvite = options.deleteInvite ?? Invite.delete.bind(Invite);
+    const getPublicUser = options.getPublicUser ?? User.getPublicUser;
+    const now = options.now ?? (() => new Date());
+
+    const invites = await inviteRepository.find({
+        where: { inviter_id: user_id },
+        order: {
+            created_at: "DESC",
+            code: "ASC",
+        },
+    });
+
+    const currentTime = now();
+    const activeInvites: UserInviteRecord[] = [];
+    const expiredInvites: UserInviteRecord[] = [];
+    for (const invite of invites) {
+        if (!isUserInvite(invite) || invite.inviter_id !== user_id) continue;
+        if (invite.isExpired(currentTime)) expiredInvites.push(invite);
+        else activeInvites.push(invite);
+    }
+
+    await Promise.all(expiredInvites.map((invite) => deleteInvite({ code: invite.code })));
+    if (!activeInvites.length) return [];
+
+    const inviter = await getPublicUser(user_id);
+    return activeInvites.map((invite) => toUserInviteResponse(invite, inviter));
 }
 
 export async function acceptUserInvite(user_id: string, invite: Invite, options: AcceptUserInviteOptions = {}): Promise<UserInviteResponse> {

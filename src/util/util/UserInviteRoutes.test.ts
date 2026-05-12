@@ -27,11 +27,13 @@ type OpenApiDocument = {
 };
 
 describe("user invite route metadata", () => {
-    test("declares the create user invite route", () => {
+    test("declares the current-user invite routes", () => {
         const openapi = JSON.parse(readFileSync("assets/openapi.json", "utf8")) as OpenApiDocument;
 
-        assert.deepEqual(Object.keys(openapi.paths["/users/@me/invites/"]).sort(), ["post"]);
+        assert.deepEqual(Object.keys(openapi.paths["/users/@me/invites/"]).sort(), ["get", "post"]);
+        assert.equal(openapi.paths["/users/@me/invites/"].get.responses["200"].content["application/json"].schema.$ref, "#/components/schemas/UserInvitesResponse");
         assert.equal(openapi.paths["/users/@me/invites/"].post.responses["201"].content["application/json"].schema.$ref, "#/components/schemas/UserInviteResponse");
+        assert.equal("delete" in openapi.paths["/users/@me/invites/"], false);
 
         const userInviteResponse = openapi.components.schemas.UserInviteResponse;
         assert.ok(userInviteResponse);

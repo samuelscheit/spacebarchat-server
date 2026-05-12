@@ -4,7 +4,7 @@ import { describe, test } from "node:test";
 process.env.DATABASE ??= "postgres://user:password@localhost:5432/test";
 
 const { DiscordApiErrors } = require("@spacebar/util") as typeof import("@spacebar/util");
-const { acceptUserInvite, createUserInvite, revokeUserInvite } = require("./UserInvites") as typeof import("./UserInvites");
+const { acceptUserInvite, createUserInvite, listUserInvites, revokeUserInvite } = require("./UserInvites") as typeof import("./UserInvites");
 
 function publicUser(user_id: string) {
     return {
@@ -346,5 +346,128 @@ describe("user invite creation", () => {
             invites.map((invite) => invite.uses),
             [0, 0, 0],
         );
+    });
+});
+
+describe("user invite listing", () => {
+    test("returns active friend invites for the current user and removes expired rows", async () => {
+        const queryOptions: unknown[] = [];
+        const deletedCodes: string[] = [];
+        const activeCreatedAt = new Date("2026-05-05T10:00:00.000Z");
+        const expiredCreatedAt = new Date("2026-05-01T10:00:00.000Z");
+        const now = new Date("2026-05-06T10:00:00.000Z");
+        const activeInvite = {
+            code: "fresh",
+            temporary: false,
+            uses: 1,
+            max_uses: 5,
+            max_age: 604800,
+            created_at: activeCreatedAt,
+            expires_at: new Date("2026-05-12T10:00:00.000Z"),
+            guild_id: null,
+            channel_id: null,
+            inviter_id: "inviter_user",
+            flags: 0,
+            isExpired: (checkedAt?: Date) => {
+                assert.equal(checkedAt, now);
+                return false;
+            },
+        };
+        const expiredInvite = {
+            ...activeInvite,
+            code: "expired",
+            uses: 5,
+            created_at: expiredCreatedAt,
+            expires_at: new Date("2026-05-05T10:00:00.000Z"),
+            isExpired: (checkedAt?: Date) => {
+                assert.equal(checkedAt, now);
+                return true;
+            },
+        };
+
+        const invites = await listUserInvites("inviter_user", {
+            now: () => now,
+            getPublicUser: async (user_id) => publicUser(user_id),
+            deleteInvite: async ({ code }) => {
+                deletedCodes.push(code);
+            },
+            inviteRepository: {
+                find: async (options) => {
+                    queryOptions.push(options);
+                    return [
+                        activeInvite,
+                        expiredInvite,
+                        {
+                            ...activeInvite,
+                            code: "guild",
+                            guild_id: "guild_id",
+                            isExpired: () => {
+                                throw new Error("guild invites should not be evaluated as user invites");
+                            },
+                        },
+                        {
+                            ...activeInvite,
+                            code: "other-user",
+                            inviter_id: "other_user",
+                            isExpired: () => {
+                                throw new Error("other users' invites should not be evaluated");
+                            },
+                        },
+                    ] as never;
+                },
+            },
+        });
+
+        assert.deepEqual(queryOptions, [
+            {
+                where: { inviter_id: "inviter_user" },
+                order: {
+                    created_at: "DESC",
+                    code: "ASC",
+                },
+            },
+        ]);
+        assert.deepEqual(deletedCodes, ["expired"]);
+        assert.deepEqual(invites, [
+            {
+                type: 2,
+                code: "fresh",
+                temporary: false,
+                uses: 1,
+                max_uses: 5,
+                max_age: 604800,
+                created_at: activeCreatedAt,
+                expires_at: new Date("2026-05-12T10:00:00.000Z"),
+                inviter_id: "inviter_user",
+                inviter: publicUser("inviter_user"),
+                flags: 0,
+            },
+        ]);
+    });
+
+    test("does not fetch the inviter profile when no active friend invites exist", async () => {
+        const invites = await listUserInvites("inviter_user", {
+            getPublicUser: async () => {
+                throw new Error("empty invite lists should not need a public user lookup");
+            },
+            inviteRepository: {
+                find: async () => [
+                    {
+                        code: "guild",
+                        temporary: false,
+                        uses: 0,
+                        max_uses: 0,
+                        max_age: 0,
+                        created_at: new Date("2026-05-05T10:00:00.000Z"),
+                        guild_id: "guild_id",
+                        inviter_id: "inviter_user",
+                        flags: 0,
+                        isExpired: () => false,
+                    },
+                ],
+            } as never,
+        });
+
+        assert.deepEqual(invites, []);
     });
 });

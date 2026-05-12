@@ -5169,6 +5169,16 @@
 		"source": "src/api/routes/users/@me/identity/verification.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"UserInvitesResponse"
+		],
+		"route": "/users/@me/invites",
+		"route_name": "GET_USERS__ME_INVITES",
+		"source": "src/api/routes/users/@me/invites.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "UserInviteCreateSchema",
 		"response_schema_refs": [

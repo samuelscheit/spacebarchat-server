@@ -16,30 +16,59 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { createUserInvite, route } from "@spacebar/api";
-import { UserInviteCreateSchema } from "@spacebar/schemas";
+import { createUserInvite, listUserInvites, route } from "@spacebar/api";
+import { UserInviteCreateSchema, type UserInviteResponse, type UserInvitesResponse } from "@spacebar/schemas";
 import { Request, Response, Router } from "express";
 
-const router: Router = Router({ mergeParams: true });
+export interface UserInvitesRouteDependencies {
+    createUserInvite?: (userId: string, body: UserInviteCreateSchema) => Promise<UserInviteResponse>;
+    listUserInvites?: (userId: string) => Promise<UserInvitesResponse>;
+}
 
-router.post(
-    "/",
-    route({
-        requestBody: "UserInviteCreateSchema",
-        right: "INVITE_USERS",
-        responses: {
-            201: {
-                body: "UserInviteResponse",
+export function createUserInvitesRouter(dependencies: UserInvitesRouteDependencies = {}): Router {
+    const createCurrentUserInvite = dependencies.createUserInvite ?? createUserInvite;
+    const listCurrentUserInvites = dependencies.listUserInvites ?? listUserInvites;
+    const router: Router = Router({ mergeParams: true });
+
+    router.get(
+        "/",
+        route({
+            summary: "Get User Invites",
+            responses: {
+                200: {
+                    body: "UserInvitesResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
             },
-            400: {
-                body: "APIErrorResponse",
-            },
+        }),
+        async (req: Request, res: Response) => {
+            res.status(200).send(await listCurrentUserInvites(req.user_id));
         },
-    }),
-    async (req: Request, res: Response) => {
-        const invite = await createUserInvite(req.user_id, req.body as UserInviteCreateSchema);
-        res.status(201).send(invite);
-    },
-);
+    );
 
-export default router;
+    router.post(
+        "/",
+        route({
+            requestBody: "UserInviteCreateSchema",
+            right: "INVITE_USERS",
+            responses: {
+                201: {
+                    body: "UserInviteResponse",
+                },
+                400: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const invite = await createCurrentUserInvite(req.user_id, req.body as UserInviteCreateSchema);
+            res.status(201).send(invite);
+        },
+    );
+
+    return router;
+}
+
+export default createUserInvitesRouter();

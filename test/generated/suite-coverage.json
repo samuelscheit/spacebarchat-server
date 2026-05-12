@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 542,
+        "totalCoveredManifestEntries": 543,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 520,
-                "totalCoveredManifestEntries": 520,
-                "totalCoveredRequiredManifestEntries": 520,
+                "totalRequiredManifestEntries": 521,
+                "totalCoveredManifestEntries": 521,
+                "totalCoveredRequiredManifestEntries": 521,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 379,
+            "stateful-domain": 380,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 520,
-                "totalCoveredManifestEntries": 520,
-                "totalCoveredRequiredManifestEntries": 520,
+                "totalRequiredManifestEntries": 521,
+                "totalCoveredManifestEntries": 521,
+                "totalCoveredRequiredManifestEntries": 521,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -348,6 +348,7 @@
                 "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                 "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
                 "api:http:GET:/users/@me/identity/verification/",
+                "api:http:GET:/users/@me/invites/",
                 "api:http:GET:/users/@me/library/",
                 "api:http:GET:/users/@me/linked-connections/",
                 "api:http:GET:/users/@me/mfa/webauthn/credentials/",
@@ -870,6 +871,7 @@
                 "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                 "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
                 "api:http:GET:/users/@me/identity/verification/",
+                "api:http:GET:/users/@me/invites/",
                 "api:http:GET:/users/@me/library/",
                 "api:http:GET:/users/@me/linked-connections/",
                 "api:http:GET:/users/@me/mfa/webauthn/credentials/",
@@ -1225,6 +1227,7 @@
                         "api:http:GET:/users/@me/guilds/:guild_id/settings/",
                         "api:http:GET:/users/@me/guilds/premium/subscription-slots/",
                         "api:http:GET:/users/@me/identity/verification/",
+                        "api:http:GET:/users/@me/invites/",
                         "api:http:GET:/users/@me/library/",
                         "api:http:GET:/users/@me/linked-connections/",
                         "api:http:GET:/users/@me/mfa/webauthn/credentials/",

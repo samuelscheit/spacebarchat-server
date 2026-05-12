@@ -9489,6 +9489,13 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserInvitesResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/UserInviteResponse"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "InviteResponse": {
         "anyOf": [
             {

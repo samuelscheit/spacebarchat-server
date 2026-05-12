@@ -31,3 +31,5 @@ export interface UserInviteResponse {
     inviter: PublicUser;
     flags: number;
 }
+
+export type UserInvitesResponse = UserInviteResponse[];
