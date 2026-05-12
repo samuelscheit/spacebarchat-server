@@ -102,6 +102,16 @@
 		"source": "src/api/routes/age-verification/verify.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "AIFixGrammarSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/ai/fix-grammar",
+		"route_name": "POST_AI_FIX_GRAMMAR",
+		"source": "src/api/routes/ai/fix-grammar.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"ApexExperimentsResponse"

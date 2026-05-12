@@ -1,10 +1,9 @@
 {
-    "missing": 528,
-    "spacebar": 652,
+    "missing": 527,
+    "spacebar": 653,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
-        "/ai/fix-grammar",
         "/ai/summarize-thread/{param}",
         "/ai/title",
         "/ai/translate",
@@ -1933,7 +1932,6 @@
             "source_routes": ["/activities/{channel_id}/{application_id}"],
             "summaries": ["Launch Embedded Activity"]
         },
-        { "method": "POST", "route": "/ai/fix-grammar", "route_name": "POST_AI_FIX_GRAMMAR", "sources": ["userdoccers:resources/ai.mdx"], "summaries": ["Fix Grammar"] },
         {
             "method": "POST",
             "route": "/ai/summarize-thread/{param}",

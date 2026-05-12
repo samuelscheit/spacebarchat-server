@@ -3,21 +3,21 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 732,
+        "totalContracts": 733,
         "byService": {
-            "api": 659,
+            "api": 660,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 582,
-        "runtimeMalformedAuthContracts": 582,
-        "runtimeRevokedSessionAuthContracts": 582,
-        "runtimeStaleTokenAuthContracts": 582,
+        "runtimeAuthBoundaryContracts": 583,
+        "runtimeMalformedAuthContracts": 583,
+        "runtimeRevokedSessionAuthContracts": 583,
+        "runtimeStaleTokenAuthContracts": 583,
         "runtimePublicAuthBoundaryContracts": 69,
         "runtimePublicInvalidBodyContracts": 16,
         "runtimeProtectedInvalidBodyContracts": 74,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
-        "runtimeRightOnlyDenialContracts": 12,
+        "runtimeRightOnlyDenialContracts": 13,
         "runtimePermissionOnlyDenialContracts": 135,
         "runtimePermissionAndRightPermissionDenialContracts": 8,
         "runtimePermissionAndRightRightDenialContracts": 8,
@@ -692,6 +692,58 @@
                     "id": "invalid-request-body",
                     "checks": ["schema-validation", "error-shape"],
                     "requestBody": "AgeVerificationVerifySchema"
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/ai/fix-grammar/",
+            "service": "api",
+            "method": "POST",
+            "path": "/ai/fix-grammar/",
+            "samplePath": "/ai/fix-grammar/",
+            "sourceFile": "src/api/routes/ai/fix-grammar.ts",
+            "line": 31,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "requestBody": "AIFixGrammarSchema",
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [400, 401, 403, 501],
+                "right": "OPERATOR"
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "AIFixGrammarSchema"
+                },
+                {
+                    "id": "authorization-denied",
+                    "checks": ["permission-denied", "error-shape"],
+                    "right": "OPERATOR"
                 },
                 {
                     "id": "policy-auth-boundary",
@@ -12749,7 +12801,7 @@
             "path": "/content-inventory/users/@me/applications/:application_id/",
             "samplePath": "/content-inventory/users/@me/applications/100000000000000007/",
             "sourceFile": "src/api/routes/content-inventory/users/@me/applications/#application_id.ts",
-            "line": 38,
+            "line": 37,
             "authMode": "bearer",
             "testTier": "contract",
             "benchmarkClass": "route-class",

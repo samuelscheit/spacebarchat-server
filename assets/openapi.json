@@ -572,6 +572,19 @@
                     "type"
                 ]
             },
+            "AIFixGrammarSchema": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "minLength": 1,
+                        "maxLength": 2000,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "content"
+                ]
+            },
             "ActivitySessionUpdateSchema": {
                 "type": "object",
                 "properties": {
@@ -36971,6 +36984,9 @@
             "name": "age-verification"
         },
         {
+            "name": "ai"
+        },
+        {
             "name": "apex"
         },
         {
@@ -71716,6 +71732,73 @@
                 },
                 "tags": [
                     "apex"
+                ]
+            }
+        },
+        "/ai/fix-grammar/": {
+            "post": {
+                "x-right-required": "OPERATOR",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Validates staff-only AI grammar correction requests. Spacebar has no configured AI text-correction provider, so this compatibility endpoint fails closed instead of fabricating corrected text.",
+                "summary": "Fix Grammar",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AIFixGrammarSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "ai"
                 ]
             }
         },

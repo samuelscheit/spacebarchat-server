@@ -558,6 +558,21 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "AIFixGrammarSchema": {
+        "type": "object",
+        "properties": {
+            "content": {
+                "minLength": 1,
+                "maxLength": 2000,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "content"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ActivitySessionUpdateSchema": {
         "type": "object",
         "properties": {
