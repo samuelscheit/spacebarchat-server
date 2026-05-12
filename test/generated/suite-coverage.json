@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 532,
+        "totalCoveredManifestEntries": 533,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 510,
-                "totalCoveredManifestEntries": 510,
-                "totalCoveredRequiredManifestEntries": 510,
+                "totalRequiredManifestEntries": 511,
+                "totalCoveredManifestEntries": 511,
+                "totalCoveredRequiredManifestEntries": 511,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 370,
+            "stateful-domain": 371,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 510,
-                "totalCoveredManifestEntries": 510,
-                "totalCoveredRequiredManifestEntries": 510,
+                "totalRequiredManifestEntries": 511,
+                "totalCoveredManifestEntries": 511,
+                "totalCoveredRequiredManifestEntries": 511,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -236,6 +236,7 @@
                 "api:http:GET:/guilds/:guild_id/bans/search",
                 "api:http:GET:/guilds/:guild_id/basic/",
                 "api:http:GET:/guilds/:guild_id/channels/",
+                "api:http:GET:/guilds/:guild_id/creator-monetization/marketing/onboarding/",
                 "api:http:GET:/guilds/:guild_id/directory-entries/broadcast/",
                 "api:http:GET:/guilds/:guild_id/discovery-metadata/",
                 "api:http:GET:/guilds/:guild_id/discovery-requirements/",
@@ -748,6 +749,7 @@
                 "api:http:GET:/guilds/:guild_id/bans/search",
                 "api:http:GET:/guilds/:guild_id/basic/",
                 "api:http:GET:/guilds/:guild_id/channels/",
+                "api:http:GET:/guilds/:guild_id/creator-monetization/marketing/onboarding/",
                 "api:http:GET:/guilds/:guild_id/directory-entries/broadcast/",
                 "api:http:GET:/guilds/:guild_id/discovery-metadata/",
                 "api:http:GET:/guilds/:guild_id/discovery-requirements/",
@@ -1318,6 +1320,7 @@
                         "api:http:GET:/guilds/:guild_id/bans/search",
                         "api:http:GET:/guilds/:guild_id/basic/",
                         "api:http:GET:/guilds/:guild_id/channels/",
+                        "api:http:GET:/guilds/:guild_id/creator-monetization/marketing/onboarding/",
                         "api:http:GET:/guilds/:guild_id/directory-entries/broadcast/",
                         "api:http:GET:/guilds/:guild_id/discovery-metadata/",
                         "api:http:GET:/guilds/:guild_id/discovery-requirements/",

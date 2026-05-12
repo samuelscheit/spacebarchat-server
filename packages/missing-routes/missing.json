@@ -1,6 +1,6 @@
 {
-    "missing": 593,
-    "spacebar": 587,
+    "missing": 592,
+    "spacebar": 588,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -135,7 +135,6 @@
         "/guilds/{param}/creator-monetization/accept-terms",
         "/guilds/{param}/creator-monetization/enable-requests",
         "/guilds/{param}/creator-monetization/enable-requests/{param}/accept-terms",
-        "/guilds/{param}/creator-monetization/marketing/onboarding",
         "/guilds/{param}/creator-monetization/ownership-transfer/onboarding",
         "/guilds/{param}/creator-monetization/remove-monetization",
         "/guilds/{param}/creator-monetization/requirements",
@@ -1202,13 +1201,6 @@
             "route_name": "GUILD_AUTOMOD_VALIDATE_RULE",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/auto-moderation/rules/validate"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/creator-monetization/marketing/onboarding",
-            "route_name": "CREATOR_MONETIZATION_MARKETING_ONBOARDING",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/creator-monetization/marketing/onboarding"]
         },
         {
             "method": "GET",

@@ -2645,6 +2645,15 @@
 		"source": "src/api/routes/guilds/#guild_id/channels.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/creator-monetization/marketing/onboarding",
+		"route_name": "GET_GUILDS_GUILD_ID_CREATOR_MONETIZATION_MARKETING_ONBOARDING",
+		"source": "src/api/routes/guilds/#guild_id/creator-monetization/marketing/onboarding.ts"
+	},
+	{
 		"method": "POST",
 		"response_schema_refs": [
 			"APIErrorResponse"
