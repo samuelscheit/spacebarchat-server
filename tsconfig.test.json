@@ -276,6 +276,7 @@
         "src/util/util/PartialUser.test.ts",
         "src/api/util/userProfileResponse.test.ts",
         "src/schemas/responses/ChannelLinkedAccountsResponse.test.ts",
+        "src/schemas/responses/ApplicationRoleConnectionsResponse.test.ts",
         "src/schemas/responses/LinkedConnectionsResponse.test.ts",
         "src/schemas/responses/LobbyResponse.test.ts",
         "src/schemas/responses/UserProfileResponse.test.ts",

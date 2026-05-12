@@ -37,6 +37,7 @@ export * from "./ApplicationGiftCodeBatchesResponse";
 export * from "./ApplicationIdentitiesResponse";
 export * from "./ApplicationBranchesResponse";
 export * from "./ApplicationLiveBuildResponse";
+export * from "./ApplicationRoleConnectionsResponse";
 export * from "./ApplicationRpcResponse";
 export * from "./ApplicationStoreAssetsResponse";
 export * from "./ApplicationTestersResponse";

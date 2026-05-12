@@ -1,6 +1,6 @@
 {
-    "missing": 596,
-    "spacebar": 584,
+    "missing": 595,
+    "spacebar": 585,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -331,7 +331,6 @@
         "/users/@me/account",
         "/users/@me/activities/subscribe",
         "/users/@me/agreements",
-        "/users/@me/applications/role-connections",
         "/users/@me/applications/{param}/entitlement-ticket",
         "/users/@me/applications/{param}/role-connection",
         "/users/@me/applications/{param}/ticket",
@@ -1588,13 +1587,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/users/@me/applications/{application_id}/role-connection"],
             "summaries": ["Get User Application Role Connection"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/applications/role-connections",
-            "route_name": "GET_USERS__ME_APPLICATIONS_ROLE_CONNECTIONS",
-            "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get User Application Role Connections"]
         },
         {
             "method": "GET",

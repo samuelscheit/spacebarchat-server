@@ -3523,6 +3523,412 @@
                     "manifests"
                 ]
             },
+            "APIIntegrationApplication": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "icon": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "anyOf": [
+                            {
+                                "enum": [
+                                    1,
+                                    2,
+                                    3,
+                                    4
+                                ],
+                                "type": "number"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "hook": {
+                        "type": "boolean"
+                    },
+                    "bot_public": {
+                        "type": "boolean"
+                    },
+                    "bot_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "verify_key": {
+                        "type": "string"
+                    },
+                    "flags": {
+                        "type": "integer"
+                    },
+                    "redirect_uris": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "rpc_application_state": {
+                        "type": "integer"
+                    },
+                    "store_application_state": {
+                        "type": "integer"
+                    },
+                    "verification_state": {
+                        "type": "integer"
+                    },
+                    "interactions_endpoint_url": {
+                        "type": "string"
+                    },
+                    "integration_public": {
+                        "type": "boolean"
+                    },
+                    "integration_require_code_grant": {
+                        "type": "boolean"
+                    },
+                    "discoverability_state": {
+                        "type": "integer"
+                    },
+                    "discovery_eligibility_flags": {
+                        "type": "integer"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "cover_image": {
+                        "type": "string"
+                    },
+                    "install_params": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationInstallParams"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "terms_of_service_url": {
+                        "type": "string"
+                    },
+                    "privacy_policy_url": {
+                        "type": "string"
+                    },
+                    "guild_id": {
+                        "type": "string"
+                    },
+                    "custom_install_url": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "description",
+                    "discoverability_state",
+                    "discovery_eligibility_flags",
+                    "flags",
+                    "hook",
+                    "id",
+                    "integration_public",
+                    "integration_require_code_grant",
+                    "name",
+                    "redirect_uris",
+                    "rpc_application_state",
+                    "store_application_state",
+                    "summary",
+                    "verification_state",
+                    "verify_key"
+                ]
+            },
+            "APIIntegration": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "account": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "syncing": {
+                        "type": "boolean"
+                    },
+                    "role_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "enable_emoticons": {
+                        "type": "boolean"
+                    },
+                    "expire_behavior": {
+                        "type": "integer"
+                    },
+                    "expire_grace_period": {
+                        "type": "integer"
+                    },
+                    "synced_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "subscriber_count": {
+                        "type": "integer"
+                    },
+                    "revoked": {
+                        "type": "boolean"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/APIIntegrationApplication"
+                    },
+                    "scopes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "role_connections_metadata": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": true
+                        }
+                    },
+                    "user": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PartialUser"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "account",
+                    "enabled",
+                    "id",
+                    "name",
+                    "type"
+                ]
+            },
+            "APIIntegrationArray": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/APIIntegration"
+                }
+            },
+            "APIGuildIntegration": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "const": "discord"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "syncing": {
+                        "type": "boolean"
+                    },
+                    "role_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "enable_emoticons": {
+                        "type": "boolean"
+                    },
+                    "expire_behavior": {
+                        "type": "integer"
+                    },
+                    "expire_grace_period": {
+                        "type": "integer"
+                    },
+                    "user": {
+                        "type": "null"
+                    },
+                    "account": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [
+                            "id",
+                            "name"
+                        ]
+                    },
+                    "synced_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "subscriber_count": {
+                        "type": "integer"
+                    },
+                    "revoked": {
+                        "type": "boolean"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/APIIntegrationApplication"
+                    }
+                },
+                "required": [
+                    "account",
+                    "application",
+                    "enable_emoticons",
+                    "enabled",
+                    "expire_behavior",
+                    "expire_grace_period",
+                    "id",
+                    "name",
+                    "revoked",
+                    "role_id",
+                    "subscriber_count",
+                    "synced_at",
+                    "syncing",
+                    "type",
+                    "user"
+                ]
+            },
+            "APIGuildIntegrationArray": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/APIGuildIntegration"
+                }
+            },
+            "ApplicationRoleConnectionMetadataValuesResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "ApplicationRoleConnectionLocalizationMapResponse": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "ApplicationRoleConnectionMetadataResponse": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "integer"
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "name_localizations": {
+                        "$ref": "#/components/schemas/ApplicationRoleConnectionLocalizationMapResponse"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "description_localizations": {
+                        "$ref": "#/components/schemas/ApplicationRoleConnectionLocalizationMapResponse"
+                    }
+                },
+                "required": [
+                    "description",
+                    "key",
+                    "name",
+                    "type"
+                ]
+            },
+            "ApplicationRoleConnectionResponse": {
+                "type": "object",
+                "properties": {
+                    "platform_name": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "platform_username": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/ApplicationRoleConnectionMetadataValuesResponse"
+                    },
+                    "application": {
+                        "$ref": "#/components/schemas/APIIntegrationApplication"
+                    },
+                    "application_metadata": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ApplicationRoleConnectionMetadataResponse"
+                        }
+                    }
+                },
+                "required": [
+                    "metadata",
+                    "platform_name",
+                    "platform_username"
+                ]
+            },
+            "ApplicationRoleConnectionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ApplicationRoleConnectionResponse"
+                }
+            },
             "ApplicationRpcResponse": {
                 "type": "object",
                 "properties": {
@@ -7470,331 +7876,6 @@
                 "required": [
                     "guilds"
                 ]
-            },
-            "APIIntegrationApplication": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "icon": {
-                        "type": "string"
-                    },
-                    "description": {
-                        "type": "string"
-                    },
-                    "summary": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "anyOf": [
-                            {
-                                "enum": [
-                                    1,
-                                    2,
-                                    3,
-                                    4
-                                ],
-                                "type": "number"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "hook": {
-                        "type": "boolean"
-                    },
-                    "bot_public": {
-                        "type": "boolean"
-                    },
-                    "bot_require_code_grant": {
-                        "type": "boolean"
-                    },
-                    "verify_key": {
-                        "type": "string"
-                    },
-                    "flags": {
-                        "type": "integer"
-                    },
-                    "redirect_uris": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "rpc_application_state": {
-                        "type": "integer"
-                    },
-                    "store_application_state": {
-                        "type": "integer"
-                    },
-                    "verification_state": {
-                        "type": "integer"
-                    },
-                    "interactions_endpoint_url": {
-                        "type": "string"
-                    },
-                    "integration_public": {
-                        "type": "boolean"
-                    },
-                    "integration_require_code_grant": {
-                        "type": "boolean"
-                    },
-                    "discoverability_state": {
-                        "type": "integer"
-                    },
-                    "discovery_eligibility_flags": {
-                        "type": "integer"
-                    },
-                    "tags": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "cover_image": {
-                        "type": "string"
-                    },
-                    "install_params": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/ApplicationInstallParams"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    },
-                    "terms_of_service_url": {
-                        "type": "string"
-                    },
-                    "privacy_policy_url": {
-                        "type": "string"
-                    },
-                    "guild_id": {
-                        "type": "string"
-                    },
-                    "custom_install_url": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "description",
-                    "discoverability_state",
-                    "discovery_eligibility_flags",
-                    "flags",
-                    "hook",
-                    "id",
-                    "integration_public",
-                    "integration_require_code_grant",
-                    "name",
-                    "redirect_uris",
-                    "rpc_application_state",
-                    "store_application_state",
-                    "summary",
-                    "verification_state",
-                    "verify_key"
-                ]
-            },
-            "APIIntegration": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string"
-                    },
-                    "enabled": {
-                        "type": "boolean"
-                    },
-                    "account": {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "id",
-                            "name"
-                        ]
-                    },
-                    "syncing": {
-                        "type": "boolean"
-                    },
-                    "role_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "enable_emoticons": {
-                        "type": "boolean"
-                    },
-                    "expire_behavior": {
-                        "type": "integer"
-                    },
-                    "expire_grace_period": {
-                        "type": "integer"
-                    },
-                    "synced_at": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "subscriber_count": {
-                        "type": "integer"
-                    },
-                    "revoked": {
-                        "type": "boolean"
-                    },
-                    "application": {
-                        "$ref": "#/components/schemas/APIIntegrationApplication"
-                    },
-                    "scopes": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    },
-                    "role_connections_metadata": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {},
-                            "additionalProperties": true
-                        }
-                    },
-                    "user": {
-                        "anyOf": [
-                            {
-                                "$ref": "#/components/schemas/PartialUser"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ]
-                    }
-                },
-                "required": [
-                    "account",
-                    "enabled",
-                    "id",
-                    "name",
-                    "type"
-                ]
-            },
-            "APIIntegrationArray": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/APIIntegration"
-                }
-            },
-            "APIGuildIntegration": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string",
-                        "const": "discord"
-                    },
-                    "enabled": {
-                        "type": "boolean"
-                    },
-                    "syncing": {
-                        "type": "boolean"
-                    },
-                    "role_id": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "enable_emoticons": {
-                        "type": "boolean"
-                    },
-                    "expire_behavior": {
-                        "type": "integer"
-                    },
-                    "expire_grace_period": {
-                        "type": "integer"
-                    },
-                    "user": {
-                        "type": "null"
-                    },
-                    "account": {
-                        "type": "object",
-                        "properties": {
-                            "id": {
-                                "type": "string"
-                            },
-                            "name": {
-                                "type": "string"
-                            }
-                        },
-                        "additionalProperties": false,
-                        "required": [
-                            "id",
-                            "name"
-                        ]
-                    },
-                    "synced_at": {
-                        "type": [
-                            "null",
-                            "string"
-                        ]
-                    },
-                    "subscriber_count": {
-                        "type": "integer"
-                    },
-                    "revoked": {
-                        "type": "boolean"
-                    },
-                    "application": {
-                        "$ref": "#/components/schemas/APIIntegrationApplication"
-                    }
-                },
-                "required": [
-                    "account",
-                    "application",
-                    "enable_emoticons",
-                    "enabled",
-                    "expire_behavior",
-                    "expire_grace_period",
-                    "id",
-                    "name",
-                    "revoked",
-                    "role_id",
-                    "subscriber_count",
-                    "synced_at",
-                    "syncing",
-                    "type",
-                    "user"
-                ]
-            },
-            "APIGuildIntegrationArray": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/APIGuildIntegration"
-                }
             },
             "GuildMessagesSearchResponse": {
                 "type": "object",
@@ -39542,6 +39623,41 @@
                         "description": "avatar_id"
                     }
                 ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/applications/role-connections/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Get User Application Role Connections",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationRoleConnectionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "users"
                 ]

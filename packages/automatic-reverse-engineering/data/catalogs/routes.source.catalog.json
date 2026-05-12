@@ -4667,6 +4667,16 @@
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
+			"ApplicationRoleConnectionsResponse"
+		],
+		"route": "/users/@me/applications/role-connections",
+		"route_name": "GET_USERS__ME_APPLICATIONS_ROLE_CONNECTIONS",
+		"source": "src/api/routes/users/@me/applications/role-connections.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
 			"RecentAvatarsResponse"
 		],
 		"route": "/users/@me/avatars",
