@@ -3143,6 +3143,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildRoleConnectionConfigurationResponse"
+		],
+		"route": "/guilds/{guild_id}/roles/{role_id}/connections/configuration",
+		"route_name": "GET_GUILDS_GUILD_ID_ROLES_ROLE_ID_CONNECTIONS_CONFIGURATION",
+		"source": "src/api/routes/guilds/#guild_id/roles/#role_id/connections/configuration.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/guilds/{guild_id}/roles/{role_id}/member-ids",
 		"route_name": "GET_GUILDS_GUILD_ID_ROLES_ROLE_ID_MEMBER_IDS",

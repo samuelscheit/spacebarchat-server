@@ -51285,6 +51285,83 @@
                 ]
             }
         },
+        "/guilds/{guild_id}/roles/{role_id}/connections/configuration/": {
+            "get": {
+                "x-permission-required": "MANAGE_ROLES",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the locally persisted linked-role requirements for one guild role. Spacebar does not currently persist Discord linked-role configuration state, so this compatibility endpoint returns an empty configuration for existing guild roles instead of fabricating requirements.",
+                "summary": "Get Guild Role Connection Configuration",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildRoleConnectionConfigurationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    },
+                    {
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "role_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
         "/guilds/{guild_id}/requests/": {
             "get": {
                 "x-permission-required": "MANAGE_GUILD",

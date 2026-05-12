@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 730,
+        "totalEntries": 731,
         "byService": {
-            "api": 633,
+            "api": 634,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 705,
+            "http-route": 706,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 179,
-            "stateful-domain": 399,
+            "stateful-domain": 400,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 588,
+            "route-class": 589,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15114,6 +15114,58 @@
                 "emittedEvents": [
                     "GUILD_ROLE_UPDATE"
                 ]
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "coverage": {
+                "policyId": "api-guild-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "members",
+                    "roles",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/guilds/:guild_id/roles/:role_id/connections/configuration/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/guilds/:guild_id/roles/:role_id/connections/configuration/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/roles/#role_id/connections/configuration.ts",
+            "line": 34,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "MANAGE_ROLES",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "GuildRoleConnectionConfigurationResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false
             },
             "rateLimit": {
                 "group": "guild",

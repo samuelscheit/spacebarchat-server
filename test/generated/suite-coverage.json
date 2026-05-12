@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 562,
+        "totalCoveredManifestEntries": 563,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 540,
-                "totalCoveredManifestEntries": 540,
-                "totalCoveredRequiredManifestEntries": 540,
+                "totalRequiredManifestEntries": 541,
+                "totalCoveredManifestEntries": 541,
+                "totalCoveredRequiredManifestEntries": 541,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 399,
+            "stateful-domain": 400,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 540,
-                "totalCoveredManifestEntries": 540,
-                "totalCoveredRequiredManifestEntries": 540,
+                "totalRequiredManifestEntries": 541,
+                "totalCoveredManifestEntries": 541,
+                "totalCoveredRequiredManifestEntries": 541,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -269,6 +269,7 @@
                 "api:http:GET:/guilds/:guild_id/requests/@me/cooldown",
                 "api:http:GET:/guilds/:guild_id/roles/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/",
+                "api:http:GET:/guilds/:guild_id/roles/:role_id/connections/configuration/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
                 "api:http:GET:/guilds/:guild_id/roles/connections-configurations/",
                 "api:http:GET:/guilds/:guild_id/roles/member-counts/",
@@ -811,6 +812,7 @@
                 "api:http:GET:/guilds/:guild_id/requests/@me/cooldown",
                 "api:http:GET:/guilds/:guild_id/roles/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/",
+                "api:http:GET:/guilds/:guild_id/roles/:role_id/connections/configuration/",
                 "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
                 "api:http:GET:/guilds/:guild_id/roles/connections-configurations/",
                 "api:http:GET:/guilds/:guild_id/roles/member-counts/",
@@ -1428,6 +1430,7 @@
                         "api:http:GET:/guilds/:guild_id/requests/@me/cooldown",
                         "api:http:GET:/guilds/:guild_id/roles/",
                         "api:http:GET:/guilds/:guild_id/roles/:role_id/",
+                        "api:http:GET:/guilds/:guild_id/roles/:role_id/connections/configuration/",
                         "api:http:GET:/guilds/:guild_id/roles/:role_id/member-ids/",
                         "api:http:GET:/guilds/:guild_id/roles/connections-configurations/",
                         "api:http:GET:/guilds/:guild_id/roles/member-counts/",

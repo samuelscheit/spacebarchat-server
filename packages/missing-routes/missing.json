@@ -1,6 +1,6 @@
 {
-    "missing": 555,
-    "spacebar": 625,
+    "missing": 554,
+    "spacebar": 626,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1279,14 +1279,6 @@
             "route_name": "GUILD_ROLE_SUBSCRIPTION_TRIALS",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/role-subscriptions/trials"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/roles/{param}/connections/configuration",
-            "route_name": "GET_GUILDS_GUILD_ID_ROLES_ROLE_ID_CONNECTIONS_CONFIGURATION",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/roles/{role_id}/connections/configuration"],
-            "summaries": ["Get Guild Role Connection Configuration"]
         },
         {
             "method": "GET",

@@ -145,7 +145,7 @@ describe("GET /guilds/:guild_id/roles/connections-configurations", () => {
         assert.deepEqual(route?.security, [{ bearer: [] }]);
         assert.equal(openapi.paths?.["/guilds/{guild_id}/roles/connections-configurations/"]?.delete, undefined);
         assert.equal(openapi.paths?.["/guilds/{guild_id}/roles/connections-configurations/"]?.patch, undefined);
-        assert.equal(openapi.paths?.["/guilds/{guild_id}/roles/{role_id}/connections/configuration/"]?.get, undefined);
+        assert.equal(openapi.paths?.["/guilds/{guild_id}/roles/{role_id}/connections/configuration/"]?.put, undefined);
 
         const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
         assert.equal(manifestEntry?.authMode, "bearer");
@@ -185,6 +185,10 @@ describe("GET /guilds/:guild_id/roles/connections-configurations", () => {
         );
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "GET" && entry.route === "/guilds/{param}/roles/{param}/connections/configuration"),
+            false,
+        );
+        assert.equal(
+            missingRoutes.missing_entries.some((entry) => entry.method === "PUT" && entry.route === "/guilds/{param}/roles/{param}/connections/configuration"),
             true,
         );
         assert.equal(
@@ -325,6 +329,7 @@ type OpenApi = {
                 security?: unknown;
             };
             patch?: unknown;
+            put?: unknown;
         }
     >;
 };
