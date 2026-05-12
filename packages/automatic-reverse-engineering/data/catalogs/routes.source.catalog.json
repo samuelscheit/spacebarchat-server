@@ -4997,6 +4997,16 @@
 	{
 		"method": "GET",
 		"response_schema_refs": [
+			"APIErrorResponse",
+			"BillingLocalizedPricingPromoResponse"
+		],
+		"route": "/users/@me/billing/localized-pricing-promo",
+		"route_name": "GET_USERS__ME_BILLING_LOCALIZED_PRICING_PROMO",
+		"source": "src/api/routes/users/@me/billing/localized-pricing-promo.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
 			"BillingLocationInfoResponse"
 		],
 		"route": "/users/@me/billing/location-info",

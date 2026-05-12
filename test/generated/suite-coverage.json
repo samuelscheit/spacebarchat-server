@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 567,
+        "totalCoveredManifestEntries": 568,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 545,
-                "totalCoveredManifestEntries": 545,
-                "totalCoveredRequiredManifestEntries": 545,
+                "totalRequiredManifestEntries": 546,
+                "totalCoveredManifestEntries": 546,
+                "totalCoveredRequiredManifestEntries": 546,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 404,
+            "stateful-domain": 405,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 545,
-                "totalCoveredManifestEntries": 545,
-                "totalCoveredRequiredManifestEntries": 545,
+                "totalRequiredManifestEntries": 546,
+                "totalCoveredManifestEntries": 546,
+                "totalCoveredRequiredManifestEntries": 546,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -334,6 +334,7 @@
                 "api:http:GET:/users/@me/billing/adyen/payment-methods/",
                 "api:http:GET:/users/@me/billing/country-code/",
                 "api:http:GET:/users/@me/billing/invoice/breakdown/",
+                "api:http:GET:/users/@me/billing/localized-pricing-promo/",
                 "api:http:GET:/users/@me/billing/location-info/",
                 "api:http:GET:/users/@me/billing/payment-sources/",
                 "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
@@ -881,6 +882,7 @@
                 "api:http:GET:/users/@me/billing/adyen/payment-methods/",
                 "api:http:GET:/users/@me/billing/country-code/",
                 "api:http:GET:/users/@me/billing/invoice/breakdown/",
+                "api:http:GET:/users/@me/billing/localized-pricing-promo/",
                 "api:http:GET:/users/@me/billing/location-info/",
                 "api:http:GET:/users/@me/billing/payment-sources/",
                 "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
@@ -1257,6 +1259,7 @@
                         "api:http:GET:/users/@me/billing/adyen/payment-methods/",
                         "api:http:GET:/users/@me/billing/country-code/",
                         "api:http:GET:/users/@me/billing/invoice/breakdown/",
+                        "api:http:GET:/users/@me/billing/localized-pricing-promo/",
                         "api:http:GET:/users/@me/billing/location-info/",
                         "api:http:GET:/users/@me/billing/payment-sources/",
                         "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",

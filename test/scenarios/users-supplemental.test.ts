@@ -42,6 +42,7 @@ const coveredManifestIds = [
     "api:http:GET:/users/@me/applications/:application_id/entitlements/",
     "api:http:GET:/users/@me/billing/country-code/",
     "api:http:GET:/users/@me/billing/location-info/",
+    "api:http:GET:/users/@me/billing/localized-pricing-promo/",
     "api:http:GET:/users/@me/billing/payment-sources/",
     "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
     "api:http:GET:/users/@me/billing/subscriptions/",
@@ -97,6 +98,7 @@ test(
             "api:http:GET:/users/@me/applications/:application_id/entitlements/",
             "api:http:GET:/users/@me/billing/country-code/",
             "api:http:GET:/users/@me/billing/location-info/",
+            "api:http:GET:/users/@me/billing/localized-pricing-promo/",
             "api:http:GET:/users/@me/billing/payment-sources/",
             "api:http:GET:/users/@me/billing/payment-sources/:payment_source_id",
             "api:http:GET:/users/@me/billing/subscriptions/",
@@ -328,6 +330,7 @@ test(
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/applications/100000000000000001/entitlements`, ownerToken);
             assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/billing/country-code`, ownerToken)), {});
             assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/billing/location-info`, ownerToken)), {});
+            assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/billing/localized-pricing-promo`, ownerToken)), {});
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/billing/subscriptions`, ownerToken);
             await assertArrayResponse(`${api.apiBaseUrl}/users/@me/collectibles-purchases`, ownerToken);
             assert.deepEqual(await assertJsonObject(await getJson(`${api.apiBaseUrl}/users/@me/collectibles-marketing`, ownerToken)), { marketings: {} });
