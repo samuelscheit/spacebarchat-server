@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 696,
+        "totalEntries": 697,
         "byService": {
-            "api": 599,
+            "api": 600,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 671,
+            "http-route": 672,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 173,
-            "stateful-domain": 372,
+            "stateful-domain": 373,
             "cdn-integration": 78,
             "auth-scenario": 17,
             "integration": 22,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 554,
+            "route-class": 555,
             "hot-path": 34,
             "none": 1,
             "cdn-hot-path": 73,
@@ -21763,6 +21763,47 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:GET:/users/@me/applications/:application_id/role-connection/",
+            "type": "http-route",
+            "service": "api",
+            "method": "GET",
+            "path": "/users/@me/applications/:application_id/role-connection/",
+            "sourceFile": "src/api/routes/users/@me/applications/#application_id/role-connection.ts",
+            "line": 92,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "ApplicationRoleConnectionResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
                 ],
                 "hasQuery": false
             },

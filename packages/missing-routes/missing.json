@@ -1,6 +1,6 @@
 {
-    "missing": 589,
-    "spacebar": 591,
+    "missing": 588,
+    "spacebar": 592,
     "discord": 1128,
     "routes": [
         "/activities/{param}/{param}",
@@ -1550,14 +1550,6 @@
             "route_name": "USER_ACTIVITY_JOIN",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/users/{user_id}/sessions/{param}/activities/{param}/1"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/applications/{param}/role-connection",
-            "route_name": "GET_USERS__ME_APPLICATIONS_APPLICATION_ID_ROLE_CONNECTION",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/users/@me/applications/{application_id}/role-connection"],
-            "summaries": ["Get User Application Role Connection"]
         },
         {
             "method": "GET",

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 534,
+        "totalCoveredManifestEntries": 535,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 512,
-                "totalCoveredManifestEntries": 512,
-                "totalCoveredRequiredManifestEntries": 512,
+                "totalRequiredManifestEntries": 513,
+                "totalCoveredManifestEntries": 513,
+                "totalCoveredRequiredManifestEntries": 513,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 372,
+            "stateful-domain": 373,
             "cdn-integration": 78,
             "integration": 22,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 512,
-                "totalCoveredManifestEntries": 512,
-                "totalCoveredRequiredManifestEntries": 512,
+                "totalRequiredManifestEntries": 513,
+                "totalCoveredManifestEntries": 513,
+                "totalCoveredRequiredManifestEntries": 513,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -313,6 +313,7 @@
                 "api:http:GET:/users/@me/affinities/v2/users/",
                 "api:http:GET:/users/@me/application-command-index/",
                 "api:http:GET:/users/@me/applications/:application_id/entitlements/",
+                "api:http:GET:/users/@me/applications/:application_id/role-connection/",
                 "api:http:GET:/users/@me/applications/role-connections/",
                 "api:http:GET:/users/@me/avatars/",
                 "api:http:GET:/users/@me/billing/country-code/",
@@ -827,6 +828,7 @@
                 "api:http:GET:/users/@me/affinities/v2/users/",
                 "api:http:GET:/users/@me/application-command-index/",
                 "api:http:GET:/users/@me/applications/:application_id/entitlements/",
+                "api:http:GET:/users/@me/applications/:application_id/role-connection/",
                 "api:http:GET:/users/@me/applications/role-connections/",
                 "api:http:GET:/users/@me/avatars/",
                 "api:http:GET:/users/@me/billing/country-code/",
@@ -1181,6 +1183,7 @@
                         "api:http:GET:/users/@me/affinities/v2/users/",
                         "api:http:GET:/users/@me/application-command-index/",
                         "api:http:GET:/users/@me/applications/:application_id/entitlements/",
+                        "api:http:GET:/users/@me/applications/:application_id/role-connection/",
                         "api:http:GET:/users/@me/applications/role-connections/",
                         "api:http:GET:/users/@me/avatars/",
                         "api:http:GET:/users/@me/billing/country-code/",
