@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 606,
+        "totalCoveredManifestEntries": 607,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 584,
-                "totalCoveredManifestEntries": 584,
-                "totalCoveredRequiredManifestEntries": 584,
+                "totalRequiredManifestEntries": 585,
+                "totalCoveredManifestEntries": 585,
+                "totalCoveredRequiredManifestEntries": 585,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 441,
+            "stateful-domain": 442,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 584,
-                "totalCoveredManifestEntries": 584,
-                "totalCoveredRequiredManifestEntries": 584,
+                "totalRequiredManifestEntries": 585,
+                "totalCoveredManifestEntries": 585,
+                "totalCoveredRequiredManifestEntries": 585,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -561,6 +561,7 @@
                 "api:http:POST:/webhooks/:webhook_id/:token/slack/",
                 "api:http:PUT:/applications/:application_id/commands/",
                 "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
+                "api:http:PUT:/applications/games-supplemental/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
@@ -1147,6 +1148,7 @@
                 "api:http:POST:/webhooks/:webhook_id/:token/slack/",
                 "api:http:PUT:/applications/:application_id/commands/",
                 "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
+                "api:http:PUT:/applications/games-supplemental/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
@@ -1832,7 +1834,8 @@
                         "api:http:POST:/interactions/",
                         "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
                         "api:http:PUT:/applications/:application_id/commands/",
-                        "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/"
+                        "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
+                        "api:http:PUT:/applications/games-supplemental/"
                     ]
                 },
                 {

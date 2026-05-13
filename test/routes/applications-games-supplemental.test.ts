@@ -35,11 +35,12 @@ import type { GameSupplementalApplication } from "../../src/api/util/utility/Gam
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
-const coveredManifestIds = ["api:http:GET:/applications/games-supplemental/", "api:http:PATCH:/applications/games-supplemental/"];
+const coveredManifestIds = ["api:http:GET:/applications/games-supplemental/", "api:http:PATCH:/applications/games-supplemental/", "api:http:PUT:/applications/games-supplemental/"];
 const assignedPath = "/applications/games-supplemental";
-const assignedPatchRouteName = "APPLICATIONS_GAMES_SUPPLEMENTAL";
+const assignedRouteName = "APPLICATIONS_GAMES_SUPPLEMENTAL";
 const sourceGetRouteName = "GET_APPLICATIONS_GAMES_SUPPLEMENTAL";
 const sourcePatchRouteName = "PATCH_APPLICATIONS_GAMES_SUPPLEMENTAL";
+const sourcePutRouteName = "PUT_APPLICATIONS_GAMES_SUPPLEMENTAL";
 
 type JsonSchema = {
     $ref?: string;
@@ -49,21 +50,29 @@ type JsonSchema = {
     items?: JsonSchema;
 };
 
-describe("GET and PATCH /applications/games-supplemental", () => {
+describe("GET, PATCH, and PUT /applications/games-supplemental", () => {
     test("documents the assigned manifest id and remains bearer-authenticated", async () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:GET:/applications/games-supplemental/", "api:http:PATCH:/applications/games-supplemental/"]);
+        assert.deepEqual(coveredManifestIds, [
+            "api:http:GET:/applications/games-supplemental/",
+            "api:http:PATCH:/applications/games-supplemental/",
+            "api:http:PUT:/applications/games-supplemental/",
+        ]);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/applications/games-supplemental?application_ids=100000000000000001"), false);
         assert.equal(isNoAuthorizationRoute("HEAD", "/api/v10/applications/games-supplemental/"), false);
         assert.equal(isNoAuthorizationRoute("PATCH", "/api/v10/applications/games-supplemental"), false);
+        assert.equal(isNoAuthorizationRoute("PUT", "/api/v10/applications/games-supplemental"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/applications/non-games/detectable"), true);
 
         const getResponse = await requestJson(createRouteApp({ authentication: true }), "/applications/games-supplemental?application_ids=100000000000000001");
         const patchResponse = await requestJson(createRouteApp({ authentication: true }), "/applications/games-supplemental", { method: "PATCH" });
+        const putResponse = await requestJson(createRouteApp({ authentication: true }), "/applications/games-supplemental", { method: "PUT" });
 
         assert.equal(getResponse.status, 401);
         assert.equal((getResponse.body as { code?: unknown }).code, 401);
         assert.equal(patchResponse.status, 401);
         assert.equal((patchResponse.body as { code?: unknown }).code, 401);
+        assert.equal(putResponse.status, 401);
+        assert.equal((putResponse.body as { code?: unknown }).code, 401);
     });
 
     test("parses application IDs with game ID compatibility aliases", () => {
@@ -155,7 +164,7 @@ describe("GET and PATCH /applications/games-supplemental", () => {
         );
     });
 
-    test("fails closed for unsupported PATCH mutations without touching application data", async () => {
+    test("fails closed for unsupported PATCH and PUT mutations without touching application data", async () => {
         const harness = createRepositoryHarness();
         const error = createApplicationsGamesSupplementalMutationUnsupportedError();
 
@@ -163,26 +172,28 @@ describe("GET and PATCH /applications/games-supplemental", () => {
         assert.equal(error.code, 0);
         assert.equal(error.httpStatus, 501);
 
-        const response = await requestJson(createRouteApp({ repositories: harness.repositories }), "/applications/games-supplemental", {
-            method: "PATCH",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify({
-                application_id: "100000000000000001",
-                summary: "A forged supplemental summary must not be persisted.",
-            }),
-        });
+        for (const method of ["PATCH", "PUT"] as const) {
+            const response = await requestJson(createRouteApp({ repositories: harness.repositories }), "/applications/games-supplemental", {
+                method,
+                headers: {
+                    "content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    application_id: "100000000000000001",
+                    summary: "A forged supplemental summary must not be persisted.",
+                }),
+            });
 
-        assert.equal(response.status, 501);
-        assert.deepEqual(response.body, {
-            code: 0,
-            message: APPLICATIONS_GAMES_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE,
-        });
+            assert.equal(response.status, 501);
+            assert.deepEqual(response.body, {
+                code: 0,
+                message: APPLICATIONS_GAMES_SUPPLEMENTAL_MUTATION_UNSUPPORTED_MESSAGE,
+            });
+        }
         assert.deepEqual(harness.findOptions, []);
     });
 
-    test("declares generated artifacts for the owned GET and PATCH methods", () => {
+    test("declares generated artifacts for the owned GET, PATCH, and PUT methods", () => {
         const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "applications", "games-supplemental.ts"), "utf8");
         const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonSchema>;
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
@@ -198,7 +209,10 @@ describe("GET and PATCH /applications/games-supplemental", () => {
                         responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
                         security?: unknown;
                     };
-                    put?: unknown;
+                    put?: {
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                        security?: unknown;
+                    };
                 }
             >;
         };
@@ -238,7 +252,7 @@ describe("GET and PATCH /applications/games-supplemental", () => {
             }[];
         };
 
-        assert.equal(assignedPatchRouteName, "APPLICATIONS_GAMES_SUPPLEMENTAL");
+        assert.equal(assignedRouteName, "APPLICATIONS_GAMES_SUPPLEMENTAL");
 
         assert.match(routeSource, /summary:\s*"Get Application Game Supplemental Data"/);
         assert.match(routeSource, /application_ids:\s*\{\s*type:\s*"array",\s*required:\s*true/s);
@@ -248,7 +262,8 @@ describe("GET and PATCH /applications/games-supplemental", () => {
         assert.match(routeSource, /router\.patch\(/);
         assert.match(routeSource, /summary:\s*"Modify Application Game Supplemental Data"/);
         assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.doesNotMatch(routeSource, /router\.put\(/);
+        assert.match(routeSource, /router\.put\(/);
+        assert.match(routeSource, /summary:\s*"Replace Application Game Supplemental Data"/);
 
         assert.equal(schemas.ApplicationsGamesSupplementalResponse.type, "array");
         assert.equal(schemas.ApplicationsGamesSupplementalResponse.items?.$ref, "#/definitions/GameSupplementalData");
@@ -267,7 +282,11 @@ describe("GET and PATCH /applications/games-supplemental", () => {
         assert.equal(patchRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(patchRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.deepEqual(patchRoute?.security, [{ bearer: [] }]);
-        assert.equal(openapi.paths?.["/applications/games-supplemental/"]?.put, undefined);
+
+        const putRoute = openapi.paths?.["/applications/games-supplemental/"]?.put;
+        assert.equal(putRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(putRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(putRoute?.security, [{ bearer: [] }]);
 
         const getManifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
         assert.equal(getManifestEntry?.path, `${assignedPath}/`);
@@ -288,6 +307,14 @@ describe("GET and PATCH /applications/games-supplemental", () => {
         assert.equal(patchManifestEntry?.routeMetadata?.responseStatuses?.includes(401), true);
         assert.equal(patchManifestEntry?.routeMetadata?.responseStatuses?.includes(501), true);
 
+        const putManifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[2]);
+        assert.equal(putManifestEntry?.path, `${assignedPath}/`);
+        assert.equal(putManifestEntry?.sourceFile, "src/api/routes/applications/games-supplemental.ts");
+        assert.equal(putManifestEntry?.authMode, "bearer");
+        assert.equal(putManifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.equal(putManifestEntry?.routeMetadata?.responseStatuses?.includes(401), true);
+        assert.equal(putManifestEntry?.routeMetadata?.responseStatuses?.includes(501), true);
+
         const sourceEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === assignedPath);
         assert.equal(sourceEntry?.route_name, sourceGetRouteName);
         assert.equal(sourceEntry?.source, "src/api/routes/applications/games-supplemental.ts");
@@ -298,7 +325,11 @@ describe("GET and PATCH /applications/games-supplemental", () => {
         assert.equal(patchSourceEntry?.route_name, sourcePatchRouteName);
         assert.equal(patchSourceEntry?.source, "src/api/routes/applications/games-supplemental.ts");
         assert.deepEqual(patchSourceEntry?.response_schema_refs, ["APIErrorResponse"]);
-        assert.equal(sourceCatalog.some((entry) => entry.method === "PUT" && entry.route === assignedPath), false);
+
+        const putSourceEntry = sourceCatalog.find((entry) => entry.method === "PUT" && entry.route === assignedPath);
+        assert.equal(putSourceEntry?.route_name, sourcePutRouteName);
+        assert.equal(putSourceEntry?.source, "src/api/routes/applications/games-supplemental.ts");
+        assert.deepEqual(putSourceEntry?.response_schema_refs, ["APIErrorResponse"]);
 
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === assignedPath),
@@ -309,8 +340,8 @@ describe("GET and PATCH /applications/games-supplemental", () => {
             false,
         );
         assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.method === "PUT" && entry.route === assignedPath),
-            true,
+            missingRoutes.missing_entries?.some((entry) => entry.method === "PUT" && entry.route === assignedPath && entry.route_name === assignedRouteName),
+            false,
         );
 
         const getContract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);
@@ -326,6 +357,12 @@ describe("GET and PATCH /applications/games-supplemental", () => {
         assert.equal(patchContract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
         assert.equal(patchContract?.routeMetadata?.responseStatuses?.includes(401), true);
         assert.equal(patchContract?.routeMetadata?.responseStatuses?.includes(501), true);
+
+        const putContract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[2]);
+        assert.equal(putContract?.authMode, "bearer");
+        assert.equal(putContract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
+        assert.equal(putContract?.routeMetadata?.responseStatuses?.includes(401), true);
+        assert.equal(putContract?.routeMetadata?.responseStatuses?.includes(501), true);
     });
 });
 

@@ -1,12 +1,11 @@
 {
-    "missing": 488,
-    "spacebar": 692,
+    "missing": 487,
+    "spacebar": 693,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
         "/ai/title",
         "/ai/translate",
-        "/applications/games-supplemental",
         "/applications/public",
         "/applications/shelf",
         "/applications/storefront/interactions/premium-button/{param}",
@@ -3306,7 +3305,6 @@
             ],
             "summaries": ["Modify Application Command Permissions"]
         },
-        { "method": "PUT", "route": "/applications/games-supplemental", "route_name": "APPLICATIONS_GAMES_SUPPLEMENTAL", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/applications/public", "route_name": "APPLICATIONS_PUBLIC", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/applications/shelf", "route_name": "APPLICATIONS_SHELF", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/channels/{param}", "route_name": "CHANNEL", "sources": ["xhyrom:data/client/routes.json"], "source_routes": ["/channels/{channel_id}"] },
