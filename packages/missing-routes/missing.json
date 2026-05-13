@@ -1,6 +1,6 @@
 {
-    "missing": 483,
-    "spacebar": 697,
+    "missing": 482,
+    "spacebar": 698,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -249,7 +249,6 @@
         "/reports/channels/{param}/messages/{param}",
         "/safety-hub/suspended/@me",
         "/safety-hub/suspended/check-verification",
-        "/safety-hub/suspended/request-review/{param}",
         "/safety-hub/suspended/request-verification",
         "/sso",
         "/sso-token",
@@ -3495,14 +3494,6 @@
             "sources": ["userdoccers:resources/message.mdx"],
             "source_routes": ["/partner-sdk/dms/{user_1_id}/{user_2_id}/messages/{message_id}/moderation-metadata"],
             "summaries": ["Update User Message Moderation Metadata"]
-        },
-        {
-            "method": "PUT",
-            "route": "/safety-hub/suspended/request-review/{param}",
-            "route_name": "PUT_SAFETY_HUB_SUSPENDED_REQUEST_REVIEW_CLASSIFICATION_ID",
-            "sources": ["userdoccers:resources/safety-hub.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/safety-hub/suspended/request-review/{classification_id}"],
-            "summaries": ["Request Classification Review for Suspended User"]
         },
         { "method": "PUT", "route": "/tutorial/indicators/suppress", "route_name": "TUTORIAL_INDICATORS_SUPPRESS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/users/@me", "route_name": "PUT_USERS__ME", "sources": ["userdoccers:_typography.mdx"], "summaries": ["PUT Example"] },

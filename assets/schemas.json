@@ -14091,6 +14091,21 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "SafetyHubClassificationReviewResponse": {
+        "type": "object",
+        "properties": {
+            "appeal_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "pattern": "^\\d{1,20}$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "appeal_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "SafetyHubRequestReviewResponse": {
         "type": "object",
         "properties": {
@@ -17135,6 +17150,30 @@
         "additionalProperties": false,
         "required": [
             "signal",
+            "user_input"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SafetyHubSuspendedClassificationReviewSchema": {
+        "type": "object",
+        "properties": {
+            "token": {
+                "minLength": 1,
+                "maxLength": 4096,
+                "type": "string"
+            },
+            "signal": {
+                "$ref": "#/definitions/AppealIngestionSignal"
+            },
+            "user_input": {
+                "maxLength": 1000,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "signal",
+            "token",
             "user_input"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
@@ -37916,6 +37955,16 @@
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "SafetyHubAppealIngestionSignal": {
+        "type": "number",
+        "enum": [
+            0,
+            1,
+            2,
+            3
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AppealIngestionSignal": {
         "type": "number",
         "enum": [
             0,

@@ -211,6 +211,7 @@ export * from "./ReportOptionsResponse";
 export * from "./ReportReasonsResponse";
 export * from "./ReportingMenuResponse";
 export * from "./ReportingUnauthenticatedExperimentResponse";
+export * from "./SafetyHubClassificationReviewResponse";
 export * from "./SafetyHubRequestReviewResponse";
 export * from "./SettingsProtoUpdateResponse";
 export * from "./SearchFavoritesResponse";

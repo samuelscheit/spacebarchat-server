@@ -4648,6 +4648,17 @@
 		"source": "src/api/routes/safety-hub/suspended/@me.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "SafetyHubSuspendedClassificationReviewSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"SafetyHubClassificationReviewResponse"
+		],
+		"route": "/safety-hub/suspended/request-review/{classification_id}",
+		"route_name": "PUT_SAFETY_HUB_SUSPENDED_REQUEST_REVIEW_CLASSIFICATION_ID",
+		"source": "src/api/routes/safety-hub/suspended/request-review/#classification_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/scheduled-maintenances/upcoming.json",

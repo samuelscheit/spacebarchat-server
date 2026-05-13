@@ -107,6 +107,7 @@ export * from "./RoleModifySchema";
 export * from "./RoleMembersUpdateSchema";
 export * from "./RolePositionUpdateSchema";
 export * from "./SafetyHubRequestReviewSchema";
+export * from "./SafetyHubSuspendedClassificationReviewSchema";
 export * from "./SelectProtocolSchema";
 export * from "./SettingsProtoUpdateSchema";
 export * from "./StageInstanceCreateSchema";

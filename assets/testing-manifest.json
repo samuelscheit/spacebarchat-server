@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 802,
+        "totalEntries": 803,
         "byService": {
-            "api": 705,
+            "api": 706,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 777,
+            "http-route": 778,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 204,
+            "contract": 205,
             "stateful-domain": 444,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 659,
+            "route-class": 660,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -21890,6 +21890,45 @@
             }
         },
         {
+            "id": "api:http:PUT:/safety-hub/suspended/request-review/:classification_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/safety-hub/suspended/request-review/:classification_id/",
+            "sourceFile": "src/api/routes/safety-hub/suspended/request-review/#classification_id.ts",
+            "line": 81,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "SafetyHubSuspendedClassificationReviewSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "SafetyHubClassificationReviewResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    404,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/scheduled-maintenances/upcoming.json/",
             "type": "http-route",
             "service": "api",
@@ -25687,7 +25726,7 @@
             "method": "PUT",
             "path": "/users/@me/claim-premium-collectibles-product/",
             "sourceFile": "src/api/routes/users/@me/claim-premium-collectibles-product.ts",
-            "line": 50,
+            "line": 48,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

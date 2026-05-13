@@ -3,17 +3,17 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 777,
+        "totalContracts": 778,
         "byService": {
-            "api": 704,
+            "api": 705,
             "cdn": 73
         },
         "runtimeAuthBoundaryContracts": 624,
         "runtimeMalformedAuthContracts": 624,
         "runtimeRevokedSessionAuthContracts": 624,
         "runtimeStaleTokenAuthContracts": 624,
-        "runtimePublicAuthBoundaryContracts": 72,
-        "runtimePublicInvalidBodyContracts": 17,
+        "runtimePublicAuthBoundaryContracts": 73,
+        "runtimePublicInvalidBodyContracts": 18,
         "runtimeProtectedInvalidBodyContracts": 93,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
@@ -29042,6 +29042,48 @@
             ]
         },
         {
+            "manifestId": "api:http:PUT:/safety-hub/suspended/request-review/:classification_id/",
+            "service": "api",
+            "method": "PUT",
+            "path": "/safety-hub/suspended/request-review/:classification_id/",
+            "samplePath": "/safety-hub/suspended/request-review/value/",
+            "sourceFile": "src/api/routes/safety-hub/suspended/request-review/#classification_id.ts",
+            "line": 81,
+            "authMode": "public",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "requestBody": "SafetyHubSuspendedClassificationReviewSchema",
+                "responses": ["APIErrorResponse", "SafetyHubClassificationReviewResponse"],
+                "responseStatuses": [200, 400, 404, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["public-auth-boundary", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "SafetyHubSuspendedClassificationReviewSchema"
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/scheduled-maintenances/upcoming.json/",
             "service": "api",
             "method": "GET",
@@ -33735,7 +33777,7 @@
             "path": "/users/@me/claim-premium-collectibles-product/",
             "samplePath": "/users/@me/claim-premium-collectibles-product/",
             "sourceFile": "src/api/routes/users/@me/claim-premium-collectibles-product.ts",
-            "line": 50,
+            "line": 48,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",
