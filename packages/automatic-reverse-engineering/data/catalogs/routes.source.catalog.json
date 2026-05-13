@@ -5431,6 +5431,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"BillingChurnUserOfferResponse"
+		],
+		"route": "/users/@me/billing/churn-user-offer",
+		"route_name": "GET_USERS__ME_BILLING_CHURN_USER_OFFER",
+		"source": "src/api/routes/users/@me/billing/churn-user-offer.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/users/@me/billing/country-code",
 		"route_name": "GET_USERS__ME_BILLING_COUNTRY_CODE",

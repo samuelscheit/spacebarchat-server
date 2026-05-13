@@ -4535,6 +4535,158 @@
             "BillingCampaignContextResponse": {
                 "type": "object"
             },
+            "BillingUserDiscountResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "integer"
+                    },
+                    "starts_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "ends_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "sku_ids": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "sku_group_ids": {
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "plan_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "user_usage_limit_interval": {
+                        "type": "integer"
+                    },
+                    "user_usage_limit_interval_count": {
+                        "type": "integer"
+                    },
+                    "user_usage_limit": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "created_at",
+                    "id",
+                    "plan_ids",
+                    "sku_group_ids",
+                    "sku_ids",
+                    "status",
+                    "user_usage_limit",
+                    "user_usage_limit_interval",
+                    "user_usage_limit_interval_count"
+                ]
+            },
+            "BillingUserDiscountOfferResponse": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "discount_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "type": "string"
+                    },
+                    "invoice_id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "applied_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "deleted_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "expires_at": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "discount": {
+                        "$ref": "#/components/schemas/BillingUserDiscountResponse"
+                    }
+                },
+                "required": [
+                    "applied_at",
+                    "discount",
+                    "discount_id",
+                    "expires_at",
+                    "id",
+                    "user_id"
+                ]
+            },
+            "BillingChurnUserOfferResponse": {
+                "type": "object",
+                "properties": {
+                    "offer": {
+                        "$ref": "#/components/schemas/BillingUserDiscountOfferResponse"
+                    }
+                },
+                "required": [
+                    "offer"
+                ]
+            },
             "BillingLocationInfoResponse": {
                 "type": "object",
                 "properties": {
@@ -42706,6 +42858,52 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/billing/churn-user-offer/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns the current retention discount offer for the authenticated user when locally persisted non-renewing subscription offer state exists. Spacebar does not currently persist Discord-managed retention discounts, so unknown offers fail closed instead of fabricating billing discounts.",
+                "summary": "Get Churn User Offer",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingChurnUserOfferResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [

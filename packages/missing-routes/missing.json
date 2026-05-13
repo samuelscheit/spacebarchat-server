@@ -1,6 +1,6 @@
 {
-    "missing": 490,
-    "spacebar": 690,
+    "missing": 489,
+    "spacebar": 691,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -1310,13 +1310,6 @@
             "route_name": "GET_USERS__ME_BILLING_CHECKOUT_RECOVERY",
             "sources": ["userdoccers:resources/billing.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get Checkout Recovery"]
-        },
-        {
-            "method": "GET",
-            "route": "/users/@me/billing/churn-user-offer",
-            "route_name": "GET_USERS__ME_BILLING_CHURN_USER_OFFER",
-            "sources": ["userdoccers:resources/billing.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Get Churn User Offer"]
         },
         {
             "method": "GET",
