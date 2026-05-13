@@ -39833,6 +39833,57 @@
                 ]
             }
         },
+        "/users/@me/notification-center/items/{notification_center_item_id}/ack": {
+            "post": {
+                "x-fires-event": "NOTIFICATION_CENTER_ITEMS_ACK",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Updates the current user's notification-center read state to the acknowledged item and emits the documented notification-center ack gateway event.",
+                "summary": "Acknowledge Notification Center Item",
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "notification_center_item_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "notification_center_item_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/notes/": {
             "get": {
                 "security": [

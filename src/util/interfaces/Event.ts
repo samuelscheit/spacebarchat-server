@@ -691,6 +691,14 @@ export interface MessageAckEvent extends Event {
     };
 }
 
+export interface NotificationCenterItemsAckEvent extends Event {
+    event: "NOTIFICATION_CENTER_ITEMS_ACK";
+    user_id: string;
+    data: {
+        id: string;
+    };
+}
+
 export interface RelationshipAddEvent extends Event {
     event: "RELATIONSHIP_ADD";
     data: PublicRelationship & {
@@ -853,6 +861,7 @@ export type EventData =
     | InteractionSuccessEvent
     | InteractionFailureEvent
     | MessageAckEvent
+    | NotificationCenterItemsAckEvent
     | FriendSuggestionDeleteEvent
     | RelationshipAddEvent
     | RelationshipRemoveEvent
@@ -921,6 +930,7 @@ export enum EVENTEnum {
     ApplicationCommandUpdate = "APPLICATION_COMMAND_UPDATE",
     ApplicationCommandDelete = "APPLICATION_COMMAND_DELETE",
     FriendSuggestionDelete = "FRIEND_SUGGESTION_DELETE",
+    NotificationCenterItemsAck = "NOTIFICATION_CENTER_ITEMS_ACK",
     SessionsReplace = "SESSIONS_REPLACE",
     ThreadCreate = "THREAD_CREATE",
     ThreadUpdate = "THREAD_UPDATE",
@@ -995,6 +1005,7 @@ export const EVENT_NAMES = [
     "APPLICATION_COMMAND_UPDATE",
     "APPLICATION_COMMAND_DELETE",
     "MESSAGE_ACK",
+    "NOTIFICATION_CENTER_ITEMS_ACK",
     "FRIEND_SUGGESTION_DELETE",
     "RELATIONSHIP_ADD",
     "RELATIONSHIP_REMOVE",

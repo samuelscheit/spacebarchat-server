@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 785,
+        "totalEntries": 786,
         "byService": {
-            "api": 688,
+            "api": 689,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 760,
+            "http-route": 761,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 201,
-            "stateful-domain": 430,
+            "stateful-domain": 431,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 642,
+            "route-class": 643,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -27306,13 +27306,57 @@
             }
         },
         {
+            "id": "api:http:POST:/users/@me/notification-center/items/:notification_center_item_id/ack",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/notification-center/items/:notification_center_item_id/ack",
+            "sourceFile": "src/api/routes/users/@me/notification-center/items.ts",
+            "line": 182,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "event": "NOTIFICATION_CENTER_ITEMS_ACK",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "NOTIFICATION_CENTER_ITEMS_ACK"
+                ]
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/notification-center/items/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/users/@me/notification-center/items/",
             "sourceFile": "src/api/routes/users/@me/notification-center/items.ts",
-            "line": 96,
+            "line": 139,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

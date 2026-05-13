@@ -1,6 +1,6 @@
 {
-    "missing": 500,
-    "spacebar": 680,
+    "missing": 499,
+    "spacebar": 681,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -367,7 +367,6 @@
         "/users/@me/mfa/webauthn/credentials/{param}",
         "/users/@me/notification-center/items/bulk-ack",
         "/users/@me/notification-center/items/{param}",
-        "/users/@me/notification-center/items/{param}/ack",
         "/users/@me/notification-settings",
         "/users/@me/notification-settings/snapshots",
         "/users/@me/notification-settings/snapshots/{param}",
@@ -3191,14 +3190,6 @@
             "route_name": "POST_USERS__ME_MFA_SMS_ENABLE",
             "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Enable SMS MFA"]
-        },
-        {
-            "method": "POST",
-            "route": "/users/@me/notification-center/items/{param}/ack",
-            "route_name": "POST_USERS__ME_NOTIFICATION_CENTER_ITEMS_NOTIFICATION_CENTER_ITEM_ID_ACK",
-            "sources": ["userdoccers:resources/notification-center.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/users/@me/notification-center/items/{notification_center_item_id}/ack"],
-            "summaries": ["Acknowledge Notification Center Item"]
         },
         {
             "method": "POST",

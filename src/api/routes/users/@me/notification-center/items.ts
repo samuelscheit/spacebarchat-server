@@ -17,14 +17,33 @@
 */
 
 import { route } from "@spacebar/api";
-import type { NotificationCenterItemsResponse } from "@spacebar/schemas";
+import { ReadStateType, type NotificationCenterItemsResponse, type Snowflake } from "@spacebar/schemas";
+import { emitEvent, upsertAckBulkReadState, type NotificationCenterItemsAckEvent } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { HTTPError } from "lambert-server";
 
-const router: Router = Router({ mergeParams: true });
+const notificationCenterItemIdPattern = /^[1-9]\d{16,19}$/;
 
 export const NOTIFICATION_CENTER_ITEMS_DEFAULT_LIMIT = 25;
 export const NOTIFICATION_CENTER_ITEMS_MIN_LIMIT = 1;
 export const NOTIFICATION_CENTER_ITEMS_MAX_LIMIT = 100;
+
+export type EmitNotificationCenterItemsAckEvent = (event: Omit<NotificationCenterItemsAckEvent, "created_at">) => Promise<unknown> | unknown;
+
+export interface NotificationCenterItemsAckDependencies {
+    upsertNotificationCenterReadState(userId: string, notificationCenterItemId: Snowflake): Promise<unknown> | unknown;
+    emitEvent: EmitNotificationCenterItemsAckEvent;
+}
+
+export const defaultNotificationCenterItemsAckDependencies: NotificationCenterItemsAckDependencies = {
+    upsertNotificationCenterReadState: (userId, notificationCenterItemId) =>
+        upsertAckBulkReadState(userId, {
+            channel_id: userId,
+            message_id: notificationCenterItemId,
+            read_state_type: ReadStateType.NOTIFICATION_CENTER,
+        }),
+    emitEvent,
+};
 
 export interface NotificationCenterItemsQueryOptions {
     after?: string;
@@ -93,47 +112,98 @@ export function buildNotificationCenterItemsResponse(options: NotificationCenter
     };
 }
 
-router.get(
-    "/",
-    route({
-        summary: "Get Notification Center Items",
-        query: {
-            after: {
-                type: "string",
-                description: "Get notification center items after this notification center item ID.",
-            },
-            with_mentions: {
-                type: "boolean",
-                description: "Whether to include recent mention notifications.",
-            },
-            roles_filter: {
-                type: "boolean",
-                description: "Whether to include role mentions.",
-            },
-            everyone_filter: {
-                type: "boolean",
-                description: "Whether to include @everyone and @here mentions.",
-            },
-            limit: {
-                type: "integer",
-                description: "Max number of notification center items to return, from 1 to 100.",
-            },
-        },
-        responses: {
-            200: {
-                body: "NotificationCenterItemsResponse",
-            },
-            401: {
-                body: "APIErrorResponse",
-            },
-        },
-    }),
-    async (req: Request, res: Response) => {
-        const query = parseNotificationCenterItemsQuery(req.query);
-        const response = buildNotificationCenterItemsResponse(query);
+export function isNotificationCenterItemId(value: unknown): value is Snowflake {
+    return typeof value === "string" && notificationCenterItemIdPattern.test(value);
+}
 
-        return res.json(response);
-    },
-);
+export async function acknowledgeNotificationCenterItem(
+    userId: string,
+    notificationCenterItemId: string,
+    dependencies: NotificationCenterItemsAckDependencies = defaultNotificationCenterItemsAckDependencies,
+): Promise<void> {
+    if (!isNotificationCenterItemId(notificationCenterItemId)) throw new HTTPError("notification_center_item_id must be a valid snowflake", 400);
 
-export default router;
+    await dependencies.upsertNotificationCenterReadState(userId, notificationCenterItemId);
+    await dependencies.emitEvent({
+        event: "NOTIFICATION_CENTER_ITEMS_ACK",
+        user_id: userId,
+        data: {
+            id: notificationCenterItemId,
+        },
+    });
+}
+
+export function createNotificationCenterItemsRouter(dependencies: NotificationCenterItemsAckDependencies = defaultNotificationCenterItemsAckDependencies) {
+    const router: Router = Router({ mergeParams: true });
+
+    router.get(
+        "/",
+        route({
+            summary: "Get Notification Center Items",
+            query: {
+                after: {
+                    type: "string",
+                    description: "Get notification center items after this notification center item ID.",
+                },
+                with_mentions: {
+                    type: "boolean",
+                    description: "Whether to include recent mention notifications.",
+                },
+                roles_filter: {
+                    type: "boolean",
+                    description: "Whether to include role mentions.",
+                },
+                everyone_filter: {
+                    type: "boolean",
+                    description: "Whether to include @everyone and @here mentions.",
+                },
+                limit: {
+                    type: "integer",
+                    description: "Max number of notification center items to return, from 1 to 100.",
+                },
+            },
+            responses: {
+                200: {
+                    body: "NotificationCenterItemsResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const query = parseNotificationCenterItemsQuery(req.query);
+            const response = buildNotificationCenterItemsResponse(query);
+
+            return res.json(response);
+        },
+    );
+
+    router.post(
+        "/:notification_center_item_id/ack",
+        route({
+            summary: "Acknowledge Notification Center Item",
+            description: "Updates the current user's notification-center read state to the acknowledged item and emits the documented notification-center ack gateway event.",
+            event: "NOTIFICATION_CENTER_ITEMS_ACK",
+            responses: {
+                204: {},
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const { notification_center_item_id } = req.params as { notification_center_item_id: string };
+
+            await acknowledgeNotificationCenterItem(req.user_id, notification_center_item_id, dependencies);
+            return res.sendStatus(204);
+        },
+    );
+
+    return router;
+}
+
+export default createNotificationCenterItemsRouter();

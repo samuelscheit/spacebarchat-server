@@ -6008,6 +6008,15 @@
 		"source": "src/api/routes/users/@me/notification-center/items.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/notification-center/items/{notification_center_item_id}/ack",
+		"route_name": "POST_USERS__ME_NOTIFICATION_CENTER_ITEMS_NOTIFICATION_CENTER_ITEM_ID_ACK",
+		"source": "src/api/routes/users/@me/notification-center/items.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

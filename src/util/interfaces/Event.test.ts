@@ -8,6 +8,7 @@ import {
     type EVENT,
     type FriendSuggestionDeleteEvent,
     type MessageReactionAddManyEvent,
+    type NotificationCenterItemsAckEvent,
     type ReadyEventData,
 } from "./Event";
 
@@ -125,6 +126,29 @@ describe("friend suggestion delete gateway event declarations", () => {
 
         assert.deepEqual(event.data, {
             suggested_user_id: "852892297661906993",
+        });
+    });
+});
+
+describe("notification center item ack gateway event declarations", () => {
+    test("uses the documented notification center items ack event name", () => {
+        assert.equal(EVENTEnum.NotificationCenterItemsAck, "NOTIFICATION_CENTER_ITEMS_ACK");
+
+        const eventName: EVENT = "NOTIFICATION_CENTER_ITEMS_ACK";
+        assert.equal(eventName, "NOTIFICATION_CENTER_ITEMS_ACK");
+    });
+
+    test("types the acknowledged item payload", () => {
+        const event: NotificationCenterItemsAckEvent = {
+            event: "NOTIFICATION_CENTER_ITEMS_ACK",
+            user_id: "current-user",
+            data: {
+                id: "1456516148545421313",
+            },
+        };
+
+        assert.deepEqual(event.data, {
+            id: "1456516148545421313",
         });
     });
 });
