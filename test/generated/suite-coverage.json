@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 616,
+        "totalCoveredManifestEntries": 617,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 594,
-                "totalCoveredManifestEntries": 594,
-                "totalCoveredRequiredManifestEntries": 594,
+                "totalRequiredManifestEntries": 595,
+                "totalCoveredManifestEntries": 595,
+                "totalCoveredRequiredManifestEntries": 595,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 451,
+            "stateful-domain": 452,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 594,
-                "totalCoveredManifestEntries": 594,
-                "totalCoveredRequiredManifestEntries": 594,
+                "totalRequiredManifestEntries": 595,
+                "totalCoveredManifestEntries": 595,
+                "totalCoveredRequiredManifestEntries": 595,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -563,6 +563,7 @@
                 "api:http:PUT:/applications/:application_id/commands/",
                 "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:PUT:/applications/games-supplemental/",
+                "api:http:PUT:/applications/shelf/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
@@ -1159,6 +1160,7 @@
                 "api:http:PUT:/applications/:application_id/commands/",
                 "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
                 "api:http:PUT:/applications/games-supplemental/",
+                "api:http:PUT:/applications/shelf/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/:type/@me",
                 "api:http:PUT:/channels/:channel_id/messages/:message_id/reactions/:emoji/@me",
@@ -1864,7 +1866,8 @@
                         "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
                         "api:http:PUT:/applications/:application_id/commands/",
                         "api:http:PUT:/applications/:application_id/guilds/:guild_id/commands/",
-                        "api:http:PUT:/applications/games-supplemental/"
+                        "api:http:PUT:/applications/games-supplemental/",
+                        "api:http:PUT:/applications/shelf/"
                     ]
                 },
                 {

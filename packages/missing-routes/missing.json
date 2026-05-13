@@ -1,6 +1,6 @@
 {
-    "missing": 475,
-    "spacebar": 705,
+    "missing": 474,
+    "spacebar": 706,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -3287,7 +3287,6 @@
             "summaries": ["Modify Application Command Permissions"]
         },
         { "method": "PUT", "route": "/applications/public", "route_name": "APPLICATIONS_PUBLIC", "sources": ["xhyrom:data/client/routes.json"] },
-        { "method": "PUT", "route": "/applications/shelf", "route_name": "APPLICATIONS_SHELF", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/channels/{param}", "route_name": "CHANNEL", "sources": ["xhyrom:data/client/routes.json"], "source_routes": ["/channels/{channel_id}"] },
         {
             "method": "PUT",

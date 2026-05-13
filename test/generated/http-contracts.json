@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 785,
+        "totalContracts": 786,
         "byService": {
-            "api": 712,
+            "api": 713,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 631,
-        "runtimeMalformedAuthContracts": 631,
-        "runtimeRevokedSessionAuthContracts": 631,
-        "runtimeStaleTokenAuthContracts": 631,
+        "runtimeAuthBoundaryContracts": 632,
+        "runtimeMalformedAuthContracts": 632,
+        "runtimeRevokedSessionAuthContracts": 632,
+        "runtimeStaleTokenAuthContracts": 632,
         "runtimePublicAuthBoundaryContracts": 73,
         "runtimePublicInvalidBodyContracts": 18,
         "runtimeProtectedInvalidBodyContracts": 97,
@@ -3849,6 +3849,54 @@
             "samplePath": "/applications/shelf/",
             "sourceFile": "src/api/routes/applications/shelf.ts",
             "line": 31,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "applications", "guilds", "commands"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [401, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:PUT:/applications/shelf/",
+            "service": "api",
+            "method": "PUT",
+            "path": "/applications/shelf/",
+            "samplePath": "/applications/shelf/",
+            "sourceFile": "src/api/routes/applications/shelf.ts",
+            "line": 53,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

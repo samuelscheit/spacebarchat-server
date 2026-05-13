@@ -729,6 +729,15 @@
 		"source": "src/api/routes/applications/shelf.ts"
 	},
 	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/shelf",
+		"route_name": "PUT_APPLICATIONS_SHELF",
+		"source": "src/api/routes/applications/shelf.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "RefreshUrlsRequestSchema",
 		"response_schema_refs": [

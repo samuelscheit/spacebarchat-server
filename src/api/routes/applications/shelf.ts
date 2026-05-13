@@ -50,4 +50,26 @@ router.patch(
     },
 );
 
+router.put(
+    "/",
+    route({
+        summary: "Replace Application Shelf",
+        description:
+            "Replaces the authenticated user's application shelf. Spacebar does not currently persist per-user application shelf state, so this compatibility endpoint fails closed instead of fabricating or mutating unrelated application records.",
+        responses: {
+            401: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (_req: Request, _res: Response) => {
+        // This route is user-personalized shelf state. Without a durable local
+        // model for that state, mutating Application rows would leak across users.
+        throw createApplicationsShelfUnsupportedError();
+    },
+);
+
 export default router;

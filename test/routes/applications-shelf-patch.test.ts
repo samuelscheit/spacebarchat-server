@@ -24,31 +24,31 @@ import { join } from "node:path";
 import { describe, test } from "node:test";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "@spacebar/api";
 import express from "express";
-import applicationShelfRouter, {
-    APPLICATIONS_SHELF_UNSUPPORTED_MESSAGE,
-    createApplicationsShelfUnsupportedError,
-} from "../../src/api/routes/applications/shelf";
+import applicationShelfRouter, { APPLICATIONS_SHELF_UNSUPPORTED_MESSAGE, createApplicationsShelfUnsupportedError } from "../../src/api/routes/applications/shelf";
 
 process.env.DATABASE ??= "postgres://spacebar:spacebar@localhost:5432/spacebar_route_test";
 
-const coveredManifestId = "api:http:PATCH:/applications/shelf/";
+const coveredManifestIds = ["api:http:PATCH:/applications/shelf/", "api:http:PUT:/applications/shelf/"];
 const assignedPath = "/applications/shelf";
 
 type JsonSchema = {
     $ref?: string;
 };
 
-describe("PATCH /applications/shelf", () => {
-    test("declares the assigned manifest route id and remains bearer-authenticated", async () => {
-        assert.equal(coveredManifestId, "api:http:PATCH:/applications/shelf/");
+describe("PATCH and PUT /applications/shelf", () => {
+    test("declares the assigned manifest route ids and remains bearer-authenticated", async () => {
+        assert.deepEqual(coveredManifestIds, ["api:http:PATCH:/applications/shelf/", "api:http:PUT:/applications/shelf/"]);
         assert.equal(isNoAuthorizationRoute("PATCH", "/api/v10/applications/shelf"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/applications/shelf"), false);
         assert.equal(isNoAuthorizationRoute("PUT", "/api/v10/applications/shelf"), false);
 
-        const response = await requestJson(createRouteApp({ authentication: true }), "/applications/shelf");
+        const patchResponse = await requestJson(createRouteApp({ authentication: true }), "/applications/shelf", { method: "PATCH" });
+        const putResponse = await requestJson(createRouteApp({ authentication: true }), "/applications/shelf", { method: "PUT" });
 
-        assert.equal(response.status, 401);
-        assert.equal((response.body as { code?: unknown }).code, 401);
+        assert.equal(patchResponse.status, 401);
+        assert.equal((patchResponse.body as { code?: unknown }).code, 401);
+        assert.equal(putResponse.status, 401);
+        assert.equal((putResponse.body as { code?: unknown }).code, 401);
     });
 
     test("fails closed instead of mutating unsupported personalized shelf state", async () => {
@@ -58,16 +58,18 @@ describe("PATCH /applications/shelf", () => {
         assert.equal(unsupportedError.code, 0);
         assert.equal(unsupportedError.message, APPLICATIONS_SHELF_UNSUPPORTED_MESSAGE);
 
-        const response = await requestJson(createRouteApp(), "/applications/shelf");
+        for (const method of ["PATCH", "PUT"]) {
+            const response = await requestJson(createRouteApp(), "/applications/shelf", { method });
 
-        assert.equal(response.status, 501);
-        assert.deepEqual(response.body, {
-            code: 0,
-            message: APPLICATIONS_SHELF_UNSUPPORTED_MESSAGE,
-        });
+            assert.equal(response.status, 501);
+            assert.deepEqual(response.body, {
+                code: 0,
+                message: APPLICATIONS_SHELF_UNSUPPORTED_MESSAGE,
+            });
+        }
     });
 
-    test("declares generated artifacts for only the owned PATCH method", () => {
+    test("declares generated artifacts for the owned PATCH and PUT methods", () => {
         const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "applications", "shelf.ts"), "utf8");
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
             paths?: Record<
@@ -78,7 +80,10 @@ describe("PATCH /applications/shelf", () => {
                         responses?: Record<string, { content?: Record<string, { schema?: JsonSchema }> }>;
                         security?: unknown;
                     };
-                    put?: unknown;
+                    put?: {
+                        responses?: Record<string, { content?: Record<string, { schema?: JsonSchema }> }>;
+                        security?: unknown;
+                    };
                 }
             >;
         };
@@ -118,29 +123,41 @@ describe("PATCH /applications/shelf", () => {
         };
 
         assert.match(routeSource, /summary:\s*"Update Application Shelf"/);
+        assert.match(routeSource, /summary:\s*"Replace Application Shelf"/);
         assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.doesNotMatch(routeSource, /router\.(get|put)\(/);
+        assert.match(routeSource, /router\.patch\(\s*["']\/["']/);
+        assert.match(routeSource, /router\.put\(\s*["']\/["']/);
+        assert.doesNotMatch(routeSource, /router\.(get|post|delete|options)\(/);
 
-        const route = openapi.paths?.["/applications/shelf/"]?.patch;
-        assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(route?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.deepEqual(route?.security, [{ bearer: [] }]);
+        const patchRoute = openapi.paths?.["/applications/shelf/"]?.patch;
+        assert.equal(patchRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(patchRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(patchRoute?.security, [{ bearer: [] }]);
+        const putRoute = openapi.paths?.["/applications/shelf/"]?.put;
+        assert.equal(putRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(putRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(putRoute?.security, [{ bearer: [] }]);
         assert.equal(openapi.paths?.["/applications/shelf/"]?.get, undefined);
-        assert.equal(openapi.paths?.["/applications/shelf/"]?.put, undefined);
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
-        assert.equal(manifestEntry?.path, `${assignedPath}/`);
-        assert.equal(manifestEntry?.sourceFile, "src/api/routes/applications/shelf.ts");
-        assert.equal(manifestEntry?.authMode, "bearer");
-        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
-        assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [401, 501]);
+        for (const coveredManifestId of coveredManifestIds) {
+            const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
+            assert.equal(manifestEntry?.path, `${assignedPath}/`);
+            assert.equal(manifestEntry?.sourceFile, "src/api/routes/applications/shelf.ts");
+            assert.equal(manifestEntry?.authMode, "bearer");
+            assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+            assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [401, 501]);
+        }
 
         const sourceEntry = sourceCatalog.find((entry) => entry.method === "PATCH" && entry.route === assignedPath);
         assert.equal(sourceEntry?.route_name, "PATCH_APPLICATIONS_SHELF");
         assert.equal(sourceEntry?.source, "src/api/routes/applications/shelf.ts");
         assert.deepEqual(sourceEntry?.response_schema_refs, ["APIErrorResponse"]);
+        const putSourceEntry = sourceCatalog.find((entry) => entry.method === "PUT" && entry.route === assignedPath);
+        assert.equal(putSourceEntry?.route_name, "PUT_APPLICATIONS_SHELF");
+        assert.equal(putSourceEntry?.source, "src/api/routes/applications/shelf.ts");
+        assert.deepEqual(putSourceEntry?.response_schema_refs, ["APIErrorResponse"]);
         assert.equal(
-            sourceCatalog.some((entry) => (entry.method === "GET" || entry.method === "PUT") && entry.route === assignedPath),
+            sourceCatalog.some((entry) => entry.method === "GET" && entry.route === assignedPath),
             false,
         );
 
@@ -154,13 +171,15 @@ describe("PATCH /applications/shelf", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "PUT" && entry.route === assignedPath && entry.route_name === "APPLICATIONS_SHELF"),
-            true,
+            false,
         );
 
-        const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestId);
-        assert.equal(contract?.authMode, "bearer");
-        assert.equal(contract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
-        assert.deepEqual(contract?.routeMetadata?.responseStatuses, [401, 501]);
+        for (const coveredManifestId of coveredManifestIds) {
+            const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestId);
+            assert.equal(contract?.authMode, "bearer");
+            assert.equal(contract?.routeMetadata?.responses?.includes("APIErrorResponse"), true);
+            assert.deepEqual(contract?.routeMetadata?.responseStatuses, [401, 501]);
+        }
     });
 });
 
@@ -180,7 +199,7 @@ function createRouteApp(options: { authentication?: boolean } = {}) {
     return app;
 }
 
-async function requestJson(app: express.Express, path: string) {
+async function requestJson(app: express.Express, path: string, options: { method?: string } = {}) {
     const server = app.listen(0, "127.0.0.1");
     await new Promise<void>((resolve, reject) => {
         server.once("error", reject);
@@ -190,7 +209,7 @@ async function requestJson(app: express.Express, path: string) {
     try {
         const address = server.address() as AddressInfo;
         const response = await fetch(`http://127.0.0.1:${address.port}${path}`, {
-            method: "PATCH",
+            method: options.method ?? "PATCH",
         });
 
         return {

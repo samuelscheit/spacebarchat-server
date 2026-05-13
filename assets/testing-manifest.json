@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 810,
+        "totalEntries": 811,
         "byService": {
-            "api": 713,
+            "api": 714,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 785,
+            "http-route": 786,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 205,
-            "stateful-domain": 451,
+            "stateful-domain": 452,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 667,
+            "route-class": 668,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -3155,6 +3155,45 @@
             "path": "/applications/shelf/",
             "sourceFile": "src/api/routes/applications/shelf.ts",
             "line": 31,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/applications/shelf/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/applications/shelf/",
+            "sourceFile": "src/api/routes/applications/shelf.ts",
+            "line": 53,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
