@@ -729,6 +729,7 @@ export async function consumeListenerEvent(this: WebSocket, opts: EventOpts) {
             if (!permission.has("VIEW_CHANNEL")) return;
             break;
         case "VOICE_STATE_UPDATE":
+        case "VOICE_CHANNEL_STATUS_UPDATE":
         case "MESSAGE_CREATE":
         case "MESSAGE_DELETE":
         case "MESSAGE_DELETE_BULK":

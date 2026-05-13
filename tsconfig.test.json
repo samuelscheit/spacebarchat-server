@@ -103,6 +103,7 @@
         "src/api/routes/channels/#channel_id/summaries.test.ts",
         "src/api/routes/channels/#channel_id/call.test.ts",
         "src/api/routes/channels/#channel_id/custom-call-sounds.test.ts",
+        "src/api/routes/channels/#channel_id/voice-status.test.ts",
         "src/api/routes/channels/#channel_id/pins.test.ts",
         "src/api/routes/channels/#channel_id/messages/#message_id/hide-guild-feed.test.ts",
         "src/api/routes/channels/#channel_id/messages/#message_id/interaction-data.test.ts",

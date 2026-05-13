@@ -1738,6 +1738,21 @@
                     "warning_ids"
                 ]
             },
+            "VoiceChannelStatusModifySchema": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "maxLength": 500,
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                },
+                "required": [
+                    "status"
+                ]
+            },
             "CodesVerificationSchema": {
                 "type": "object",
                 "properties": {
@@ -64311,6 +64326,88 @@
                     },
                     "403": {
                         "description": "No description available"
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "channel_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "channel_id"
+                    }
+                ],
+                "tags": [
+                    "channels"
+                ]
+            }
+        },
+        "/channels/{channel_id}/voice-status/": {
+            "put": {
+                "x-permission-required": "SET_VOICE_CHANNEL_STATUS",
+                "x-fires-event": "VOICE_CHANNEL_STATUS_UPDATE",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Sets a voice channel's status.",
+                "summary": "Modify Channel Status",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VoiceChannelStatusModifySchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "parameters": [

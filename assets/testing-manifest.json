@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 806,
+        "totalEntries": 807,
         "byService": {
-            "api": 709,
+            "api": 710,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 781,
+            "http-route": 782,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 205,
-            "stateful-domain": 447,
+            "stateful-domain": 448,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 663,
+            "route-class": 664,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -9261,6 +9261,63 @@
                     404
                 ],
                 "hasQuery": true
+            },
+            "rateLimit": {
+                "group": "channel",
+                "configPath": "limits.rate.routes.channel",
+                "pathPrefix": "/channels/:channel_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/channels/:channel_id/voice-status/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/channels/:channel_id/voice-status/",
+            "sourceFile": "src/api/routes/channels/#channel_id/voice-status.ts",
+            "line": 37,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "SET_VOICE_CHANNEL_STATUS",
+                "requestBody": "VoiceChannelStatusModifySchema",
+                "event": "VOICE_CHANNEL_STATUS_UPDATE",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    403,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "VOICE_CHANNEL_STATUS_UPDATE"
+                ]
             },
             "rateLimit": {
                 "group": "channel",

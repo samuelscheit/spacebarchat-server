@@ -1799,6 +1799,23 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "VoiceChannelStatusModifySchema": {
+        "type": "object",
+        "properties": {
+            "status": {
+                "maxLength": 500,
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "status"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "CodesVerificationSchema": {
         "type": "object",
         "properties": {

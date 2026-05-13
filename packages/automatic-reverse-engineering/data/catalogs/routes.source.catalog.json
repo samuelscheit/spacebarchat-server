@@ -1874,6 +1874,16 @@
 		"source": "src/api/routes/channels/#channel_id/users/@me/threads/archived/private.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "VoiceChannelStatusModifySchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/{channel_id}/voice-status",
+		"route_name": "PUT_CHANNELS_CHANNEL_ID_VOICE_STATUS",
+		"source": "src/api/routes/channels/#channel_id/voice-status.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIWebhookArray"

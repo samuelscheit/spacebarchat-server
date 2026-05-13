@@ -10,6 +10,7 @@ import {
     type MessageReactionAddManyEvent,
     type NotificationCenterItemsAckEvent,
     type ReadyEventData,
+    type VoiceChannelStatusUpdateEvent,
 } from "./Event";
 
 describe("ReadyEventData", () => {
@@ -149,6 +150,33 @@ describe("notification center item ack gateway event declarations", () => {
 
         assert.deepEqual(event.data, {
             id: "1456516148545421313",
+        });
+    });
+});
+
+describe("voice channel status gateway event declarations", () => {
+    test("uses the documented voice channel status update event name", () => {
+        assert.equal(EVENTEnum.VoiceChannelStatusUpdate, "VOICE_CHANNEL_STATUS_UPDATE");
+
+        const eventName: EVENT = "VOICE_CHANNEL_STATUS_UPDATE";
+        assert.equal(eventName, "VOICE_CHANNEL_STATUS_UPDATE");
+    });
+
+    test("types the documented voice channel status update payload", () => {
+        const event: VoiceChannelStatusUpdateEvent = {
+            event: "VOICE_CHANNEL_STATUS_UPDATE",
+            channel_id: "channel-id",
+            data: {
+                id: "channel-id",
+                guild_id: "guild-id",
+                status: null,
+            },
+        };
+
+        assert.deepEqual(event.data, {
+            id: "channel-id",
+            guild_id: "guild-id",
+            status: null,
         });
     });
 });

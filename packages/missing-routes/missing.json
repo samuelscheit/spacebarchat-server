@@ -1,6 +1,6 @@
 {
-    "missing": 479,
-    "spacebar": 701,
+    "missing": 478,
+    "spacebar": 702,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -77,7 +77,6 @@
         "/channels/{param}/send-soundboard-sound",
         "/channels/{param}/store-listing/entitlement-grant",
         "/channels/{param}/voice-channel-effects",
-        "/channels/{param}/voice-status",
         "/checkpoint/loot",
         "/connections/{param}/callback",
         "/connections/{param}/callback/session-handoff",
@@ -3299,14 +3298,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/polls/{message_id}/answers/@me"],
             "summaries": ["Create Poll Vote"]
-        },
-        {
-            "method": "PUT",
-            "route": "/channels/{param}/voice-status",
-            "route_name": "PUT_CHANNELS_CHANNEL_ID_VOICE_STATUS",
-            "sources": ["userdoccers:resources/channel.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/channels/{channel_id}/voice-status"],
-            "summaries": ["Modify Channel Status"]
         },
         {
             "method": "PUT",

@@ -868,6 +868,7 @@ describe("gateway listener intent filtering", () => {
     test("uses current invite and thread member event names from the intent maps", () => {
         assert.ok(Intents.GUILD_INTENT_TO_EVENTS_MAP[6].includes("INVITE_CREATE"));
         assert.ok(Intents.GUILD_INTENT_TO_EVENTS_MAP[6].includes("INVITE_DELETE"));
+        assert.ok(Intents.GUILD_INTENT_TO_EVENTS_MAP[7].includes("VOICE_CHANNEL_STATUS_UPDATE"));
         assert.ok(Intents.GUILD_INTENT_TO_EVENTS_MAP[1].includes("THREAD_MEMBERS_UPDATE"));
         assert.equal(Intents.GUILD_INTENT_TO_EVENTS_MAP[1].includes("THREAD_MEMBERS_UPDATE "), false);
     });

@@ -45,6 +45,7 @@ export * from "./ChannelCallRingSchema";
 export * from "./ChannelCallStopRingingSchema";
 export * from "./ChannelRecipientMeUpdateSchema";
 export * from "./ChannelSafetyWarningsAckSchema";
+export * from "./VoiceChannelStatusModifySchema";
 export * from "./CodesVerificationSchema";
 export * from "./CollectiblesPremiumProductClaimSchema";
 export * from "./ConfettiConsumableApplySchema";

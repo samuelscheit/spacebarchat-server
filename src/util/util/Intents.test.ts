@@ -36,4 +36,8 @@ describe("Intents", () => {
         assert.deepEqual(Intents.GUILD_INTENT_TO_EVENTS_MAP[20], ["AUTO_MODERATION_RULE_CREATE", "AUTO_MODERATION_RULE_UPDATE", "AUTO_MODERATION_RULE_DELETE"]);
         assert.deepEqual(Intents.GUILD_INTENT_TO_EVENTS_MAP[21], ["AUTO_MODERATION_ACTION_EXECUTION"]);
     });
+
+    it("classifies voice channel status updates as guild voice state events", () => {
+        assert.ok(Intents.GUILD_INTENT_TO_EVENTS_MAP[7].includes("VOICE_CHANNEL_STATUS_UPDATE"));
+    });
 });

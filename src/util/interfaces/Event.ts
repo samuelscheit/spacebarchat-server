@@ -571,6 +571,16 @@ export interface VoiceStateUpdateEvent extends Event {
     };
 }
 
+export interface VoiceChannelStatusUpdateEvent extends Event {
+    event: "VOICE_CHANNEL_STATUS_UPDATE";
+    channel_id: string;
+    data: {
+        id: string;
+        guild_id: string;
+        status: string | null;
+    };
+}
+
 export interface VoiceServerUpdateEvent extends Event {
     event: "VOICE_SERVER_UPDATE";
     data: {
@@ -849,6 +859,7 @@ export type EventData =
     | UserDeleteEvent
     | UserConnectionsUpdateEvent
     | VoiceStateUpdateEvent
+    | VoiceChannelStatusUpdateEvent
     | VoiceServerUpdateEvent
     | StageInstanceCreateEvent
     | StageInstanceUpdateEvent
@@ -922,6 +933,7 @@ export enum EVENTEnum {
     InteractionSuccess = "INTERACTION_SUCCESS",
     InteractionFailure = "INTERACTION_FAILURE",
     VoiceStateUpdate = "VOICE_STATE_UPDATE",
+    VoiceChannelStatusUpdate = "VOICE_CHANNEL_STATUS_UPDATE",
     VoiceServerUpdate = "VOICE_SERVER_UPDATE",
     StageInstanceCreate = "STAGE_INSTANCE_CREATE",
     StageInstanceUpdate = "STAGE_INSTANCE_UPDATE",
@@ -994,6 +1006,7 @@ export const EVENT_NAMES = [
     "INTERACTION_SUCCESS",
     "INTERACTION_FAILURE",
     "VOICE_STATE_UPDATE",
+    "VOICE_CHANNEL_STATUS_UPDATE",
     "VOICE_SERVER_UPDATE",
     "STAGE_INSTANCE_CREATE",
     "STAGE_INSTANCE_UPDATE",
