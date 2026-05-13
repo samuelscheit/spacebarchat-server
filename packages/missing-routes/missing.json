@@ -1,6 +1,6 @@
 {
-    "missing": 512,
-    "spacebar": 668,
+    "missing": 511,
+    "spacebar": 669,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -237,7 +237,6 @@
         "/partner-sdk/token",
         "/partner-sdk/token/bot",
         "/phone-verifications/resend",
-        "/phone-verifications/validate-support-ticket",
         "/phone-verifications/verify",
         "/premium-marketing",
         "/presences",
@@ -2725,7 +2724,6 @@
             "sources": ["userdoccers:topics/phone-verification.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Resend Verification Code"]
         },
-        { "method": "POST", "route": "/phone-verifications/validate-support-ticket", "route_name": "VERIFY_PHONE_FOR_TICKET", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "POST",
             "route": "/phone-verifications/verify",

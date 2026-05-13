@@ -16414,6 +16414,21 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PhoneVerificationSupportTicketValidateSchema": {
+        "type": "object",
+        "properties": {
+            "token": {
+                "minLength": 1,
+                "maxLength": 4096,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "token"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PreloadMessagesRequestSchema": {
         "type": "object",
         "properties": {

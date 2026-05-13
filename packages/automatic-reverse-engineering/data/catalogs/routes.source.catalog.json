@@ -4207,6 +4207,16 @@
 		"source": "src/api/routes/partners/#guild_id/requirements.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "PhoneVerificationSupportTicketValidateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/phone-verifications/validate-support-ticket",
+		"route_name": "POST_PHONE_VERIFICATIONS_VALIDATE_SUPPORT_TICKET",
+		"source": "src/api/routes/phone-verifications/validate-support-ticket.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"InstancePingResponse"

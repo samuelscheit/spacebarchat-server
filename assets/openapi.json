@@ -15520,6 +15520,19 @@
                     "password"
                 ]
             },
+            "PhoneVerificationSupportTicketValidateSchema": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "token"
+                ]
+            },
             "PreloadMessagesRequestSchema": {
                 "type": "object",
                 "properties": {
@@ -37360,6 +37373,9 @@
             "name": "partners"
         },
         {
+            "name": "phone-verifications"
+        },
+        {
             "name": "ping"
         },
         {
@@ -47809,6 +47825,65 @@
                         "label": "Spacebar-only",
                         "color": "red"
                     }
+                ]
+            }
+        },
+        "/phone-verifications/validate-support-ticket/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Validates a phone-verification support-ticket token when a real phone verification token store and support-ticket backend are configured. The default Spacebar instance has neither, so it fails closed with 501 instead of accepting opaque support-ticket tokens.",
+                "summary": "Validate Phone Verification Support Ticket",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PhoneVerificationSupportTicketValidateSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "phone-verifications"
                 ]
             }
         },

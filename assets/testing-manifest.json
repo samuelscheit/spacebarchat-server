@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 773,
+        "totalEntries": 774,
         "byService": {
-            "api": 676,
+            "api": 677,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 748,
+            "http-route": 749,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 196,
+            "contract": 197,
             "stateful-domain": 424,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 630,
+            "route-class": 631,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -20091,6 +20091,44 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/phone-verifications/validate-support-ticket/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/phone-verifications/validate-support-ticket/",
+            "sourceFile": "src/api/routes/phone-verifications/validate-support-ticket.ts",
+            "line": 62,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "PhoneVerificationSupportTicketValidateSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    501
                 ],
                 "hasQuery": false
             },
