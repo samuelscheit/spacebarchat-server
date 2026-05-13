@@ -5005,6 +5005,15 @@
 		"source": "src/api/routes/streams/#stream_key/preview.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/streams/{stream_key}/preview/video",
+		"route_name": "POST_STREAMS_STREAM_KEY_PREVIEW_VIDEO",
+		"source": "src/api/routes/streams/#stream_key/preview.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"TeamListResponse"

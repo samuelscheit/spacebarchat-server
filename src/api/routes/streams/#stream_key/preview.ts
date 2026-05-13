@@ -16,7 +16,7 @@
 	along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { route } from "@spacebar/api";
+import { createMessageUpload, route } from "@spacebar/api";
 import { ChannelType, type StreamPreviewUploadSchema } from "@spacebar/schemas";
 import { ApiError, Channel, DiscordApiErrors, getPermission, Stream, type Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
@@ -35,6 +35,7 @@ type StreamKey = {
 type StreamPreviewChannel = Pick<Channel, "id" | "guild_id" | "type">;
 type StreamPreviewRecord = Pick<Stream, "id" | "channel_id" | "owner_id">;
 type PermissionGuard = Pick<Permissions, "hasThrow">;
+export type StreamPreviewVideoUploadFile = Pick<Express.Multer.File, "buffer" | "mimetype" | "originalname" | "size">;
 export type StreamPreviewUploadTarget = {
     streamKey: StreamKey;
     channel: StreamPreviewChannel;
@@ -42,12 +43,16 @@ export type StreamPreviewUploadTarget = {
     userId: string;
     thumbnail: string;
 };
+export type StreamPreviewVideoUploadTarget = Omit<StreamPreviewUploadTarget, "thumbnail"> & {
+    file: StreamPreviewVideoUploadFile;
+};
 
 export interface StreamPreviewDependencies {
     findChannel(options: FindOneOptions<Channel>): Promise<StreamPreviewChannel | null>;
     findStream(channelId: string, ownerId: string): Promise<StreamPreviewRecord | null>;
     getPermission(userId: string, guildId: string | undefined, channelId: string): Promise<PermissionGuard>;
     uploadPreview?(target: StreamPreviewUploadTarget): Promise<void>;
+    uploadPreviewVideo?(target: StreamPreviewVideoUploadTarget): Promise<void>;
 }
 
 const defaultDependencies: StreamPreviewDependencies = {
@@ -57,7 +62,12 @@ const defaultDependencies: StreamPreviewDependencies = {
     uploadPreview: async () => {
         throw new HTTPError("Stream preview image uploads are not supported", 501);
     },
+    uploadPreviewVideo: async () => {
+        throw new HTTPError("Stream preview video uploads are not supported", 501);
+    },
 };
+
+const streamPreviewVideoUpload = createMessageUpload({ files: 1 }).single("file");
 
 export function parseStreamKey(streamKey: string): StreamKey {
     const streamKeyParts = streamKey.split(":");
@@ -153,6 +163,20 @@ export async function uploadStreamPreview(
     await uploadPreview({ ...target, thumbnail: body.thumbnail });
 }
 
+export async function uploadStreamPreviewVideo(
+    streamKeyRaw: string,
+    userId: string,
+    file: StreamPreviewVideoUploadFile | undefined,
+    dependencies: StreamPreviewDependencies = defaultDependencies,
+): Promise<void> {
+    if (!file) throw new HTTPError("missing file", 400);
+
+    const target = await assertStreamPreviewUploadable(streamKeyRaw, userId, dependencies);
+    const uploadPreviewVideo = dependencies.uploadPreviewVideo ?? defaultDependencies.uploadPreviewVideo!;
+
+    await uploadPreviewVideo({ ...target, file });
+}
+
 export function createStreamPreviewRouter(dependencies: StreamPreviewDependencies = defaultDependencies) {
     const router: Router = Router({ mergeParams: true });
 
@@ -209,6 +233,36 @@ export function createStreamPreviewRouter(dependencies: StreamPreviewDependencie
         async (req: Request, res: Response) => {
             const { stream_key } = req.params as { [key: string]: string };
             await uploadStreamPreview(stream_key, req.user_id, req.body as StreamPreviewUploadSchema, dependencies);
+            return res.sendStatus(204);
+        },
+    );
+
+    router.post(
+        "/video",
+        streamPreviewVideoUpload,
+        route({
+            summary: "Upload Video Stream Preview",
+            description:
+                "Uploads a preview video for an active stream owned by the current user. Spacebar does not currently have a durable local stream preview video storage provider, so the default server fails closed with 501 instead of acknowledging discarded media.",
+            responses: {
+                204: {},
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const { stream_key } = req.params as { [key: string]: string };
+            await uploadStreamPreviewVideo(stream_key, req.user_id, req.file, dependencies);
             return res.sendStatus(204);
         },
     );

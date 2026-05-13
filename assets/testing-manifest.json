@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 786,
+        "totalEntries": 787,
         "byService": {
-            "api": 689,
+            "api": 690,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 761,
+            "http-route": 762,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 201,
+            "contract": 202,
             "stateful-domain": 431,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 643,
+            "route-class": 644,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -23132,7 +23132,7 @@
             "method": "GET",
             "path": "/streams/:stream_key/preview/",
             "sourceFile": "src/api/routes/streams/#stream_key/preview.ts",
-            "line": 159,
+            "line": 183,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -23169,11 +23169,49 @@
             "method": "POST",
             "path": "/streams/:stream_key/preview/",
             "sourceFile": "src/api/routes/streams/#stream_key/preview.ts",
-            "line": 185,
+            "line": 209,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "StreamPreviewUploadSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    404,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/streams/:stream_key/preview/video",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/streams/:stream_key/preview/video",
+            "sourceFile": "src/api/routes/streams/#stream_key/preview.ts",
+            "line": 240,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
                 "responseBodies": [
                     "APIErrorResponse"
                 ],

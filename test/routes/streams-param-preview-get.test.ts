@@ -35,8 +35,10 @@ const streamId = "500000000000000005";
 const guildStreamKey = `guild:${guildId}:${channelId}:${ownerId}`;
 const callStreamKey = `call:${channelId}:${ownerId}`;
 const validThumbnail = "data:image/png;base64,iVBORw0KGgo=";
+const validVideoBytes = Uint8Array.from(Buffer.from("video-preview"));
 const coveredGetManifestId = "api:http:GET:/streams/:stream_key/preview/";
 const coveredPostManifestId = "api:http:POST:/streams/:stream_key/preview/";
+const coveredPostVideoManifestId = "api:http:POST:/streams/:stream_key/preview/video";
 
 describe("GET /streams/:stream_key/preview", () => {
     test("declares the assigned manifest route id", () => {
@@ -232,7 +234,7 @@ describe("GET /streams/:stream_key/preview", () => {
         );
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "POST" && entry.route === "/streams/{param}/preview/video"),
-            true,
+            false,
         );
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "POST" && entry.route === "/streams/{param}/notify"),
@@ -255,7 +257,7 @@ describe("GET /streams/:stream_key/preview", () => {
         );
         assert.equal(
             sourceCatalog.some((entry) => entry.route === "/streams/{stream_key}/preview/video"),
-            false,
+            true,
         );
         assert.equal(
             sourceCatalog.some((entry) => entry.route === "/streams/{stream_key}/stream"),
@@ -439,7 +441,201 @@ describe("POST /streams/:stream_key/preview", () => {
         );
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "POST" && entry.route === "/streams/{param}/preview/video"),
+            false,
+        );
+        assert.equal(
+            missingRoutes.missing_entries.some((entry) => entry.method === "POST" && entry.route === "/streams/{param}/notify"),
             true,
+        );
+        assert.equal(
+            missingRoutes.missing_entries.some((entry) => entry.method === "PATCH" && entry.route === "/streams/{param}/stream"),
+            true,
+        );
+    });
+});
+
+describe("POST /streams/:stream_key/preview/video", () => {
+    test("declares the assigned manifest route id", () => {
+        assert.equal(coveredPostVideoManifestId, "api:http:POST:/streams/:stream_key/preview/video");
+    });
+
+    test("stays behind bearer authentication", async (t) => {
+        const dependencies = createThrowingDependencies(t);
+
+        assert.equal(isNoAuthorizationRoute("POST", `/streams/${guildStreamKey}/preview/video`), false);
+        assert.equal(isNoAuthorizationRoute("POST", `/api/v9/streams/${guildStreamKey}/preview/video`), false);
+
+        const response = await request(createAuthenticatedApp(dependencies), `/streams/${guildStreamKey}/preview/video`, {
+            method: "POST",
+            body: videoPreviewForm(),
+        });
+
+        assert.equal(response.status, 401);
+        assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(mockOf(dependencies.findChannel).mock.callCount(), 0);
+        assert.equal(mockOf(dependencies.getPermission).mock.callCount(), 0);
+        assert.equal(mockOf(dependencies.findStream).mock.callCount(), 0);
+    });
+
+    test("requires the documented file form field before stream lookups", async (t) => {
+        const dependencies = createThrowingDependencies(t);
+
+        const response = await request(createApp(dependencies, ownerId), `/streams/${guildStreamKey}/preview/video`, {
+            method: "POST",
+            body: new FormData(),
+        });
+
+        assert.equal(response.status, 400);
+        assert.equal((response.body as { code?: unknown }).code, 400);
+        assert.match((response.body as { message?: string }).message ?? "", /missing file/);
+        assert.equal(mockOf(dependencies.findChannel).mock.callCount(), 0);
+        assert.equal(mockOf(dependencies.getPermission).mock.callCount(), 0);
+        assert.equal(mockOf(dependencies.findStream).mock.callCount(), 0);
+    });
+
+    test("uploads through the configured preview video persistence dependency for an owned active stream", async (t) => {
+        const dependencies = createDependencies(t, {
+            uploadPreviewVideo: t.mock.fn(async () => undefined),
+        });
+
+        const response = await request(createApp(dependencies, ownerId), `/streams/${guildStreamKey}/preview/video`, {
+            method: "POST",
+            body: videoPreviewForm(),
+        });
+
+        assert.equal(response.status, 204);
+        assert.equal(response.body, undefined);
+        assert.deepEqual(mockOf(dependencies.findChannel).mock.calls[0].arguments[0], {
+            where: { id: channelId },
+            select: { id: true, guild_id: true, type: true },
+        });
+        assert.equal(mockOf(dependencies.getPermission).mock.callCount(), 0);
+        assert.deepEqual(mockOf(dependencies.findStream).mock.calls[0].arguments, [channelId, ownerId]);
+
+        const uploaded = mockOf(dependencies.uploadPreviewVideo!).mock.calls[0].arguments[0];
+        assert.deepEqual(
+            {
+                streamKey: uploaded.streamKey,
+                channel: uploaded.channel,
+                stream: uploaded.stream,
+                userId: uploaded.userId,
+            },
+            {
+                streamKey: {
+                    type: "guild",
+                    guildId,
+                    channelId,
+                    userId: ownerId,
+                },
+                channel: {
+                    id: channelId,
+                    guild_id: guildId,
+                    type: ChannelType.GUILD_VOICE,
+                },
+                stream: {
+                    id: streamId,
+                    channel_id: channelId,
+                    owner_id: ownerId,
+                },
+                userId: ownerId,
+            },
+        );
+        assert.equal(uploaded.file.originalname, "preview.mp4");
+        assert.equal(uploaded.file.mimetype, "video/mp4");
+        assert.equal(uploaded.file.size, validVideoBytes.byteLength);
+        assert.deepEqual(uploaded.file.buffer, Buffer.from(validVideoBytes));
+    });
+
+    test("rejects non-owner stream keys before channel or stream lookups", async (t) => {
+        const dependencies = createDependencies(t, {
+            uploadPreviewVideo: t.mock.fn(async () => undefined),
+        });
+
+        const response = await request(createApp(dependencies), `/streams/${guildStreamKey}/preview/video`, {
+            method: "POST",
+            body: videoPreviewForm(),
+        });
+
+        assert.equal(response.status, 404);
+        assert.deepEqual(response.body, {
+            code: UNKNOWN_STREAM.code,
+            message: UNKNOWN_STREAM.message,
+        });
+        assert.equal(mockOf(dependencies.findChannel).mock.callCount(), 0);
+        assert.equal(mockOf(dependencies.getPermission).mock.callCount(), 0);
+        assert.equal(mockOf(dependencies.findStream).mock.callCount(), 0);
+        assert.equal(mockOf(dependencies.uploadPreviewVideo!).mock.callCount(), 0);
+    });
+
+    test("fails closed when no durable local stream preview video storage provider is configured", async (t) => {
+        const dependencies = createDependencies(t);
+
+        const response = await request(createApp(dependencies, ownerId), `/streams/${guildStreamKey}/preview/video`, {
+            method: "POST",
+            body: videoPreviewForm(),
+        });
+
+        assert.equal(response.status, 501);
+        assert.equal((response.body as { code?: unknown }).code, 501);
+        assert.match((response.body as { message?: string }).message ?? "", /Stream preview video uploads are not supported/);
+        assert.equal(mockOf(dependencies.findChannel).mock.callCount(), 1);
+        assert.equal(mockOf(dependencies.findStream).mock.callCount(), 1);
+    });
+
+    test("declares source-backed route metadata and leaves sibling stream routes untouched", () => {
+        const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "streams", "#stream_key", "preview.ts"), "utf8");
+        const openapi = readJson<OpenApiDocument>(join("assets", "openapi.json"));
+        const manifest = readJson<TestingManifest>(join("assets", "testing-manifest.json"));
+        const sourceCatalog = readJson<SourceRouteCatalogEntry[]>(join("packages", "automatic-reverse-engineering", "data", "catalogs", "routes.source.catalog.json"));
+        const userdoccersCatalog = readJson<SourceRouteCatalogEntry[]>(join("packages", "automatic-reverse-engineering", "data", "catalogs", "routes.userdoccers.catalog.json"));
+        const xhyromCatalog = readJson<SourceRouteCatalogEntry[]>(join("packages", "automatic-reverse-engineering", "data", "catalogs", "routes.xhyrom.catalog.json"));
+        const missingRoutes = readJson<MissingRoutesReport>(join("packages", "missing-routes", "missing.json"));
+        const contracts = readJson<HttpContractCatalog>(join("test", "generated", "http-contracts.json"));
+
+        assert.match(routeSource, /summary:\s*"Upload Video Stream Preview"/);
+        assert.match(routeSource, /Stream preview video uploads are not supported/);
+        assert.match(routeSource, /single\("file"\)/);
+
+        const operation = openapi.paths?.["/streams/{stream_key}/preview/video"]?.post ?? openapi.paths?.["/streams/{stream_key}/preview/video/"]?.post;
+        assert.equal(operation?.summary, "Upload Video Stream Preview");
+        assert.equal(operation?.requestBody, undefined);
+        assert.equal(operation?.responses?.["204"]?.description, "No description available");
+        assert.equal(operation?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(operation?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(operation?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(operation?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(operation?.security, [{ bearer: [] }]);
+
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredPostVideoManifestId);
+        assert.equal(manifestEntry?.authMode, "bearer");
+        assert.equal(manifestEntry?.sourceFile, "src/api/routes/streams/#stream_key/preview.ts");
+        assert.equal(manifestEntry?.routeMetadata?.requestBody, undefined);
+        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [204, 400, 401, 404, 501]);
+
+        const sourceEntry = sourceCatalog.find((entry) => entry.method === "POST" && entry.route === "/streams/{stream_key}/preview/video");
+        assert.equal(sourceEntry?.route_name, "POST_STREAMS_STREAM_KEY_PREVIEW_VIDEO");
+        assert.equal(sourceEntry?.source, "src/api/routes/streams/#stream_key/preview.ts");
+        assert.equal(sourceEntry?.request_schema_ref, undefined);
+        assert.deepEqual(sourceEntry?.response_schema_refs, ["APIErrorResponse"]);
+
+        const userdoccersEntry = userdoccersCatalog.find((entry) => entry.method === "POST" && entry.route === "/streams/{stream_key}/preview/video");
+        assert.equal(userdoccersEntry?.route_name, "POST_STREAMS_STREAM_KEY_PREVIEW_VIDEO");
+        assert.equal(userdoccersEntry?.summary, "Upload Video Stream Preview");
+        assert.equal(userdoccersEntry?.source, "userdoccers:resources/voice.mdx");
+
+        const xhyromEntry = xhyromCatalog.find((entry) => entry.method === "POST" && entry.route === "/streams/{param}/preview/video");
+        assert.equal(xhyromEntry, undefined);
+
+        const contract = contracts.contracts?.find((entry) => entry.manifestId === coveredPostVideoManifestId);
+        assert.equal(contract?.authMode, "bearer");
+        assert.equal(contract?.routeMetadata?.requestBody, undefined);
+        assert.deepEqual(contract?.routeMetadata?.responses, ["APIErrorResponse"]);
+        assert.deepEqual(contract?.routeMetadata?.responseStatuses, [204, 400, 401, 404, 501]);
+
+        assert.equal(
+            missingRoutes.missing_entries.some((entry) => entry.method === "POST" && entry.route === "/streams/{param}/preview/video"),
+            false,
         );
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "POST" && entry.route === "/streams/{param}/notify"),
@@ -471,6 +667,12 @@ function createAuthenticatedApp(dependencies: StreamPreviewDependencies) {
     app.use("/streams/:stream_key/preview", createStreamPreviewRouter(dependencies));
     app.use(ErrorHandler);
     return app;
+}
+
+function videoPreviewForm() {
+    const form = new FormData();
+    form.set("file", new Blob([validVideoBytes], { type: "video/mp4" }), "preview.mp4");
+    return form;
 }
 
 function createThrowingDependencies(t: TestContext) {

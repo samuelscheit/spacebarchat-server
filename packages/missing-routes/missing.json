@@ -1,6 +1,6 @@
 {
-    "missing": 499,
-    "spacebar": 681,
+    "missing": 498,
+    "spacebar": 682,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -267,7 +267,6 @@
         "/store/skus/{param}",
         "/store/skus/{param}/purchase",
         "/streams/{param}/notify",
-        "/streams/{param}/preview/video",
         "/streams/{param}/stream",
         "/subscription-plans/{param}/guild-role-subscription-group-listing",
         "/subscription-plans/{param}/subscription-group-listing",
@@ -2846,14 +2845,6 @@
             "sources": ["userdoccers:resources/voice.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/streams/{stream_key}/notify"],
             "summaries": ["Broadcast Stream Notification"]
-        },
-        {
-            "method": "POST",
-            "route": "/streams/{param}/preview/video",
-            "route_name": "POST_STREAMS_STREAM_KEY_PREVIEW_VIDEO",
-            "sources": ["userdoccers:resources/voice.mdx"],
-            "source_routes": ["/streams/{stream_key}/preview/video"],
-            "summaries": ["Upload Video Stream Preview"]
         },
         {
             "method": "POST",
