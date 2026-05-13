@@ -17,8 +17,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 */
 
 import { route } from "@spacebar/api";
-import type { PartnerSdkApplicationSkusResponse, StoreSkuResponse } from "@spacebar/schemas";
-import { DiscordApiErrors } from "@spacebar/util";
+import type { PartnerSdkApplicationSkuCreateSchema, PartnerSdkApplicationSkusResponse, StoreSkuResponse } from "@spacebar/schemas";
+import { ApiError, DiscordApiErrors } from "@spacebar/util";
 import { Router as createRouter, type Request, type Response, type Router } from "express";
 import { requireApplicationStoreAccess, type ApplicationCommandAuthorizationRepository } from "../../../../util/utility/ApplicationAuthorization";
 import { toStoreSkuResponse } from "../../../../util/utility/StoreSkuRoute";
@@ -27,7 +27,13 @@ const routeSnowflakePattern = /^[1-9]\d{16,19}$/;
 const socialLayerGameItemProductLine = 14;
 const emptyPartnerSdkApplicationSkus: readonly StoreSkuResponse[] = [];
 
+export const PARTNER_SDK_APPLICATION_SKU_CREATE_UNSUPPORTED_MESSAGE = "Social Layer SKU creation is not supported on this Spacebar instance.";
+
 export interface PartnerSdkApplicationSkusProviderOptions {
+    application_id: string;
+}
+
+export interface PartnerSdkApplicationSkuCreateProviderOptions extends PartnerSdkApplicationSkuCreateSchema {
     application_id: string;
 }
 
@@ -35,9 +41,13 @@ export type PartnerSdkApplicationSkuSource = StoreSkuResponse;
 export type PartnerSdkApplicationSkusProvider = (
     options: PartnerSdkApplicationSkusProviderOptions,
 ) => readonly PartnerSdkApplicationSkuSource[] | Promise<readonly PartnerSdkApplicationSkuSource[]>;
+export type PartnerSdkApplicationSkuCreateProvider = (
+    options: PartnerSdkApplicationSkuCreateProviderOptions,
+) => PartnerSdkApplicationSkuSource | undefined | Promise<PartnerSdkApplicationSkuSource | undefined>;
 
 export type PartnerSdkApplicationSkusDependencies = {
     applicationRepository?: ApplicationCommandAuthorizationRepository;
+    createSkuProvider?: PartnerSdkApplicationSkuCreateProvider;
     skusProvider?: PartnerSdkApplicationSkusProvider;
 };
 
@@ -48,6 +58,10 @@ export function isPartnerSdkApplicationSkusApplicationId(value: string) {
 export function getConfiguredPartnerSdkApplicationSkus(_options: PartnerSdkApplicationSkusProviderOptions): readonly StoreSkuResponse[] {
     // Spacebar does not currently persist Discord Social Layer SKU catalogs.
     return emptyPartnerSdkApplicationSkus;
+}
+
+export function createPartnerSdkApplicationSkuUnsupportedError(): ApiError {
+    return new ApiError(PARTNER_SDK_APPLICATION_SKU_CREATE_UNSUPPORTED_MESSAGE, 0, 501);
 }
 
 export function toPartnerSdkApplicationSkusResponse(applicationId: string, skus: readonly PartnerSdkApplicationSkuSource[]): PartnerSdkApplicationSkusResponse {
@@ -67,6 +81,32 @@ export async function listPartnerSdkApplicationSkus(
     const skus = await provider({ application_id: applicationId });
 
     return toPartnerSdkApplicationSkusResponse(applicationId, skus);
+}
+
+export async function createPartnerSdkApplicationSku(
+    applicationId: string,
+    userId: string,
+    body: PartnerSdkApplicationSkuCreateSchema,
+    dependencies: PartnerSdkApplicationSkusDependencies = {},
+): Promise<StoreSkuResponse> {
+    if (!isPartnerSdkApplicationSkusApplicationId(applicationId)) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+
+    await requireApplicationStoreAccess(applicationId, userId, dependencies.applicationRepository);
+
+    const provider = dependencies.createSkuProvider;
+    if (!provider) throw createPartnerSdkApplicationSkuUnsupportedError();
+
+    const sku = await provider({
+        application_id: applicationId,
+        name: body.name,
+        price_tier: body.price_tier,
+    });
+
+    if (!sku || sku.application_id !== applicationId || sku.product_line !== socialLayerGameItemProductLine) {
+        throw createPartnerSdkApplicationSkuUnsupportedError();
+    }
+
+    return toStoreSkuResponse(sku);
 }
 
 function sendApplicationAuthorizationError(res: Response) {
@@ -119,6 +159,48 @@ export function createPartnerSdkApplicationSkusRouter(dependencies: PartnerSdkAp
                 const skus = await listPartnerSdkApplicationSkus(req.params.application_id as string, req.user_id, dependencies);
 
                 return res.status(200).json(skus);
+            } catch (error) {
+                if (isApplicationAuthorizationError(error)) return sendApplicationAuthorizationError(res);
+                if (isUnknownApplicationError(error)) return sendUnknownApplicationError(res);
+                throw error;
+            }
+        },
+    );
+
+    router.post(
+        "/",
+        route({
+            summary: "Create Social Layer SKU",
+            description:
+                "Creates a locally backed Social Layer game item SKU for the given application when a Social Layer SKU provider is configured; otherwise fails closed after application store access checks.",
+            requestBody: "PartnerSdkApplicationSkuCreateSchema",
+            coerceRequestBody: false,
+            responses: {
+                200: {
+                    body: "StoreSkuResponse",
+                },
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                403: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            try {
+                const sku = await createPartnerSdkApplicationSku(req.params.application_id as string, req.user_id, req.body as PartnerSdkApplicationSkuCreateSchema, dependencies);
+
+                return res.status(200).json(sku);
             } catch (error) {
                 if (isApplicationAuthorizationError(error)) return sendApplicationAuthorizationError(res);
                 if (isUnknownApplicationError(error)) return sendUnknownApplicationError(res);

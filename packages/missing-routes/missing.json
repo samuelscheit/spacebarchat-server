@@ -1,6 +1,6 @@
 {
-    "missing": 487,
-    "spacebar": 693,
+    "missing": 486,
+    "spacebar": 694,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -216,7 +216,6 @@
         "/oauth2/samsung/authorize/callback",
         "/oauth2/token/revoke",
         "/outbound-promotions/{param}/claim",
-        "/partner-sdk/application/{param}/skus",
         "/partner-sdk/applications/{param}/storefront",
         "/partner-sdk/child-token",
         "/partner-sdk/dms/{param}/{param}/messages/{param}/moderation-metadata",
@@ -2583,14 +2582,6 @@
             "sources": ["userdoccers:resources/promotion.mdx"],
             "source_routes": ["/outbound-promotions/{promotion_id}/claim"],
             "summaries": ["Claim Promotion"]
-        },
-        {
-            "method": "POST",
-            "route": "/partner-sdk/application/{param}/skus",
-            "route_name": "POST_PARTNER_SDK_APPLICATION_APPLICATION_ID_SKUS",
-            "sources": ["userdoccers:resources/store.mdx"],
-            "source_routes": ["/partner-sdk/application/{application_id}/skus"],
-            "summaries": ["Create Social Layer SKU"]
         },
         {
             "method": "POST",

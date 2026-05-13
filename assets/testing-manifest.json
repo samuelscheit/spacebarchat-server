@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 798,
+        "totalEntries": 799,
         "byService": {
-            "api": 701,
+            "api": 702,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 773,
+            "http-route": 774,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 202,
+            "contract": 203,
             "stateful-domain": 442,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 655,
+            "route-class": 656,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -2959,7 +2959,7 @@
             "method": "GET",
             "path": "/applications/games-supplemental/",
             "sourceFile": "src/api/routes/applications/games-supplemental.ts",
-            "line": 112,
+            "line": 111,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3000,7 +3000,7 @@
             "method": "PATCH",
             "path": "/applications/games-supplemental/",
             "sourceFile": "src/api/routes/applications/games-supplemental.ts",
-            "line": 144,
+            "line": 143,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -3039,7 +3039,7 @@
             "method": "PUT",
             "path": "/applications/games-supplemental/",
             "sourceFile": "src/api/routes/applications/games-supplemental.ts",
-            "line": 164,
+            "line": 163,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -20410,7 +20410,7 @@
             "method": "GET",
             "path": "/partner-sdk/application/:application_id/skus/",
             "sourceFile": "src/api/routes/partner-sdk/application/#application_id/skus.ts",
-            "line": 97,
+            "line": 137,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -20423,6 +20423,47 @@
                     401,
                     403,
                     404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/partner-sdk/application/:application_id/skus/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/partner-sdk/application/:application_id/skus/",
+            "sourceFile": "src/api/routes/partner-sdk/application/#application_id/skus.ts",
+            "line": 170,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "PartnerSdkApplicationSkuCreateSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "StoreSkuResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    403,
+                    404,
+                    501
                 ],
                 "hasQuery": false
             },

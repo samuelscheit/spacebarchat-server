@@ -16687,6 +16687,26 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "PartnerSdkApplicationSkuCreateSchema": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "minLength": 1,
+                "maxLength": 256,
+                "type": "string"
+            },
+            "price_tier": {
+                "minimum": 0,
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "price_tier"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "PhoneVerificationSupportTicketValidateSchema": {
         "type": "object",
         "properties": {

@@ -4265,6 +4265,17 @@
 		"source": "src/api/routes/partner-sdk/application/#application_id/skus.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "PartnerSdkApplicationSkuCreateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"StoreSkuResponse"
+		],
+		"route": "/partner-sdk/application/{application_id}/skus",
+		"route_name": "POST_PARTNER_SDK_APPLICATION_APPLICATION_ID_SKUS",
+		"source": "src/api/routes/partner-sdk/application/#application_id/skus.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
