@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 615,
+        "totalCoveredManifestEntries": 616,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 593,
-                "totalCoveredManifestEntries": 593,
-                "totalCoveredRequiredManifestEntries": 593,
+                "totalRequiredManifestEntries": 594,
+                "totalCoveredManifestEntries": 594,
+                "totalCoveredRequiredManifestEntries": 594,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 450,
+            "stateful-domain": 451,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 593,
-                "totalCoveredManifestEntries": 593,
-                "totalCoveredRequiredManifestEntries": 593,
+                "totalRequiredManifestEntries": 594,
+                "totalCoveredManifestEntries": 594,
+                "totalCoveredRequiredManifestEntries": 594,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -581,6 +581,7 @@
                 "api:http:PUT:/guilds/:guild_id/incident-actions/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
+                "api:http:PUT:/guilds/:guild_id/members/@me/",
                 "api:http:PUT:/guilds/:guild_id/members/supplemental/",
                 "api:http:PUT:/guilds/:guild_id/roles/:role_id/members/",
                 "api:http:PUT:/guilds/:guild_id/templates/:code",
@@ -1176,6 +1177,7 @@
                 "api:http:PUT:/guilds/:guild_id/incident-actions/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
+                "api:http:PUT:/guilds/:guild_id/members/@me/",
                 "api:http:PUT:/guilds/:guild_id/members/supplemental/",
                 "api:http:PUT:/guilds/:guild_id/roles/:role_id/members/",
                 "api:http:PUT:/guilds/:guild_id/templates/:code",
@@ -1634,6 +1636,7 @@
                         "api:http:PUT:/guilds/:guild_id/incident-actions/",
                         "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                         "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
+                        "api:http:PUT:/guilds/:guild_id/members/@me/",
                         "api:http:PUT:/guilds/:guild_id/members/supplemental/",
                         "api:http:PUT:/guilds/:guild_id/roles/:role_id/members/",
                         "api:http:PUT:/guilds/:guild_id/templates/:code"

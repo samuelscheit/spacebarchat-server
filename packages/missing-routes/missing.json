@@ -1,6 +1,6 @@
 {
-    "missing": 476,
-    "spacebar": 704,
+    "missing": 475,
+    "spacebar": 705,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -3326,14 +3326,6 @@
             "route_name": "GUILD_LEADERBOARD_SETTINGS",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/leaderboards/{param}/settings"]
-        },
-        {
-            "method": "PUT",
-            "route": "/guilds/{param}/members/@me",
-            "route_name": "PUT_GUILDS_GUILD_ID_MEMBERS__ME",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/members/@me"],
-            "summaries": ["Join Guild"]
         },
         {
             "method": "PUT",

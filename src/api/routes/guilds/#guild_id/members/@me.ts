@@ -18,6 +18,7 @@
 
 import { route } from "@spacebar/api";
 import { Request, Response, Router } from "express";
+import { joinGuildMember } from "../../../../util/handlers/GuildMemberJoin";
 import { findCurrentGuildMember } from "../../../../util/utility/CurrentGuildMember";
 
 const router = Router({ mergeParams: true });
@@ -42,6 +43,45 @@ router.get(
         const member = await findCurrentGuildMember(req.user_id, guild_id);
 
         return res.json(member);
+    },
+);
+
+router.put(
+    "/",
+    route({
+        summary: "Join Guild",
+        query: {
+            lurker: {
+                type: "string",
+                description: "Return 204 for existing member lurker join probes.",
+                values: ["true", "1"],
+            },
+        },
+        responses: {
+            200: {
+                body: "MemberJoinGuildResponse",
+            },
+            204: {},
+            403: {
+                body: "APIErrorResponse",
+            },
+            404: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { guild_id } = req.params as { [key: string]: string };
+        const result = await joinGuildMember({
+            guild_id,
+            member_id: "@me",
+            user_id: req.user_id,
+            user_bot: req.user_bot,
+            query: req.query,
+        });
+
+        if (result.status === 204) return res.sendStatus(204);
+        return res.status(result.status).send(result.data);
     },
 );
 

@@ -18,6 +18,7 @@
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import type { AddressInfo } from "node:net";
 import path from "node:path";
 import { afterEach, describe, test, type TestContext } from "node:test";
 import express from "express";
@@ -28,10 +29,12 @@ import { requestJson } from "../../../../tests/helpers/UserRouteTestHelpers";
 const requireModule = require;
 const routeModulePath = require.resolve("./@me");
 const currentMemberModulePath = require.resolve("../../../../util/utility/CurrentGuildMember");
+const guildMemberJoinModulePath = require.resolve("../../../../util/handlers/GuildMemberJoin");
 
 const guildId = "200000000000000002";
 const userId = "100000000000000001";
-const coveredManifestId = "api:http:GET:/guilds/:guild_id/members/@me/";
+const getCoveredManifestId = "api:http:GET:/guilds/:guild_id/members/@me/";
+const putCoveredManifestId = "api:http:PUT:/guilds/:guild_id/members/@me/";
 
 afterEach(() => {
     delete require.cache[routeModulePath];
@@ -75,6 +78,55 @@ describe("GET /guilds/:guild_id/members/@me", () => {
         assert.deepEqual(findCurrentGuildMember.mock.calls[0].arguments, [userId, guildId]);
     });
 
+    test("PUT stays behind bearer authentication", async (t) => {
+        const joinGuildMember = mockGuildMemberJoin(t, { status: 204 });
+        const app = express();
+        app.use(Authentication);
+        app.use("/guilds/:guild_id/members/@me", loadRouteModule().default);
+        app.use(ErrorHandler);
+
+        assert.equal(isNoAuthorizationRoute("PUT", `/api/v9/guilds/${guildId}/members/@me`), false);
+
+        const response = await requestJson(app, `/guilds/${guildId}/members/@me`, { method: "PUT" });
+
+        assert.equal(response.status, 401);
+        assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(joinGuildMember.mock.callCount(), 0);
+    });
+
+    test("PUT joins the authenticated user through the current-member join route", async (t) => {
+        const responseBody = memberJoinGuildBody();
+        const joinGuildMember = mockGuildMemberJoin(t, { status: 200, data: responseBody });
+
+        const response = await requestJson(createApp({ userBot: true }), `/guilds/${guildId}/members/@me?lurker=true`, { method: "PUT" });
+
+        assert.equal(response.status, 200);
+        assert.deepEqual(response.body, responseBody);
+        const joinInput = joinGuildMember.mock.calls[0].arguments[0];
+        assert.ok(joinInput);
+        assert.equal(joinInput.guild_id, guildId);
+        assert.equal(joinInput.member_id, "@me");
+        assert.equal(joinInput.user_id, userId);
+        assert.equal(joinInput.user_bot, true);
+        assert.equal(joinInput.query?.lurker, "true");
+    });
+
+    test("PUT returns 204 for existing-member lurker join probes", async (t) => {
+        const joinGuildMember = mockGuildMemberJoin(t, { status: 204 });
+
+        const response = await requestRaw(createApp(), `/guilds/${guildId}/members/@me?lurker=1`, { method: "PUT" });
+
+        assert.equal(response.status, 204);
+        assert.equal(response.text, "");
+        const joinInput = joinGuildMember.mock.calls[0].arguments[0];
+        assert.ok(joinInput);
+        assert.equal(joinInput.guild_id, guildId);
+        assert.equal(joinInput.member_id, "@me");
+        assert.equal(joinInput.user_id, userId);
+        assert.equal(joinInput.user_bot, false);
+        assert.equal(joinInput.query?.lurker, "1");
+    });
+
     test("declares current-member metadata and generated route artifacts", () => {
         const routeSource = readFileSync(path.join(process.cwd(), "src", "api", "routes", "guilds", "#guild_id", "members", "@me.ts"), "utf8");
         const openapi = readJson<OpenApiDocument>(path.join("assets", "openapi.json"));
@@ -84,10 +136,14 @@ describe("GET /guilds/:guild_id/members/@me", () => {
         const missingRoutes = readJson<MissingRoutesReport>(path.join("packages", "missing-routes", "missing.json"));
 
         assert.match(routeSource, /router\.get\(\s*["']\/["']/);
+        assert.match(routeSource, /router\.put\(\s*["']\/["']/);
         assert.match(routeSource, /200:\s*\{\s*body:\s*"CurrentGuildMemberResponse"/s);
+        assert.match(routeSource, /200:\s*\{\s*body:\s*"MemberJoinGuildResponse"/s);
+        assert.match(routeSource, /204:\s*\{\}/s);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /404:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /findCurrentGuildMember\(req\.user_id,\s*guild_id\)/);
+        assert.match(routeSource, /joinGuildMember\(\{\s*guild_id,\s*member_id:\s*"@me"/s);
 
         const operation = openapi.paths?.["/guilds/{guild_id}/members/@me/"]?.get;
         assert.equal(operation?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/CurrentGuildMemberResponse");
@@ -95,7 +151,14 @@ describe("GET /guilds/:guild_id/members/@me", () => {
         assert.equal(operation?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.deepEqual(operation?.security, [{ bearer: [] }]);
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestId);
+        const putOperation = openapi.paths?.["/guilds/{guild_id}/members/@me/"]?.put;
+        assert.equal(putOperation?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/MemberJoinGuildResponse");
+        assert.equal(putOperation?.responses?.["204"]?.description, "No description available");
+        assert.equal(putOperation?.responses?.["403"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(putOperation?.responses?.["404"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(putOperation?.security, [{ bearer: [] }]);
+
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === getCoveredManifestId);
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.sourceFile, "src/api/routes/guilds/#guild_id/members/@me.ts");
         assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse", "CurrentGuildMemberResponse"]);
@@ -104,14 +167,32 @@ describe("GET /guilds/:guild_id/members/@me", () => {
             [200, 401, 404],
         );
 
-        const contractEntry = contracts.contracts.find((entry) => entry.manifestId === coveredManifestId);
+        const putManifestEntry = manifest.entries?.find((entry) => entry.id === putCoveredManifestId);
+        assert.equal(putManifestEntry?.authMode, "bearer");
+        assert.equal(putManifestEntry?.sourceFile, "src/api/routes/guilds/#guild_id/members/@me.ts");
+        assert.deepEqual(putManifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse", "MemberJoinGuildResponse"]);
+        assert.deepEqual(
+            putManifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            [200, 204, 403, 404],
+        );
+
+        const contractEntry = contracts.contracts.find((entry) => entry.manifestId === getCoveredManifestId);
         assert.equal(contractEntry?.sourceFile, "src/api/routes/guilds/#guild_id/members/@me.ts");
         assert.deepEqual(contractEntry?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "CurrentGuildMemberResponse"]);
+
+        const putContractEntry = contracts.contracts.find((entry) => entry.manifestId === putCoveredManifestId);
+        assert.equal(putContractEntry?.sourceFile, "src/api/routes/guilds/#guild_id/members/@me.ts");
+        assert.deepEqual(putContractEntry?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "MemberJoinGuildResponse"]);
 
         const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/guilds/{guild_id}/members/@me");
         assert.equal(catalogEntry?.route_name, "GET_GUILDS_GUILD_ID_MEMBERS__ME");
         assert.equal(catalogEntry?.source, "src/api/routes/guilds/#guild_id/members/@me.ts");
         assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "CurrentGuildMemberResponse"]);
+
+        const putCatalogEntry = sourceCatalog.find((entry) => entry.method === "PUT" && entry.route === "/guilds/{guild_id}/members/@me");
+        assert.equal(putCatalogEntry?.route_name, "PUT_GUILDS_GUILD_ID_MEMBERS__ME");
+        assert.equal(putCatalogEntry?.source, "src/api/routes/guilds/#guild_id/members/@me.ts");
+        assert.deepEqual(putCatalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "MemberJoinGuildResponse"]);
 
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "GET" && entry.route === "/guilds/{param}/members/@me"),
@@ -123,7 +204,7 @@ describe("GET /guilds/:guild_id/members/@me", () => {
         );
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "PUT" && entry.route === "/guilds/{param}/members/@me"),
-            true,
+            false,
         );
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "DELETE" && entry.route === "/guilds/{param}/members/@me"),
@@ -137,11 +218,12 @@ function loadRouteModule(): typeof import("./@me") {
     return requireModule(routeModulePath) as typeof import("./@me");
 }
 
-function createApp() {
+function createApp(options: { userBot?: boolean } = {}) {
     const app = express();
     app.use(express.json());
     app.use((req, _res, next) => {
         req.user_id = userId;
+        req.user_bot = options.userBot ?? false;
         req.t = ((key: string) => key) as typeof req.t;
         next();
     });
@@ -156,6 +238,11 @@ function mockCurrentMemberLookup(t: TestContext, result: CurrentMemberBody | Err
         if (result instanceof Error) throw result;
         return result;
     });
+}
+
+function mockGuildMemberJoin(t: TestContext, result: GuildMemberJoinResult) {
+    const guildMemberJoinModule = requireModule(guildMemberJoinModulePath) as typeof import("../../../../util/handlers/GuildMemberJoin");
+    return t.mock.method(guildMemberJoinModule, "joinGuildMember", async () => result);
 }
 
 function currentMemberBody(): CurrentMemberBody {
@@ -203,9 +290,48 @@ function currentMemberBody(): CurrentMemberBody {
     };
 }
 
+function memberJoinGuildBody() {
+    return {
+        id: guildId,
+        name: "Discoverable Guild",
+        features: ["DISCOVERABLE"],
+        emojis: [{ id: "300000000000000003", name: "wave" }],
+        roles: [{ id: guildId, name: "@everyone" }],
+        stickers: [{ id: "400000000000000004", name: "wave-sticker" }],
+    };
+}
+
 function readJson<T>(file: string): T {
     return JSON.parse(readFileSync(file, "utf8")) as T;
 }
+
+async function requestRaw(app: express.Express, requestPath: string, options: { method?: string; body?: unknown } = {}) {
+    const server = app.listen(0);
+    try {
+        const address = server.address() as AddressInfo;
+        const response = await fetch(`http://127.0.0.1:${address.port}${requestPath}`, {
+            method: options.method,
+            body: options.body == undefined ? undefined : JSON.stringify(options.body),
+            headers: options.body == undefined ? undefined : { "content-type": "application/json" },
+        });
+
+        return {
+            status: response.status,
+            text: await response.text(),
+        };
+    } finally {
+        server.close();
+    }
+}
+
+type GuildMemberJoinResult =
+    | {
+          status: 204;
+      }
+    | {
+          status: 200;
+          data: unknown;
+      };
 
 type CurrentMemberBody = {
     id: string;
@@ -257,6 +383,10 @@ type OpenApiDocument = {
             get?: {
                 security?: unknown;
                 responses?: Record<string, { content?: { "application/json"?: { schema?: { $ref?: string } } } }>;
+            };
+            put?: {
+                security?: unknown;
+                responses?: Record<string, { description?: string; content?: { "application/json"?: { schema?: { $ref?: string } } } }>;
             };
         }
     >;
