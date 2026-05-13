@@ -11015,6 +11015,62 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "OAuth2TokenResponse": {
+        "type": "object",
+        "properties": {
+            "token_type": {
+                "type": "string"
+            },
+            "access_token": {
+                "type": "string"
+            },
+            "id_token": {
+                "type": "string"
+            },
+            "scope": {
+                "type": "string"
+            },
+            "expires_in": {
+                "type": "integer"
+            },
+            "refresh_token": {
+                "type": "string"
+            },
+            "guild": {
+                "$ref": "#/definitions/APIGuild"
+            },
+            "webhook": {
+                "$ref": "#/definitions/APIWebhook"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "access_token",
+            "expires_in",
+            "scope",
+            "token_type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OAuth2TokenErrorResponse": {
+        "type": "object",
+        "properties": {
+            "error": {
+                "$ref": "#/definitions/OAuth2TokenErrorCode"
+            },
+            "error_description": {
+                "type": "string"
+            },
+            "error_uri": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "error"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "OAuthUserInfoResponse": {
         "type": "object",
         "properties": {
@@ -35615,6 +35671,16 @@
             "unwrapKey",
             "verify",
             "wrapKey"
+        ],
+        "type": "string",
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "OAuth2TokenErrorCode": {
+        "enum": [
+            "invalid_client",
+            "invalid_grant",
+            "invalid_request",
+            "unsupported_grant_type"
         ],
         "type": "string",
         "$schema": "http://json-schema.org/draft-07/schema#"

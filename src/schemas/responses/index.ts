@@ -174,6 +174,7 @@ export * from "./OAuthAuthorizationResponse";
 export * from "./OAuthAuthorizationsResponse";
 export * from "./OAuthCurrentAuthorizationResponse";
 export * from "./OAuth2KeysResponse";
+export * from "./OAuth2TokenResponse";
 export * from "./OAuthUserInfoResponse";
 export * from "./PasswordValidateResponse";
 export * from "./PinnedMessagesResponse";

@@ -4155,6 +4155,16 @@
 		"source": "src/api/routes/oauth2/keys.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"OAuth2TokenErrorResponse",
+			"OAuth2TokenResponse"
+		],
+		"route": "/oauth2/token",
+		"route_name": "POST_OAUTH2_TOKEN",
+		"source": "src/api/routes/oauth2/token.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/oauth2/tokens",

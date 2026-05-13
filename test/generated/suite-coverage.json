@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 594,
+        "totalCoveredManifestEntries": 595,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 572,
-                "totalCoveredManifestEntries": 572,
-                "totalCoveredRequiredManifestEntries": 572,
+                "totalRequiredManifestEntries": 573,
+                "totalCoveredManifestEntries": 573,
+                "totalCoveredRequiredManifestEntries": 573,
                 "totalSuites": 12
             },
             "protocol": {
@@ -30,7 +30,7 @@
         "byCoveredTestTier": {
             "stateful-domain": 430,
             "cdn-integration": 78,
-            "integration": 23,
+            "integration": 24,
             "contract": 22,
             "auth-scenario": 18,
             "middleware-contract": 1,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 572,
-                "totalCoveredManifestEntries": 572,
-                "totalCoveredRequiredManifestEntries": 572,
+                "totalRequiredManifestEntries": 573,
+                "totalCoveredManifestEntries": 573,
+                "totalCoveredRequiredManifestEntries": 573,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -528,6 +528,7 @@
                 "api:http:POST:/interactions/",
                 "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
                 "api:http:POST:/oauth2/authorize/",
+                "api:http:POST:/oauth2/token/",
                 "api:http:POST:/users/:user_id/delete/",
                 "api:http:POST:/users/:user_id/messages/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
@@ -1102,6 +1103,7 @@
                 "api:http:POST:/interactions/",
                 "api:http:POST:/interactions/:interaction_id/:interaction_token/callback/",
                 "api:http:POST:/oauth2/authorize/",
+                "api:http:POST:/oauth2/token/",
                 "api:http:POST:/users/:user_id/delete/",
                 "api:http:POST:/users/:user_id/messages/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
@@ -1831,7 +1833,8 @@
                         "api:http:GET:/oauth2/userinfo/",
                         "api:http:POST:/connections/:connection_name/:connection_id/refresh/",
                         "api:http:POST:/connections/:connection_name/callback/",
-                        "api:http:POST:/oauth2/authorize/"
+                        "api:http:POST:/oauth2/authorize/",
+                        "api:http:POST:/oauth2/token/"
                     ]
                 },
                 {

@@ -48,6 +48,7 @@ export const NO_AUTHORIZATION_ROUTES = [
     "GET /ping",
     "GET /gateway",
     "GET /oauth2/keys",
+    "POST /oauth2/token",
     /^(GET|HEAD) \/applications\/[^/]+\/rpc\/?$/,
     /^(GET|HEAD) \/oauth2\/applications\/[^/]+\/rpc\/?$/,
     /^(GET|HEAD) \/quests\/(?!(?:@me|decision)(?:\/|$))[^/]+\/?$/,

@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 782,
+        "totalEntries": 783,
         "byService": {
-            "api": 685,
+            "api": 686,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,7 +28,7 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 757,
+            "http-route": 758,
             "opcode": 21
         },
         "byTestTier": {
@@ -38,7 +38,7 @@
             "stateful-domain": 430,
             "cdn-integration": 78,
             "auth-scenario": 18,
-            "integration": 23,
+            "integration": 24,
             "tooling-contract": 1,
             "protocol-integration": 21,
             "migration-integration": 1
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 639,
+            "route-class": 640,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -15892,7 +15892,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/products/listings/:listing_id/attachments/:attachment_id/download/",
             "sourceFile": "src/api/routes/guilds/#guild_id/products/listings/#listing_id/attachments/#attachment_id/download.ts",
-            "line": 99,
+            "line": 92,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -19949,6 +19949,45 @@
                 ],
                 "responseStatuses": [
                     200
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-oauth-connections",
+                "testTier": "integration",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "oauth-clients"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "redirects",
+                    "token-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/oauth2/token/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/oauth2/token/",
+            "sourceFile": "src/api/routes/oauth2/token.ts",
+            "line": 146,
+            "authMode": "public",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "OAuth2TokenErrorResponse",
+                    "OAuth2TokenResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400
                 ],
                 "hasQuery": false
             },

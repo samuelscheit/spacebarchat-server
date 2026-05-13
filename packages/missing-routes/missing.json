@@ -1,6 +1,6 @@
 {
-    "missing": 503,
-    "spacebar": 677,
+    "missing": 502,
+    "spacebar": 678,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -216,7 +216,6 @@
         "/oauth2/device/verify",
         "/oauth2/samsung/authorize",
         "/oauth2/samsung/authorize/callback",
-        "/oauth2/token",
         "/oauth2/token/revoke",
         "/outbound-promotions/{param}/claim",
         "/partner-sdk/application/{param}/skus",
@@ -2605,7 +2604,6 @@
             "sources": ["userdoccers:topics/oauth2.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Get OAuth2 Device Flow"]
         },
-        { "method": "POST", "route": "/oauth2/token", "route_name": "POST_OAUTH2_TOKEN", "sources": ["userdoccers:topics/oauth2.mdx"], "summaries": ["Get OAuth2 Token"] },
         {
             "method": "POST",
             "route": "/oauth2/token/revoke",

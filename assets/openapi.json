@@ -10436,6 +10436,58 @@
                     "keys"
                 ]
             },
+            "OAuth2TokenResponse": {
+                "type": "object",
+                "properties": {
+                    "token_type": {
+                        "type": "string"
+                    },
+                    "access_token": {
+                        "type": "string"
+                    },
+                    "id_token": {
+                        "type": "string"
+                    },
+                    "scope": {
+                        "type": "string"
+                    },
+                    "expires_in": {
+                        "type": "integer"
+                    },
+                    "refresh_token": {
+                        "type": "string"
+                    },
+                    "guild": {
+                        "$ref": "#/components/schemas/APIGuild"
+                    },
+                    "webhook": {
+                        "$ref": "#/components/schemas/APIWebhook"
+                    }
+                },
+                "required": [
+                    "access_token",
+                    "expires_in",
+                    "scope",
+                    "token_type"
+                ]
+            },
+            "OAuth2TokenErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "$ref": "#/components/schemas/OAuth2TokenErrorCode"
+                    },
+                    "error_description": {
+                        "type": "string"
+                    },
+                    "error_uri": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "error"
+                ]
+            },
             "OAuthUserInfoResponse": {
                 "type": "object",
                 "properties": {
@@ -33784,6 +33836,15 @@
                 ],
                 "type": "string"
             },
+            "OAuth2TokenErrorCode": {
+                "enum": [
+                    "invalid_client",
+                    "invalid_grant",
+                    "invalid_request",
+                    "unsupported_grant_type"
+                ],
+                "type": "string"
+            },
             "PinnedMessageItem": {
                 "type": "object",
                 "properties": {
@@ -48662,6 +48723,36 @@
                         "description": "token_id"
                     }
                 ],
+                "tags": [
+                    "oauth2"
+                ]
+            }
+        },
+        "/oauth2/token/": {
+            "post": {
+                "summary": "Get OAuth2 Token",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuth2TokenResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OAuth2TokenErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
                 "tags": [
                     "oauth2"
                 ]
