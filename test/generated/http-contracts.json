@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 767,
+        "totalContracts": 768,
         "byService": {
-            "api": 694,
+            "api": 695,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 614,
-        "runtimeMalformedAuthContracts": 614,
-        "runtimeRevokedSessionAuthContracts": 614,
-        "runtimeStaleTokenAuthContracts": 614,
+        "runtimeAuthBoundaryContracts": 615,
+        "runtimeMalformedAuthContracts": 615,
+        "runtimeRevokedSessionAuthContracts": 615,
+        "runtimeStaleTokenAuthContracts": 615,
         "runtimePublicAuthBoundaryContracts": 72,
         "runtimePublicInvalidBodyContracts": 17,
         "runtimeProtectedInvalidBodyContracts": 89,
@@ -34643,6 +34643,60 @@
             ]
         },
         {
+            "manifestId": "api:http:POST:/users/@me/guilds/:guild_id/member/ack-dm-upsell-settings/",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/guilds/:guild_id/member/ack-dm-upsell-settings/",
+            "samplePath": "/users/@me/guilds/100000000000000001/member/ack-dm-upsell-settings/",
+            "sourceFile": "src/api/routes/users/@me/guilds/#guild_id/member/ack-dm-upsell-settings.ts",
+            "line": 78,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [204, 401, 404],
+                "emittedEvents": ["GUILD_MEMBER_UPDATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["GUILD_MEMBER_UPDATE"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
             "manifestId": "api:http:GET:/users/@me/guilds/:guild_id/settings/",
             "service": "api",
             "method": "GET",
@@ -36188,7 +36242,7 @@
             "path": "/users/@me/phone/verify/",
             "samplePath": "/users/@me/phone/verify/",
             "sourceFile": "src/api/routes/users/@me/phone/verify.ts",
-            "line": 68,
+            "line": 60,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

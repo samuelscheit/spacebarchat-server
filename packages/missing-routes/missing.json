@@ -1,6 +1,6 @@
 {
-    "missing": 493,
-    "spacebar": 687,
+    "missing": 492,
+    "spacebar": 688,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -348,7 +348,6 @@
         "/users/@me/guilds/premium/subscription-slots/{param}/cancel",
         "/users/@me/guilds/premium/subscription-slots/{param}/uncancel",
         "/users/@me/guilds/settings",
-        "/users/@me/guilds/{param}/member/ack-dm-upsell-settings",
         "/users/@me/headless-sessions",
         "/users/@me/headless-sessions/delete",
         "/users/@me/identity/verification",
@@ -3097,14 +3096,6 @@
         },
         { "method": "POST", "route": "/users/@me/gravity-attachments", "route_name": "GRAVITY_ATTACHMENTS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/users/@me/gravity-attachments-upload", "route_name": "GRAVITY_ATTACHMENTS_UPLOAD", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/users/@me/guilds/{param}/member/ack-dm-upsell-settings",
-            "route_name": "POST_USERS__ME_GUILDS_GUILD_ID_MEMBER_ACK_DM_UPSELL_SETTINGS",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/users/@me/guilds/{guild_id}/member/ack-dm-upsell-settings"],
-            "summaries": ["Acknowledge DM Settings Upsell Modal"]
-        },
         {
             "method": "POST",
             "route": "/users/@me/guilds/premium/subscription-slots/{param}/cancel",

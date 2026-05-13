@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 601,
+        "totalCoveredManifestEntries": 602,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 579,
-                "totalCoveredManifestEntries": 579,
-                "totalCoveredRequiredManifestEntries": 579,
+                "totalRequiredManifestEntries": 580,
+                "totalCoveredManifestEntries": 580,
+                "totalCoveredRequiredManifestEntries": 580,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 436,
+            "stateful-domain": 437,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 579,
-                "totalCoveredManifestEntries": 579,
-                "totalCoveredRequiredManifestEntries": 579,
+                "totalRequiredManifestEntries": 580,
+                "totalCoveredManifestEntries": 580,
+                "totalCoveredRequiredManifestEntries": 580,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -540,6 +540,7 @@
                 "api:http:POST:/users/@me/delete/",
                 "api:http:POST:/users/@me/devices/",
                 "api:http:POST:/users/@me/disable/",
+                "api:http:POST:/users/@me/guilds/:guild_id/member/ack-dm-upsell-settings/",
                 "api:http:POST:/users/@me/harvest/",
                 "api:http:POST:/users/@me/invites/",
                 "api:http:POST:/users/@me/mfa/codes-verification/",
@@ -1121,6 +1122,7 @@
                 "api:http:POST:/users/@me/delete/",
                 "api:http:POST:/users/@me/devices/",
                 "api:http:POST:/users/@me/disable/",
+                "api:http:POST:/users/@me/guilds/:guild_id/member/ack-dm-upsell-settings/",
                 "api:http:POST:/users/@me/harvest/",
                 "api:http:POST:/users/@me/invites/",
                 "api:http:POST:/users/@me/mfa/codes-verification/",
@@ -1416,6 +1418,7 @@
                         "api:http:POST:/users/@me/delete/",
                         "api:http:POST:/users/@me/devices/",
                         "api:http:POST:/users/@me/disable/",
+                        "api:http:POST:/users/@me/guilds/:guild_id/member/ack-dm-upsell-settings/",
                         "api:http:POST:/users/@me/harvest/",
                         "api:http:POST:/users/@me/invites/",
                         "api:http:POST:/users/@me/mfa/codes-verification/",

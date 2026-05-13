@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 792,
+        "totalEntries": 793,
         "byService": {
-            "api": 695,
+            "api": 696,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 767,
+            "http-route": 768,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 202,
-            "stateful-domain": 436,
+            "stateful-domain": 437,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 649,
+            "route-class": 650,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -26407,6 +26407,49 @@
             }
         },
         {
+            "id": "api:http:POST:/users/@me/guilds/:guild_id/member/ack-dm-upsell-settings/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/guilds/:guild_id/member/ack-dm-upsell-settings/",
+            "sourceFile": "src/api/routes/users/@me/guilds/#guild_id/member/ack-dm-upsell-settings.ts",
+            "line": 78,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    401,
+                    404
+                ],
+                "hasQuery": false,
+                "emittedEvents": [
+                    "GUILD_MEMBER_UPDATE"
+                ]
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/guilds/:guild_id/settings/",
             "type": "http-route",
             "service": "api",
@@ -27643,7 +27686,7 @@
             "method": "POST",
             "path": "/users/@me/phone/verify/",
             "sourceFile": "src/api/routes/users/@me/phone/verify.ts",
-            "line": 68,
+            "line": 60,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

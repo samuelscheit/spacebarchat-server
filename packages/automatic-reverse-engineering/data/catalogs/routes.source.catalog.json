@@ -5788,6 +5788,15 @@
 		"source": "src/api/routes/users/@me/guilds/#guild_id/member.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/guilds/{guild_id}/member/ack-dm-upsell-settings",
+		"route_name": "POST_USERS__ME_GUILDS_GUILD_ID_MEMBER_ACK_DM_UPSELL_SETTINGS",
+		"source": "src/api/routes/users/@me/guilds/#guild_id/member/ack-dm-upsell-settings.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/users/@me/guilds/{guild_id}/settings",
