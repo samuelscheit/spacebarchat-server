@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 805,
+        "totalEntries": 806,
         "byService": {
-            "api": 708,
+            "api": 709,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 780,
+            "http-route": 781,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 205,
-            "stateful-domain": 446,
+            "stateful-domain": 447,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 662,
+            "route-class": 663,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -25944,7 +25944,7 @@
             "method": "DELETE",
             "path": "/users/@me/connections/:connection_name/:connection_id/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
-            "line": 64,
+            "line": 86,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -25979,12 +25979,48 @@
             "method": "PATCH",
             "path": "/users/@me/connections/:connection_name/:connection_id/",
             "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
-            "line": 25,
+            "line": 70,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
                 "requestBody": "ConnectionUpdateSchema",
                 "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/users/@me/connections/:connection_name/:connection_id/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/users/@me/connections/:connection_name/:connection_id/",
+            "sourceFile": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts",
+            "line": 74,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "ConnectionUpdateSchema",
+                "hasQuery": false,
+                "emittedEvents": [
+                    "USER_CONNECTIONS_UPDATE"
+                ]
             },
             "coverage": {
                 "policyId": "api-user-state",

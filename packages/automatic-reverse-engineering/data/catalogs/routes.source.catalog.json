@@ -5683,6 +5683,14 @@
 		"source": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "ConnectionUpdateSchema",
+		"response_schema_refs": [],
+		"route": "/users/@me/connections/{connection_name}/{connection_id}",
+		"route_name": "PUT_USERS__ME_CONNECTIONS_CONNECTION_NAME_CONNECTION_ID",
+		"source": "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/users/@me/connections/{connection_name}/{connection_id}/access-token",

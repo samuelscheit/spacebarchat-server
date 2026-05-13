@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import http from "node:http";
 import { afterEach, describe, test } from "node:test";
 import express, { type Request, type Response, type NextFunction } from "express";
-import { ConnectedAccount } from "@spacebar/util";
+import { ConnectedAccount, events } from "@spacebar/util";
 import { BodyParser, ErrorHandler } from "../../../../../../middlewares";
 import connectionsRouter from "./index";
 
@@ -76,14 +76,14 @@ async function startConnectionsRouteServer(connection: TestConnectedAccount | nu
     };
 }
 
-function patchJson(url: string, body: unknown): Promise<{ statusCode: number | undefined; body: unknown }> {
+function requestJson(method: "PATCH" | "PUT", url: string, body: unknown): Promise<{ statusCode: number | undefined; body: unknown }> {
     const payload = JSON.stringify(body);
 
     return new Promise((resolve, reject) => {
         const req = http.request(
             url,
             {
-                method: "PATCH",
+                method,
                 timeout: 1000,
                 headers: {
                     "content-type": "application/json",
@@ -108,11 +108,19 @@ function patchJson(url: string, body: unknown): Promise<{ statusCode: number | u
         );
 
         req.on("timeout", () => {
-            req.destroy(new Error("PATCH request timed out"));
+            req.destroy(new Error(`${method} request timed out`));
         });
         req.on("error", reject);
         req.end(payload);
     });
+}
+
+function patchJson(url: string, body: unknown): Promise<{ statusCode: number | undefined; body: unknown }> {
+    return requestJson("PATCH", url, body);
+}
+
+function putJson(url: string, body: unknown): Promise<{ statusCode: number | undefined; body: unknown }> {
+    return requestJson("PUT", url, body);
 }
 
 async function closeServer(server: http.Server) {
@@ -188,6 +196,85 @@ describe("PATCH /users/@me/connections/:connection_name/:connection_id", () => {
             assert.equal(body.visibility, 1);
             assert.equal(body.metadata_visibility, 1);
         } finally {
+            await closeServer(server);
+        }
+    });
+});
+
+describe("PUT /users/@me/connections/:connection_name/:connection_id", () => {
+    test("returns unknown connection when the account does not exist", async () => {
+        const { server, url, getUpdateCall } = await startConnectionsRouteServer(null);
+        try {
+            const response = await putJson(url, { visibility: true });
+
+            assert.equal(response.statusCode, 400);
+            assert.deepEqual(response.body, {
+                code: 10017,
+                message: "Unknown connection",
+            });
+            assert.equal(getUpdateCall(), undefined);
+        } finally {
+            await closeServer(server);
+        }
+    });
+
+    test("rejects revoked connections without updating them", async () => {
+        const connection = createConnection({ revoked: true });
+        const { server, url, getUpdateCall } = await startConnectionsRouteServer(connection);
+        try {
+            const response = await putJson(url, { visibility: true });
+
+            assert.equal(response.statusCode, 400);
+            assert.deepEqual(response.body, {
+                code: 40012,
+                message: "The connection has been revoked",
+            });
+            assert.equal(connection.assignedBody, undefined);
+            assert.equal(getUpdateCall(), undefined);
+        } finally {
+            await closeServer(server);
+        }
+    });
+
+    test("updates visibility fields for active connections", async () => {
+        const connection = createConnection();
+        const { server, url, getUpdateCall } = await startConnectionsRouteServer(connection);
+        const emittedEvents: unknown[] = [];
+        const captureEvent = (event: unknown) => emittedEvents.push(event);
+
+        events.on("user-id", captureEvent);
+        try {
+            const response = await putJson(url, {
+                visibility: true,
+                show_activity: false,
+                metadata_visibility: true,
+            });
+
+            assert.equal(response.statusCode, 200);
+            assert.equal(connection.visibility, 1);
+            assert.equal(connection.show_activity, 0);
+            assert.equal(connection.metadata_visibility, 1);
+            assert.deepEqual(getUpdateCall()?.criteria, {
+                user_id: "user-id",
+                external_id: "external-id",
+                type: "twitch",
+            });
+            assert.equal(getUpdateCall()?.entity, connection);
+
+            const body = response.body as Record<string, unknown>;
+            assert.equal(body.id, "external-id");
+            assert.equal(body.revoked, false);
+            assert.equal(body.visibility, 1);
+            assert.equal(body.metadata_visibility, 1);
+
+            const event = emittedEvents[0] as { event?: string; user_id?: string; data?: Record<string, unknown> };
+            assert.equal(emittedEvents.length, 1);
+            assert.equal(event.event, "USER_CONNECTIONS_UPDATE");
+            assert.equal(event.user_id, "user-id");
+            assert.equal(event.data?.id, "external-id");
+            assert.equal(event.data?.visibility, 1);
+        } finally {
+            events.off("user-id", captureEvent);
             await closeServer(server);
         }
     });

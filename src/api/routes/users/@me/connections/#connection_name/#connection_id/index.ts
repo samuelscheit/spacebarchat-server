@@ -22,7 +22,23 @@ import { Request, Response, Router } from "express";
 import { ConnectionUpdateSchema } from "@spacebar/schemas";
 const router = Router({ mergeParams: true });
 
-router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: Request, res: Response) => {
+type NormalizedConnectionUpdate = {
+    visibility?: boolean | number;
+    show_activity?: boolean | number;
+    metadata_visibility?: boolean | number;
+};
+
+function normalizeConnectionUpdate(body: ConnectionUpdateSchema): NormalizedConnectionUpdate {
+    const update: NormalizedConnectionUpdate = { ...body };
+
+    if (typeof update.visibility === "boolean") update.visibility = update.visibility ? 1 : 0;
+    if (typeof update.show_activity === "boolean") update.show_activity = update.show_activity ? 1 : 0;
+    if (typeof update.metadata_visibility === "boolean") update.metadata_visibility = update.metadata_visibility ? 1 : 0;
+
+    return update;
+}
+
+async function updateConnection(req: Request) {
     const { connection_name, connection_id } = req.params as { [key: string]: string };
     const body = req.body as ConnectionUpdateSchema;
 
@@ -38,17 +54,7 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: 
     if (!connection) throw DiscordApiErrors.UNKNOWN_CONNECTION;
     if (connection.revoked) throw DiscordApiErrors.CONNECTION_REVOKED;
 
-    if (typeof body.visibility === "boolean")
-        //@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?
-        body.visibility = body.visibility ? 1 : 0;
-    if (typeof body.show_activity === "boolean")
-        //@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?
-        body.show_activity = body.show_activity ? 1 : 0;
-    if (typeof body.metadata_visibility === "boolean")
-        //@ts-expect-error For some reason the client sends this as a boolean, even tho docs say its a number?
-        body.metadata_visibility = body.metadata_visibility ? 1 : 0;
-
-    connection.assign(req.body);
+    connection.assign(normalizeConnectionUpdate(body));
 
     await ConnectedAccount.update(
         {
@@ -58,7 +64,23 @@ router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: 
         },
         connection,
     );
-    res.json(new ConnectedAccountDTO(connection));
+    return new ConnectedAccountDTO(connection);
+}
+
+router.patch("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: Request, res: Response) => {
+    res.json(await updateConnection(req));
+});
+
+router.put("/", route({ requestBody: "ConnectionUpdateSchema" }), async (req: Request, res: Response) => {
+    const connection = await updateConnection(req);
+
+    await emitEvent({
+        event: "USER_CONNECTIONS_UPDATE",
+        data: connection,
+        user_id: req.user_id,
+    });
+
+    res.json(connection);
 });
 
 router.delete("/", route({}), async (req: Request, res: Response) => {

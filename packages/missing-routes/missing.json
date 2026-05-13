@@ -1,6 +1,6 @@
 {
-    "missing": 480,
-    "spacebar": 700,
+    "missing": 479,
+    "spacebar": 701,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -319,7 +319,6 @@
         "/users/@me/connections/contacts/{param}/external-friend-list-entries",
         "/users/@me/connections/contacts/{param}/external-friend-list-entries/settings",
         "/users/@me/connections/domain/{param}",
-        "/users/@me/connections/{param}/{param}",
         "/users/@me/connections/{param}/{param}/refresh",
         "/users/@me/consent",
         "/users/@me/devices/sync",
@@ -3495,7 +3494,6 @@
         },
         { "method": "PUT", "route": "/tutorial/indicators/suppress", "route_name": "TUTORIAL_INDICATORS_SUPPRESS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/users/@me", "route_name": "PUT_USERS__ME", "sources": ["userdoccers:_typography.mdx"], "summaries": ["PUT Example"] },
-        { "method": "PUT", "route": "/users/@me/connections/{param}/{param}", "route_name": "CONNECTION", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PUT",
             "route": "/users/@me/connections/contacts/{param}",
