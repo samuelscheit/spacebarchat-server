@@ -1,6 +1,6 @@
 {
-    "missing": 504,
-    "spacebar": 676,
+    "missing": 503,
+    "spacebar": 677,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -154,7 +154,6 @@
         "/guilds/{param}/premium/subscriptions",
         "/guilds/{param}/premium/subscriptions/{param}",
         "/guilds/{param}/products/listings/{param}",
-        "/guilds/{param}/products/listings/{param}/attachments/{param}/download",
         "/guilds/{param}/profile",
         "/guilds/{param}/profile/@me",
         "/guilds/{param}/profile/visibility",
@@ -2434,13 +2433,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/onboarding-responses"],
             "summaries": ["Create Guild Onboarding Responses"]
-        },
-        {
-            "method": "POST",
-            "route": "/guilds/{param}/products/listings/{param}/attachments/{param}/download",
-            "route_name": "GUILD_PRODUCT_ATTACHMENT_DOWNLOAD",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/products/listings/{param}/attachments/{attachment_id}/download"]
         },
         {
             "method": "POST",

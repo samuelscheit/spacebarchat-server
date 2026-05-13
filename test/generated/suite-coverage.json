@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 593,
+        "totalCoveredManifestEntries": 594,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 571,
-                "totalCoveredManifestEntries": 571,
-                "totalCoveredRequiredManifestEntries": 571,
+                "totalRequiredManifestEntries": 572,
+                "totalCoveredManifestEntries": 572,
+                "totalCoveredRequiredManifestEntries": 572,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 429,
+            "stateful-domain": 430,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 571,
-                "totalCoveredManifestEntries": 571,
-                "totalCoveredRequiredManifestEntries": 571,
+                "totalRequiredManifestEntries": 572,
+                "totalCoveredManifestEntries": 572,
+                "totalCoveredRequiredManifestEntries": 572,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -517,6 +517,7 @@
                 "api:http:POST:/guilds/:guild_id/mfa/",
                 "api:http:POST:/guilds/:guild_id/products/",
                 "api:http:POST:/guilds/:guild_id/products/attachments/",
+                "api:http:POST:/guilds/:guild_id/products/listings/:listing_id/attachments/:attachment_id/download/",
                 "api:http:POST:/guilds/:guild_id/prune/",
                 "api:http:POST:/guilds/:guild_id/roles/",
                 "api:http:POST:/guilds/:guild_id/stickers/",
@@ -1090,6 +1091,7 @@
                 "api:http:POST:/guilds/:guild_id/mfa/",
                 "api:http:POST:/guilds/:guild_id/products/",
                 "api:http:POST:/guilds/:guild_id/products/attachments/",
+                "api:http:POST:/guilds/:guild_id/products/listings/:listing_id/attachments/:attachment_id/download/",
                 "api:http:POST:/guilds/:guild_id/prune/",
                 "api:http:POST:/guilds/:guild_id/roles/",
                 "api:http:POST:/guilds/:guild_id/stickers/",
@@ -1560,6 +1562,7 @@
                         "api:http:POST:/guilds/:guild_id/mfa/",
                         "api:http:POST:/guilds/:guild_id/products/",
                         "api:http:POST:/guilds/:guild_id/products/attachments/",
+                        "api:http:POST:/guilds/:guild_id/products/listings/:listing_id/attachments/:attachment_id/download/",
                         "api:http:POST:/guilds/:guild_id/prune/",
                         "api:http:POST:/guilds/:guild_id/roles/",
                         "api:http:POST:/guilds/:guild_id/stickers/",

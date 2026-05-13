@@ -8726,6 +8726,19 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "GuildProductAttachmentDownloadResponse": {
+        "type": "object",
+        "properties": {
+            "url": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "url"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildJoinRequestsResponse": {
         "type": "array",
         "items": {},

@@ -3303,6 +3303,16 @@
 		"source": "src/api/routes/guilds/#guild_id/products/attachments.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildProductAttachmentDownloadResponse"
+		],
+		"route": "/guilds/{guild_id}/products/listings/{listing_id}/attachments/{attachment_id}/download",
+		"route_name": "POST_GUILDS_GUILD_ID_PRODUCTS_LISTINGS_LISTING_ID_ATTACHMENTS_ATTACHMENT_ID_DOWNLOAD",
+		"source": "src/api/routes/guilds/#guild_id/products/listings/#listing_id/attachments/#attachment_id/download.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"GuildProfileResponse"
