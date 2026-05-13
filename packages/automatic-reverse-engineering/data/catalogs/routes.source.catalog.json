@@ -3281,6 +3281,17 @@
 		"source": "src/api/routes/guilds/#guild_id/products.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "UploadAttachmentRequestSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"UploadAttachmentResponseSchema"
+		],
+		"route": "/guilds/{guild_id}/products/attachments",
+		"route_name": "POST_GUILDS_GUILD_ID_PRODUCTS_ATTACHMENTS",
+		"source": "src/api/routes/guilds/#guild_id/products/attachments.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"GuildProfileResponse"
