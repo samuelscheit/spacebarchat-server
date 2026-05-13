@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 811,
+        "totalEntries": 812,
         "byService": {
-            "api": 714,
+            "api": 715,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 786,
+            "http-route": 787,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 205,
-            "stateful-domain": 452,
+            "stateful-domain": 453,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 668,
+            "route-class": 669,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -3115,7 +3115,46 @@
             "method": "PATCH",
             "path": "/applications/public/",
             "sourceFile": "src/api/routes/applications/public.ts",
-            "line": 31,
+            "line": 36,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-applications",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "applications",
+                    "guilds",
+                    "commands"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/applications/public/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/applications/public/",
+            "sourceFile": "src/api/routes/applications/public.ts",
+            "line": 59,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

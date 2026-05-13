@@ -23,9 +23,14 @@ import { Request, Response, Router } from "express";
 const router: Router = Router({ mergeParams: true });
 
 export const APPLICATIONS_PUBLIC_PATCH_UNSUPPORTED_MESSAGE = "Public application bulk mutation is not supported on this Spacebar instance.";
+export const APPLICATIONS_PUBLIC_PUT_UNSUPPORTED_MESSAGE = "Public application bulk replacement is not supported on this Spacebar instance.";
 
 export function createApplicationsPublicPatchUnsupportedError(): ApiError {
     return new ApiError(APPLICATIONS_PUBLIC_PATCH_UNSUPPORTED_MESSAGE, 0, 501);
+}
+
+export function createApplicationsPublicPutUnsupportedError(): ApiError {
+    return new ApiError(APPLICATIONS_PUBLIC_PUT_UNSUPPORTED_MESSAGE, 0, 501);
 }
 
 router.patch(
@@ -48,6 +53,28 @@ router.patch(
         // catalog. No source-backed request shape or mutation semantics are
         // available, so do not update unrelated Application rows.
         throw createApplicationsPublicPatchUnsupportedError();
+    },
+);
+
+router.put(
+    "/",
+    route({
+        summary: "Replace Public Applications",
+        description:
+            "Registers Discord client's PUT /applications/public route without mutating local application records. The only local evidence is the xHyroM client route catalog; public Userdoccers sources document only GET for this collection, so Spacebar fails closed instead of fabricating or overwriting public application metadata.",
+        responses: {
+            401: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (_req: Request, _res: Response) => {
+        // PUT is only present in the Discord client route catalog. There is no
+        // source-backed request shape or durable bulk-public-application state.
+        throw createApplicationsPublicPutUnsupportedError();
     },
 );
 

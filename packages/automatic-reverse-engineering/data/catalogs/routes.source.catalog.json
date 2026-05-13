@@ -720,6 +720,15 @@
 		"source": "src/api/routes/applications/public.ts"
 	},
 	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/public",
+		"route_name": "PUT_APPLICATIONS_PUBLIC",
+		"source": "src/api/routes/applications/public.ts"
+	},
+	{
 		"method": "PATCH",
 		"response_schema_refs": [
 			"APIErrorResponse"

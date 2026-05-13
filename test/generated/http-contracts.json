@@ -3,15 +3,15 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 786,
+        "totalContracts": 787,
         "byService": {
-            "api": 713,
+            "api": 714,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 632,
-        "runtimeMalformedAuthContracts": 632,
-        "runtimeRevokedSessionAuthContracts": 632,
-        "runtimeStaleTokenAuthContracts": 632,
+        "runtimeAuthBoundaryContracts": 633,
+        "runtimeMalformedAuthContracts": 633,
+        "runtimeRevokedSessionAuthContracts": 633,
+        "runtimeStaleTokenAuthContracts": 633,
         "runtimePublicAuthBoundaryContracts": 73,
         "runtimePublicInvalidBodyContracts": 18,
         "runtimeProtectedInvalidBodyContracts": 97,
@@ -3800,7 +3800,55 @@
             "path": "/applications/public/",
             "samplePath": "/applications/public/",
             "sourceFile": "src/api/routes/applications/public.ts",
-            "line": 31,
+            "line": 36,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "applications", "guilds", "commands"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "responses": ["APIErrorResponse"],
+                "responseStatuses": [401, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-schema-validation",
+                    "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:PUT:/applications/public/",
+            "service": "api",
+            "method": "PUT",
+            "path": "/applications/public/",
+            "samplePath": "/applications/public/",
+            "sourceFile": "src/api/routes/applications/public.ts",
+            "line": 59,
             "authMode": "bearer",
             "testTier": "stateful-domain",
             "benchmarkClass": "route-class",

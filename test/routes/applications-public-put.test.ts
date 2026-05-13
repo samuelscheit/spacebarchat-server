@@ -23,15 +23,15 @@ import path from "node:path";
 import { describe, test } from "node:test";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "@spacebar/api";
 import express from "express";
-import applicationsPublicRouter, { APPLICATIONS_PUBLIC_PATCH_UNSUPPORTED_MESSAGE, createApplicationsPublicPatchUnsupportedError } from "../../src/api/routes/applications/public";
+import applicationsPublicRouter, { APPLICATIONS_PUBLIC_PUT_UNSUPPORTED_MESSAGE, createApplicationsPublicPutUnsupportedError } from "../../src/api/routes/applications/public";
 
-const coveredManifestIds = ["api:http:PATCH:/applications/public/"];
+const coveredManifestIds = ["api:http:PUT:/applications/public/"];
 
 type JsonObject = Record<string, unknown>;
 
-describe("PATCH /applications/public", () => {
+describe("PUT /applications/public", () => {
     test("declares the assigned manifest route id", () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:PATCH:/applications/public/"]);
+        assert.deepEqual(coveredManifestIds, ["api:http:PUT:/applications/public/"]);
     });
 
     test("stays behind bearer authentication", async () => {
@@ -41,39 +41,40 @@ describe("PATCH /applications/public", () => {
         app.use("/applications/public", applicationsPublicRouter);
         app.use(ErrorHandler);
 
-        const response = await requestJson(app, "/applications/public", { method: "PATCH", body: { application_ids: ["100000000000000001"] } });
+        const response = await requestJson(app, "/applications/public", { method: "PUT", body: { application_ids: ["100000000000000001"] } });
 
-        assert.equal(isNoAuthorizationRoute("PATCH", "/api/v10/applications/public"), false);
+        assert.equal(isNoAuthorizationRoute("PUT", "/api/v10/applications/public"), false);
         assert.equal(response.status, 401);
         assert.equal(response.body.code, 401);
         assert.equal(response.body.message, "Error: Missing Authorization Header");
     });
 
-    test("fails closed instead of mutating public application records", async () => {
+    test("fails closed instead of replacing public application records", async () => {
         const app = setupAuthenticatedRoute();
-        const response = await requestJson(app, "/applications/public", { method: "PATCH", body: { application_ids: ["100000000000000001"] } });
+        const response = await requestJson(app, "/applications/public", { method: "PUT", body: { application_ids: ["100000000000000001"] } });
 
         assert.equal(response.status, 501);
         assert.deepEqual(response.body, {
             code: 0,
-            message: APPLICATIONS_PUBLIC_PATCH_UNSUPPORTED_MESSAGE,
+            message: APPLICATIONS_PUBLIC_PUT_UNSUPPORTED_MESSAGE,
         });
     });
 
-    test("uses an explicit unsupported-mutation API error", () => {
-        const error = createApplicationsPublicPatchUnsupportedError();
+    test("uses an explicit unsupported-replacement API error", () => {
+        const error = createApplicationsPublicPutUnsupportedError();
 
         assert.equal(error.code, 0);
         assert.equal(error.httpStatus, 501);
-        assert.equal(error.message, APPLICATIONS_PUBLIC_PATCH_UNSUPPORTED_MESSAGE);
+        assert.equal(error.message, APPLICATIONS_PUBLIC_PUT_UNSUPPORTED_MESSAGE);
     });
 
     test("documents route metadata and local support limits", () => {
         const routeSource = readFileSync(path.join(process.cwd(), "src", "api", "routes", "applications", "public.ts"), "utf8");
 
-        assert.match(routeSource, /summary:\s*"Modify Public Applications"/);
-        assert.match(routeSource, /PATCH \/applications\/public route/);
-        assert.match(routeSource, /fails closed instead of fabricating or altering public application metadata/);
+        assert.match(routeSource, /router\.put\(\s*["']\/["']/);
+        assert.match(routeSource, /summary:\s*"Replace Public Applications"/);
+        assert.match(routeSource, /PUT \/applications\/public route/);
+        assert.match(routeSource, /fails closed instead of fabricating or overwriting public application metadata/);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.doesNotMatch(routeSource, /200:\s*\{/);
@@ -88,6 +89,7 @@ describe("PATCH /applications/public", () => {
             method?: string;
             response_schema_refs?: string[];
             route?: string;
+            route_name?: string;
             source?: string;
         }[];
         const missingRoutes = JSON.parse(readFileSync(path.join(process.cwd(), "packages", "missing-routes", "missing.json"), "utf8")) as {
@@ -115,12 +117,13 @@ describe("PATCH /applications/public", () => {
             }[];
         };
 
-        const sourceEntry = sourceCatalog.find((entry) => entry.method === "PATCH" && entry.route === "/applications/public");
+        const sourceEntry = sourceCatalog.find((entry) => entry.method === "PUT" && entry.route === "/applications/public");
+        assert.equal(sourceEntry?.route_name, "PUT_APPLICATIONS_PUBLIC");
         assert.equal(sourceEntry?.source, "src/api/routes/applications/public.ts");
         assert.deepEqual(sourceEntry?.response_schema_refs, ["APIErrorResponse"]);
 
         assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.method === "PATCH" && entry.route === "/applications/public"),
+            missingRoutes.missing_entries?.some((entry) => entry.method === "PUT" && entry.route === "/applications/public"),
             false,
         );
         assert.equal(
@@ -128,22 +131,22 @@ describe("PATCH /applications/public", () => {
             true,
         );
         assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.method === "PUT" && entry.route === "/applications/public"),
+            missingRoutes.missing_entries?.some((entry) => entry.method === "PATCH" && entry.route === "/applications/public"),
             false,
         );
 
-        const patchRoute = openapi.paths?.["/applications/public/"]?.patch;
-        assert.equal(patchRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(patchRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(patchRoute?.responses?.["200"], undefined);
+        const putRoute = openapi.paths?.["/applications/public/"]?.put;
+        assert.equal(putRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(putRoute?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(putRoute?.responses?.["200"], undefined);
 
-        const manifestEntry = testingManifest.entries?.find((entry) => entry.id === "api:http:PATCH:/applications/public/");
+        const manifestEntry = testingManifest.entries?.find((entry) => entry.id === "api:http:PUT:/applications/public/");
         assert.equal(manifestEntry?.sourceFile, "src/api/routes/applications/public.ts");
         assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
         assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [401, 501]);
         assert.equal(manifestEntry?.coverage?.testTier, "stateful-domain");
 
-        const contract = contracts.contracts?.find((entry) => entry.manifestId === "api:http:PATCH:/applications/public/");
+        const contract = contracts.contracts?.find((entry) => entry.manifestId === "api:http:PUT:/applications/public/");
         assert.deepEqual(contract?.routeMetadata?.responses, ["APIErrorResponse"]);
         assert.deepEqual(contract?.routeMetadata?.responseStatuses, [401, 501]);
     });
