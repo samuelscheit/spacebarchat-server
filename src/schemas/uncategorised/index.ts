@@ -93,6 +93,7 @@ export * from "./PhoneVerificationSupportTicketValidateSchema";
 export * from "./PreloadMessagesRequestSchema";
 export * from "./PruneSchema";
 export * from "./PurgeSchema";
+export * from "./QuestVideoProgressSchema";
 export * from "./RefreshUrlsRequestSchema";
 export * from "./RegisterSchema";
 export * from "./RegisterPhoneSchema";

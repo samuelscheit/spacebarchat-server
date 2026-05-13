@@ -16573,6 +16573,21 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "QuestVideoProgressSchema": {
+        "type": "object",
+        "properties": {
+            "timestamp": {
+                "description": "How far into the video the user is, in seconds.",
+                "minimum": 0,
+                "type": "integer"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "timestamp"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "RefreshUrlsRequestSchema": {
         "type": "object",
         "properties": {

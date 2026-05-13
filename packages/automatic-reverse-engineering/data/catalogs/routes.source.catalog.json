@@ -4412,6 +4412,17 @@
 		"source": "src/api/routes/quests/#quest_id/reward-code.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "QuestVideoProgressSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"QuestUserStatusResponse"
+		],
+		"route": "/quests/{quest_id}/video-progress",
+		"route_name": "POST_QUESTS_QUEST_ID_VIDEO_PROGRESS",
+		"source": "src/api/routes/quests/#quest_id/video-progress.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

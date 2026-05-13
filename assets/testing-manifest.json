@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 784,
+        "totalEntries": 785,
         "byService": {
-            "api": 687,
+            "api": 688,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 759,
+            "http-route": 760,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 200,
+            "contract": 201,
             "stateful-domain": 430,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 641,
+            "route-class": 642,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -20926,6 +20926,45 @@
                 "responseBodies": [
                     "APIErrorResponse",
                     "QuestRewardCodeResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/quests/:quest_id/video-progress/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/quests/:quest_id/video-progress/",
+            "sourceFile": "src/api/routes/quests/#quest_id/video-progress.ts",
+            "line": 97,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "QuestVideoProgressSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "QuestUserStatusResponse"
                 ],
                 "responseStatuses": [
                     200,

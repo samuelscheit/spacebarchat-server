@@ -15661,6 +15661,19 @@
                     "before"
                 ]
             },
+            "QuestVideoProgressSchema": {
+                "type": "object",
+                "properties": {
+                    "timestamp": {
+                        "description": "How far into the video the user is, in seconds.",
+                        "minimum": 0,
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "timestamp"
+                ]
+            },
             "RefreshUrlsRequestSchema": {
                 "type": "object",
                 "properties": {
@@ -47335,6 +47348,83 @@
                         }
                     }
                 },
+                "tags": [
+                    "quests"
+                ]
+            }
+        },
+        "/quests/{quest_id}/video-progress/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Updates the current user's progress for a locally backed video quest task and emits a quest status gateway event. Spacebar does not currently persist Discord quest enrollment or video-watch progress, so the default provider fails closed instead of fabricating quest progress.",
+                "summary": "Send Quest Video Progress",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/QuestVideoProgressSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/QuestUserStatusResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "quest_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "quest_id"
+                    }
+                ],
                 "tags": [
                     "quests"
                 ]
