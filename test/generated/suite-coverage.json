@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 600,
+        "totalCoveredManifestEntries": 601,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 578,
-                "totalCoveredManifestEntries": 578,
-                "totalCoveredRequiredManifestEntries": 578,
+                "totalRequiredManifestEntries": 579,
+                "totalCoveredManifestEntries": 579,
+                "totalCoveredRequiredManifestEntries": 579,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 435,
+            "stateful-domain": 436,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 578,
-                "totalCoveredManifestEntries": 578,
-                "totalCoveredRequiredManifestEntries": 578,
+                "totalRequiredManifestEntries": 579,
+                "totalCoveredManifestEntries": 579,
+                "totalCoveredRequiredManifestEntries": 579,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -548,6 +548,7 @@
                 "api:http:POST:/users/@me/mfa/totp/enable/",
                 "api:http:POST:/users/@me/mfa/webauthn/credentials/",
                 "api:http:POST:/users/@me/notification-center/items/:notification_center_item_id/ack",
+                "api:http:POST:/users/@me/phone/verify/",
                 "api:http:POST:/users/@me/relationships/",
                 "api:http:POST:/users/@me/survey/:survey_id/seen",
                 "api:http:POST:/webhooks/:webhook_id/:token/",
@@ -1128,6 +1129,7 @@
                 "api:http:POST:/users/@me/mfa/totp/enable/",
                 "api:http:POST:/users/@me/mfa/webauthn/credentials/",
                 "api:http:POST:/users/@me/notification-center/items/:notification_center_item_id/ack",
+                "api:http:POST:/users/@me/phone/verify/",
                 "api:http:POST:/users/@me/relationships/",
                 "api:http:POST:/users/@me/survey/:survey_id/seen",
                 "api:http:POST:/webhooks/:webhook_id/:token/",
@@ -1422,6 +1424,7 @@
                         "api:http:POST:/users/@me/mfa/totp/enable/",
                         "api:http:POST:/users/@me/mfa/webauthn/credentials/",
                         "api:http:POST:/users/@me/notification-center/items/:notification_center_item_id/ack",
+                        "api:http:POST:/users/@me/phone/verify/",
                         "api:http:POST:/users/@me/relationships/",
                         "api:http:POST:/users/@me/survey/:survey_id/seen",
                         "api:http:PUT:/users/@me/notes/:user_id",

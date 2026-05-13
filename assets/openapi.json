@@ -14054,6 +14054,19 @@
                     "type": "string"
                 }
             },
+            "UserPhoneVerifyNoPasswordResponse": {
+                "type": "object",
+                "properties": {
+                    "phone_token": {
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "phone_token"
+                ]
+            },
             "UserPremiumUsageFeatureResponse": {
                 "type": "object",
                 "properties": {
@@ -16570,6 +16583,24 @@
                 "required": [
                     "change_phone_reason",
                     "password"
+                ]
+            },
+            "UserPhoneVerifyNoPasswordSchema": {
+                "type": "object",
+                "properties": {
+                    "phone": {
+                        "pattern": "^\\+[1-9]\\d{1,14}$",
+                        "type": "string"
+                    },
+                    "code": {
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "phone"
                 ]
             },
             "UserProfileModifySchema": {
@@ -39745,6 +39776,72 @@
                         }
                     },
                     "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/phone/verify/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Verifies a phone SMS code and returns a phone token when a real phone verification token store and SMS provider are configured. The default Spacebar instance has neither, so it fails closed with 501 instead of accepting or minting phone tokens locally.",
+                "summary": "Verify Current User Phone Number Without Password",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserPhoneVerifyNoPasswordSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserPhoneVerifyNoPasswordResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
                         "description": "",
                         "content": {
                             "application/json": {

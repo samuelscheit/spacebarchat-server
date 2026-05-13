@@ -14873,6 +14873,21 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserPhoneVerifyNoPasswordResponse": {
+        "type": "object",
+        "properties": {
+            "phone_token": {
+                "minLength": 1,
+                "maxLength": 4096,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "phone_token"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserPremiumUsageFeatureResponse": {
         "type": "object",
         "properties": {
@@ -17550,6 +17565,26 @@
         "required": [
             "change_phone_reason",
             "password"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserPhoneVerifyNoPasswordSchema": {
+        "type": "object",
+        "properties": {
+            "phone": {
+                "pattern": "^\\+[1-9]\\d{1,14}$",
+                "type": "string"
+            },
+            "code": {
+                "minLength": 1,
+                "maxLength": 64,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "code",
+            "phone"
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

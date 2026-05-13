@@ -124,6 +124,7 @@ export * from "./UserInviteCreateSchema";
 export * from "./UserModifySchema";
 export * from "./UserNoteUpdateSchema";
 export * from "./UserPhoneRemoveSchema";
+export * from "./UserPhoneVerifyNoPasswordSchema";
 export * from "./UserProfileModifySchema";
 export * from "./VanityUrlSchema";
 export * from "./VerifyEmailSchema";

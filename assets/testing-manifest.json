@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 791,
+        "totalEntries": 792,
         "byService": {
-            "api": 694,
+            "api": 695,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 766,
+            "http-route": 767,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 202,
-            "stateful-domain": 435,
+            "stateful-domain": 436,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 648,
+            "route-class": 649,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -27614,6 +27614,49 @@
                     400,
                     401,
                     404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/users/@me/phone/verify/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/phone/verify/",
+            "sourceFile": "src/api/routes/users/@me/phone/verify.ts",
+            "line": 68,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "UserPhoneVerifyNoPasswordSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "UserPhoneVerifyNoPasswordResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401,
+                    501
                 ],
                 "hasQuery": false
             },

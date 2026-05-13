@@ -1,6 +1,6 @@
 {
-    "missing": 494,
-    "spacebar": 686,
+    "missing": 493,
+    "spacebar": 687,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -372,7 +372,6 @@
         "/users/@me/notification-settings/snapshots/{param}/restore-guilds",
         "/users/@me/phone",
         "/users/@me/phone/reverify",
-        "/users/@me/phone/verify",
         "/users/@me/pomelo",
         "/users/@me/pomelo-attempt",
         "/users/@me/profile",
@@ -3208,7 +3207,6 @@
             "sources": ["userdoccers:topics/phone-verification.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Reverify Phone Number"]
         },
-        { "method": "POST", "route": "/users/@me/phone/verify", "route_name": "PHONE_VERIFY_NO_PASSWORD", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "POST",
             "route": "/users/@me/pomelo",

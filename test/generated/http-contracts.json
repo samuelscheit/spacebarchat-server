@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 766,
+        "totalContracts": 767,
         "byService": {
-            "api": 693,
+            "api": 694,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 613,
-        "runtimeMalformedAuthContracts": 613,
-        "runtimeRevokedSessionAuthContracts": 613,
-        "runtimeStaleTokenAuthContracts": 613,
+        "runtimeAuthBoundaryContracts": 614,
+        "runtimeMalformedAuthContracts": 614,
+        "runtimeRevokedSessionAuthContracts": 614,
+        "runtimeStaleTokenAuthContracts": 614,
         "runtimePublicAuthBoundaryContracts": 72,
         "runtimePublicInvalidBodyContracts": 17,
-        "runtimeProtectedInvalidBodyContracts": 88,
+        "runtimeProtectedInvalidBodyContracts": 89,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
         "runtimeRightOnlyDenialContracts": 13,
@@ -36170,6 +36170,56 @@
                     "id": "event-emission",
                     "checks": ["events"],
                     "events": ["USER_UPDATE"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:POST:/users/@me/phone/verify/",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/phone/verify/",
+            "samplePath": "/users/@me/phone/verify/",
+            "sourceFile": "src/api/routes/users/@me/phone/verify.ts",
+            "line": 68,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "requestBody": "UserPhoneVerifyNoPasswordSchema",
+                "responses": ["APIErrorResponse", "UserPhoneVerifyNoPasswordResponse"],
+                "responseStatuses": [200, 400, 401, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "UserPhoneVerifyNoPasswordSchema"
                 },
                 {
                     "id": "policy-ownership-boundary",
