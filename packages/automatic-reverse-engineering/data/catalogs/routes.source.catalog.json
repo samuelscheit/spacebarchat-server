@@ -416,6 +416,15 @@
 		"source": "src/api/routes/applications/#application_id/discoverability-state.ts"
 	},
 	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/applications/{application_id}/embedded-activity-config",
+		"route_name": "GET_APPLICATIONS_APPLICATION_ID_EMBEDDED_ACTIVITY_CONFIG",
+		"source": "src/api/routes/applications/#application_id/embedded-activity-config.ts"
+	},
+	{
 		"method": "DELETE",
 		"response_schema_refs": [
 			"APIErrorResponse"

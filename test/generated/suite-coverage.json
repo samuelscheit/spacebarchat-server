@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 598,
+        "totalCoveredManifestEntries": 599,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 576,
-                "totalCoveredManifestEntries": 576,
-                "totalCoveredRequiredManifestEntries": 576,
+                "totalRequiredManifestEntries": 577,
+                "totalCoveredManifestEntries": 577,
+                "totalCoveredRequiredManifestEntries": 577,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 433,
+            "stateful-domain": 434,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 576,
-                "totalCoveredManifestEntries": 576,
-                "totalCoveredRequiredManifestEntries": 576,
+                "totalRequiredManifestEntries": 577,
+                "totalCoveredManifestEntries": 577,
+                "totalCoveredRequiredManifestEntries": 577,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -138,6 +138,7 @@
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/discoverability-state/",
+                "api:http:GET:/applications/:application_id/embedded-activity-config/",
                 "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
                 "api:http:GET:/applications/:application_id/external-identity-provider-configurations/",
@@ -716,6 +717,7 @@
                 "api:http:GET:/applications/:application_id/commands/",
                 "api:http:GET:/applications/:application_id/commands/:command_id/",
                 "api:http:GET:/applications/:application_id/discoverability-state/",
+                "api:http:GET:/applications/:application_id/embedded-activity-config/",
                 "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                 "api:http:GET:/applications/:application_id/entitlements/",
                 "api:http:GET:/applications/:application_id/external-identity-provider-configurations/",
@@ -1768,6 +1770,7 @@
                         "api:http:GET:/applications/:application_id/commands/",
                         "api:http:GET:/applications/:application_id/commands/:command_id/",
                         "api:http:GET:/applications/:application_id/discoverability-state/",
+                        "api:http:GET:/applications/:application_id/embedded-activity-config/",
                         "api:http:GET:/applications/:application_id/emojis/:emoji_id/",
                         "api:http:GET:/applications/:application_id/entitlements/",
                         "api:http:GET:/applications/:application_id/external-identity-provider-configurations/",

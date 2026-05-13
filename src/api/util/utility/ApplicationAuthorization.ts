@@ -74,6 +74,10 @@ export function canAccessApplicationGiftCodeBatches(application: ApplicationComm
     return team.members?.some((member) => member.user_id === userId && member.membership_state === TeamMemberState.ACCEPTED) ?? false;
 }
 
+export function canAccessApplicationEmbeddedActivityConfig(application: ApplicationCommandAuthorizationTarget, userId: string) {
+    return canAccessApplicationGiftCodeBatches(application, userId);
+}
+
 export function canAccessApplicationBranches(application: ApplicationCommandAuthorizationTarget, userId: string) {
     return canAccessApplicationGiftCodeBatches(application, userId);
 }
@@ -310,6 +314,24 @@ export async function requireApplicationGiftCodeBatchAccess(applicationId: strin
 
     if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
     if (!canAccessApplicationGiftCodeBatches(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
+
+    return application;
+}
+
+export async function requireApplicationEmbeddedActivityConfigAccess(applicationId: string, userId: string, repository?: ApplicationCommandAuthorizationRepository) {
+    const applicationRepository = repository ?? (await getApplicationCommandAuthorizationRepository());
+    const application = await applicationRepository.findOne({
+        where: { id: applicationId },
+        relations: {
+            owner: true,
+            team: {
+                members: true,
+            },
+        },
+    });
+
+    if (!application) throw DiscordApiErrors.UNKNOWN_APPLICATION;
+    if (!canAccessApplicationEmbeddedActivityConfig(application, userId)) throw DiscordApiErrors.ACTION_NOT_AUTHORIZED_ON_APPLICATION;
 
     return application;
 }

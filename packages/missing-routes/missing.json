@@ -1,6 +1,6 @@
 {
-    "missing": 496,
-    "spacebar": 684,
+    "missing": 495,
+    "spacebar": 685,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -893,14 +893,6 @@
             "sources": ["userdoccers:resources/application.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/applications/{application_id}/disclosures"],
             "summaries": ["Get Application Disclosures"]
-        },
-        {
-            "method": "GET",
-            "route": "/applications/{param}/embedded-activity-config",
-            "route_name": "GET_APPLICATIONS_APPLICATION_ID_EMBEDDED_ACTIVITY_CONFIG",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/applications/{application_id}/embedded-activity-config"],
-            "summaries": ["Get Embedded Activity Config"]
         },
         {
             "method": "GET",

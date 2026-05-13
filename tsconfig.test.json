@@ -54,6 +54,7 @@
         "src/api/util/utility/OAuthAuthorizeApplication.test.ts",
         "src/api/util/utility/OAuth2Authorization.test.ts",
         "src/api/routes/applications/#application_id/branches.test.ts",
+        "src/api/routes/applications/#application_id/embedded-activity-config.test.ts",
         "src/api/routes/applications/@me.test.ts",
         "src/api/routes/applications/#application_id/activities/#instance_location_id/instances/#instance_instance_id/leave.test.ts",
         "src/api/routes/applications/#application_id/guilds/#guild_id/commands/#command_id/permissions.test.ts",
