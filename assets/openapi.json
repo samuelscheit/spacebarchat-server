@@ -888,6 +888,64 @@
                     "state"
                 ]
             },
+            "AutomodIncidentActionsSchema": {
+                "type": "object",
+                "properties": {
+                    "invites_disabled_until": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "dms_disabled_until": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
+            "AutomodIncidentActionsResponse": {
+                "type": "object",
+                "properties": {
+                    "invites_disabled_until": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "dms_disabled_until": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "required": [
+                    "dms_disabled_until",
+                    "invites_disabled_until"
+                ]
+            },
             "AutomodMentionSpamRuleSchema": {
                 "type": "object",
                 "properties": {
@@ -7589,6 +7647,16 @@
                             "null",
                             "string"
                         ]
+                    },
+                    "incidents_data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AutomodIncidentsData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -7852,6 +7920,16 @@
                             "null",
                             "string"
                         ]
+                    },
+                    "incidents_data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AutomodIncidentsData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -8028,6 +8106,16 @@
                         "type": [
                             "null",
                             "string"
+                        ]
+                    },
+                    "incidents_data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AutomodIncidentsData"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     }
                 },
@@ -8209,6 +8297,16 @@
                         "type": [
                             "null",
                             "string"
+                        ]
+                    },
+                    "incidents_data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AutomodIncidentsData"
+                            },
+                            {
+                                "type": "null"
+                            }
                         ]
                     }
                 },
@@ -26600,6 +26698,55 @@
                     "participators"
                 ]
             },
+            "AutomodIncidentsData": {
+                "type": "object",
+                "properties": {
+                    "raid_detected_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "dm_spam_detected_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "invites_disabled_until": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "dms_disabled_until": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
             "GuildChannelFollowingAnnouncementsByChannelBucket": {
                 "type": "object",
                 "properties": {
@@ -30689,6 +30836,16 @@
                     },
                     "explicit_content_filter": {
                         "type": "integer"
+                    },
+                    "incidents_data": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/AutomodIncidentsData"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "features": {
                         "type": "array",
@@ -56832,6 +56989,82 @@
                         }
                     },
                     "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/incident-actions/": {
+            "put": {
+                "x-permission-required": "MANAGE_GUILD",
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AutomodIncidentActionsSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AutomodIncidentActionsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
                         "description": "",
                         "content": {
                             "application/json": {

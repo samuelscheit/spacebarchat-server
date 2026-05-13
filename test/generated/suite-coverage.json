@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 613,
+        "totalCoveredManifestEntries": 614,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 591,
-                "totalCoveredManifestEntries": 591,
-                "totalCoveredRequiredManifestEntries": 591,
+                "totalRequiredManifestEntries": 592,
+                "totalCoveredManifestEntries": 592,
+                "totalCoveredRequiredManifestEntries": 592,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 448,
+            "stateful-domain": 449,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 591,
-                "totalCoveredManifestEntries": 591,
-                "totalCoveredRequiredManifestEntries": 591,
+                "totalRequiredManifestEntries": 592,
+                "totalCoveredManifestEntries": 592,
+                "totalCoveredRequiredManifestEntries": 592,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -577,6 +577,7 @@
                 "api:http:PUT:/channels/:channel_id/voice-status/",
                 "api:http:PUT:/channels/preload-messages/",
                 "api:http:PUT:/guilds/:guild_id/bans/:user_id",
+                "api:http:PUT:/guilds/:guild_id/incident-actions/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
                 "api:http:PUT:/guilds/:guild_id/members/supplemental/",
@@ -1170,6 +1171,7 @@
                 "api:http:PUT:/channels/:channel_id/voice-status/",
                 "api:http:PUT:/channels/preload-messages/",
                 "api:http:PUT:/guilds/:guild_id/bans/:user_id",
+                "api:http:PUT:/guilds/:guild_id/incident-actions/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
                 "api:http:PUT:/guilds/:guild_id/members/supplemental/",
@@ -1625,6 +1627,7 @@
                         "api:http:POST:/guilds/automations/email-domain-lookup/verify-code",
                         "api:http:POST:/guilds/templates/:template_code",
                         "api:http:PUT:/guilds/:guild_id/bans/:user_id",
+                        "api:http:PUT:/guilds/:guild_id/incident-actions/",
                         "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                         "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
                         "api:http:PUT:/guilds/:guild_id/members/supplemental/",

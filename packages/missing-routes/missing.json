@@ -1,6 +1,6 @@
 {
-    "missing": 478,
-    "spacebar": 702,
+    "missing": 477,
+    "spacebar": 703,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -123,7 +123,6 @@
         "/guilds/{param}/entitlements/{param}",
         "/guilds/{param}/game-servers",
         "/guilds/{param}/guild-feed",
-        "/guilds/{param}/incident-actions",
         "/guilds/{param}/integrations",
         "/guilds/{param}/integrations/{param}",
         "/guilds/{param}/integrations/{param}/sync",
@@ -3321,14 +3320,6 @@
             "sources": ["userdoccers:resources/discovery.mdx"],
             "source_routes": ["/guilds/{guild_id}/discovery-categories/{discovery_category_id}"],
             "summaries": ["Add Guild Discovery Subcategory"]
-        },
-        {
-            "method": "PUT",
-            "route": "/guilds/{param}/incident-actions",
-            "route_name": "PUT_GUILDS_GUILD_ID_INCIDENT_ACTIONS",
-            "sources": ["userdoccers:resources/auto-moderation.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/incident-actions"],
-            "summaries": ["Modify AutoMod Incident Actions"]
         },
         {
             "method": "PUT",

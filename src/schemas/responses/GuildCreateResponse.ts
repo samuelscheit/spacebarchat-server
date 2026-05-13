@@ -17,6 +17,7 @@
 */
 
 import { GuildWelcomeScreen } from "../api/guilds/GuildWelcomeScreen";
+import { AutomodIncidentsData } from "../api/guilds/Automod";
 
 export interface GuildCreateResponse {
     id: string;
@@ -60,6 +61,7 @@ export interface GuildCreateResponse {
     premium_progress_bar_enabled?: boolean;
     discovery_splash?: string;
     safety_alerts_channel_id?: string | null;
+    incidents_data?: AutomodIncidentsData | null;
 }
 
 export interface APIGuild extends GuildCreateResponse {

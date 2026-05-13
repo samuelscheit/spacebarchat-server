@@ -46,7 +46,7 @@ import { Template } from "./Template";
 import { User } from "./User";
 import { VoiceState } from "./VoiceState";
 import { Webhook } from "./Webhook";
-import { ChannelType, type GuildCreateResponse } from "@spacebar/schemas";
+import { ChannelType, type AutomodIncidentsData, type GuildCreateResponse } from "@spacebar/schemas";
 import { moveChannelInOrder } from "../util/ChannelOrdering";
 import { getGuildChannelOrderingColumnOptions, mapTemplateChannelOrdering, sortTemplateChannelsForCreation } from "../util/GuildChannelOrdering";
 import { GuildFeature, setVanityUrlFeature, type GuildFeatureValue } from "../util/GuildFeatures";
@@ -114,6 +114,9 @@ export class Guild extends BaseClass {
 
     @Column({ nullable: true })
     explicit_content_filter?: number;
+
+    @Column({ nullable: true, type: "jsonb" })
+    incidents_data?: AutomodIncidentsData | null;
 
     @Column({ type: "varchar", array: true })
     features: GuildFeatureValue[] = [];

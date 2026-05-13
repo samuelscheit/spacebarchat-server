@@ -25,6 +25,7 @@ import { ajv } from "../Validator";
 interface JsonShape {
     $ref?: string;
     anyOf?: JsonShape[];
+    format?: string;
     items?: JsonShape;
     properties?: Record<string, JsonShape>;
     required?: string[];
@@ -224,6 +225,37 @@ test("AutomodRuleSchema validates action metadata", () => {
                 keyword_filter: ["blocked", "also blocked"],
                 regex_patterns: ["^blocked$"],
             },
+        }),
+        true,
+    );
+});
+
+test("AutomodIncidentActionsSchema validates incident action timestamp payloads", () => {
+    const schemas = readSchemas();
+
+    assert.equal(schemas.AutomodIncidentActionsSchema.required, undefined);
+    assert.deepEqual(schemas.AutomodIncidentActionsResponse.required?.sort(), ["dms_disabled_until", "invites_disabled_until"]);
+    assert.equal(
+        schemas.AutomodIncidentActionsSchema.properties?.invites_disabled_until?.anyOf?.some((option) => option.format === "date-time"),
+        true,
+    );
+    assert.equal(
+        schemas.AutomodIncidentActionsResponse.properties?.dms_disabled_until?.anyOf?.some((option) => option.type === "null"),
+        true,
+    );
+    assert.equal(
+        ajv.validate("AutomodIncidentActionsSchema", {
+            invites_disabled_until: "2026-05-13T12:00:00.000Z",
+            dms_disabled_until: null,
+        }),
+        true,
+    );
+    assert.equal(ajv.validate("AutomodIncidentActionsSchema", { invites_disabled_until: "not-a-date" }), false);
+    assert.equal(ajv.validate("AutomodIncidentActionsSchema", { invites_disabled_until: "2026-05-13T12:00:00.000Z", extra: true }), false);
+    assert.equal(
+        ajv.validate("AutomodIncidentActionsResponse", {
+            invites_disabled_until: "2026-05-13T12:00:00.000Z",
+            dms_disabled_until: null,
         }),
         true,
     );

@@ -903,6 +903,68 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "AutomodIncidentActionsSchema": {
+        "type": "object",
+        "properties": {
+            "invites_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "dms_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "AutomodIncidentActionsResponse": {
+        "type": "object",
+        "properties": {
+            "invites_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "dms_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "dms_disabled_until",
+            "invites_disabled_until"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "AutomodMentionSpamRuleSchema": {
         "type": "object",
         "properties": {
@@ -8021,6 +8083,16 @@
                     "null",
                     "string"
                 ]
+            },
+            "incidents_data": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/AutomodIncidentsData"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
@@ -8294,6 +8366,16 @@
                     "null",
                     "string"
                 ]
+            },
+            "incidents_data": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/AutomodIncidentsData"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
@@ -8472,6 +8554,16 @@
                 "type": [
                     "null",
                     "string"
+                ]
+            },
+            "incidents_data": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/AutomodIncidentsData"
+                    },
+                    {
+                        "type": "null"
+                    }
                 ]
             }
         },
@@ -8656,6 +8748,16 @@
                 "type": [
                     "null",
                     "string"
+                ]
+            },
+            "incidents_data": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/AutomodIncidentsData"
+                    },
+                    {
+                        "type": "null"
+                    }
                 ]
             }
         },
@@ -28115,6 +28217,57 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "AutomodIncidentsData": {
+        "type": "object",
+        "properties": {
+            "raid_detected_at": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "dm_spam_detected_at": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "invites_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "dms_disabled_until": {
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "GuildChannelFollowingAnnouncementsByChannelBucket": {
         "type": "object",
         "properties": {
@@ -32441,6 +32594,16 @@
             },
             "explicit_content_filter": {
                 "type": "integer"
+            },
+            "incidents_data": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/AutomodIncidentsData"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "features": {
                 "type": "array",

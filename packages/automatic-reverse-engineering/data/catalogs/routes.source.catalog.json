@@ -3100,6 +3100,17 @@
 		"source": "src/api/routes/guilds/#guild_id/game-servers/#game_server_id/wake.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "AutomodIncidentActionsSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"AutomodIncidentActionsResponse"
+		],
+		"route": "/guilds/{guild_id}/incident-actions",
+		"route_name": "PUT_GUILDS_GUILD_ID_INCIDENT_ACTIONS",
+		"source": "src/api/routes/guilds/#guild_id/incident-actions.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIGuildIntegrationArray"

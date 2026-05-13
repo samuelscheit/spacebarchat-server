@@ -100,3 +100,20 @@ export interface AutomodTimeoutUserActionMetadata {
 }
 
 export type AutomodRuleActionMetadata = AutomodBlockMessageActionMetadata | AutomodSendAlertMessageActionMetadata | AutomodTimeoutUserActionMetadata;
+
+export interface AutomodIncidentsData {
+    raid_detected_at?: Date | null;
+    dm_spam_detected_at?: Date | null;
+    invites_disabled_until?: Date | null;
+    dms_disabled_until?: Date | null;
+}
+
+export interface AutomodIncidentActionsSchema {
+    invites_disabled_until?: Date | null;
+    dms_disabled_until?: Date | null;
+}
+
+export interface AutomodIncidentActionsResponse {
+    invites_disabled_until: Date | null;
+    dms_disabled_until: Date | null;
+}
