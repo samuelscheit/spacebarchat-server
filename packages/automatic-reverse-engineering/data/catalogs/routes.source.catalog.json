@@ -3272,6 +3272,15 @@
 		"source": "src/api/routes/guilds/#guild_id/preview.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/products",
+		"route_name": "POST_GUILDS_GUILD_ID_PRODUCTS",
+		"source": "src/api/routes/guilds/#guild_id/products.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"GuildProfileResponse"

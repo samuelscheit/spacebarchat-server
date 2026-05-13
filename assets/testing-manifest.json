@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 778,
+        "totalEntries": 779,
         "byService": {
-            "api": 681,
+            "api": 682,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 753,
+            "http-route": 754,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 199,
-            "stateful-domain": 426,
+            "stateful-domain": 427,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 635,
+            "route-class": 636,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -14519,7 +14519,7 @@
             "method": "POST",
             "path": "/guilds/:guild_id/game-servers/:game_server_id/wake/",
             "sourceFile": "src/api/routes/guilds/#guild_id/game-servers/#game_server_id/wake.ts",
-            "line": 73,
+            "line": 68,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -15694,6 +15694,57 @@
                     200,
                     401,
                     404
+                ],
+                "hasQuery": false
+            },
+            "rateLimit": {
+                "group": "guild",
+                "configPath": "limits.rate.routes.guild",
+                "pathPrefix": "/guilds/:guild_id",
+                "sourceFile": "src/api/middlewares/RateLimit.ts",
+                "line": 218
+            },
+            "coverage": {
+                "policyId": "api-guild-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "members",
+                    "roles",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/guilds/:guild_id/products/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/guilds/:guild_id/products/",
+            "sourceFile": "src/api/routes/guilds/#guild_id/products.ts",
+            "line": 57,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "permission": "MANAGE_GUILD",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    403,
+                    404,
+                    501
                 ],
                 "hasQuery": false
             },

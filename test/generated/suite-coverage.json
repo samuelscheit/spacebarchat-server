@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 590,
+        "totalCoveredManifestEntries": 591,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 568,
-                "totalCoveredManifestEntries": 568,
-                "totalCoveredRequiredManifestEntries": 568,
+                "totalRequiredManifestEntries": 569,
+                "totalCoveredManifestEntries": 569,
+                "totalCoveredRequiredManifestEntries": 569,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 426,
+            "stateful-domain": 427,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 568,
-                "totalCoveredManifestEntries": 568,
-                "totalCoveredRequiredManifestEntries": 568,
+                "totalRequiredManifestEntries": 569,
+                "totalCoveredManifestEntries": 569,
+                "totalCoveredRequiredManifestEntries": 569,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -514,6 +514,7 @@
                 "api:http:POST:/guilds/:guild_id/delete/",
                 "api:http:POST:/guilds/:guild_id/emojis/",
                 "api:http:POST:/guilds/:guild_id/game-servers/:game_server_id/wake/",
+                "api:http:POST:/guilds/:guild_id/products/",
                 "api:http:POST:/guilds/:guild_id/prune/",
                 "api:http:POST:/guilds/:guild_id/roles/",
                 "api:http:POST:/guilds/:guild_id/stickers/",
@@ -1084,6 +1085,7 @@
                 "api:http:POST:/guilds/:guild_id/delete/",
                 "api:http:POST:/guilds/:guild_id/emojis/",
                 "api:http:POST:/guilds/:guild_id/game-servers/:game_server_id/wake/",
+                "api:http:POST:/guilds/:guild_id/products/",
                 "api:http:POST:/guilds/:guild_id/prune/",
                 "api:http:POST:/guilds/:guild_id/roles/",
                 "api:http:POST:/guilds/:guild_id/stickers/",
@@ -1551,6 +1553,7 @@
                         "api:http:POST:/guilds/:guild_id/delete/",
                         "api:http:POST:/guilds/:guild_id/emojis/",
                         "api:http:POST:/guilds/:guild_id/game-servers/:game_server_id/wake/",
+                        "api:http:POST:/guilds/:guild_id/products/",
                         "api:http:POST:/guilds/:guild_id/prune/",
                         "api:http:POST:/guilds/:guild_id/roles/",
                         "api:http:POST:/guilds/:guild_id/stickers/",

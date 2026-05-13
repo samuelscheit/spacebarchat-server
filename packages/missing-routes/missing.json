@@ -1,6 +1,6 @@
 {
-    "missing": 507,
-    "spacebar": 673,
+    "missing": 506,
+    "spacebar": 674,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -154,7 +154,6 @@
         "/guilds/{param}/powerups",
         "/guilds/{param}/premium/subscriptions",
         "/guilds/{param}/premium/subscriptions/{param}",
-        "/guilds/{param}/products",
         "/guilds/{param}/products/attachments",
         "/guilds/{param}/products/listings/{param}",
         "/guilds/{param}/products/listings/{param}/attachments/{param}/download",
@@ -2445,13 +2444,6 @@
             "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/onboarding-responses"],
             "summaries": ["Create Guild Onboarding Responses"]
-        },
-        {
-            "method": "POST",
-            "route": "/guilds/{param}/products",
-            "route_name": "GUILD_PRODUCTS",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/products"]
         },
         {
             "method": "POST",
