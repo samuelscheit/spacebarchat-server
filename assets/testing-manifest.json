@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 787,
+        "totalEntries": 788,
         "byService": {
-            "api": 690,
+            "api": 691,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 762,
+            "http-route": 763,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 202,
-            "stateful-domain": 431,
+            "stateful-domain": 432,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 644,
+            "route-class": 645,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -28493,13 +28493,53 @@
             }
         },
         {
+            "id": "api:http:POST:/users/@me/survey/:survey_id/seen",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/survey/:survey_id/seen",
+            "sourceFile": "src/api/routes/users/@me/survey.ts",
+            "line": 76,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/survey/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/users/@me/survey/",
             "sourceFile": "src/api/routes/users/@me/survey.ts",
-            "line": 32,
+            "line": 48,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,

@@ -1,6 +1,6 @@
 {
-    "missing": 498,
-    "spacebar": 682,
+    "missing": 497,
+    "spacebar": 683,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -390,7 +390,6 @@
         "/users/@me/scheduled-messages",
         "/users/@me/scheduled-messages/{param}",
         "/users/@me/settings-proto/{param}",
-        "/users/@me/survey/{param}/seen",
         "/users/@me/update-league-of-legends-leaderboard",
         "/users/@me/video-filters/assets",
         "/users/@me/video-filters/assets/{param}",
@@ -3285,14 +3284,6 @@
             "summaries": ["Exchange Remote Auth Ticket"]
         },
         { "method": "POST", "route": "/users/@me/scheduled-messages", "route_name": "SCHEDULED_MESSAGES", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/users/@me/survey/{param}/seen",
-            "route_name": "POST_USERS__ME_SURVEY_SURVEY_ID_SEEN",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/users/@me/survey/{survey_id}/seen"],
-            "summaries": ["Acknowledge User Survey"]
-        },
         { "method": "POST", "route": "/users/@me/update-league-of-legends-leaderboard", "route_name": "UPDATE_MY_LOL_LEADERBOARD", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "POST", "route": "/users/@me/video-filters/assets", "route_name": "VIDEO_FILTER_ASSETS", "sources": ["xhyrom:data/client/routes.json"] },
         {

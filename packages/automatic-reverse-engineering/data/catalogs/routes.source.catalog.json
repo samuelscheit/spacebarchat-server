@@ -6290,6 +6290,15 @@
 		"source": "src/api/routes/users/@me/survey.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/survey/{survey_id}/seen",
+		"route_name": "POST_USERS__ME_SURVEY_SURVEY_ID_SEEN",
+		"source": "src/api/routes/users/@me/survey.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

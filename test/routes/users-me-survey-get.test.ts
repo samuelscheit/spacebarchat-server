@@ -21,11 +21,14 @@ import { readFileSync } from "node:fs";
 import type { AddressInfo } from "node:net";
 import { join } from "node:path";
 import { describe, test } from "node:test";
+import { DiscordApiErrors } from "@spacebar/util";
 import express from "express";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "../../src/api/middlewares";
-import surveyRouter, { buildUserSurveyResponse } from "../../src/api/routes/users/@me/survey";
+import surveyRouter, { acknowledgeUserSurveySeen, buildUserSurveyResponse, parseUserSurveyId } from "../../src/api/routes/users/@me/survey";
 
-const coveredManifestIds = ["api:http:GET:/users/@me/survey/"];
+const getCoveredManifestId = "api:http:GET:/users/@me/survey/";
+const postCoveredManifestId = "api:http:POST:/users/@me/survey/:survey_id/seen";
+const coveredManifestIds = [getCoveredManifestId, postCoveredManifestId];
 
 type JsonSchema = {
     $ref?: string;
@@ -36,9 +39,9 @@ type JsonSchema = {
     properties?: Record<string, JsonSchema>;
 };
 
-describe("GET /users/@me/survey", () => {
-    test("declares the current-user survey manifest route id covered by this suite", () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:GET:/users/@me/survey/"]);
+describe("GET and POST /users/@me/survey", () => {
+    test("declares the current-user survey manifest route ids covered by this suite", () => {
+        assert.deepEqual(coveredManifestIds, ["api:http:GET:/users/@me/survey/", "api:http:POST:/users/@me/survey/:survey_id/seen"]);
     });
 
     test("returns no active survey without fabricating private survey state", () => {
@@ -53,20 +56,42 @@ describe("GET /users/@me/survey", () => {
         assert.match(response.headers.get("content-type") ?? "", /application\/json/);
     });
 
-    test("stays behind bearer auth and leaves survey-seen acknowledgement unimplemented", async () => {
+    test("acknowledges a seen survey prompt without persisting private Discord survey state", async () => {
+        assert.equal(parseUserSurveyId("1301267751645483122"), "1301267751645483122");
+        assert.doesNotThrow(() => acknowledgeUserSurveySeen("1044657759066525777", "1301267751645483122"));
+        assert.throws(
+            () => parseUserSurveyId("not-a-snowflake"),
+            (error) => {
+                assert.equal((error as { code?: unknown }).code, DiscordApiErrors.INVALID_FORM_BODY.code);
+                return true;
+            },
+        );
+
+        const response = await requestJson(createRouteApp(), "/users/@me/survey/1301267751645483122/seen", { method: "POST" });
+
+        assert.equal(response.status, 204);
+        assert.equal(response.body, undefined);
+    });
+
+    test("stays behind bearer auth for survey fetch and acknowledgement", async () => {
         const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "users", "@me", "survey.ts"), "utf8");
 
         assert.match(routeSource, /summary:\s*"Get User Survey"/);
+        assert.match(routeSource, /summary:\s*"Acknowledge User Survey"/);
         assert.match(routeSource, /body:\s*"UserSurveyResponse"/);
-        assert.doesNotMatch(routeSource, /router\.post\(/);
+        assert.match(routeSource, /router\.post\(\s*["']\/:survey_id\/seen["']/);
+        assert.match(routeSource, /204:\s*\{\s*\}/s);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/users/@me/survey"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/users/@me/survey?disable_auto_seen=true"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/users/@me/survey/1301267751645483122/seen"), false);
 
         const response = await requestJson(createRouteApp({ authentication: true }), "/users/@me/survey");
+        const seenResponse = await requestJson(createRouteApp({ authentication: true }), "/users/@me/survey/1301267751645483122/seen", { method: "POST" });
 
         assert.equal(response.status, 401);
         assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(seenResponse.status, 401);
+        assert.match((seenResponse.body as { message?: string }).message ?? "", /Missing Authorization Header/);
     });
 
     test("generates response schema, query metadata, route catalogs, contracts, and suite coverage", () => {
@@ -80,7 +105,11 @@ describe("GET /users/@me/survey", () => {
                         responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
                         security?: unknown;
                     };
-                    post?: unknown;
+                    post?: {
+                        parameters?: { name?: string; in?: string; schema?: JsonSchema }[];
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                        security?: unknown;
+                    };
                 }
             >;
         }>(join(process.cwd(), "assets", "openapi.json"));
@@ -97,6 +126,7 @@ describe("GET /users/@me/survey", () => {
             entries?: {
                 id?: string;
                 authMode?: string;
+                path?: string;
                 sourceFile?: string;
                 routeMetadata?: {
                     hasQuery?: boolean;
@@ -110,6 +140,7 @@ describe("GET /users/@me/survey", () => {
                 manifestId?: string;
                 authMode?: string;
                 path?: string;
+                sourceFile?: string;
                 routeMetadata?: {
                     responses?: string[];
                     responseStatuses?: number[];
@@ -150,6 +181,11 @@ describe("GET /users/@me/survey", () => {
             true,
         );
         assert.equal(openapi.paths?.["/users/@me/survey/"]?.post, undefined);
+        const seenRoute = openapi.paths?.["/users/@me/survey/{survey_id}/seen"]?.post;
+        assert.equal(seenRoute?.responses?.["204"]?.content, undefined);
+        assert.equal(seenRoute?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(seenRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(seenRoute?.security, [{ bearer: [] }]);
 
         const sourceEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/users/@me/survey");
         assert.deepEqual(sourceEntry, {
@@ -159,12 +195,16 @@ describe("GET /users/@me/survey", () => {
             route_name: "GET_USERS__ME_SURVEY",
             source: "src/api/routes/users/@me/survey.ts",
         });
-        assert.equal(
-            sourceCatalog.some((entry) => entry.route === "/users/@me/survey/{param}/seen"),
-            false,
-        );
+        const seenSourceEntry = sourceCatalog.find((entry) => entry.method === "POST" && entry.route === "/users/@me/survey/{survey_id}/seen");
+        assert.deepEqual(seenSourceEntry, {
+            method: "POST",
+            response_schema_refs: ["APIErrorResponse"],
+            route: "/users/@me/survey/{survey_id}/seen",
+            route_name: "POST_USERS__ME_SURVEY_SURVEY_ID_SEEN",
+            source: "src/api/routes/users/@me/survey.ts",
+        });
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === getCoveredManifestId);
         assert.equal(manifestEntry?.authMode, "bearer");
         assert.equal(manifestEntry?.sourceFile, "src/api/routes/users/@me/survey.ts");
         assert.equal(manifestEntry?.routeMetadata?.hasQuery, true);
@@ -173,8 +213,18 @@ describe("GET /users/@me/survey", () => {
             manifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
             [200, 401],
         );
+        const seenManifestEntry = manifest.entries?.find((entry) => entry.id === postCoveredManifestId);
+        assert.equal(seenManifestEntry?.authMode, "bearer");
+        assert.equal(seenManifestEntry?.path, "/users/@me/survey/:survey_id/seen");
+        assert.equal(seenManifestEntry?.sourceFile, "src/api/routes/users/@me/survey.ts");
+        assert.equal(seenManifestEntry?.routeMetadata?.hasQuery, false);
+        assert.deepEqual(seenManifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(
+            seenManifestEntry?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            [204, 400, 401],
+        );
 
-        const contract = contracts.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);
+        const contract = contracts.contracts?.find((entry) => entry.manifestId === getCoveredManifestId);
         assert.equal(contract?.authMode, "bearer");
         assert.equal(contract?.path, "/users/@me/survey/");
         assert.deepEqual(contract?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "UserSurveyResponse"]);
@@ -182,9 +232,19 @@ describe("GET /users/@me/survey", () => {
             contract?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
             [200, 401],
         );
+        const seenContract = contracts.contracts?.find((entry) => entry.manifestId === postCoveredManifestId);
+        assert.equal(seenContract?.authMode, "bearer");
+        assert.equal(seenContract?.path, "/users/@me/survey/:survey_id/seen");
+        assert.equal(seenContract?.sourceFile, "src/api/routes/users/@me/survey.ts");
+        assert.deepEqual(seenContract?.routeMetadata?.responses, ["APIErrorResponse"]);
+        assert.deepEqual(
+            seenContract?.routeMetadata?.responseStatuses?.sort((a, b) => a - b),
+            [204, 400, 401],
+        );
 
         const usersSuite = suiteCoverage.groups?.flatMap((group) => group.suites ?? []).find((suite) => suite.id === "users");
-        assert.ok(usersSuite?.manifestIds?.includes(coveredManifestIds[0]));
+        assert.ok(usersSuite?.manifestIds?.includes(getCoveredManifestId));
+        assert.ok(usersSuite?.manifestIds?.includes(postCoveredManifestId));
         assert.ok(usersSuite?.testFiles?.includes("test/scenarios/users-profile-settings.test.ts"));
 
         assert.equal(
@@ -192,8 +252,10 @@ describe("GET /users/@me/survey", () => {
             false,
         );
         assert.equal(
-            missingRoutes.missing_entries?.some((entry) => entry.method === "POST" && entry.route === "/users/@me/survey/{param}/seen"),
-            true,
+            missingRoutes.missing_entries?.some(
+                (entry) => entry.method === "POST" && entry.route === "/users/@me/survey/{param}/seen" && entry.route_name === "POST_USERS__ME_SURVEY_SURVEY_ID_SEEN",
+            ),
+            false,
         );
     });
 });
@@ -219,7 +281,7 @@ function readJson<T>(path: string): T {
     return JSON.parse(readFileSync(path, "utf8")) as T;
 }
 
-async function requestJson(app: express.Express, path: string) {
+async function requestJson(app: express.Express, path: string, options: { method?: string } = {}) {
     const server = await new Promise<ReturnType<express.Express["listen"]>>((resolve) => {
         const listener = app.listen(0, "127.0.0.1", () => resolve(listener));
     });
@@ -227,12 +289,15 @@ async function requestJson(app: express.Express, path: string) {
     try {
         const address = server.address();
         if (!address || typeof address === "string") throw new Error("Expected HTTP server to listen on a TCP port");
-        const response = await fetch(`http://127.0.0.1:${(address as AddressInfo).port}${path}`);
+        const response = await fetch(`http://127.0.0.1:${(address as AddressInfo).port}${path}`, {
+            method: options.method,
+        });
+        const text = await response.text();
 
         return {
             status: response.status,
             headers: response.headers,
-            body: (await response.json()) as unknown,
+            body: text ? (JSON.parse(text) as unknown) : undefined,
         };
     } finally {
         await new Promise<void>((resolve, reject) => {

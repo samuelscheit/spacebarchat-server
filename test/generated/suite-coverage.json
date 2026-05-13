@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 596,
+        "totalCoveredManifestEntries": 597,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 574,
-                "totalCoveredManifestEntries": 574,
-                "totalCoveredRequiredManifestEntries": 574,
+                "totalRequiredManifestEntries": 575,
+                "totalCoveredManifestEntries": 575,
+                "totalCoveredRequiredManifestEntries": 575,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 431,
+            "stateful-domain": 432,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 574,
-                "totalCoveredManifestEntries": 574,
-                "totalCoveredRequiredManifestEntries": 574,
+                "totalRequiredManifestEntries": 575,
+                "totalCoveredManifestEntries": 575,
+                "totalCoveredRequiredManifestEntries": 575,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -547,6 +547,7 @@
                 "api:http:POST:/users/@me/mfa/webauthn/credentials/",
                 "api:http:POST:/users/@me/notification-center/items/:notification_center_item_id/ack",
                 "api:http:POST:/users/@me/relationships/",
+                "api:http:POST:/users/@me/survey/:survey_id/seen",
                 "api:http:POST:/webhooks/:webhook_id/:token/",
                 "api:http:POST:/webhooks/:webhook_id/:token/github/",
                 "api:http:POST:/webhooks/:webhook_id/:token/slack/",
@@ -1123,6 +1124,7 @@
                 "api:http:POST:/users/@me/mfa/webauthn/credentials/",
                 "api:http:POST:/users/@me/notification-center/items/:notification_center_item_id/ack",
                 "api:http:POST:/users/@me/relationships/",
+                "api:http:POST:/users/@me/survey/:survey_id/seen",
                 "api:http:POST:/webhooks/:webhook_id/:token/",
                 "api:http:POST:/webhooks/:webhook_id/:token/github/",
                 "api:http:POST:/webhooks/:webhook_id/:token/slack/",
@@ -1415,6 +1417,7 @@
                         "api:http:POST:/users/@me/mfa/webauthn/credentials/",
                         "api:http:POST:/users/@me/notification-center/items/:notification_center_item_id/ack",
                         "api:http:POST:/users/@me/relationships/",
+                        "api:http:POST:/users/@me/survey/:survey_id/seen",
                         "api:http:PUT:/users/@me/notes/:user_id",
                         "api:http:PUT:/users/@me/relationships/:user_id",
                         "api:http:PUT:/users/@me/relationships/bulk"

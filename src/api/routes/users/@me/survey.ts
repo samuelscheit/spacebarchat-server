@@ -18,15 +18,31 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 
 import { route } from "@spacebar/api";
 import type { UserSurveyResponse } from "@spacebar/schemas";
+import { DiscordApiErrors } from "@spacebar/util";
 import { type Request, type Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
+const snowflakePattern = /^\d{1,20}$/;
 
 export function buildUserSurveyResponse(userId: string): UserSurveyResponse {
     void userId;
 
     // Spacebar does not persist Discord's private survey eligibility or prompt state.
     return { survey: null };
+}
+
+export function parseUserSurveyId(value: string): string {
+    if (!snowflakePattern.test(value)) throw DiscordApiErrors.INVALID_FORM_BODY;
+
+    return value;
+}
+
+export function acknowledgeUserSurveySeen(userId: string, surveyId: string): void {
+    void userId;
+    void surveyId;
+
+    // Spacebar does not persist Discord's private survey prompt state. The
+    // acknowledgement validates the route target and leaves local state unchanged.
 }
 
 router.get(
@@ -55,6 +71,29 @@ router.get(
         },
     }),
     (req: Request, res: Response) => res.status(200).json(buildUserSurveyResponse(req.user_id)),
+);
+
+router.post(
+    "/:survey_id/seen",
+    route({
+        summary: "Acknowledge User Survey",
+        description:
+            "Marks a current-user survey prompt as seen. Spacebar does not persist Discord's private survey prompt state, so this compatibility endpoint validates the survey identifier and acknowledges the request without fabricating survey state.",
+        responses: {
+            204: {},
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (req: Request, res: Response) => {
+        acknowledgeUserSurveySeen(req.user_id, parseUserSurveyId(req.params.survey_id as string));
+
+        return res.sendStatus(204);
+    },
 );
 
 export default router;
