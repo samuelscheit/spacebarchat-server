@@ -15747,7 +15747,14 @@
                 "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
-                "$ref": "#/definitions/PrimaryGuild"
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/PrimaryGuild"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
@@ -15835,7 +15842,14 @@
                 "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
-                "$ref": "#/definitions/PrimaryGuild"
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/PrimaryGuild"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "flags": {
                 "type": "integer"
@@ -15964,7 +15978,14 @@
                 "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
-                "$ref": "#/definitions/PrimaryGuild"
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/PrimaryGuild"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "flags": {
                 "type": "integer"
@@ -17428,6 +17449,26 @@
         "required": [
             "user_id"
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "UserClanModifySchema": {
+        "type": "object",
+        "properties": {
+            "identity_enabled": {
+                "type": [
+                    "null",
+                    "boolean"
+                ]
+            },
+            "identity_guild_id": {
+                "pattern": "^\\d{1,20}$",
+                "type": [
+                    "null",
+                    "string"
+                ]
+            }
+        },
+        "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "UserGuildSettingsSchema": {
@@ -22204,7 +22245,14 @@
                 "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
-                "$ref": "#/definitions/PrimaryGuild"
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/PrimaryGuild"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             }
         },
         "additionalProperties": false,
@@ -32880,7 +32928,14 @@
                 "$ref": "#/definitions/Collectibles"
             },
             "primary_guild": {
-                "$ref": "#/definitions/PrimaryGuild"
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/PrimaryGuild"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
             },
             "tag": {
                 "type": "string"

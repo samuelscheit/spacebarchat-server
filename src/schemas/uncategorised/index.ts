@@ -120,6 +120,7 @@ export * from "./TotpSchema";
 export * from "./UploadAttachmentRequestSchema";
 export * from "./UniqueUsernameAttemptUnauthedSchema";
 export * from "./UserDeleteSchema";
+export * from "./UserClanModifySchema";
 export * from "./UserGuildSettingsSchema";
 export * from "./UserHarvestCreateSchema";
 export * from "./UserInviteCreateSchema";

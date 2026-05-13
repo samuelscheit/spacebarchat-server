@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 775,
+        "totalContracts": 776,
         "byService": {
-            "api": 702,
+            "api": 703,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 622,
-        "runtimeMalformedAuthContracts": 622,
-        "runtimeRevokedSessionAuthContracts": 622,
-        "runtimeStaleTokenAuthContracts": 622,
+        "runtimeAuthBoundaryContracts": 623,
+        "runtimeMalformedAuthContracts": 623,
+        "runtimeRevokedSessionAuthContracts": 623,
+        "runtimeStaleTokenAuthContracts": 623,
         "runtimePublicAuthBoundaryContracts": 72,
         "runtimePublicInvalidBodyContracts": 17,
-        "runtimeProtectedInvalidBodyContracts": 91,
+        "runtimeProtectedInvalidBodyContracts": 92,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
         "runtimeRightOnlyDenialContracts": 13,
@@ -33717,6 +33717,62 @@
                     "id": "event-emission",
                     "checks": ["events"],
                     "events": ["CHANNEL_CREATE"]
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:PUT:/users/@me/clan/",
+            "service": "api",
+            "method": "PUT",
+            "path": "/users/@me/clan/",
+            "samplePath": "/users/@me/clan/",
+            "sourceFile": "src/api/routes/users/@me/clan.ts",
+            "line": 129,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "requestBody": "UserClanModifySchema",
+                "responses": ["APIErrorResponse", "APIPrivateUser"],
+                "responseStatuses": [200, 400, 401, 404],
+                "event": ["USER_UPDATE", "GUILD_MEMBER_UPDATE"]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "UserClanModifySchema"
+                },
+                {
+                    "id": "event-emission",
+                    "checks": ["events"],
+                    "events": ["GUILD_MEMBER_UPDATE", "USER_UPDATE"]
                 },
                 {
                     "id": "policy-ownership-boundary",

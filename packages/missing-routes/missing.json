@@ -1,6 +1,6 @@
 {
-    "missing": 485,
-    "spacebar": 695,
+    "missing": 484,
+    "spacebar": 696,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -318,7 +318,6 @@
         "/users/@me/billing/user-trial-offer/{param}/ack",
         "/users/@me/captcha/verify",
         "/users/@me/claim-premium-collectibles-product",
-        "/users/@me/clan",
         "/users/@me/connections/contacts/@me/external-friend-list-entries",
         "/users/@me/connections/contacts/{param}",
         "/users/@me/connections/contacts/{param}/external-friend-list-entries",
@@ -3522,13 +3521,6 @@
             "route_name": "PUT_USERS__ME_CLAIM_PREMIUM_COLLECTIBLES_PRODUCT",
             "sources": ["userdoccers:resources/collectibles.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Claim Premium Collectibles Product"]
-        },
-        {
-            "method": "PUT",
-            "route": "/users/@me/clan",
-            "route_name": "PUT_USERS__ME_CLAN",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Set Guild Identity"]
         },
         { "method": "PUT", "route": "/users/@me/connections/{param}/{param}", "route_name": "CONNECTION", "sources": ["xhyrom:data/client/routes.json"] },
         {

@@ -217,7 +217,7 @@ export class User extends BaseClass {
     collectibles?: Collectibles;
 
     @Column({ type: "jsonb", nullable: true })
-    primary_guild?: PrimaryGuild;
+    primary_guild?: PrimaryGuild | null;
 
     static normalizeDiscriminator(discriminator: string): string {
         const discrim = /^\d{1,4}$/.test(discriminator) ? Number(discriminator) : NaN;

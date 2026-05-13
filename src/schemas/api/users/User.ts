@@ -57,7 +57,7 @@ interface UserEntityPleaseRewriteThankYou {
     avatar_decoration_data?: AvatarDecorationData;
     display_name_styles?: DisplayNameStyle;
     collectibles?: Collectibles;
-    primary_guild?: PrimaryGuild;
+    primary_guild?: PrimaryGuild | null;
 }
 
 export interface PartialUser {

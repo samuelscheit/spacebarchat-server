@@ -14874,7 +14874,14 @@
                         "$ref": "#/components/schemas/Collectibles"
                     },
                     "primary_guild": {
-                        "$ref": "#/components/schemas/PrimaryGuild"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PrimaryGuild"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -14960,7 +14967,14 @@
                         "$ref": "#/components/schemas/Collectibles"
                     },
                     "primary_guild": {
-                        "$ref": "#/components/schemas/PrimaryGuild"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PrimaryGuild"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "flags": {
                         "type": "integer"
@@ -15087,7 +15101,14 @@
                         "$ref": "#/components/schemas/Collectibles"
                     },
                     "primary_guild": {
-                        "$ref": "#/components/schemas/PrimaryGuild"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PrimaryGuild"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "flags": {
                         "type": "integer"
@@ -16450,6 +16471,24 @@
                 "required": [
                     "user_id"
                 ]
+            },
+            "UserClanModifySchema": {
+                "type": "object",
+                "properties": {
+                    "identity_enabled": {
+                        "type": [
+                            "null",
+                            "boolean"
+                        ]
+                    },
+                    "identity_guild_id": {
+                        "pattern": "^\\d{1,20}$",
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    }
+                }
             },
             "UserGuildSettingsSchema": {
                 "type": "object",
@@ -20992,7 +21031,14 @@
                         "$ref": "#/components/schemas/Collectibles"
                     },
                     "primary_guild": {
-                        "$ref": "#/components/schemas/PrimaryGuild"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PrimaryGuild"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -31143,7 +31189,14 @@
                         "$ref": "#/components/schemas/Collectibles"
                     },
                     "primary_guild": {
-                        "$ref": "#/components/schemas/PrimaryGuild"
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/PrimaryGuild"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     },
                     "tag": {
                         "type": "string"
@@ -42494,6 +42547,76 @@
                     },
                     "204": {
                         "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/clan/": {
+            "put": {
+                "x-fires-event": [
+                    "USER_UPDATE",
+                    "GUILD_MEMBER_UPDATE"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Sets the current user's primary guild identity. The selected guild must be one of the current user's guilds; Spacebar uses the guild profile tag as the local clan tag and leaves the badge hash null because guild identity badge assets are not persisted locally.",
+                "summary": "Set Guild Identity",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserClanModifySchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIPrivateUser"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "",

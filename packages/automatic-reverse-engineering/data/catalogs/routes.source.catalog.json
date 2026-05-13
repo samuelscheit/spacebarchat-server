@@ -5597,6 +5597,17 @@
 		"source": "src/api/routes/users/@me/channels.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "UserClanModifySchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"APIPrivateUser"
+		],
+		"route": "/users/@me/clan",
+		"route_name": "PUT_USERS__ME_CLAN",
+		"source": "src/api/routes/users/@me/clan.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
