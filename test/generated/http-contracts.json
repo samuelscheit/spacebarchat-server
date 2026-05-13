@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 779,
+        "totalContracts": 780,
         "byService": {
-            "api": 706,
+            "api": 707,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 625,
-        "runtimeMalformedAuthContracts": 625,
-        "runtimeRevokedSessionAuthContracts": 625,
-        "runtimeStaleTokenAuthContracts": 625,
+        "runtimeAuthBoundaryContracts": 626,
+        "runtimeMalformedAuthContracts": 626,
+        "runtimeRevokedSessionAuthContracts": 626,
+        "runtimeStaleTokenAuthContracts": 626,
         "runtimePublicAuthBoundaryContracts": 73,
         "runtimePublicInvalidBodyContracts": 18,
-        "runtimeProtectedInvalidBodyContracts": 94,
+        "runtimeProtectedInvalidBodyContracts": 95,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
         "runtimeRightOnlyDenialContracts": 13,
@@ -34215,6 +34215,56 @@
                 {
                     "id": "policy-schema-validation",
                     "checks": ["schema-validation"]
+                },
+                {
+                    "id": "policy-db-state",
+                    "checks": ["db-state"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:PUT:/users/@me/connections/contacts/@me/external-friend-list-entries/",
+            "service": "api",
+            "method": "PUT",
+            "path": "/users/@me/connections/contacts/@me/external-friend-list-entries/",
+            "samplePath": "/users/@me/connections/contacts/@me/external-friend-list-entries/",
+            "sourceFile": "src/api/routes/users/@me/connections/contacts/@me/external-friend-list-entries.ts",
+            "line": 48,
+            "authMode": "bearer",
+            "testTier": "stateful-domain",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["users", "sessions", "relationships", "settings"],
+            "contractChecks": ["authenticated", "ownership-boundary", "schema-validation", "db-state"],
+            "routeMetadata": {
+                "requestBody": "ConnectionSyncExternalFriendListEntriesPutSchema",
+                "responses": ["APIErrorResponse", "ConnectionSyncExternalFriendListEntriesResponse"],
+                "responseStatuses": [200, 400, 401, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "ConnectionSyncExternalFriendListEntriesPutSchema"
+                },
+                {
+                    "id": "policy-ownership-boundary",
+                    "checks": ["ownership-boundary"]
                 },
                 {
                     "id": "policy-db-state",

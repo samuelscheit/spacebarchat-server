@@ -5690,6 +5690,17 @@
 		"source": "src/api/routes/users/@me/connections/#connection_name/#connection_id/access-token.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "ConnectionSyncExternalFriendListEntriesPutSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ConnectionSyncExternalFriendListEntriesResponse"
+		],
+		"route": "/users/@me/connections/contacts/@me/external-friend-list-entries",
+		"route_name": "PUT_USERS__ME_CONNECTIONS_CONTACTS__ME_EXTERNAL_FRIEND_LIST_ENTRIES",
+		"source": "src/api/routes/users/@me/connections/contacts/@me/external-friend-list-entries.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

@@ -52,6 +52,7 @@ export * from "./HDStreamingConsumableApplySchema";
 export * from "./ContentInventoryApplicationUpdateSchema";
 export * from "./ConnectedAccountSchema";
 export * from "./ConnectionCallbackSchema";
+export * from "./ConnectionSyncExternalFriendListEntriesPutSchema";
 export * from "./ConnectionUpdateSchema";
 export * from "./DevPortalCsatSurveyResponseSchema";
 export * from "./DmChannelCreateSchema";

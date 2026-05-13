@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 610,
+        "totalCoveredManifestEntries": 611,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 588,
-                "totalCoveredManifestEntries": 588,
-                "totalCoveredRequiredManifestEntries": 588,
+                "totalRequiredManifestEntries": 589,
+                "totalCoveredManifestEntries": 589,
+                "totalCoveredRequiredManifestEntries": 589,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 445,
+            "stateful-domain": 446,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 588,
-                "totalCoveredManifestEntries": 588,
-                "totalCoveredRequiredManifestEntries": 588,
+                "totalRequiredManifestEntries": 589,
+                "totalCoveredManifestEntries": 589,
+                "totalCoveredRequiredManifestEntries": 589,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -584,6 +584,7 @@
                 "api:http:PUT:/users/@me/applications/:application_id/role-connection/",
                 "api:http:PUT:/users/@me/claim-premium-collectibles-product/",
                 "api:http:PUT:/users/@me/clan/",
+                "api:http:PUT:/users/@me/connections/contacts/@me/external-friend-list-entries/",
                 "api:http:PUT:/users/@me/notes/:user_id",
                 "api:http:PUT:/users/@me/relationships/:user_id",
                 "api:http:PUT:/users/@me/relationships/bulk",
@@ -1174,6 +1175,7 @@
                 "api:http:PUT:/users/@me/applications/:application_id/role-connection/",
                 "api:http:PUT:/users/@me/claim-premium-collectibles-product/",
                 "api:http:PUT:/users/@me/clan/",
+                "api:http:PUT:/users/@me/connections/contacts/@me/external-friend-list-entries/",
                 "api:http:PUT:/users/@me/notes/:user_id",
                 "api:http:PUT:/users/@me/relationships/:user_id",
                 "api:http:PUT:/users/@me/relationships/bulk",
@@ -1455,6 +1457,7 @@
                         "api:http:PUT:/users/@me/applications/:application_id/role-connection/",
                         "api:http:PUT:/users/@me/claim-premium-collectibles-product/",
                         "api:http:PUT:/users/@me/clan/",
+                        "api:http:PUT:/users/@me/connections/contacts/@me/external-friend-list-entries/",
                         "api:http:PUT:/users/@me/notes/:user_id",
                         "api:http:PUT:/users/@me/relationships/:user_id",
                         "api:http:PUT:/users/@me/relationships/bulk"

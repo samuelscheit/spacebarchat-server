@@ -1923,6 +1923,36 @@
                     "state"
                 ]
             },
+            "ConnectionSyncExternalFriendListEntriesPutSchema": {
+                "type": "object",
+                "properties": {
+                    "friend_list_entries": {
+                        "maxItems": 10000,
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ConnectionSyncExternalFriendListEntry"
+                        }
+                    },
+                    "background": {
+                        "type": "boolean"
+                    },
+                    "allowed_in_suggestions": {
+                        "$ref": "#/components/schemas/ConnectionSyncSuggestionsSetting"
+                    },
+                    "include_mutual_friends_count": {
+                        "type": "boolean"
+                    },
+                    "add_reverse_friend_suggestions": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "allowed_in_suggestions",
+                    "background",
+                    "friend_list_entries",
+                    "include_mutual_friends_count"
+                ]
+            },
             "ConnectionUpdateSchema": {
                 "type": "object",
                 "properties": {
@@ -5309,6 +5339,33 @@
                     "$ref": "#/components/schemas/ConnectedAccountSubredditResponse"
                 }
             },
+            "FriendSuggestionsResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/FriendSuggestion"
+                }
+            },
+            "ConnectionSyncExternalFriendListEntriesResponse": {
+                "type": "object",
+                "properties": {
+                    "bulk_add_token": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "friend_suggestions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FriendSuggestion"
+                        }
+                    }
+                },
+                "required": [
+                    "bulk_add_token",
+                    "friend_suggestions"
+                ]
+            },
             "ConfettiConsumableResponse": {
                 "type": "object",
                 "properties": {
@@ -6328,12 +6385,6 @@
                 "required": [
                     "link_code"
                 ]
-            },
-            "FriendSuggestionsResponse": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/components/schemas/FriendSuggestion"
-                }
             },
             "GameAnnouncementsResponse": {
                 "type": "object",
@@ -20416,6 +20467,25 @@
                     "type": "string"
                 }
             },
+            "ConnectionSyncExternalFriendListEntry": {
+                "type": "object",
+                "properties": {
+                    "friend_id": {
+                        "pattern": "^\\+[1-9]\\d{1,14}$",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "friend_id"
+                ]
+            },
+            "ConnectionSyncSuggestionsSetting": {
+                "type": "number",
+                "enum": [
+                    1,
+                    2
+                ]
+            },
             "AllowedMentions": {
                 "type": "object",
                 "properties": {
@@ -23192,6 +23262,52 @@
                     "total"
                 ]
             },
+            "FriendSuggestion": {
+                "type": "object",
+                "properties": {
+                    "suggested_user": {
+                        "$ref": "#/components/schemas/PartialUser"
+                    },
+                    "reasons": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FriendSuggestionReason"
+                        }
+                    },
+                    "from_suggested_user_contacts": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "reasons",
+                    "suggested_user"
+                ]
+            },
+            "FriendSuggestionReason": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/FriendSuggestionReasonType"
+                    },
+                    "platform": {
+                        "type": "string"
+                    },
+                    "platform_type": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type"
+                ]
+            },
+            "FriendSuggestionReasonType": {
+                "type": "number",
+                "const": 1
+            },
             "ConsoleDevicePlatform": {
                 "enum": [
                     "playstation",
@@ -24212,52 +24328,6 @@
                 "additionalProperties": {
                     "type": "integer"
                 }
-            },
-            "FriendSuggestion": {
-                "type": "object",
-                "properties": {
-                    "suggested_user": {
-                        "$ref": "#/components/schemas/PartialUser"
-                    },
-                    "reasons": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/FriendSuggestionReason"
-                        }
-                    },
-                    "from_suggested_user_contacts": {
-                        "type": "boolean"
-                    }
-                },
-                "required": [
-                    "reasons",
-                    "suggested_user"
-                ]
-            },
-            "FriendSuggestionReason": {
-                "type": "object",
-                "properties": {
-                    "type": {
-                        "$ref": "#/components/schemas/FriendSuggestionReasonType"
-                    },
-                    "platform": {
-                        "type": "string"
-                    },
-                    "platform_type": {
-                        "type": "string"
-                    },
-                    "name": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "name",
-                    "type"
-                ]
-            },
-            "FriendSuggestionReasonType": {
-                "type": "number",
-                "const": 1
             },
             "PublicMessage": {
                 "type": "object",
@@ -42459,6 +42529,72 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/connections/contacts/@me/external-friend-list-entries/": {
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Syncs device contacts for the current user's contact-sync connection when a real contact matching backend is configured. The default Spacebar instance has no durable contact-sync friend-list state or provider-backed suggestion model, so it fails closed with 501 instead of fabricating matches, friend suggestions, or bulk-add tokens.",
+                "summary": "Update Contact Sync External Friend List Entries",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConnectionSyncExternalFriendListEntriesPutSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConnectionSyncExternalFriendListEntriesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [

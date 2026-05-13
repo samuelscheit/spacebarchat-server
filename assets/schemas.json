@@ -2000,6 +2000,38 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ConnectionSyncExternalFriendListEntriesPutSchema": {
+        "type": "object",
+        "properties": {
+            "friend_list_entries": {
+                "maxItems": 10000,
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/ConnectionSyncExternalFriendListEntry"
+                }
+            },
+            "background": {
+                "type": "boolean"
+            },
+            "allowed_in_suggestions": {
+                "$ref": "#/definitions/ConnectionSyncSuggestionsSetting"
+            },
+            "include_mutual_friends_count": {
+                "type": "boolean"
+            },
+            "add_reverse_friend_suggestions": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "allowed_in_suggestions",
+            "background",
+            "friend_list_entries",
+            "include_mutual_friends_count"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ConnectionUpdateSchema": {
         "type": "object",
         "properties": {
@@ -5618,6 +5650,36 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "FriendSuggestionsResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/FriendSuggestion"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ConnectionSyncExternalFriendListEntriesResponse": {
+        "type": "object",
+        "properties": {
+            "bulk_add_token": {
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "friend_suggestions": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/FriendSuggestion"
+                }
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "bulk_add_token",
+            "friend_suggestions"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ConfettiConsumableResponse": {
         "type": "object",
         "properties": {
@@ -6704,13 +6766,6 @@
         "required": [
             "link_code"
         ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "FriendSuggestionsResponse": {
-        "type": "array",
-        "items": {
-            "$ref": "#/definitions/FriendSuggestion"
-        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "GameAnnouncementsResponse": {
@@ -21601,6 +21656,28 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ConnectionSyncExternalFriendListEntry": {
+        "type": "object",
+        "properties": {
+            "friend_id": {
+                "pattern": "^\\+[1-9]\\d{1,14}$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "friend_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ConnectionSyncSuggestionsSetting": {
+        "type": "number",
+        "enum": [
+            1,
+            2
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "AllowedMentions": {
         "type": "object",
         "properties": {
@@ -24535,6 +24612,57 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "FriendSuggestion": {
+        "type": "object",
+        "properties": {
+            "suggested_user": {
+                "$ref": "#/definitions/PartialUser"
+            },
+            "reasons": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/FriendSuggestionReason"
+                }
+            },
+            "from_suggested_user_contacts": {
+                "type": "boolean"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "reasons",
+            "suggested_user"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FriendSuggestionReason": {
+        "type": "object",
+        "properties": {
+            "type": {
+                "$ref": "#/definitions/FriendSuggestionReasonType"
+            },
+            "platform": {
+                "type": "string"
+            },
+            "platform_type": {
+                "type": "string"
+            },
+            "name": {
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "name",
+            "type"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "FriendSuggestionReasonType": {
+        "type": "number",
+        "const": 1,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ConsoleDevicePlatform": {
         "enum": [
             "playstation",
@@ -25606,57 +25734,6 @@
         "additionalProperties": {
             "type": "integer"
         },
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "FriendSuggestion": {
-        "type": "object",
-        "properties": {
-            "suggested_user": {
-                "$ref": "#/definitions/PartialUser"
-            },
-            "reasons": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/FriendSuggestionReason"
-                }
-            },
-            "from_suggested_user_contacts": {
-                "type": "boolean"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "reasons",
-            "suggested_user"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "FriendSuggestionReason": {
-        "type": "object",
-        "properties": {
-            "type": {
-                "$ref": "#/definitions/FriendSuggestionReasonType"
-            },
-            "platform": {
-                "type": "string"
-            },
-            "platform_type": {
-                "type": "string"
-            },
-            "name": {
-                "type": "string"
-            }
-        },
-        "additionalProperties": false,
-        "required": [
-            "name",
-            "type"
-        ],
-        "$schema": "http://json-schema.org/draft-07/schema#"
-    },
-    "FriendSuggestionReasonType": {
-        "type": "number",
-        "const": 1,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "PublicMessage": {

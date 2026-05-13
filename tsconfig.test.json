@@ -15,6 +15,7 @@
         "src/api/routes/users/@me/scheduled-messages.test.ts",
         "src/api/routes/users/@me/linked-connections.test.ts",
         "src/api/routes/users/@me/connections/#connection_name/#connection_id/index.test.ts",
+        "src/api/routes/users/@me/connections/contacts/@me/external-friend-list-entries.test.ts",
         "src/api/routes/users/#user_id/application-identities.test.ts",
         "src/api/routes/users/#user_id/sessions/#session_id/activities/#application_id/#activity_action_type.test.ts",
         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",

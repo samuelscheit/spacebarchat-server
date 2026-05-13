@@ -1,6 +1,6 @@
 {
-    "missing": 481,
-    "spacebar": 699,
+    "missing": 480,
+    "spacebar": 700,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -315,7 +315,6 @@
         "/users/@me/billing/user-trial-offer",
         "/users/@me/billing/user-trial-offer/{param}/ack",
         "/users/@me/captcha/verify",
-        "/users/@me/connections/contacts/@me/external-friend-list-entries",
         "/users/@me/connections/contacts/{param}",
         "/users/@me/connections/contacts/{param}/external-friend-list-entries",
         "/users/@me/connections/contacts/{param}/external-friend-list-entries/settings",
@@ -3512,12 +3511,6 @@
             "sources": ["userdoccers:resources/connected-accounts.mdx"],
             "source_routes": ["/users/@me/connections/contacts/{connection_id}/external-friend-list-entries"],
             "summaries": ["Update External Friend List Entries"]
-        },
-        {
-            "method": "PUT",
-            "route": "/users/@me/connections/contacts/@me/external-friend-list-entries",
-            "route_name": "CONNECTION_SYNC_CONTACTS",
-            "sources": ["xhyrom:data/client/routes.json"]
         },
         {
             "method": "PUT",
