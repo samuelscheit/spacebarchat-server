@@ -2282,6 +2282,28 @@
                     }
                 }
             },
+            "GuildMfaLevelSchema": {
+                "type": "object",
+                "properties": {
+                    "level": {
+                        "$ref": "#/components/schemas/GuildMfaLevel"
+                    }
+                },
+                "required": [
+                    "level"
+                ]
+            },
+            "GuildMfaLevelResponse": {
+                "type": "object",
+                "properties": {
+                    "level": {
+                        "$ref": "#/components/schemas/GuildMfaLevel"
+                    }
+                },
+                "required": [
+                    "level"
+                ]
+            },
             "GuildSubscriptionsBulkSchema": {
                 "type": "object",
                 "properties": {
@@ -19987,6 +20009,13 @@
                         "type": "boolean"
                     }
                 }
+            },
+            "GuildMfaLevel": {
+                "type": "number",
+                "enum": [
+                    0,
+                    1
+                ]
             },
             "JsonObject": {
                 "type": "object",
@@ -53993,6 +54022,82 @@
                         }
                     },
                     "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "guild_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "guild_id"
+                    }
+                ],
+                "tags": [
+                    "guilds"
+                ]
+            }
+        },
+        "/guilds/{guild_id}/mfa/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "summary": "Modify Guild MFA Level",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GuildMfaLevelSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GuildMfaLevelResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
                         "description": "",
                         "content": {
                             "application/json": {

@@ -3215,6 +3215,17 @@
 		"source": "src/api/routes/guilds/#guild_id/messages/search.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "GuildMfaLevelSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"GuildMfaLevelResponse"
+		],
+		"route": "/guilds/{guild_id}/mfa",
+		"route_name": "POST_GUILDS_GUILD_ID_MFA",
+		"source": "src/api/routes/guilds/#guild_id/mfa.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

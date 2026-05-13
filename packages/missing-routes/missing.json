@@ -1,6 +1,6 @@
 {
-    "missing": 505,
-    "spacebar": 675,
+    "missing": 504,
+    "spacebar": 676,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -139,7 +139,6 @@
         "/guilds/{param}/members/supplemental",
         "/guilds/{param}/members/unusual-dm-activity",
         "/guilds/{param}/messages/search/tabs",
-        "/guilds/{param}/mfa",
         "/guilds/{param}/migrate-bypass-slowmode-permission",
         "/guilds/{param}/migrate-command-scope",
         "/guilds/{param}/migrate-pin-permission",
@@ -2395,14 +2394,6 @@
             "sources": ["userdoccers:resources/message.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/messages/search/tabs"],
             "summaries": ["Search Guild Messages by Tab"]
-        },
-        {
-            "method": "POST",
-            "route": "/guilds/{param}/mfa",
-            "route_name": "POST_GUILDS_GUILD_ID_MFA",
-            "sources": ["userdoccers:resources/guild.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/mfa"],
-            "summaries": ["Modify Guild MFA Level"]
         },
         {
             "method": "POST",
