@@ -106,6 +106,7 @@ export * from "./SelectProtocolSchema";
 export * from "./SettingsProtoUpdateSchema";
 export * from "./StageInstanceCreateSchema";
 export * from "./StageInstanceModifySchema";
+export * from "./StreamPreviewUploadSchema";
 export * from "./TeamCreateSchema";
 export * from "./TemplateCreateSchema";
 export * from "./TemplateModifySchema";

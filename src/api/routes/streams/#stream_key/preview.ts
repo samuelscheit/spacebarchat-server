@@ -17,9 +17,10 @@
 */
 
 import { route } from "@spacebar/api";
-import { ChannelType } from "@spacebar/schemas";
+import { ChannelType, type StreamPreviewUploadSchema } from "@spacebar/schemas";
 import { ApiError, Channel, DiscordApiErrors, getPermission, Stream, type Permissions } from "@spacebar/util";
 import { Request, Response, Router } from "express";
+import { HTTPError } from "lambert-server";
 import type { FindOneOptions } from "typeorm";
 
 export const UNKNOWN_STREAM = new ApiError(DiscordApiErrors.UNKNOWN_STREAM.message, DiscordApiErrors.UNKNOWN_STREAM.code, 404);
@@ -34,17 +35,28 @@ type StreamKey = {
 type StreamPreviewChannel = Pick<Channel, "id" | "guild_id" | "type">;
 type StreamPreviewRecord = Pick<Stream, "id" | "channel_id" | "owner_id">;
 type PermissionGuard = Pick<Permissions, "hasThrow">;
+export type StreamPreviewUploadTarget = {
+    streamKey: StreamKey;
+    channel: StreamPreviewChannel;
+    stream: StreamPreviewRecord;
+    userId: string;
+    thumbnail: string;
+};
 
 export interface StreamPreviewDependencies {
     findChannel(options: FindOneOptions<Channel>): Promise<StreamPreviewChannel | null>;
     findStream(channelId: string, ownerId: string): Promise<StreamPreviewRecord | null>;
     getPermission(userId: string, guildId: string | undefined, channelId: string): Promise<PermissionGuard>;
+    uploadPreview?(target: StreamPreviewUploadTarget): Promise<void>;
 }
 
 const defaultDependencies: StreamPreviewDependencies = {
     findChannel: (options) => Channel.findOne(options) as Promise<StreamPreviewChannel | null>,
     findStream: (channelId, ownerId) => Stream.findOne({ where: { channel_id: channelId, owner_id: ownerId } }) as Promise<StreamPreviewRecord | null>,
     getPermission,
+    uploadPreview: async () => {
+        throw new HTTPError("Stream preview image uploads are not supported", 501);
+    },
 };
 
 export function parseStreamKey(streamKey: string): StreamKey {
@@ -107,6 +119,40 @@ export async function assertStreamPreviewReadable(streamKeyRaw: string, userId: 
     if (!stream) throw UNKNOWN_STREAM;
 }
 
+export async function assertStreamPreviewUploadable(
+    streamKeyRaw: string,
+    userId: string,
+    dependencies: StreamPreviewDependencies = defaultDependencies,
+): Promise<Omit<StreamPreviewUploadTarget, "thumbnail">> {
+    const streamKey = parseStreamKey(streamKeyRaw);
+    if (streamKey.userId !== userId) throw UNKNOWN_STREAM;
+
+    const channel = await dependencies.findChannel({
+        where: { id: streamKey.channelId },
+        select: { id: true, guild_id: true, type: true },
+    });
+    if (!channel) throw UNKNOWN_STREAM;
+
+    assertStreamKeyMatchesChannel(streamKey, channel);
+
+    const stream = await dependencies.findStream(channel.id, streamKey.userId);
+    if (!stream || stream.owner_id !== userId) throw UNKNOWN_STREAM;
+
+    return { streamKey, channel, stream, userId };
+}
+
+export async function uploadStreamPreview(
+    streamKeyRaw: string,
+    userId: string,
+    body: StreamPreviewUploadSchema,
+    dependencies: StreamPreviewDependencies = defaultDependencies,
+): Promise<void> {
+    const target = await assertStreamPreviewUploadable(streamKeyRaw, userId, dependencies);
+    const uploadPreview = dependencies.uploadPreview ?? defaultDependencies.uploadPreview!;
+
+    await uploadPreview({ ...target, thumbnail: body.thumbnail });
+}
+
 export function createStreamPreviewRouter(dependencies: StreamPreviewDependencies = defaultDependencies) {
     const router: Router = Router({ mergeParams: true });
 
@@ -132,6 +178,37 @@ export function createStreamPreviewRouter(dependencies: StreamPreviewDependencie
         async (req: Request, res: Response) => {
             const { stream_key } = req.params as { [key: string]: string };
             await assertStreamPreviewReadable(stream_key, req.user_id, dependencies);
+            return res.sendStatus(204);
+        },
+    );
+
+    router.post(
+        "/",
+        route({
+            requestBody: "StreamPreviewUploadSchema",
+            coerceRequestBody: false,
+            summary: "Upload Stream Preview",
+            description:
+                "Uploads a preview image for an active stream owned by the current user. Spacebar does not currently have a durable local stream preview storage provider, so the default server fails closed with 501 instead of acknowledging a discarded preview.",
+            responses: {
+                204: {},
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                404: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const { stream_key } = req.params as { [key: string]: string };
+            await uploadStreamPreview(stream_key, req.user_id, req.body as StreamPreviewUploadSchema, dependencies);
             return res.sendStatus(204);
         },
     );

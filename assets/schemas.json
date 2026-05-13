@@ -16924,6 +16924,20 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "StreamPreviewUploadSchema": {
+        "type": "object",
+        "properties": {
+            "thumbnail": {
+                "format": "image-data-uri",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "thumbnail"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "TeamCreateSchema": {
         "type": "object",
         "properties": {

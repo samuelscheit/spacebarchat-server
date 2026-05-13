@@ -4915,6 +4915,16 @@
 		"source": "src/api/routes/streams/#stream_key/preview.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "StreamPreviewUploadSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/streams/{stream_key}/preview",
+		"route_name": "POST_STREAMS_STREAM_KEY_PREVIEW",
+		"source": "src/api/routes/streams/#stream_key/preview.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"TeamListResponse"

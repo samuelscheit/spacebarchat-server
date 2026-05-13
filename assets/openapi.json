@@ -15993,6 +15993,18 @@
                     }
                 }
             },
+            "StreamPreviewUploadSchema": {
+                "type": "object",
+                "properties": {
+                    "thumbnail": {
+                        "format": "image-data-uri",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "thumbnail"
+                ]
+            },
             "TeamCreateSchema": {
                 "type": "object",
                 "properties": {
@@ -44056,6 +44068,84 @@
                         }
                     },
                     "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "stream_key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "stream_key"
+                    }
+                ],
+                "tags": [
+                    "streams"
+                ]
+            },
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Uploads a preview image for an active stream owned by the current user. Spacebar does not currently have a durable local stream preview storage provider, so the default server fails closed with 501 instead of acknowledging a discarded preview.",
+                "summary": "Upload Stream Preview",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StreamPreviewUploadSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
                         "description": "",
                         "content": {
                             "application/json": {

@@ -32,6 +32,7 @@ const ImageDataUriFields = [
     ["MemberChangeProfileSchema", "banner"],
     ["MemberChangeSchema", "avatar"],
     ["RoleModifySchema", "icon"],
+    ["StreamPreviewUploadSchema", "thumbnail"],
     ["UserAvatarModifySchema", "avatar"],
     ["UserModifySchema", "avatar"],
     ["UserModifySchema", "banner"],
@@ -226,12 +227,14 @@ describe("schema validator custom formats", () => {
         assert.deepEqual(validateSchema("GuildTemplateCreateSchema", { name: "template", icon: PngDataUri }), { name: "template", icon: PngDataUri });
         assert.deepEqual(validateSchema("ChannelCreateSchema", { name: "voice", type: 2, icon: PngDataUri }), { name: "voice", type: 2, icon: PngDataUri });
         assert.deepEqual(validateSchema("RoleModifySchema", { icon: PngDataUri }), { icon: PngDataUri });
+        assert.deepEqual(validateSchema("StreamPreviewUploadSchema", { thumbnail: PngDataUri }), { thumbnail: PngDataUri });
     });
 
     test("rejects image data URI fields with mismatched image bytes", () => {
         assert.throws(() => validateSchema("WebhookCreateSchema", { name: "hook", avatar: "data:image/png;base64,/9j/" }));
         assert.throws(() => validateSchema("BotModifySchema", { banner: AssetHash }));
         assert.throws(() => validateSchema("GuildTemplateCreateSchema", { name: "template", icon: AssetHash }));
+        assert.throws(() => validateSchema("StreamPreviewUploadSchema", { thumbnail: AssetHash }));
     });
 
     test("allows guild update fields to preserve current asset hashes", () => {

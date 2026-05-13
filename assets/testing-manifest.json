@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 775,
+        "totalEntries": 776,
         "byService": {
-            "api": 678,
+            "api": 679,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 750,
+            "http-route": 751,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 198,
+            "contract": 199,
             "stateful-domain": 424,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 632,
+            "route-class": 633,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -22756,7 +22756,7 @@
             "method": "GET",
             "path": "/streams/:stream_key/preview/",
             "sourceFile": "src/api/routes/streams/#stream_key/preview.ts",
-            "line": 113,
+            "line": 159,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -22768,6 +22768,45 @@
                     401,
                     403,
                     404
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/streams/:stream_key/preview/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/streams/:stream_key/preview/",
+            "sourceFile": "src/api/routes/streams/#stream_key/preview.ts",
+            "line": 185,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "StreamPreviewUploadSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    400,
+                    401,
+                    404,
+                    501
                 ],
                 "hasQuery": false
             },
