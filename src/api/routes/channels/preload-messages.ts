@@ -139,6 +139,21 @@ export function createPreloadMessagesRouter(dependencies: PreloadMessagesRouteDe
         async (req: Request, res: Response) => sendPreloadedMessages(req, res, getPreloadMessageChannelIdsFromBody(req.body as PreloadMessagesRequestSchema), dependencies),
     );
 
+    router.delete(
+        "/",
+        route({
+            summary: "Delete Preloaded Message Previews",
+            description: "Acknowledges deletion of preloaded message preview cache state. Spacebar does not persist message preview cache rows locally.",
+            responses: {
+                204: {},
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (_req: Request, res: Response) => res.sendStatus(204),
+    );
+
     return router;
 }
 

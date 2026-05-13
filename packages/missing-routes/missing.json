@@ -1,6 +1,6 @@
 {
-    "missing": 497,
-    "spacebar": 683,
+    "missing": 496,
+    "spacebar": 684,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -514,7 +514,6 @@
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/channels/{channel_id}/messages/search"]
         },
-        { "method": "DELETE", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "DELETE",
             "route": "/content-inventory/users/@me/outbox/entries/id/{param}/history",

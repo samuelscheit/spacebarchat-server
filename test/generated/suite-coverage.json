@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 597,
+        "totalCoveredManifestEntries": 598,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 575,
-                "totalCoveredManifestEntries": 575,
-                "totalCoveredRequiredManifestEntries": 575,
+                "totalRequiredManifestEntries": 576,
+                "totalCoveredManifestEntries": 576,
+                "totalCoveredRequiredManifestEntries": 576,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 432,
+            "stateful-domain": 433,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 575,
-                "totalCoveredManifestEntries": 575,
-                "totalCoveredRequiredManifestEntries": 575,
+                "totalRequiredManifestEntries": 576,
+                "totalCoveredManifestEntries": 576,
+                "totalCoveredRequiredManifestEntries": 576,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -104,6 +104,7 @@
                 "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                 "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
                 "api:http:DELETE:/channels/:channel_id/thread-members/@me",
+                "api:http:DELETE:/channels/preload-messages/",
                 "api:http:DELETE:/guilds/:guild_id/auto-moderation/rules/:rule_id",
                 "api:http:DELETE:/guilds/:guild_id/bans/:user_id",
                 "api:http:DELETE:/guilds/:guild_id/emojis/:emoji_id",
@@ -681,6 +682,7 @@
                 "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                 "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
                 "api:http:DELETE:/channels/:channel_id/thread-members/@me",
+                "api:http:DELETE:/channels/preload-messages/",
                 "api:http:DELETE:/guilds/:guild_id/auto-moderation/rules/:rule_id",
                 "api:http:DELETE:/guilds/:guild_id/bans/:user_id",
                 "api:http:DELETE:/guilds/:guild_id/emojis/:emoji_id",
@@ -1631,6 +1633,7 @@
                         "api:http:DELETE:/channels/:channel_id/tags/:tag_id",
                         "api:http:DELETE:/channels/:channel_id/thread-members/:user_id",
                         "api:http:DELETE:/channels/:channel_id/thread-members/@me",
+                        "api:http:DELETE:/channels/preload-messages/",
                         "api:http:GET:/channels/:channel_id/",
                         "api:http:GET:/channels/:channel_id/call/",
                         "api:http:GET:/channels/:channel_id/directory-entries/",

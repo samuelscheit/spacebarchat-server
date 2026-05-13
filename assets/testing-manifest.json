@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 788,
+        "totalEntries": 789,
         "byService": {
-            "api": 691,
+            "api": 692,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 763,
+            "http-route": 764,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 202,
-            "stateful-domain": 432,
+            "stateful-domain": 433,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 645,
+            "route-class": 646,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -9288,6 +9288,47 @@
                 "pathPrefix": "/channels/:channel_id",
                 "sourceFile": "src/api/middlewares/RateLimit.ts",
                 "line": 220
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:DELETE:/channels/preload-messages/",
+            "type": "http-route",
+            "service": "api",
+            "method": "DELETE",
+            "path": "/channels/preload-messages/",
+            "sourceFile": "src/api/routes/channels/preload-messages.ts",
+            "line": 142,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    204,
+                    401
+                ],
+                "hasQuery": false
             },
             "coverage": {
                 "policyId": "api-channel-state",

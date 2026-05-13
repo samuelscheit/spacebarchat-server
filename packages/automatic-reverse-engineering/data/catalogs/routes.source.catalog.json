@@ -1876,6 +1876,15 @@
 		"source": "src/api/routes/channels/#channel_id/webhooks.ts"
 	},
 	{
+		"method": "DELETE",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/channels/preload-messages",
+		"route_name": "DELETE_CHANNELS_PRELOAD_MESSAGES",
+		"source": "src/api/routes/channels/preload-messages.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

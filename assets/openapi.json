@@ -62802,6 +62802,33 @@
                 "tags": [
                     "channels"
                 ]
+            },
+            "delete": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Acknowledges deletion of preloaded message preview cache state. Spacebar does not persist message preview cache rows locally.",
+                "summary": "Delete Preloaded Message Previews",
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "channels"
+                ]
             }
         },
         "/channels/{channel_id}/webhooks/": {
