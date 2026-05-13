@@ -42749,6 +42749,42 @@
                 ]
             }
         },
+        "/users/@me/billing/apple/trial-offer-signature/": {
+            "post": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Generates a provider-backed Apple App Store trial offer signature for Discord's billing flow. Spacebar does not currently integrate with Apple offer signing keys or persist Apple trial-offer state, so this compatibility endpoint fails closed instead of returning an unverifiable synthetic signature.",
+                "summary": "Generate Apple Trial Offer Signature",
+                "responses": {
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
         "/users/@me/billing/adyen/payment-methods/": {
             "get": {
                 "security": [

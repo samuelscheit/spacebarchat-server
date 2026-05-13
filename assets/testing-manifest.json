@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 794,
+        "totalEntries": 795,
         "byService": {
-            "api": 697,
+            "api": 698,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 769,
+            "http-route": 770,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 202,
-            "stateful-domain": 438,
+            "stateful-domain": 439,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 651,
+            "route-class": 652,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -24861,6 +24861,45 @@
             "method": "GET",
             "path": "/users/@me/billing/adyen/payment-methods/",
             "sourceFile": "src/api/routes/users/@me/billing/adyen/payment-methods.ts",
+            "line": 32,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    401,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/users/@me/billing/apple/trial-offer-signature/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/billing/apple/trial-offer-signature/",
+            "sourceFile": "src/api/routes/users/@me/billing/apple/trial-offer-signature.ts",
             "line": 32,
             "authMode": "bearer",
             "routeMetadata": {

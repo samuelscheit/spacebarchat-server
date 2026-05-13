@@ -5411,6 +5411,15 @@
 		"source": "src/api/routes/users/@me/billing/adyen/payment-methods.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/billing/apple/trial-offer-signature",
+		"route_name": "POST_USERS__ME_BILLING_APPLE_TRIAL_OFFER_SIGNATURE",
+		"source": "src/api/routes/users/@me/billing/apple/trial-offer-signature.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

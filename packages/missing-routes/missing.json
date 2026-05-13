@@ -1,6 +1,6 @@
 {
-    "missing": 491,
-    "spacebar": 689,
+    "missing": 490,
+    "spacebar": 690,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -295,7 +295,6 @@
         "/users/@me/audio-settings/{param}/{param}",
         "/users/@me/avatars/discordify",
         "/users/@me/background-sync",
-        "/users/@me/billing/apple/trial-offer-signature",
         "/users/@me/billing/checkout-recovery",
         "/users/@me/billing/churn-user-offer",
         "/users/@me/billing/eligible-application-subscription-guilds",
@@ -2939,12 +2938,6 @@
             "source_routes": ["/users/@me/applications/{application_id}/ticket"]
         },
         { "method": "POST", "route": "/users/@me/background-sync", "route_name": "BACKGROUND_SYNC", "sources": ["xhyrom:data/client/routes.json"] },
-        {
-            "method": "POST",
-            "route": "/users/@me/billing/apple/trial-offer-signature",
-            "route_name": "BILLING_GENERATE_APPLE_TRIAL_OFFER_SIGNATURE",
-            "sources": ["xhyrom:data/client/routes.json"]
-        },
         {
             "method": "POST",
             "route": "/users/@me/billing/churn-user-offer",

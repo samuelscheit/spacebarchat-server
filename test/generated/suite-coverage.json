@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 603,
+        "totalCoveredManifestEntries": 604,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 581,
-                "totalCoveredManifestEntries": 581,
-                "totalCoveredRequiredManifestEntries": 581,
+                "totalRequiredManifestEntries": 582,
+                "totalCoveredManifestEntries": 582,
+                "totalCoveredRequiredManifestEntries": 582,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 438,
+            "stateful-domain": 439,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 581,
-                "totalCoveredManifestEntries": 581,
-                "totalCoveredRequiredManifestEntries": 581,
+                "totalRequiredManifestEntries": 582,
+                "totalCoveredManifestEntries": 582,
+                "totalCoveredRequiredManifestEntries": 582,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -534,6 +534,7 @@
                 "api:http:POST:/oauth2/token/",
                 "api:http:POST:/users/:user_id/delete/",
                 "api:http:POST:/users/:user_id/messages/",
+                "api:http:POST:/users/@me/billing/apple/trial-offer-signature/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
                 "api:http:POST:/users/@me/consumable/confetti/",
@@ -1117,6 +1118,7 @@
                 "api:http:POST:/oauth2/token/",
                 "api:http:POST:/users/:user_id/delete/",
                 "api:http:POST:/users/:user_id/messages/",
+                "api:http:POST:/users/@me/billing/apple/trial-offer-signature/",
                 "api:http:POST:/users/@me/billing/payment-sources/",
                 "api:http:POST:/users/@me/channels/",
                 "api:http:POST:/users/@me/consumable/confetti/",
@@ -1415,6 +1417,7 @@
                         "api:http:POST:/google-play/verify-purchase-token/",
                         "api:http:POST:/users/:user_id/delete/",
                         "api:http:POST:/users/:user_id/messages/",
+                        "api:http:POST:/users/@me/billing/apple/trial-offer-signature/",
                         "api:http:POST:/users/@me/billing/payment-sources/",
                         "api:http:POST:/users/@me/channels/",
                         "api:http:POST:/users/@me/consumable/confetti/",
