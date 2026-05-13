@@ -2835,6 +2835,16 @@
                     }
                 }
             },
+            "LibraryApplicationBranchModifySchema": {
+                "type": "object",
+                "properties": {
+                    "flags": {
+                        "description": "Discord user-library application branch flags bitfield.",
+                        "minimum": 0,
+                        "type": "integer"
+                    }
+                }
+            },
             "APIErrorResponse": {
                 "type": "object",
                 "properties": {
@@ -41216,6 +41226,92 @@
                         "description": "No description available"
                     }
                 },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/library/{application_id}/{branch_id}": {
+            "patch": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Updates per-user flags for an application branch in the current user's Discord library. Spacebar does not currently persist Discord user-library application branch state, so this compatibility endpoint validates the request and fails closed instead of fabricating library records.",
+                "summary": "Update User Library Application Branch",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LibraryApplicationBranchModifySchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    },
+                    {
+                        "name": "branch_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "branch_id"
+                    }
+                ],
                 "tags": [
                     "users"
                 ]

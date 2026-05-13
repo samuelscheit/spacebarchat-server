@@ -1,6 +1,6 @@
 {
-    "missing": 477,
-    "spacebar": 703,
+    "missing": 476,
+    "spacebar": 704,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -1806,7 +1806,6 @@
             "sources": ["userdoccers:resources/user-settings.mdx", "xhyrom:data/client/routes.json"],
             "summaries": ["Bulk Modify User Guild Settings"]
         },
-        { "method": "PATCH", "route": "/users/@me/library/{param}/{param}", "route_name": "LIBRARY_APPLICATION_BRANCH", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PATCH",
             "route": "/users/@me/linked-users",

@@ -6059,6 +6059,16 @@
 		"source": "src/api/routes/users/@me/library.ts"
 	},
 	{
+		"method": "PATCH",
+		"request_schema_ref": "LibraryApplicationBranchModifySchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/library/{application_id}/{branch_id}",
+		"route_name": "PATCH_USERS__ME_LIBRARY_APPLICATION_ID_BRANCH_ID",
+		"source": "src/api/routes/users/@me/library.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

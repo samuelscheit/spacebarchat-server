@@ -78,6 +78,7 @@ export * from "./HubWaitlistSignupSchema";
 export * from "./HypeSquadOnlineCreateSchema";
 export * from "./InviteCreateSchema";
 export * from "./JsonValue";
+export * from "./LibraryApplicationBranchModifySchema";
 export * from "./LoginResponse";
 export * from "./LoginSchema";
 export * from "./MemberChangeProfileSchema";

@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 614,
+        "totalCoveredManifestEntries": 615,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 592,
-                "totalCoveredManifestEntries": 592,
-                "totalCoveredRequiredManifestEntries": 592,
+                "totalRequiredManifestEntries": 593,
+                "totalCoveredManifestEntries": 593,
+                "totalCoveredRequiredManifestEntries": 593,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 449,
+            "stateful-domain": 450,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 592,
-                "totalCoveredManifestEntries": 592,
-                "totalCoveredRequiredManifestEntries": 592,
+                "totalRequiredManifestEntries": 593,
+                "totalCoveredManifestEntries": 593,
+                "totalCoveredRequiredManifestEntries": 593,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -448,6 +448,7 @@
                 "api:http:PATCH:/users/@me/billing/payment-sources/:payment_source_id",
                 "api:http:PATCH:/users/@me/connections/:connection_name/:connection_id/",
                 "api:http:PATCH:/users/@me/guilds/:guild_id/settings/",
+                "api:http:PATCH:/users/@me/library/:application_id/:branch_id",
                 "api:http:PATCH:/users/@me/relationships/:user_id",
                 "api:http:PATCH:/users/@me/scheduled-messages/:param",
                 "api:http:PATCH:/users/@me/settings-proto/1/",
@@ -1042,6 +1043,7 @@
                 "api:http:PATCH:/users/@me/billing/payment-sources/:payment_source_id",
                 "api:http:PATCH:/users/@me/connections/:connection_name/:connection_id/",
                 "api:http:PATCH:/users/@me/guilds/:guild_id/settings/",
+                "api:http:PATCH:/users/@me/library/:application_id/:branch_id",
                 "api:http:PATCH:/users/@me/relationships/:user_id",
                 "api:http:PATCH:/users/@me/scheduled-messages/:param",
                 "api:http:PATCH:/users/@me/settings-proto/1/",
@@ -1320,6 +1322,7 @@
                         "test/routes/google-play-downgrade-subscription-post.test.ts",
                         "test/routes/google-play-validate-purchase-route.test.ts",
                         "test/routes/google-play-verify-purchase-token-post.test.ts",
+                        "test/routes/users-me-library-application-branch-patch.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",
@@ -1428,6 +1431,7 @@
                         "api:http:PATCH:/users/@me/billing/payment-sources/:payment_source_id",
                         "api:http:PATCH:/users/@me/connections/:connection_name/:connection_id/",
                         "api:http:PATCH:/users/@me/guilds/:guild_id/settings/",
+                        "api:http:PATCH:/users/@me/library/:application_id/:branch_id",
                         "api:http:PATCH:/users/@me/relationships/:user_id",
                         "api:http:PATCH:/users/@me/scheduled-messages/:param",
                         "api:http:PATCH:/users/@me/settings-proto/1/",

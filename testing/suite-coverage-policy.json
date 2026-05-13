@@ -69,6 +69,7 @@
                         "test/routes/google-play-downgrade-subscription-post.test.ts",
                         "test/routes/google-play-validate-purchase-route.test.ts",
                         "test/routes/google-play-verify-purchase-token-post.test.ts",
+                        "test/routes/users-me-library-application-branch-patch.test.ts",
                         "test/scenarios/oauth-connections.test.ts",
                         "src/util/util/UserProfile.test.ts",
                         "src/api/util/utility/PaymentSources.test.ts",

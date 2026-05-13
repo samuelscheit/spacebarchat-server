@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 808,
+        "totalEntries": 809,
         "byService": {
-            "api": 711,
+            "api": 712,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 783,
+            "http-route": 784,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 205,
-            "stateful-domain": 449,
+            "stateful-domain": 450,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 665,
+            "route-class": 666,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -27617,13 +27617,55 @@
             }
         },
         {
+            "id": "api:http:PATCH:/users/@me/library/:application_id/:branch_id",
+            "type": "http-route",
+            "service": "api",
+            "method": "PATCH",
+            "path": "/users/@me/library/:application_id/:branch_id",
+            "sourceFile": "src/api/routes/users/@me/library.ts",
+            "line": 64,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "LibraryApplicationBranchModifySchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    400,
+                    401,
+                    404,
+                    501
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
             "id": "api:http:GET:/users/@me/library/",
             "type": "http-route",
             "service": "api",
             "method": "GET",
             "path": "/users/@me/library/",
             "sourceFile": "src/api/routes/users/@me/library.ts",
-            "line": 24,
+            "line": 60,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
