@@ -1,6 +1,6 @@
 {
-    "missing": 486,
-    "spacebar": 694,
+    "missing": 485,
+    "spacebar": 695,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -247,7 +247,6 @@
         "/reporting/unauthenticated/{param}/verify",
         "/reports",
         "/reports/channels/{param}/messages/{param}",
-        "/safety-hub/request-review/{param}",
         "/safety-hub/suspended/@me",
         "/safety-hub/suspended/check-verification",
         "/safety-hub/suspended/request-review/{param}",
@@ -3498,14 +3497,6 @@
             "sources": ["userdoccers:resources/message.mdx"],
             "source_routes": ["/partner-sdk/dms/{user_1_id}/{user_2_id}/messages/{message_id}/moderation-metadata"],
             "summaries": ["Update User Message Moderation Metadata"]
-        },
-        {
-            "method": "PUT",
-            "route": "/safety-hub/request-review/{param}",
-            "route_name": "PUT_SAFETY_HUB_REQUEST_REVIEW_CLASSIFICATION_ID",
-            "sources": ["userdoccers:resources/safety-hub.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/safety-hub/request-review/{classification_id}"],
-            "summaries": ["Request Classification Review"]
         },
         {
             "method": "PUT",

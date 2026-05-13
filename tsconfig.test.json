@@ -111,6 +111,7 @@
         "src/api/util/utility/Messages.test.ts",
         "src/api/routes/channels/#channel_id/linked-accounts.test.ts",
         "src/api/routes/channels/#channel_id/recipients.test.ts",
+        "src/api/routes/safety-hub/request-review/#classification_id.test.ts",
         "src/api/routes/guilds/GuildImageField.test.ts",
         "src/api/routes/guilds/GuildWidgetJson.test.ts",
         "src/api/routes/guilds/GuildWidgetInvite.test.ts",

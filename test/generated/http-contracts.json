@@ -3,18 +3,18 @@
     "generatedBy": "scripts/testing-manifest/generate-contract-tests.js",
     "manifestSource": "assets/testing-manifest.json",
     "summary": {
-        "totalContracts": 774,
+        "totalContracts": 775,
         "byService": {
-            "api": 701,
+            "api": 702,
             "cdn": 73
         },
-        "runtimeAuthBoundaryContracts": 621,
-        "runtimeMalformedAuthContracts": 621,
-        "runtimeRevokedSessionAuthContracts": 621,
-        "runtimeStaleTokenAuthContracts": 621,
+        "runtimeAuthBoundaryContracts": 622,
+        "runtimeMalformedAuthContracts": 622,
+        "runtimeRevokedSessionAuthContracts": 622,
+        "runtimeStaleTokenAuthContracts": 622,
         "runtimePublicAuthBoundaryContracts": 72,
         "runtimePublicInvalidBodyContracts": 17,
-        "runtimeProtectedInvalidBodyContracts": 90,
+        "runtimeProtectedInvalidBodyContracts": 91,
         "runtimePublicResponseSchemaContracts": 19,
         "runtimeAuthenticatedResponseSchemaContracts": 23,
         "runtimeRightOnlyDenialContracts": 13,
@@ -28948,6 +28948,52 @@
                 {
                     "id": "policy-schema-validation",
                     "checks": ["schema-validation"]
+                }
+            ]
+        },
+        {
+            "manifestId": "api:http:PUT:/safety-hub/request-review/:classification_id/",
+            "service": "api",
+            "method": "PUT",
+            "path": "/safety-hub/request-review/:classification_id/",
+            "samplePath": "/safety-hub/request-review/value/",
+            "sourceFile": "src/api/routes/safety-hub/request-review/#classification_id.ts",
+            "line": 44,
+            "authMode": "bearer",
+            "testTier": "contract",
+            "benchmarkClass": "route-class",
+            "fixtureRequirements": ["config"],
+            "contractChecks": ["auth-boundary", "schema-validation", "response-shape"],
+            "routeMetadata": {
+                "requestBody": "SafetyHubRequestReviewSchema",
+                "responses": ["APIErrorResponse", "SafetyHubRequestReviewResponse"],
+                "responseStatuses": [200, 400, 401, 404, 501]
+            },
+            "cases": [
+                {
+                    "id": "auth-boundary",
+                    "checks": ["authenticated", "unauthenticated-rejection", "status"]
+                },
+                {
+                    "id": "status-and-error-shape",
+                    "checks": ["status", "error-shape"]
+                },
+                {
+                    "id": "response-shape",
+                    "checks": ["response-shape"]
+                },
+                {
+                    "id": "malformed-auth",
+                    "checks": ["invalid-auth", "error-shape"]
+                },
+                {
+                    "id": "invalid-request-body",
+                    "checks": ["schema-validation", "error-shape"],
+                    "requestBody": "SafetyHubRequestReviewSchema"
+                },
+                {
+                    "id": "policy-auth-boundary",
+                    "checks": ["auth-boundary"]
                 }
             ]
         },

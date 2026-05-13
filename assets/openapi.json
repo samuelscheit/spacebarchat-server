@@ -13329,6 +13329,19 @@
             "ReportingUnauthenticatedExperimentResponse": {
                 "type": "object"
             },
+            "SafetyHubRequestReviewResponse": {
+                "type": "object",
+                "properties": {
+                    "appeal_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "pattern": "^\\d{1,20}$",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "appeal_id"
+                ]
+            },
             "SettingsProtoResponse": {
                 "type": "object",
                 "properties": {
@@ -16117,6 +16130,22 @@
                         "position"
                     ]
                 }
+            },
+            "SafetyHubRequestReviewSchema": {
+                "type": "object",
+                "properties": {
+                    "signal": {
+                        "$ref": "#/components/schemas/SafetyHubAppealIngestionSignal"
+                    },
+                    "user_input": {
+                        "maxLength": 1000,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "signal",
+                    "user_input"
+                ]
             },
             "SelectProtocolSchema": {
                 "type": "object",
@@ -35819,6 +35848,15 @@
                     "message_id"
                 ]
             },
+            "SafetyHubAppealIngestionSignal": {
+                "type": "number",
+                "enum": [
+                    0,
+                    1,
+                    2,
+                    3
+                ]
+            },
             "UploadAttachmentRequest": {
                 "type": "object",
                 "properties": {
@@ -47320,6 +47358,93 @@
                         }
                     }
                 },
+                "tags": [
+                    "safety-hub"
+                ]
+            }
+        },
+        "/safety-hub/request-review/{classification_id}/": {
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Requests a review for a Safety Hub classification when durable classification and appeal persistence are available. Spacebar does not currently persist Safety Hub classifications or appeals, so this compatibility endpoint validates the authenticated request and fails closed with 501 instead of fabricating an appeal.",
+                "summary": "Request Classification Review",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SafetyHubRequestReviewSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SafetyHubRequestReviewResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "classification_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "classification_id"
+                    }
+                ],
                 "tags": [
                     "safety-hub"
                 ]

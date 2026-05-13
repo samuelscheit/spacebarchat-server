@@ -14069,6 +14069,21 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "SafetyHubRequestReviewResponse": {
+        "type": "object",
+        "properties": {
+            "appeal_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "pattern": "^\\d{1,20}$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "appeal_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "SettingsProtoResponse": {
         "type": "object",
         "properties": {
@@ -17061,6 +17076,24 @@
                 "position"
             ]
         },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SafetyHubRequestReviewSchema": {
+        "type": "object",
+        "properties": {
+            "signal": {
+                "$ref": "#/definitions/SafetyHubAppealIngestionSignal"
+            },
+            "user_input": {
+                "maxLength": 1000,
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "signal",
+            "user_input"
+        ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "SelectProtocolSchema": {
@@ -37802,6 +37835,16 @@
         "required": [
             "channel_id",
             "message_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "SafetyHubAppealIngestionSignal": {
+        "type": "number",
+        "enum": [
+            0,
+            1,
+            2,
+            3
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },

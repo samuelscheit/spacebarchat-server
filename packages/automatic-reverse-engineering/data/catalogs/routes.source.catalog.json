@@ -4627,6 +4627,17 @@
 		"source": "src/api/routes/safety-hub/@me/index.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "SafetyHubRequestReviewSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"SafetyHubRequestReviewResponse"
+		],
+		"route": "/safety-hub/request-review/{classification_id}",
+		"route_name": "PUT_SAFETY_HUB_REQUEST_REVIEW_CLASSIFICATION_ID",
+		"source": "src/api/routes/safety-hub/request-review/#classification_id.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",
