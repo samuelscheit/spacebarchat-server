@@ -3043,6 +3043,15 @@
 		"source": "src/api/routes/guilds/#guild_id/game-server-regions.ts"
 	},
 	{
+		"method": "POST",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/guilds/{guild_id}/game-servers/{game_server_id}/wake",
+		"route_name": "POST_GUILDS_GUILD_ID_GAME_SERVERS_GAME_SERVER_ID_WAKE",
+		"source": "src/api/routes/guilds/#guild_id/game-servers/#game_server_id/wake.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIGuildIntegrationArray"

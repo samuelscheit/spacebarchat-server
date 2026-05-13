@@ -1,6 +1,6 @@
 {
-    "missing": 508,
-    "spacebar": 672,
+    "missing": 507,
+    "spacebar": 673,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -124,7 +124,6 @@
         "/guilds/{param}/entitlements",
         "/guilds/{param}/entitlements/{param}",
         "/guilds/{param}/game-servers",
-        "/guilds/{param}/game-servers/{param}/wake",
         "/guilds/{param}/guild-feed",
         "/guilds/{param}/incident-actions",
         "/guilds/{param}/integrations",
@@ -2350,14 +2349,6 @@
             "route_name": "CREATOR_MONETIZATION_REMOVE_MONETIZATION",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/creator-monetization/remove-monetization"]
-        },
-        {
-            "method": "POST",
-            "route": "/guilds/{param}/game-servers/{param}/wake",
-            "route_name": "POST_GUILDS_GUILD_ID_GAME_SERVERS_GAME_SERVER_ID_WAKE",
-            "sources": ["userdoccers:resources/guild.mdx"],
-            "source_routes": ["/guilds/{guild_id}/game-servers/{game_server_id}/wake"],
-            "summaries": ["Wake Guild Game Server"]
         },
         {
             "method": "POST",
