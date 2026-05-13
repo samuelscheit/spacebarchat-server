@@ -5412,6 +5412,16 @@
 	},
 	{
 		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"BillingCampaignContextResponse"
+		],
+		"route": "/users/@me/billing/campaign-context",
+		"route_name": "GET_USERS__ME_BILLING_CAMPAIGN_CONTEXT",
+		"source": "src/api/routes/users/@me/billing/campaign-context.ts"
+	},
+	{
+		"method": "GET",
 		"response_schema_refs": [],
 		"route": "/users/@me/billing/country-code",
 		"route_name": "GET_USERS__ME_BILLING_COUNTRY_CODE",

@@ -62,6 +62,7 @@
                         "test/scenarios/users-entitlements-gifts.test.ts",
                         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",
                         "src/api/routes/users/@me/guilds/premium/subscriptions.test.ts",
+                        "src/api/routes/users/@me/billing/campaign-context.test.ts",
                         "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
                         "test/routes/google-play-downgrade-subscription-post.test.ts",
                         "test/routes/google-play-validate-purchase-route.test.ts",

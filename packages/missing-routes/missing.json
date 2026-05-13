@@ -1,6 +1,6 @@
 {
-    "missing": 492,
-    "spacebar": 688,
+    "missing": 491,
+    "spacebar": 689,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -296,7 +296,6 @@
         "/users/@me/avatars/discordify",
         "/users/@me/background-sync",
         "/users/@me/billing/apple/trial-offer-signature",
-        "/users/@me/billing/campaign-context",
         "/users/@me/billing/checkout-recovery",
         "/users/@me/billing/churn-user-offer",
         "/users/@me/billing/eligible-application-subscription-guilds",
@@ -1306,7 +1305,6 @@
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/users/{user_id}/sessions/{param}/activities/{param}/1"]
         },
-        { "method": "GET", "route": "/users/@me/billing/campaign-context", "route_name": "CAMPAIGN_CONTEXT", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "GET",
             "route": "/users/@me/billing/checkout-recovery",

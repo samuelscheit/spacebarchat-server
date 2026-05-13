@@ -4773,6 +4773,11 @@
         },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "BillingCampaignContextResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "BillingLocationInfoResponse": {
         "type": "object",
         "properties": {

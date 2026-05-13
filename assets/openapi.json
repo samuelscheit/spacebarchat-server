@@ -4532,6 +4532,9 @@
                     "$ref": "#/components/schemas/APIBackupCode"
                 }
             },
+            "BillingCampaignContextResponse": {
+                "type": "object"
+            },
             "BillingLocationInfoResponse": {
                 "type": "object",
                 "properties": {
@@ -42703,6 +42706,42 @@
                 "responses": {
                     "default": {
                         "description": "No description available"
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/billing/campaign-context/": {
+            "get": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Returns locally persisted billing campaign attribution context for the current user. Spacebar does not currently persist Discord billing campaign attribution state, so the supported representation is an empty object.",
+                "summary": "Get Billing Campaign Context",
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BillingCampaignContextResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
                     }
                 },
                 "tags": [

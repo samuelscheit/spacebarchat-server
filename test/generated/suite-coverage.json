@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 602,
+        "totalCoveredManifestEntries": 603,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 580,
-                "totalCoveredManifestEntries": 580,
-                "totalCoveredRequiredManifestEntries": 580,
+                "totalRequiredManifestEntries": 581,
+                "totalCoveredManifestEntries": 581,
+                "totalCoveredRequiredManifestEntries": 581,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 437,
+            "stateful-domain": 438,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 580,
-                "totalCoveredManifestEntries": 580,
-                "totalCoveredRequiredManifestEntries": 580,
+                "totalRequiredManifestEntries": 581,
+                "totalCoveredManifestEntries": 581,
+                "totalCoveredRequiredManifestEntries": 581,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -342,6 +342,7 @@
                 "api:http:GET:/users/@me/applications/role-connections/",
                 "api:http:GET:/users/@me/avatars/",
                 "api:http:GET:/users/@me/billing/adyen/payment-methods/",
+                "api:http:GET:/users/@me/billing/campaign-context/",
                 "api:http:GET:/users/@me/billing/country-code/",
                 "api:http:GET:/users/@me/billing/invoice/breakdown/",
                 "api:http:GET:/users/@me/billing/localized-pricing-promo/",
@@ -924,6 +925,7 @@
                 "api:http:GET:/users/@me/applications/role-connections/",
                 "api:http:GET:/users/@me/avatars/",
                 "api:http:GET:/users/@me/billing/adyen/payment-methods/",
+                "api:http:GET:/users/@me/billing/campaign-context/",
                 "api:http:GET:/users/@me/billing/country-code/",
                 "api:http:GET:/users/@me/billing/invoice/breakdown/",
                 "api:http:GET:/users/@me/billing/localized-pricing-promo/",
@@ -1289,6 +1291,7 @@
                         "test/scenarios/users-entitlements-gifts.test.ts",
                         "src/api/routes/users/@me/guilds/integration-application-ids.test.ts",
                         "src/api/routes/users/@me/guilds/premium/subscriptions.test.ts",
+                        "src/api/routes/users/@me/billing/campaign-context.test.ts",
                         "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
                         "test/routes/google-play-downgrade-subscription-post.test.ts",
                         "test/routes/google-play-validate-purchase-route.test.ts",
@@ -1331,6 +1334,7 @@
                         "api:http:GET:/users/@me/applications/role-connections/",
                         "api:http:GET:/users/@me/avatars/",
                         "api:http:GET:/users/@me/billing/adyen/payment-methods/",
+                        "api:http:GET:/users/@me/billing/campaign-context/",
                         "api:http:GET:/users/@me/billing/country-code/",
                         "api:http:GET:/users/@me/billing/invoice/breakdown/",
                         "api:http:GET:/users/@me/billing/localized-pricing-promo/",
