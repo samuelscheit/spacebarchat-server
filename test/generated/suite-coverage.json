@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 608,
+        "totalCoveredManifestEntries": 609,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 586,
-                "totalCoveredManifestEntries": 586,
-                "totalCoveredRequiredManifestEntries": 586,
+                "totalRequiredManifestEntries": 587,
+                "totalCoveredManifestEntries": 587,
+                "totalCoveredRequiredManifestEntries": 587,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 443,
+            "stateful-domain": 444,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 586,
-                "totalCoveredManifestEntries": 586,
-                "totalCoveredRequiredManifestEntries": 586,
+                "totalRequiredManifestEntries": 587,
+                "totalCoveredManifestEntries": 587,
+                "totalCoveredRequiredManifestEntries": 587,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -581,6 +581,7 @@
                 "api:http:PUT:/guilds/:guild_id/members/supplemental/",
                 "api:http:PUT:/guilds/:guild_id/roles/:role_id/members/",
                 "api:http:PUT:/guilds/:guild_id/templates/:code",
+                "api:http:PUT:/users/@me/claim-premium-collectibles-product/",
                 "api:http:PUT:/users/@me/clan/",
                 "api:http:PUT:/users/@me/notes/:user_id",
                 "api:http:PUT:/users/@me/relationships/:user_id",
@@ -1169,6 +1170,7 @@
                 "api:http:PUT:/guilds/:guild_id/members/supplemental/",
                 "api:http:PUT:/guilds/:guild_id/roles/:role_id/members/",
                 "api:http:PUT:/guilds/:guild_id/templates/:code",
+                "api:http:PUT:/users/@me/claim-premium-collectibles-product/",
                 "api:http:PUT:/users/@me/clan/",
                 "api:http:PUT:/users/@me/notes/:user_id",
                 "api:http:PUT:/users/@me/relationships/:user_id",
@@ -1304,6 +1306,7 @@
                         "src/api/routes/users/@me/billing/campaign-context.test.ts",
                         "src/api/routes/users/@me/billing/churn-user-offer.test.ts",
                         "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
+                        "src/api/routes/users/@me/claim-premium-collectibles-product.test.ts",
                         "test/routes/google-play-downgrade-subscription-post.test.ts",
                         "test/routes/google-play-validate-purchase-route.test.ts",
                         "test/routes/google-play-verify-purchase-token-post.test.ts",
@@ -1447,6 +1450,7 @@
                         "api:http:POST:/users/@me/phone/verify/",
                         "api:http:POST:/users/@me/relationships/",
                         "api:http:POST:/users/@me/survey/:survey_id/seen",
+                        "api:http:PUT:/users/@me/claim-premium-collectibles-product/",
                         "api:http:PUT:/users/@me/clan/",
                         "api:http:PUT:/users/@me/notes/:user_id",
                         "api:http:PUT:/users/@me/relationships/:user_id",

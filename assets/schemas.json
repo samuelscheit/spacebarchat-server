@@ -1781,6 +1781,21 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "CollectiblesPremiumProductClaimSchema": {
+        "type": "object",
+        "properties": {
+            "sku_id": {
+                "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                "pattern": "^[1-9]\\d{16,19}$",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "required": [
+            "sku_id"
+        ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ConfettiConsumableApplySchema": {
         "type": "object",
         "properties": {
@@ -5424,6 +5439,13 @@
                 "$ref": "#/definitions/CollectiblesProductVariant"
             }
         ],
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "CollectiblesPurchasesResponse": {
+        "type": "array",
+        "items": {
+            "$ref": "#/definitions/CollectiblesProductResponse"
+        },
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
     "CollectiblesMarketingResponse": {

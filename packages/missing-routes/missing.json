@@ -1,6 +1,6 @@
 {
-    "missing": 484,
-    "spacebar": 696,
+    "missing": 483,
+    "spacebar": 697,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -317,7 +317,6 @@
         "/users/@me/billing/user-trial-offer",
         "/users/@me/billing/user-trial-offer/{param}/ack",
         "/users/@me/captcha/verify",
-        "/users/@me/claim-premium-collectibles-product",
         "/users/@me/connections/contacts/@me/external-friend-list-entries",
         "/users/@me/connections/contacts/{param}",
         "/users/@me/connections/contacts/{param}/external-friend-list-entries",
@@ -3514,13 +3513,6 @@
             "sources": ["userdoccers:resources/application.mdx"],
             "source_routes": ["/users/@me/applications/{application_id}/role-connection"],
             "summaries": ["Modify User Application Role Connection"]
-        },
-        {
-            "method": "PUT",
-            "route": "/users/@me/claim-premium-collectibles-product",
-            "route_name": "PUT_USERS__ME_CLAIM_PREMIUM_COLLECTIBLES_PRODUCT",
-            "sources": ["userdoccers:resources/collectibles.mdx", "xhyrom:data/client/routes.json"],
-            "summaries": ["Claim Premium Collectibles Product"]
         },
         { "method": "PUT", "route": "/users/@me/connections/{param}/{param}", "route_name": "CONNECTION", "sources": ["xhyrom:data/client/routes.json"] },
         {

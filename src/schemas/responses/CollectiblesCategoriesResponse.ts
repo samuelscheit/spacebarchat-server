@@ -32,6 +32,7 @@ export interface CollectiblesUserDiscount {
 }
 
 export type CollectiblesProductResponse = CollectiblesCategoryProduct | CollectiblesProductVariant;
+export type CollectiblesPurchasesResponse = CollectiblesProductResponse[];
 
 export interface CollectiblesCategoryStyle {
     background_colors: number[];

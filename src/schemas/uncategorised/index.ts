@@ -45,6 +45,7 @@ export * from "./ChannelCallStopRingingSchema";
 export * from "./ChannelRecipientMeUpdateSchema";
 export * from "./ChannelSafetyWarningsAckSchema";
 export * from "./CodesVerificationSchema";
+export * from "./CollectiblesPremiumProductClaimSchema";
 export * from "./ConfettiConsumableApplySchema";
 export * from "./HDStreamingConsumableApplySchema";
 export * from "./ContentInventoryApplicationUpdateSchema";

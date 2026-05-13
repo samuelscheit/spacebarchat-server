@@ -1721,6 +1721,19 @@
                     "nonce"
                 ]
             },
+            "CollectiblesPremiumProductClaimSchema": {
+                "type": "object",
+                "properties": {
+                    "sku_id": {
+                        "description": "A Twitter-like snowflake, except the epoch is 2015-01-01T00:00:00.000Z\n```\nIf we have a snowflake '266241948824764416' we can represent it as binary:\n\n64                                          22     17     12          0\n 000000111011000111100001101001000101000000  00001  00000  000000000000\n      number of ms since Discord epoch       worker  pid    increment\n```",
+                        "pattern": "^[1-9]\\d{16,19}$",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "sku_id"
+                ]
+            },
             "ConfettiConsumableApplySchema": {
                 "type": "object",
                 "properties": {
@@ -5139,6 +5152,12 @@
                         "$ref": "#/components/schemas/CollectiblesProductVariant"
                     }
                 ]
+            },
+            "CollectiblesPurchasesResponse": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/CollectiblesProductResponse"
+                }
             },
             "CollectiblesMarketingResponse": {
                 "type": "object",
@@ -42629,6 +42648,75 @@
                         }
                     },
                     "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/users/@me/claim-premium-collectibles-product/": {
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Claims a premium-only collectible SKU when a real collectibles ownership and premium entitlement provider is configured. The default Spacebar instance has neither, so it validates the documented payload and fails closed with 501 instead of fabricating collectible ownership.",
+                "summary": "Claim Premium Collectibles Product",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CollectiblesPremiumProductClaimSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CollectiblesPurchasesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
                         "description": "",
                         "content": {
                             "application/json": {

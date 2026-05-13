@@ -22,6 +22,7 @@
         "src/api/routes/users/@me/billing/campaign-context.test.ts",
         "src/api/routes/users/@me/billing/churn-user-offer.test.ts",
         "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
+        "src/api/routes/users/@me/claim-premium-collectibles-product.test.ts",
         "src/api/routes/billing/popup-bridge/#payment_source_type/callback.test.ts",
         "src/api/routes/users/@me/guilds/#guild_id/member.test.ts",
         "src/api/routes/warp/license.test.ts",

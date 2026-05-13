@@ -5598,6 +5598,17 @@
 	},
 	{
 		"method": "PUT",
+		"request_schema_ref": "CollectiblesPremiumProductClaimSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"CollectiblesPurchasesResponse"
+		],
+		"route": "/users/@me/claim-premium-collectibles-product",
+		"route_name": "PUT_USERS__ME_CLAIM_PREMIUM_COLLECTIBLES_PRODUCT",
+		"source": "src/api/routes/users/@me/claim-premium-collectibles-product.ts"
+	},
+	{
+		"method": "PUT",
 		"request_schema_ref": "UserClanModifySchema",
 		"response_schema_refs": [
 			"APIErrorResponse",

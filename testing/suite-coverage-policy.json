@@ -65,6 +65,7 @@
                         "src/api/routes/users/@me/billing/campaign-context.test.ts",
                         "src/api/routes/users/@me/billing/churn-user-offer.test.ts",
                         "src/api/routes/users/@me/billing/invoice/breakdown.test.ts",
+                        "src/api/routes/users/@me/claim-premium-collectibles-product.test.ts",
                         "test/routes/google-play-downgrade-subscription-post.test.ts",
                         "test/routes/google-play-validate-purchase-route.test.ts",
                         "test/routes/google-play-verify-purchase-token-post.test.ts",
