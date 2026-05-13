@@ -24,11 +24,17 @@ import path from "node:path";
 import { describe, test } from "node:test";
 import express from "express";
 import { Authentication, ErrorHandler, isNoAuthorizationRoute } from "../../src/api/middlewares";
-import harvestRouter, { getCurrentUserHarvest } from "../../src/api/routes/users/@me/harvest";
+import harvestRouter, {
+    USER_HARVEST_CREATE_UNSUPPORTED_MESSAGE,
+    createCurrentUserHarvest,
+    createUserHarvestCreateUnsupportedError,
+    getCurrentUserHarvest,
+} from "../../src/api/routes/users/@me/harvest";
 
-const manifestId = "api:http:GET:/users/@me/harvest/";
+const getManifestId = "api:http:GET:/users/@me/harvest/";
+const postManifestId = "api:http:POST:/users/@me/harvest/";
 
-describe("GET /users/@me/harvest", () => {
+describe("GET and POST /users/@me/harvest", () => {
     test("returns 204 when no durable user data harvest request exists", async () => {
         assert.equal(getCurrentUserHarvest("1044657759066525777"), null);
 
@@ -39,26 +45,75 @@ describe("GET /users/@me/harvest", () => {
         assert.equal(response.body, undefined);
     });
 
-    test("stays behind bearer authentication and leaves harvest creation unimplemented", async () => {
+    test("stays behind bearer authentication for reads and creation", async () => {
         assert.equal(isNoAuthorizationRoute("GET", "/users/@me/harvest"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v10/users/@me/harvest"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/users/@me/harvest"), false);
+        assert.equal(isNoAuthorizationRoute("POST", "/api/v10/users/@me/harvest"), false);
 
         const routeSource = readFileSync(path.join(process.cwd(), "src", "api", "routes", "users", "@me", "harvest.ts"), "utf-8");
         assert.match(routeSource, /summary:\s*"Get User Harvest"/);
+        assert.match(routeSource, /summary:\s*"Create User Harvest"/);
+        assert.match(routeSource, /requestBody:\s*"UserHarvestCreateSchema"/);
         assert.match(routeSource, /204:\s*\{\}/s);
+        assert.match(routeSource, /400:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
-        assert.doesNotMatch(routeSource, /router\.post\(/);
+        assert.match(routeSource, /501:\s*\{\s*body:\s*"APIErrorResponse"/s);
         assert.doesNotMatch(routeSource, /router\.head\(/);
         assert.doesNotMatch(routeSource, /router\.options\(/);
 
-        const response = await requestRoute(createRouteApp({ authentication: true }), "/users/@me/harvest");
+        const getResponse = await requestRoute(createRouteApp({ authentication: true }), "/users/@me/harvest");
+        const postResponse = await requestRoute(createRouteApp({ authentication: true }), "/users/@me/harvest", {
+            method: "POST",
+            body: JSON.stringify({ backends: ["Messages"] }),
+            headers: { "content-type": "application/json" },
+        });
 
-        assert.equal(response.status, 401);
-        assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(getResponse.status, 401);
+        assert.match((getResponse.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(postResponse.status, 401);
+        assert.match((postResponse.body as { message?: string }).message ?? "", /Missing Authorization Header/);
     });
 
-    test("is present in regenerated route artifacts while POST remains missing", () => {
+    test("validates documented creation bodies and fails closed without fabricating export state", async () => {
+        const unsupportedError = createUserHarvestCreateUnsupportedError();
+        assert.equal(unsupportedError.httpStatus, 501);
+        assert.equal(unsupportedError.code, 0);
+        assert.equal(unsupportedError.message, USER_HARVEST_CREATE_UNSUPPORTED_MESSAGE);
+
+        assert.throws(
+            () => createCurrentUserHarvest("1044657759066525777", { backends: ["Messages"], email: "user@example.com" }),
+            (error) =>
+                typeof error === "object" &&
+                error !== null &&
+                "httpStatus" in error &&
+                error.httpStatus === 501 &&
+                "message" in error &&
+                error.message === USER_HARVEST_CREATE_UNSUPPORTED_MESSAGE,
+        );
+
+        const unsupportedResponse = await requestRoute(createRouteApp(), "/users/@me/harvest", {
+            method: "POST",
+            body: JSON.stringify({ backends: ["Accounts", "Messages"], email: "user@example.com" }),
+            headers: { "content-type": "application/json" },
+        });
+        assert.equal(unsupportedResponse.status, 501);
+        assert.deepEqual(unsupportedResponse.body, {
+            code: 0,
+            message: USER_HARVEST_CREATE_UNSUPPORTED_MESSAGE,
+        });
+
+        const invalidResponse = await requestRoute(createRouteApp(), "/users/@me/harvest", {
+            method: "POST",
+            body: JSON.stringify({ backends: "Messages" }),
+            headers: { "content-type": "application/json" },
+        });
+        assert.equal(invalidResponse.status, 400);
+        assert.equal((invalidResponse.body as { code?: unknown }).code, 50035);
+        assert.equal((invalidResponse.body as { message?: unknown }).message, "Invalid Form Body");
+    });
+
+    test("is present in regenerated route artifacts for only GET and POST", () => {
         const openapi = readJson<{
             paths?: Record<
                 string,
@@ -68,7 +123,15 @@ describe("GET /users/@me/harvest", () => {
                         security?: unknown;
                         summary?: string;
                     };
-                    post?: unknown;
+                    post?: {
+                        requestBody?: {
+                            content?: Record<string, { schema?: { $ref?: string } }>;
+                            required?: boolean;
+                        };
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                        security?: unknown;
+                        summary?: string;
+                    };
                     head?: unknown;
                     options?: unknown;
                 }
@@ -77,6 +140,7 @@ describe("GET /users/@me/harvest", () => {
         const sourceCatalog = readJson<
             {
                 method?: string;
+                request_schema_ref?: string;
                 response_schema_refs?: string[];
                 route?: string;
                 route_name?: string;
@@ -89,6 +153,7 @@ describe("GET /users/@me/harvest", () => {
                 authMode?: string;
                 id?: string;
                 routeMetadata?: {
+                    requestBody?: string;
                     responseBodies?: string[];
                     responseStatuses?: number[];
                 };
@@ -101,6 +166,7 @@ describe("GET /users/@me/harvest", () => {
                 manifestId?: string;
                 path?: string;
                 routeMetadata?: {
+                    requestBody?: string;
                     responses?: string[];
                     responseStatuses?: number[];
                 };
@@ -113,7 +179,13 @@ describe("GET /users/@me/harvest", () => {
         assert.deepEqual(openapiRoute?.get?.security, [{ bearer: [] }]);
         assert.equal(openapiRoute?.get?.responses?.["204"]?.content, undefined);
         assert.equal(openapiRoute?.get?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
-        assert.equal(openapiRoute?.post, undefined);
+        assert.equal(openapiRoute?.post?.summary, "Create User Harvest");
+        assert.deepEqual(openapiRoute?.post?.security, [{ bearer: [] }]);
+        assert.equal(openapiRoute?.post?.requestBody?.required, true);
+        assert.equal(openapiRoute?.post?.requestBody?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/UserHarvestCreateSchema");
+        assert.equal(openapiRoute?.post?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(openapiRoute?.post?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(openapiRoute?.post?.responses?.["501"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(openapiRoute?.head, undefined);
         assert.equal(openapiRoute?.options, undefined);
 
@@ -127,9 +199,16 @@ describe("GET /users/@me/harvest", () => {
                 source: "src/api/routes/users/@me/harvest.ts",
             },
         );
-        assert.equal(
-            sourceCatalog.some((entry) => entry.method === "POST" && entry.route === "/users/@me/harvest"),
-            false,
+        assert.deepEqual(
+            sourceCatalog.find((entry) => entry.method === "POST" && entry.route === "/users/@me/harvest"),
+            {
+                method: "POST",
+                request_schema_ref: "UserHarvestCreateSchema",
+                response_schema_refs: ["APIErrorResponse"],
+                route: "/users/@me/harvest",
+                route_name: "POST_USERS__ME_HARVEST",
+                source: "src/api/routes/users/@me/harvest.ts",
+            },
         );
 
         assert.equal(
@@ -138,28 +217,44 @@ describe("GET /users/@me/harvest", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "POST" && entry.route === "/users/@me/harvest"),
-            true,
+            false,
         );
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === manifestId);
-        assert.equal(manifestEntry?.authMode, "bearer");
-        assert.equal(manifestEntry?.sourceFile, "src/api/routes/users/@me/harvest.ts");
-        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
-        assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [204, 401]);
+        const getManifestEntry = manifest.entries?.find((entry) => entry.id === getManifestId);
+        assert.equal(getManifestEntry?.authMode, "bearer");
+        assert.equal(getManifestEntry?.sourceFile, "src/api/routes/users/@me/harvest.ts");
+        assert.deepEqual(getManifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(getManifestEntry?.routeMetadata?.responseStatuses, [204, 401]);
 
-        const contract = contracts.contracts?.find((entry) => entry.manifestId === manifestId);
-        assert.equal(contract?.authMode, "bearer");
-        assert.equal(contract?.path, "/users/@me/harvest/");
-        assert.deepEqual(contract?.routeMetadata?.responses, ["APIErrorResponse"]);
-        assert.deepEqual(contract?.routeMetadata?.responseStatuses, [204, 401]);
+        const postManifestEntry = manifest.entries?.find((entry) => entry.id === postManifestId);
+        assert.equal(postManifestEntry?.authMode, "bearer");
+        assert.equal(postManifestEntry?.sourceFile, "src/api/routes/users/@me/harvest.ts");
+        assert.equal(postManifestEntry?.routeMetadata?.requestBody, "UserHarvestCreateSchema");
+        assert.deepEqual(postManifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(postManifestEntry?.routeMetadata?.responseStatuses, [400, 401, 501]);
+
+        const getContract = contracts.contracts?.find((entry) => entry.manifestId === getManifestId);
+        assert.equal(getContract?.authMode, "bearer");
+        assert.equal(getContract?.path, "/users/@me/harvest/");
+        assert.deepEqual(getContract?.routeMetadata?.responses, ["APIErrorResponse"]);
+        assert.deepEqual(getContract?.routeMetadata?.responseStatuses, [204, 401]);
+
+        const postContract = contracts.contracts?.find((entry) => entry.manifestId === postManifestId);
+        assert.equal(postContract?.authMode, "bearer");
+        assert.equal(postContract?.path, "/users/@me/harvest/");
+        assert.equal(postContract?.routeMetadata?.requestBody, "UserHarvestCreateSchema");
+        assert.deepEqual(postContract?.routeMetadata?.responses, ["APIErrorResponse"]);
+        assert.deepEqual(postContract?.routeMetadata?.responseStatuses, [400, 401, 501]);
 
         const usersSuite = suiteCoverage.groups?.flatMap((group) => group.suites ?? []).find((suite) => suite.id === "users");
-        assert.ok(usersSuite?.manifestIds?.includes(manifestId));
+        assert.ok(usersSuite?.manifestIds?.includes(getManifestId));
+        assert.ok(usersSuite?.manifestIds?.includes(postManifestId));
     });
 });
 
 function createRouteApp(options: { authentication?: boolean } = {}) {
     const app = express();
+    app.use(express.json());
 
     if (options.authentication) {
         app.use(Authentication);
@@ -179,10 +274,10 @@ function readJson<T>(relativePath: string): T {
     return JSON.parse(readFileSync(path.join(process.cwd(), relativePath), "utf-8")) as T;
 }
 
-async function requestRoute(app: express.Express, requestPath: string): Promise<{ status: number; body: unknown; text: string }> {
+async function requestRoute(app: express.Express, requestPath: string, init: RequestInit = {}): Promise<{ status: number; body: unknown; text: string }> {
     const { server, baseUrl } = await listen(app);
     try {
-        const response = await fetch(`${baseUrl}${requestPath}`);
+        const response = await fetch(`${baseUrl}${requestPath}`, init);
         const text = await response.text();
 
         return {

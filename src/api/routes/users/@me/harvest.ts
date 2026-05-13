@@ -17,17 +17,34 @@
 */
 
 import { route } from "@spacebar/api";
+import type { UserHarvestCreateSchema } from "@spacebar/schemas";
+import { ApiError } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 const router: Router = Router({ mergeParams: true });
 
 export type CurrentUserHarvest = null;
 
+export const USER_HARVEST_CREATE_UNSUPPORTED_MESSAGE = "User data harvest creation is not supported on this Spacebar instance.";
+
 export function getCurrentUserHarvest(userId: string): CurrentUserHarvest {
     void userId;
 
     // Spacebar does not persist Discord data-export harvest requests yet.
     return null;
+}
+
+export function createUserHarvestCreateUnsupportedError(): ApiError {
+    return new ApiError(USER_HARVEST_CREATE_UNSUPPORTED_MESSAGE, 0, 501);
+}
+
+export function createCurrentUserHarvest(userId: string, body: UserHarvestCreateSchema): never {
+    void userId;
+    void body;
+
+    // Discord queues and delivers data-export archives here. Without durable
+    // harvest state or a delivery pipeline, a synthetic queued harvest would lie.
+    throw createUserHarvestCreateUnsupportedError();
 }
 
 router.get(
@@ -48,6 +65,29 @@ router.get(
 
         if (harvest === null) return res.sendStatus(204);
     },
+);
+
+router.post(
+    "/",
+    route({
+        requestBody: "UserHarvestCreateSchema",
+        coerceRequestBody: false,
+        summary: "Create User Harvest",
+        description:
+            "Creates a user data harvest request for the current user. Discord returns a harvest object after queuing a data export, but Spacebar does not currently persist harvest requests or operate a data-export delivery pipeline, so this compatibility endpoint validates the documented request body and fails closed instead of fabricating export state.",
+        responses: {
+            400: {
+                body: "APIErrorResponse",
+            },
+            401: {
+                body: "APIErrorResponse",
+            },
+            501: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    (req: Request, _res: Response) => createCurrentUserHarvest(req.user_id, req.body as UserHarvestCreateSchema),
 );
 
 export default router;

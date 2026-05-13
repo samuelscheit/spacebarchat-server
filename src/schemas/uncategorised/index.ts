@@ -117,6 +117,7 @@ export * from "./UploadAttachmentRequestSchema";
 export * from "./UniqueUsernameAttemptUnauthedSchema";
 export * from "./UserDeleteSchema";
 export * from "./UserGuildSettingsSchema";
+export * from "./UserHarvestCreateSchema";
 export * from "./UserInviteCreateSchema";
 export * from "./UserModifySchema";
 export * from "./UserNoteUpdateSchema";

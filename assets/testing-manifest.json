@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 776,
+        "totalEntries": 777,
         "byService": {
-            "api": 679,
+            "api": 680,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 751,
+            "http-route": 752,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 199,
-            "stateful-domain": 424,
+            "stateful-domain": 425,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 23,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 633,
+            "route-class": 634,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -26184,7 +26184,7 @@
             "method": "GET",
             "path": "/users/@me/harvest/",
             "sourceFile": "src/api/routes/users/@me/harvest.ts",
-            "line": 33,
+            "line": 50,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -26194,6 +26194,47 @@
                 "responseStatuses": [
                     204,
                     401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-user-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "sessions",
+                    "relationships",
+                    "settings"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "ownership-boundary",
+                    "schema-validation",
+                    "db-state"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:POST:/users/@me/harvest/",
+            "type": "http-route",
+            "service": "api",
+            "method": "POST",
+            "path": "/users/@me/harvest/",
+            "sourceFile": "src/api/routes/users/@me/harvest.ts",
+            "line": 70,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "UserHarvestCreateSchema",
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
+                    400,
+                    401,
+                    501
                 ],
                 "hasQuery": false
             },

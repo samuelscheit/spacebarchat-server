@@ -17149,6 +17149,31 @@
         "additionalProperties": false,
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "UserHarvestCreateSchema": {
+        "type": "object",
+        "properties": {
+            "backends": {
+                "description": "Discord ignores unknown backend names and requests every data type when no\nvalid backend remains. Spacebar validates only the documented wire type.",
+                "anyOf": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            },
+            "email": {
+                "format": "email",
+                "type": "string"
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "UserInviteCreateSchema": {
         "type": "object",
         "properties": {

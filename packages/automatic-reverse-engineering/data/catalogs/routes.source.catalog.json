@@ -5732,6 +5732,16 @@
 		"source": "src/api/routes/users/@me/harvest.ts"
 	},
 	{
+		"method": "POST",
+		"request_schema_ref": "UserHarvestCreateSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/users/@me/harvest",
+		"route_name": "POST_USERS__ME_HARVEST",
+		"source": "src/api/routes/users/@me/harvest.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse"

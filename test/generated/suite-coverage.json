@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 588,
+        "totalCoveredManifestEntries": 589,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 566,
-                "totalCoveredManifestEntries": 566,
-                "totalCoveredRequiredManifestEntries": 566,
+                "totalRequiredManifestEntries": 567,
+                "totalCoveredManifestEntries": 567,
+                "totalCoveredRequiredManifestEntries": 567,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 424,
+            "stateful-domain": 425,
             "cdn-integration": 78,
             "integration": 23,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 566,
-                "totalCoveredManifestEntries": 566,
-                "totalCoveredRequiredManifestEntries": 566,
+                "totalRequiredManifestEntries": 567,
+                "totalCoveredManifestEntries": 567,
+                "totalCoveredRequiredManifestEntries": 567,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -532,6 +532,7 @@
                 "api:http:POST:/users/@me/delete/",
                 "api:http:POST:/users/@me/devices/",
                 "api:http:POST:/users/@me/disable/",
+                "api:http:POST:/users/@me/harvest/",
                 "api:http:POST:/users/@me/invites/",
                 "api:http:POST:/users/@me/mfa/codes-verification/",
                 "api:http:POST:/users/@me/mfa/codes/",
@@ -1100,6 +1101,7 @@
                 "api:http:POST:/users/@me/delete/",
                 "api:http:POST:/users/@me/devices/",
                 "api:http:POST:/users/@me/disable/",
+                "api:http:POST:/users/@me/harvest/",
                 "api:http:POST:/users/@me/invites/",
                 "api:http:POST:/users/@me/mfa/codes-verification/",
                 "api:http:POST:/users/@me/mfa/codes/",
@@ -1390,6 +1392,7 @@
                         "api:http:POST:/users/@me/delete/",
                         "api:http:POST:/users/@me/devices/",
                         "api:http:POST:/users/@me/disable/",
+                        "api:http:POST:/users/@me/harvest/",
                         "api:http:POST:/users/@me/invites/",
                         "api:http:POST:/users/@me/mfa/codes-verification/",
                         "api:http:POST:/users/@me/mfa/codes/",
