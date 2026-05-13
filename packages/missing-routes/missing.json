@@ -1,6 +1,6 @@
 {
-    "missing": 511,
-    "spacebar": 669,
+    "missing": 510,
+    "spacebar": 670,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -290,7 +290,6 @@
         "/teams/{param}/payouts/{param}/report",
         "/teams/{param}/stripe/connect/redirect-url",
         "/tutorial/indicators/suppress",
-        "/tutorial/indicators/{param}",
         "/unfurler/embed-urls",
         "/unfurler/unfurl",
         "/unverified-applications",
@@ -3677,14 +3676,6 @@
             "sources": ["userdoccers:resources/safety-hub.mdx", "xhyrom:data/client/routes.json"],
             "source_routes": ["/safety-hub/suspended/request-review/{classification_id}"],
             "summaries": ["Request Classification Review for Suspended User"]
-        },
-        {
-            "method": "PUT",
-            "route": "/tutorial/indicators/{param}",
-            "route_name": "PUT_TUTORIAL_INDICATORS_INDICATOR",
-            "sources": ["userdoccers:resources/user.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/tutorial/indicators/{indicator}"],
-            "summaries": ["Confirm Tutorial Indicator"]
         },
         { "method": "PUT", "route": "/tutorial/indicators/suppress", "route_name": "TUTORIAL_INDICATORS_SUPPRESS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/users/@me", "route_name": "PUT_USERS__ME", "sources": ["userdoccers:_typography.mdx"], "summaries": ["PUT Example"] },

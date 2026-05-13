@@ -5008,6 +5008,15 @@
 		"source": "src/api/routes/tutorial.ts"
 	},
 	{
+		"method": "PUT",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/tutorial/indicators/{indicator}",
+		"route_name": "PUT_TUTORIAL_INDICATORS_INDICATOR",
+		"source": "src/api/routes/tutorial.ts"
+	},
+	{
 		"method": "POST",
 		"request_schema_ref": "UniqueUsernameAttemptUnauthedSchema",
 		"response_schema_refs": [

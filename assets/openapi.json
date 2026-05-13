@@ -43469,6 +43469,46 @@
                 ]
             }
         },
+        "/tutorial/indicators/{indicator}": {
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Confirms a tutorial indicator for the authenticated user. Spacebar currently acknowledges the client action without persisting tutorial progress.",
+                "summary": "Confirm Tutorial Indicator",
+                "responses": {
+                    "204": {
+                        "description": "No description available"
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "indicator",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "indicator"
+                    }
+                ],
+                "tags": [
+                    "tutorial"
+                ]
+            }
+        },
         "/track/": {
             "post": {
                 "responses": {

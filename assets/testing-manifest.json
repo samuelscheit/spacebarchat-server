@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 774,
+        "totalEntries": 775,
         "byService": {
-            "api": 677,
+            "api": 678,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,13 +28,13 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 749,
+            "http-route": 750,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
-            "contract": 197,
+            "contract": 198,
             "stateful-domain": 424,
             "cdn-integration": 78,
             "auth-scenario": 18,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 631,
+            "route-class": 632,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -20116,7 +20116,7 @@
             "method": "POST",
             "path": "/phone-verifications/validate-support-ticket/",
             "sourceFile": "src/api/routes/phone-verifications/validate-support-ticket.ts",
-            "line": 62,
+            "line": 60,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -23119,7 +23119,7 @@
             "method": "GET",
             "path": "/tutorial/",
             "sourceFile": "src/api/routes/tutorial.ts",
-            "line": 34,
+            "line": 40,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -23129,6 +23129,41 @@
                 ],
                 "responseStatuses": [
                     200,
+                    204,
+                    401
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-public-contract",
+                "testTier": "contract",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "config"
+                ],
+                "contractChecks": [
+                    "auth-boundary",
+                    "schema-validation",
+                    "response-shape"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/tutorial/indicators/:indicator",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/tutorial/indicators/:indicator",
+            "sourceFile": "src/api/routes/tutorial.ts",
+            "line": 64,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "responseBodies": [
+                    "APIErrorResponse"
+                ],
+                "responseStatuses": [
                     204,
                     401
                 ],

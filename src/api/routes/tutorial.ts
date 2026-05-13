@@ -31,6 +31,12 @@ export async function getCurrentUserTutorial(userId: string): Promise<CurrentUse
     return null;
 }
 
+export async function confirmTutorialIndicator(userId: string, indicator: string): Promise<void> {
+    void userId;
+    void indicator;
+    // Tutorial progress is not persisted yet. Acknowledge the client action without inventing progress for GET /tutorial.
+}
+
 router.get(
     "/",
     route({
@@ -52,6 +58,26 @@ router.get(
         if (tutorial === null) return res.sendStatus(204);
 
         return res.status(200).json(tutorial);
+    },
+);
+
+router.put(
+    "/indicators/:indicator",
+    route({
+        summary: "Confirm Tutorial Indicator",
+        description: "Confirms a tutorial indicator for the authenticated user. Spacebar currently acknowledges the client action without persisting tutorial progress.",
+        responses: {
+            204: {},
+            401: {
+                body: "APIErrorResponse",
+            },
+        },
+    }),
+    async (req: Request, res: Response) => {
+        const { indicator } = req.params as { indicator: string };
+
+        await confirmTutorialIndicator(req.user_id, indicator);
+        return res.sendStatus(204);
     },
 );
 

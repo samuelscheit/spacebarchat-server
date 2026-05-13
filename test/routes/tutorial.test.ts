@@ -24,10 +24,10 @@ import { join } from "node:path";
 import { describe, test } from "node:test";
 import { ErrorHandler, isNoAuthorizationRoute } from "@spacebar/api";
 import express from "express";
-import tutorialRouter, { getCurrentUserTutorial } from "../../src/api/routes/tutorial";
+import tutorialRouter, { confirmTutorialIndicator, getCurrentUserTutorial } from "../../src/api/routes/tutorial";
 import { nonCoercingAjv, validateSchema } from "../../src/schemas/Validator";
 
-const coveredManifestIds = ["api:http:GET:/tutorial/"];
+const coveredManifestIds = ["api:http:GET:/tutorial/", "api:http:PUT:/tutorial/indicators/:indicator"];
 
 type JsonSchema = {
     $ref?: string;
@@ -38,8 +38,8 @@ type JsonSchema = {
 };
 
 describe("GET /tutorial", () => {
-    test("declares the assigned manifest route id", () => {
-        assert.deepEqual(coveredManifestIds, ["api:http:GET:/tutorial/"]);
+    test("declares the covered manifest route ids", () => {
+        assert.deepEqual(coveredManifestIds, ["api:http:GET:/tutorial/", "api:http:PUT:/tutorial/indicators/:indicator"]);
     });
 
     test("is bearer-authenticated and not an adjacent tutorial indicator route", () => {
@@ -60,11 +60,31 @@ describe("GET /tutorial", () => {
         assert.equal(response.body, "");
     });
 
+    test("confirms a tutorial indicator with a 204 acknowledgement without fabricating tutorial state", async () => {
+        const app = createRouteApp();
+
+        assert.equal(await confirmTutorialIndicator("100000000000000001", "create_first_server"), undefined);
+
+        const putResponse = await requestText(app, "/tutorial/indicators/create_first_server", { method: "PUT" });
+        const getResponse = await requestText(app, "/tutorial");
+
+        assert.equal(putResponse.status, 204);
+        assert.equal(putResponse.body, "");
+        assert.equal(getResponse.status, 204);
+        assert.equal(getResponse.body, "");
+    });
+
     test("declares source-backed route metadata in source and generated artifacts", () => {
         const routeSource = readFileSync(join(process.cwd(), "src", "api", "routes", "tutorial.ts"), "utf8");
         const schemas = JSON.parse(readFileSync(join(process.cwd(), "assets", "schemas.json"), "utf8")) as Record<string, JsonSchema>;
         const openapi = JSON.parse(readFileSync(join(process.cwd(), "assets", "openapi.json"), "utf8")) as {
-            paths?: Record<string, { get?: { responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>; security?: unknown } }>;
+            paths?: Record<
+                string,
+                {
+                    get?: { responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>; security?: unknown };
+                    put?: { responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>; security?: unknown };
+                }
+            >;
         };
         const manifest = JSON.parse(readFileSync(join(process.cwd(), "assets", "testing-manifest.json"), "utf8")) as {
             entries?: {
@@ -92,6 +112,8 @@ describe("GET /tutorial", () => {
         assert.match(routeSource, /200:\s*\{\s*body:\s*"TutorialResponse"/s);
         assert.match(routeSource, /204:\s*\{\s*\}/s);
         assert.match(routeSource, /401:\s*\{\s*body:\s*"APIErrorResponse"/s);
+        assert.match(routeSource, /summary:\s*"Confirm Tutorial Indicator"/);
+        assert.match(routeSource, /router\.put\(\s*"\/indicators\/:indicator"/s);
 
         assert.deepEqual(schemas.TutorialResponse.required, ["indicators_confirmed", "indicators_suppressed"]);
         assert.equal(schemas.TutorialResponse.properties?.indicators_suppressed?.type, "boolean");
@@ -104,19 +126,39 @@ describe("GET /tutorial", () => {
         assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.deepEqual(route?.security, [{ bearer: [] }]);
 
-        const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
-        assert.equal(manifestEntry?.authMode, "bearer");
-        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("TutorialResponse"), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseStatuses?.includes(200), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseStatuses?.includes(204), true);
-        assert.equal(manifestEntry?.routeMetadata?.responseStatuses?.includes(401), true);
+        const putRoute = openapi.paths?.["/tutorial/indicators/{indicator}"]?.put;
+        assert.ok(putRoute?.responses?.["204"], "204 response should be documented for confirming tutorial indicators");
+        assert.equal(putRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.deepEqual(putRoute?.security, [{ bearer: [] }]);
+
+        const getManifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
+        assert.equal(getManifestEntry?.authMode, "bearer");
+        assert.equal(getManifestEntry?.routeMetadata?.responseBodies?.includes("TutorialResponse"), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseBodies?.includes("APIErrorResponse"), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseStatuses?.includes(200), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseStatuses?.includes(204), true);
+        assert.equal(getManifestEntry?.routeMetadata?.responseStatuses?.includes(401), true);
+
+        const putManifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[1]);
+        assert.equal(putManifestEntry?.authMode, "bearer");
+        assert.deepEqual(putManifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.equal(putManifestEntry?.routeMetadata?.responseStatuses?.includes(204), true);
+        assert.equal(putManifestEntry?.routeMetadata?.responseStatuses?.includes(401), true);
 
         const catalogEntry = sourceCatalog.find((entry) => entry.method === "GET" && entry.route === "/tutorial");
         assert.equal(catalogEntry?.route_name, "GET_TUTORIAL");
         assert.deepEqual(catalogEntry?.response_schema_refs?.sort(), ["APIErrorResponse", "TutorialResponse"]);
+        const putCatalogEntry = sourceCatalog.find((entry) => entry.method === "PUT" && entry.route === "/tutorial/indicators/{indicator}");
+        assert.equal(putCatalogEntry?.route_name, "PUT_TUTORIAL_INDICATORS_INDICATOR");
+        assert.deepEqual(putCatalogEntry?.response_schema_refs, ["APIErrorResponse"]);
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "GET" && entry.route === "/tutorial"),
+            false,
+        );
+        assert.equal(
+            missingRoutes.missing_entries?.some(
+                (entry) => entry.method === "PUT" && entry.route === "/tutorial/indicators/{param}" && entry.route_name === "PUT_TUTORIAL_INDICATORS_INDICATOR",
+            ),
             false,
         );
     });
@@ -151,12 +193,12 @@ function createRouteApp() {
     return app;
 }
 
-async function requestText(app: express.Express, path: string) {
+async function requestText(app: express.Express, path: string, init?: Parameters<typeof fetch>[1]) {
     const server = await listen(app);
     try {
         const address = server.address();
         if (!address || typeof address === "string") throw new Error("Expected HTTP server to listen on a TCP port");
-        const response = await fetch(`http://127.0.0.1:${(address as AddressInfo).port}${path}`);
+        const response = await fetch(`http://127.0.0.1:${(address as AddressInfo).port}${path}`, init);
 
         return {
             status: response.status,
