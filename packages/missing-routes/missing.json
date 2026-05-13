@@ -1,6 +1,6 @@
 {
-    "missing": 502,
-    "spacebar": 678,
+    "missing": 501,
+    "spacebar": 679,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -249,7 +249,6 @@
         "/reporting/unauthenticated/{param}",
         "/reporting/unauthenticated/{param}/code",
         "/reporting/unauthenticated/{param}/verify",
-        "/reporting/{param}",
         "/reports",
         "/reports/channels/{param}/messages/{param}",
         "/safety-hub/request-review/{param}",
@@ -2752,14 +2751,6 @@
             "summaries": ["Send Quest Video Progress"]
         },
         { "method": "POST", "route": "/report", "route_name": "POST_REPORT", "sources": ["userdoccers:topics/reports.mdx"], "summaries": ["Create Report"] },
-        {
-            "method": "POST",
-            "route": "/reporting/{param}",
-            "route_name": "POST_REPORTING_TYPE",
-            "sources": ["userdoccers:topics/reports.mdx", "xhyrom:data/client/routes.json"],
-            "source_routes": ["/reporting/{type}"],
-            "summaries": ["Submit Report Menu"]
-        },
         {
             "method": "POST",
             "route": "/reporting/review",

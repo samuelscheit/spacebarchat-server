@@ -10,6 +10,8 @@ import express from "express";
 import { BodyParser, ErrorHandler } from "../../middlewares";
 import reportingRouter from "../../routes/reporting";
 
+const postManifestId = "api:http:POST:/reporting/:type";
+
 interface JsonResponse {
     statusCode: number | undefined;
     body: unknown;
@@ -133,4 +135,101 @@ describe("report submissions", () => {
         assert.equal(body.code, 50035);
         assert.equal(body.errors.breadcrumbs._errors[0].code, "INVALID_REPORT_MENU_BREADCRUMBS_PATH");
     });
+
+    test("rejects unknown report menu types before accepting a submission", async () => {
+        const response = await postJson(`${baseUrl}/reporting/not_a_report_type`, createMessageReportBody());
+        const body = response.body as { code?: number; message?: string };
+
+        assert.equal(response.statusCode, 400);
+        assert.equal(body.code, 400);
+        assert.match(body.message ?? "", /Unknown report menu type/);
+    });
+
+    test("generated artifacts declare the assigned parameterized POST route", () => {
+        const routeSource = fs.readFileSync(path.join(process.cwd(), "src", "api", "routes", "reporting", "index.ts"), "utf8");
+        const openapi = readJson<{
+            paths?: Record<
+                string,
+                {
+                    post?: {
+                        requestBody?: { content?: Record<string, { schema?: { $ref?: string } }> };
+                        responses?: Record<string, { content?: Record<string, { schema?: { $ref?: string } }> }>;
+                    };
+                }
+            >;
+        }>(path.join("assets", "openapi.json"));
+        const sourceCatalog = readJson<
+            {
+                method?: string;
+                route?: string;
+                route_name?: string;
+                source?: string;
+                request_schema_ref?: string;
+                response_schema_refs?: string[];
+            }[]
+        >(path.join("packages", "automatic-reverse-engineering", "data", "catalogs", "routes.source.catalog.json"));
+        const missingRoutes = readJson<{ routes?: string[]; missing_entries?: { method?: string; route?: string; route_name?: string }[] }>(
+            path.join("packages", "missing-routes", "missing.json"),
+        );
+        const manifest = readJson<{
+            entries?: {
+                id?: string;
+                authMode?: string;
+                sourceFile?: string;
+                routeMetadata?: {
+                    requestBody?: string;
+                    responseBodies?: string[];
+                    responseStatuses?: number[];
+                };
+            }[];
+        }>(path.join("assets", "testing-manifest.json"));
+        const contractMatrix = readJson<{
+            contracts?: {
+                manifestId?: string;
+                sourceFile?: string;
+                routeMetadata?: {
+                    requestBody?: string;
+                    responses?: string[];
+                    responseStatuses?: number[];
+                };
+            }[];
+        }>(path.join("test", "generated", "http-contracts.json"));
+
+        assert.match(routeSource, /router\.post\(\s*["']\/:type["']/);
+
+        const openapiRoute = openapi.paths?.["/reporting/{type}"]?.post;
+        assert.equal(openapiRoute?.requestBody?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/CreateReportSchema");
+        assert.equal(openapiRoute?.responses?.["204"]?.content, undefined);
+        assert.equal(openapiRoute?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(openapiRoute?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+
+        const sourceRoute = sourceCatalog.find((entry) => entry.method === "POST" && entry.route === "/reporting/{type}");
+        assert.equal(sourceRoute?.route_name, "POST_REPORTING_TYPE");
+        assert.equal(sourceRoute?.source, "src/api/routes/reporting/index.ts");
+        assert.equal(sourceRoute?.request_schema_ref, "CreateReportSchema");
+        assert.deepEqual(sourceRoute?.response_schema_refs, ["APIErrorResponse"]);
+
+        assert.equal(
+            missingRoutes.missing_entries?.some((entry) => entry.method === "POST" && entry.route === "/reporting/{param}" && entry.route_name === "POST_REPORTING_TYPE"),
+            false,
+        );
+        assert.equal(missingRoutes.routes?.includes("/reporting/{param}"), false);
+
+        const manifestEntry = manifest.entries?.find((entry) => entry.id === postManifestId);
+        assert.equal(manifestEntry?.authMode, "bearer");
+        assert.equal(manifestEntry?.sourceFile, "src/api/routes/reporting/index.ts");
+        assert.equal(manifestEntry?.routeMetadata?.requestBody, "CreateReportSchema");
+        assert.deepEqual(manifestEntry?.routeMetadata?.responseBodies, ["APIErrorResponse"]);
+        assert.deepEqual(manifestEntry?.routeMetadata?.responseStatuses, [204, 400, 401]);
+
+        const contractEntry = contractMatrix.contracts?.find((contract) => contract.manifestId === postManifestId);
+        assert.equal(contractEntry?.sourceFile, "src/api/routes/reporting/index.ts");
+        assert.equal(contractEntry?.routeMetadata?.requestBody, "CreateReportSchema");
+        assert.deepEqual(contractEntry?.routeMetadata?.responses, ["APIErrorResponse"]);
+        assert.deepEqual(contractEntry?.routeMetadata?.responseStatuses, [204, 400, 401]);
+    });
 });
+
+function readJson<T>(filePath: string): T {
+    return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
+}

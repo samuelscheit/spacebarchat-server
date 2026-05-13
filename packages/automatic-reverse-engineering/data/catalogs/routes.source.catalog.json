@@ -4483,12 +4483,21 @@
 	},
 	{
 		"method": "GET",
-		"request_schema_ref": "CreateReportSchema",
 		"response_schema_refs": [
 			"ReportingMenuTypesResponse"
 		],
 		"route": "/reporting",
 		"route_name": "GET_REPORTING",
+		"source": "src/api/routes/reporting/index.ts"
+	},
+	{
+		"method": "POST",
+		"request_schema_ref": "CreateReportSchema",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
+		"route": "/reporting/{type}",
+		"route_name": "POST_REPORTING_TYPE",
 		"source": "src/api/routes/reporting/index.ts"
 	},
 	{

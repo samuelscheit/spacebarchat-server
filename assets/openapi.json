@@ -46879,14 +46879,15 @@
                 ]
             }
         },
-        "/reporting/guild": {
+        "/reporting/{type}": {
             "post": {
                 "security": [
                     {
                         "bearer": []
                     }
                 ],
-                "description": "Submit a guild report.",
+                "description": "Submits a completed report menu payload after validating it against the locally available menu definition. Spacebar does not currently persist moderation report records, so this compatibility route accepts the validated client signal without fabricating report state.",
+                "summary": "Submit Report Menu",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -46900,260 +46901,39 @@
                 "responses": {
                     "204": {
                         "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/guild_discovery": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Submit a guild_discovery report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
                             }
                         }
                     }
                 },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/guild_directory_entry": {
-            "post": {
-                "security": [
+                "parameters": [
                     {
-                        "bearer": []
+                        "name": "type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "type"
                     }
                 ],
-                "description": "Submit a guild_directory_entry report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/guild_scheduled_event": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Submit a guild_scheduled_event report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/message": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Submit a message report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/stage_channel": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Submit a stage_channel report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/first_dm": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Submit a first_dm report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/user": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Submit a user report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/application": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Submit a application report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
-                "tags": [
-                    "reporting"
-                ]
-            }
-        },
-        "/reporting/widget": {
-            "post": {
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ],
-                "description": "Submit a widget report.",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/CreateReportSchema"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "204": {
-                        "description": "No description available"
-                    }
-                },
                 "tags": [
                     "reporting"
                 ]

@@ -314,24 +314,33 @@ router.get(
     },
 );
 
-for (const type of Object.values(ReportMenuTypeNames)) {
-    router.post(
-        `/${type}`,
-        route({
-            description: `Submit a ${type} report.`,
-            requestBody: "CreateReportSchema",
-            responses: {
-                204: {},
+router.post(
+    "/:type",
+    route({
+        summary: "Submit Report Menu",
+        description:
+            "Submits a completed report menu payload after validating it against the locally available menu definition. Spacebar does not currently persist moderation report records, so this compatibility route accepts the validated client signal without fabricating report state.",
+        requestBody: "CreateReportSchema",
+        responses: {
+            204: {},
+            400: {
+                body: "APIErrorResponse",
             },
-            spacebarOnly: false, // Maps to /reporting/:id
-        }),
-        (req: Request, res: Response) => {
-            validateCreateReport(type, req.body as CreateReportSchema);
-            res.status(204).send();
+            401: {
+                body: "APIErrorResponse",
+            },
         },
-    );
-    if (process.env.LOG_ROUTES !== "false") console.log(`[Server] Route /reporting/${type} registered (reports).`);
-}
+        spacebarOnly: false,
+    }),
+    (req: Request, res: Response) => {
+        const type = req.params.type;
+        if (Array.isArray(type)) throw new HTTPError("Unknown report menu type", 400);
+
+        validateCreateReport(type, req.body as CreateReportSchema);
+        res.status(204).send();
+    },
+);
+if (process.env.LOG_ROUTES !== "false") console.log("[Server] Route /reporting/:type registered (reports).");
 
 router.get(
     "/menu/:type",
