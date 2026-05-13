@@ -696,6 +696,44 @@
         ],
         "$schema": "http://json-schema.org/draft-07/schema#"
     },
+    "ApplicationRoleConnectionMetadataModifySchema": {
+        "type": "object",
+        "additionalProperties": {
+            "type": "string"
+        },
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
+    "ApplicationRoleConnectionModifySchema": {
+        "type": "object",
+        "properties": {
+            "platform_name": {
+                "maxLength": 50,
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "platform_username": {
+                "maxLength": 100,
+                "type": [
+                    "null",
+                    "string"
+                ]
+            },
+            "metadata": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/ApplicationRoleConnectionMetadataModifySchema"
+                    },
+                    {
+                        "type": "null"
+                    }
+                ]
+            }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+    },
     "ApplicationEmojiModifySchema": {
         "type": "object",
         "properties": {

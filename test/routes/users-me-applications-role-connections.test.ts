@@ -9,7 +9,7 @@
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTIBILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU Affero General Public License for more details.
 
 	You should have received a copy of the GNU Affero General Public License
@@ -185,7 +185,7 @@ describe("GET /users/@me/applications/role-connections", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.route === "/users/@me/applications/{param}/role-connection"),
-            true,
+            false,
         );
 
         const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);

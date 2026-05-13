@@ -17,11 +17,12 @@
 */
 
 import { route } from "@spacebar/api";
-import type { ApplicationRoleConnectionResponse } from "@spacebar/schemas";
-import { DiscordApiErrors } from "@spacebar/util";
+import type { ApplicationRoleConnectionModifySchema, ApplicationRoleConnectionResponse } from "@spacebar/schemas";
+import { ApiError, DiscordApiErrors, FieldErrors } from "@spacebar/util";
 import { Request, Response, Router } from "express";
 
 export const APPLICATION_ROLE_CONNECTIONS_REQUIRED_SCOPE = "role_connections.write";
+export const APPLICATION_ROLE_CONNECTION_UPDATE_UNSUPPORTED_MESSAGE = "User application role connection updates are not supported on this Spacebar instance.";
 
 type OAuthApplicationRoleConnectionToken = {
     scope?: unknown;
@@ -35,6 +36,16 @@ type OAuthApplicationRoleConnectionToken = {
 };
 
 export type ApplicationRoleConnectionProvider = (userId: string, applicationId: string) => ApplicationRoleConnectionResponse | Promise<ApplicationRoleConnectionResponse>;
+export type NormalizedApplicationRoleConnectionModify = {
+    platform_name: string | null;
+    platform_username: string | null;
+    metadata: Record<string, string>;
+};
+export type ApplicationRoleConnectionUpdater = (
+    userId: string,
+    applicationId: string,
+    body: NormalizedApplicationRoleConnectionModify,
+) => ApplicationRoleConnectionResponse | Promise<ApplicationRoleConnectionResponse>;
 
 function scopeValues(value: unknown): string[] {
     if (Array.isArray(value)) return value.flatMap(scopeValues);
@@ -88,7 +99,44 @@ export function getCurrentUserApplicationRoleConnection(_userId: string, _applic
     };
 }
 
-export function registerApplicationRoleConnectionRoute(router: Router, provider: ApplicationRoleConnectionProvider = getCurrentUserApplicationRoleConnection) {
+export function normalizeApplicationRoleConnectionModify(body: ApplicationRoleConnectionModifySchema): NormalizedApplicationRoleConnectionModify {
+    return {
+        platform_name: body.platform_name ?? null,
+        platform_username: body.platform_username ?? null,
+        metadata: body.metadata ? { ...body.metadata } : {},
+    };
+}
+
+export function validateApplicationRoleConnectionModify(body: ApplicationRoleConnectionModifySchema): void {
+    if (!body.metadata) return;
+
+    for (const [key, value] of Object.entries(body.metadata)) {
+        if (value.length > 100) {
+            throw FieldErrors({
+                [`metadata.${key}`]: {
+                    code: "BASE_TYPE_BAD_LENGTH",
+                    message: "metadata values must be 100 characters or fewer",
+                },
+            });
+        }
+    }
+}
+
+export function createApplicationRoleConnectionUpdateUnsupportedError(): ApiError {
+    return new ApiError(APPLICATION_ROLE_CONNECTION_UPDATE_UNSUPPORTED_MESSAGE, 0, 501);
+}
+
+export function updateCurrentUserApplicationRoleConnection(_userId: string, _applicationId: string, _body: NormalizedApplicationRoleConnectionModify): never {
+    // Spacebar does not currently persist per-user external role connection state.
+    // Returning the request payload as if it were stored would make subsequent GETs lie.
+    throw createApplicationRoleConnectionUpdateUnsupportedError();
+}
+
+export function registerApplicationRoleConnectionRoute(
+    router: Router,
+    provider: ApplicationRoleConnectionProvider = getCurrentUserApplicationRoleConnection,
+    updater: ApplicationRoleConnectionUpdater = updateCurrentUserApplicationRoleConnection,
+) {
     router.get(
         "/",
         route({
@@ -114,11 +162,48 @@ export function registerApplicationRoleConnectionRoute(router: Router, provider:
         },
     );
 
+    router.put(
+        "/",
+        route({
+            requestBody: "ApplicationRoleConnectionModifySchema",
+            coerceRequestBody: false,
+            summary: "Modify User Application Role Connection",
+            description:
+                "Replaces the authenticated user's application role connection for the OAuth2 application in the path. Spacebar validates the documented nullable payload and token scope, then requires durable role-connection backing state; the default instance fails closed instead of fabricating a persisted platform connection.",
+            responses: {
+                200: {
+                    body: "ApplicationRoleConnectionResponse",
+                },
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+                501: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => {
+            const { application_id } = req.params as { [key: string]: string };
+            const body = req.body as ApplicationRoleConnectionModifySchema;
+
+            assertOAuthApplicationRoleConnectionToken(req.token, application_id);
+            validateApplicationRoleConnectionModify(body);
+
+            return res.json(await updater(req.user_id, application_id, normalizeApplicationRoleConnectionModify(body)));
+        },
+    );
+
     return router;
 }
 
-export function createApplicationRoleConnectionRouter(provider: ApplicationRoleConnectionProvider = getCurrentUserApplicationRoleConnection) {
-    return registerApplicationRoleConnectionRoute(Router({ mergeParams: true }), provider);
+export function createApplicationRoleConnectionRouter(
+    provider: ApplicationRoleConnectionProvider = getCurrentUserApplicationRoleConnection,
+    updater: ApplicationRoleConnectionUpdater = updateCurrentUserApplicationRoleConnection,
+) {
+    return registerApplicationRoleConnectionRoute(Router({ mergeParams: true }), provider, updater);
 }
 
 export default createApplicationRoleConnectionRouter();

@@ -696,6 +696,41 @@
                     "branch_ids"
                 ]
             },
+            "ApplicationRoleConnectionMetadataModifySchema": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "ApplicationRoleConnectionModifySchema": {
+                "type": "object",
+                "properties": {
+                    "platform_name": {
+                        "maxLength": 50,
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "platform_username": {
+                        "maxLength": 100,
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ApplicationRoleConnectionMetadataModifySchema"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                }
+            },
             "ApplicationEmojiModifySchema": {
                 "type": "object",
                 "properties": {
@@ -43467,6 +43502,81 @@
                         }
                     },
                     "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "application_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "application_id"
+                    }
+                ],
+                "tags": [
+                    "users"
+                ]
+            },
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Replaces the authenticated user's application role connection for the OAuth2 application in the path. Spacebar validates the documented nullable payload and token scope, then requires durable role-connection backing state; the default instance fails closed instead of fabricating a persisted platform connection.",
+                "summary": "Modify User Application Role Connection",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ApplicationRoleConnectionModifySchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApplicationRoleConnectionResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "501": {
                         "description": "",
                         "content": {
                             "application/json": {

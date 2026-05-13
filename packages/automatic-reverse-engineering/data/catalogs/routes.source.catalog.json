@@ -5424,6 +5424,17 @@
 		"source": "src/api/routes/users/@me/applications/#application_id/role-connection.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "ApplicationRoleConnectionModifySchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"ApplicationRoleConnectionResponse"
+		],
+		"route": "/users/@me/applications/{application_id}/role-connection",
+		"route_name": "PUT_USERS__ME_APPLICATIONS_APPLICATION_ID_ROLE_CONNECTION",
+		"source": "src/api/routes/users/@me/applications/#application_id/role-connection.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

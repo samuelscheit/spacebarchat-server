@@ -22,6 +22,7 @@ export * from "./ActivitySchema";
 export * from "./EmbeddedActivityInstanceLeaveSchema";
 export * from "./AgeVerificationVerifySchema";
 export * from "./ApplicationBranchesSchema";
+export * from "./ApplicationRoleConnectionModifySchema";
 export * from "./ApplicationEmojiModifySchema";
 export * from "./ApplicationIdentitiesSchema";
 export * from "./ApplicationAuthorizeSchema";

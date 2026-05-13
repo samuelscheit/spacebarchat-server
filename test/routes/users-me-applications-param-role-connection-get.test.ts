@@ -219,7 +219,7 @@ describe("GET /users/@me/applications/:application_id/role-connection", () => {
         assert.equal(route?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(route?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.deepEqual(route?.security, [{ bearer: [] }]);
-        assert.equal(openapi.paths?.["/users/@me/applications/{application_id}/role-connection/"]?.put, undefined);
+        assert.notEqual(openapi.paths?.["/users/@me/applications/{application_id}/role-connection/"]?.put, undefined);
 
         const manifestEntry = manifest.entries?.find((entry) => entry.id === coveredManifestIds[0]);
         assert.equal(manifestEntry?.path, "/users/@me/applications/:application_id/role-connection/");
@@ -243,7 +243,7 @@ describe("GET /users/@me/applications/:application_id/role-connection", () => {
         );
         assert.equal(
             missingRoutes.missing_entries?.some((entry) => entry.method === "PUT" && entry.route === assignedMissingPath),
-            true,
+            false,
         );
 
         const contract = contractTests.contracts?.find((entry) => entry.manifestId === coveredManifestIds[0]);

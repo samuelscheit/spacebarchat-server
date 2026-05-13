@@ -1,6 +1,6 @@
 {
-    "missing": 482,
-    "spacebar": 698,
+    "missing": 481,
+    "spacebar": 699,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -285,7 +285,6 @@
         "/users/@me/activities/subscribe",
         "/users/@me/agreements",
         "/users/@me/applications/{param}/entitlement-ticket",
-        "/users/@me/applications/{param}/role-connection",
         "/users/@me/applications/{param}/ticket",
         "/users/@me/audio-settings/{param}/{param}",
         "/users/@me/avatars/discordify",
@@ -3497,14 +3496,6 @@
         },
         { "method": "PUT", "route": "/tutorial/indicators/suppress", "route_name": "TUTORIAL_INDICATORS_SUPPRESS", "sources": ["xhyrom:data/client/routes.json"] },
         { "method": "PUT", "route": "/users/@me", "route_name": "PUT_USERS__ME", "sources": ["userdoccers:_typography.mdx"], "summaries": ["PUT Example"] },
-        {
-            "method": "PUT",
-            "route": "/users/@me/applications/{param}/role-connection",
-            "route_name": "PUT_USERS__ME_APPLICATIONS_APPLICATION_ID_ROLE_CONNECTION",
-            "sources": ["userdoccers:resources/application.mdx"],
-            "source_routes": ["/users/@me/applications/{application_id}/role-connection"],
-            "summaries": ["Modify User Application Role Connection"]
-        },
         { "method": "PUT", "route": "/users/@me/connections/{param}/{param}", "route_name": "CONNECTION", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PUT",
