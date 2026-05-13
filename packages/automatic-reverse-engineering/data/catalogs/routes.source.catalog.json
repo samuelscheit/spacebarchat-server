@@ -3103,6 +3103,15 @@
 		"response_schema_refs": [
 			"APIErrorResponse"
 		],
+		"route": "/guilds/{guild_id}/leaderboards/{param}",
+		"route_name": "GET_GUILDS_GUILD_ID_LEADERBOARDS_PARAM",
+		"source": "src/api/routes/guilds/#guild_id/leaderboards/#param.ts"
+	},
+	{
+		"method": "GET",
+		"response_schema_refs": [
+			"APIErrorResponse"
+		],
 		"route": "/guilds/{guild_id}/member-verification",
 		"route_name": "GET_GUILDS_GUILD_ID_MEMBER_VERIFICATION",
 		"source": "src/api/routes/guilds/#guild_id/member-verification.ts"

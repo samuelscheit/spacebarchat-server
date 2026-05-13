@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 605,
+        "totalCoveredManifestEntries": 606,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 583,
-                "totalCoveredManifestEntries": 583,
-                "totalCoveredRequiredManifestEntries": 583,
+                "totalRequiredManifestEntries": 584,
+                "totalCoveredManifestEntries": 584,
+                "totalCoveredRequiredManifestEntries": 584,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 440,
+            "stateful-domain": 441,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 583,
-                "totalCoveredManifestEntries": 583,
-                "totalCoveredRequiredManifestEntries": 583,
+                "totalRequiredManifestEntries": 584,
+                "totalCoveredManifestEntries": 584,
+                "totalCoveredRequiredManifestEntries": 584,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -257,6 +257,7 @@
                 "api:http:GET:/guilds/:guild_id/game-server-regions/",
                 "api:http:GET:/guilds/:guild_id/integrations/",
                 "api:http:GET:/guilds/:guild_id/invites/",
+                "api:http:GET:/guilds/:guild_id/leaderboards/:param/",
                 "api:http:GET:/guilds/:guild_id/member-verification/",
                 "api:http:GET:/guilds/:guild_id/members/",
                 "api:http:GET:/guilds/:guild_id/members/:member_id/",
@@ -842,6 +843,7 @@
                 "api:http:GET:/guilds/:guild_id/game-server-regions/",
                 "api:http:GET:/guilds/:guild_id/integrations/",
                 "api:http:GET:/guilds/:guild_id/invites/",
+                "api:http:GET:/guilds/:guild_id/leaderboards/:param/",
                 "api:http:GET:/guilds/:guild_id/member-verification/",
                 "api:http:GET:/guilds/:guild_id/members/",
                 "api:http:GET:/guilds/:guild_id/members/:member_id/",
@@ -1519,6 +1521,7 @@
                         "api:http:GET:/guilds/:guild_id/game-server-regions/",
                         "api:http:GET:/guilds/:guild_id/integrations/",
                         "api:http:GET:/guilds/:guild_id/invites/",
+                        "api:http:GET:/guilds/:guild_id/leaderboards/:param/",
                         "api:http:GET:/guilds/:guild_id/member-verification/",
                         "api:http:GET:/guilds/:guild_id/members/",
                         "api:http:GET:/guilds/:guild_id/members/:member_id/",

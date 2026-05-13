@@ -1,6 +1,6 @@
 {
-    "missing": 489,
-    "spacebar": 691,
+    "missing": 488,
+    "spacebar": 692,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -130,7 +130,6 @@
         "/guilds/{param}/integrations/{param}",
         "/guilds/{param}/integrations/{param}/sync",
         "/guilds/{param}/join-admin-server",
-        "/guilds/{param}/leaderboards/{param}",
         "/guilds/{param}/leaderboards/{param}/settings",
         "/guilds/{param}/member-verification",
         "/guilds/{param}/members-search",
@@ -1112,13 +1111,6 @@
             "route_name": "GUILD_FEED",
             "sources": ["xhyrom:data/client/routes.json"],
             "source_routes": ["/guilds/{guild_id}/guild-feed"]
-        },
-        {
-            "method": "GET",
-            "route": "/guilds/{param}/leaderboards/{param}",
-            "route_name": "GUILD_LEADERBOARD",
-            "sources": ["xhyrom:data/client/routes.json"],
-            "source_routes": ["/guilds/{guild_id}/leaderboards/{param}"]
         },
         {
             "method": "GET",
