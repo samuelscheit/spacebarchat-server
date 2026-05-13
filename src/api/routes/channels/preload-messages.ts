@@ -139,6 +139,27 @@ export function createPreloadMessagesRouter(dependencies: PreloadMessagesRouteDe
         async (req: Request, res: Response) => sendPreloadedMessages(req, res, getPreloadMessageChannelIdsFromBody(req.body as PreloadMessagesRequestSchema), dependencies),
     );
 
+    router.put(
+        "/",
+        route({
+            summary: "Preload Messages",
+            description: "Preloads the latest locally backed message from each requested channel ID JSON body without including reactions.",
+            requestBody: "PreloadMessagesRequestSchema",
+            responses: {
+                200: {
+                    body: "PreloadMessagesResponse",
+                },
+                400: {
+                    body: "APIErrorResponse",
+                },
+                401: {
+                    body: "APIErrorResponse",
+                },
+            },
+        }),
+        async (req: Request, res: Response) => sendPreloadedMessages(req, res, getPreloadMessageChannelIdsFromBody(req.body as PreloadMessagesRequestSchema), dependencies),
+    );
+
     router.delete(
         "/",
         route({

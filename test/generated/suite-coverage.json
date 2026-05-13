@@ -6,12 +6,12 @@
     "summary": {
         "totalGroups": 3,
         "totalSuites": 15,
-        "totalCoveredManifestEntries": 599,
+        "totalCoveredManifestEntries": 600,
         "byGroup": {
             "scenarios": {
-                "totalRequiredManifestEntries": 577,
-                "totalCoveredManifestEntries": 577,
-                "totalCoveredRequiredManifestEntries": 577,
+                "totalRequiredManifestEntries": 578,
+                "totalCoveredManifestEntries": 578,
+                "totalCoveredRequiredManifestEntries": 578,
                 "totalSuites": 12
             },
             "protocol": {
@@ -28,7 +28,7 @@
             }
         },
         "byCoveredTestTier": {
-            "stateful-domain": 434,
+            "stateful-domain": 435,
             "cdn-integration": 78,
             "integration": 24,
             "contract": 22,
@@ -68,9 +68,9 @@
                 "api:http:GET:/store/published-listings/applications/:application_id/subscription-plans/"
             ],
             "summary": {
-                "totalRequiredManifestEntries": 577,
-                "totalCoveredManifestEntries": 577,
-                "totalCoveredRequiredManifestEntries": 577,
+                "totalRequiredManifestEntries": 578,
+                "totalCoveredManifestEntries": 578,
+                "totalCoveredRequiredManifestEntries": 578,
                 "totalSuites": 12
             },
             "requiredManifestIds": [
@@ -567,6 +567,7 @@
                 "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/@me",
+                "api:http:PUT:/channels/preload-messages/",
                 "api:http:PUT:/guilds/:guild_id/bans/:user_id",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
@@ -1146,6 +1147,7 @@
                 "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
                 "api:http:PUT:/channels/:channel_id/thread-members/@me",
+                "api:http:PUT:/channels/preload-messages/",
                 "api:http:PUT:/guilds/:guild_id/bans/:user_id",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/",
                 "api:http:PUT:/guilds/:guild_id/members/:member_id/roles/:role_id/",
@@ -1712,7 +1714,8 @@
                         "api:http:PUT:/channels/:channel_id/recipients/@me",
                         "api:http:PUT:/channels/:channel_id/tags/:tag_id",
                         "api:http:PUT:/channels/:channel_id/thread-members/:user_id",
-                        "api:http:PUT:/channels/:channel_id/thread-members/@me"
+                        "api:http:PUT:/channels/:channel_id/thread-members/@me",
+                        "api:http:PUT:/channels/preload-messages/"
                     ]
                 },
                 {

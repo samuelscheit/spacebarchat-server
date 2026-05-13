@@ -1915,6 +1915,17 @@
 		"source": "src/api/routes/channels/preload-messages.ts"
 	},
 	{
+		"method": "PUT",
+		"request_schema_ref": "PreloadMessagesRequestSchema",
+		"response_schema_refs": [
+			"APIErrorResponse",
+			"PreloadMessagesResponse"
+		],
+		"route": "/channels/preload-messages",
+		"route_name": "PUT_CHANNELS_PRELOAD_MESSAGES",
+		"source": "src/api/routes/channels/preload-messages.ts"
+	},
+	{
 		"method": "GET",
 		"response_schema_refs": [
 			"APIErrorResponse",

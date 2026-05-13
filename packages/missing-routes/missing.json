@@ -1,6 +1,6 @@
 {
-    "missing": 495,
-    "spacebar": 685,
+    "missing": 494,
+    "spacebar": 686,
     "discord": 1128,
     "routes": [
         "/ai/summarize-thread/{param}",
@@ -3361,7 +3361,6 @@
             "source_routes": ["/channels/{channel_id}/voice-status"],
             "summaries": ["Modify Channel Status"]
         },
-        { "method": "PUT", "route": "/channels/preload-messages", "route_name": "MESSAGE_PREVIEWS", "sources": ["xhyrom:data/client/routes.json"] },
         {
             "method": "PUT",
             "route": "/channels/recipients/@me/batch-reject",

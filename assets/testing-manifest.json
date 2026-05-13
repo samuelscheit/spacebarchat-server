@@ -17,9 +17,9 @@
         "testing/coverage-policy.json"
     ],
     "summary": {
-        "totalEntries": 790,
+        "totalEntries": 791,
         "byService": {
-            "api": 693,
+            "api": 694,
             "benchmarks": 1,
             "cdn": 73,
             "gateway": 15,
@@ -28,14 +28,14 @@
         },
         "byType": {
             "feature": 4,
-            "http-route": 765,
+            "http-route": 766,
             "opcode": 21
         },
         "byTestTier": {
             "middleware-contract": 1,
             "app-smoke": 10,
             "contract": 202,
-            "stateful-domain": 434,
+            "stateful-domain": 435,
             "cdn-integration": 78,
             "auth-scenario": 18,
             "integration": 24,
@@ -46,7 +46,7 @@
         "byBenchmarkClass": {
             "micro": 2,
             "startup-health": 11,
-            "route-class": 647,
+            "route-class": 648,
             "hot-path": 35,
             "none": 1,
             "cdn-hot-path": 73,
@@ -1776,7 +1776,7 @@
             "method": "GET",
             "path": "/applications/:application_id/embedded-activity-config/",
             "sourceFile": "src/api/routes/applications/#application_id/embedded-activity-config.ts",
-            "line": 82,
+            "line": 78,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -9358,7 +9358,7 @@
             "method": "DELETE",
             "path": "/channels/preload-messages/",
             "sourceFile": "src/api/routes/channels/preload-messages.ts",
-            "line": 142,
+            "line": 163,
             "authMode": "bearer",
             "routeMetadata": {
                 "present": true,
@@ -9454,6 +9454,50 @@
                 "responseStatuses": [
                     200,
                     400
+                ],
+                "hasQuery": false
+            },
+            "coverage": {
+                "policyId": "api-channel-state",
+                "testTier": "stateful-domain",
+                "benchmarkClass": "route-class",
+                "fixtureRequirements": [
+                    "users",
+                    "guilds",
+                    "channels",
+                    "messages",
+                    "permissions"
+                ],
+                "contractChecks": [
+                    "authenticated",
+                    "permission-denied",
+                    "schema-validation",
+                    "db-state",
+                    "events"
+                ],
+                "allowMissingRouteMetadata": false
+            }
+        },
+        {
+            "id": "api:http:PUT:/channels/preload-messages/",
+            "type": "http-route",
+            "service": "api",
+            "method": "PUT",
+            "path": "/channels/preload-messages/",
+            "sourceFile": "src/api/routes/channels/preload-messages.ts",
+            "line": 142,
+            "authMode": "bearer",
+            "routeMetadata": {
+                "present": true,
+                "requestBody": "PreloadMessagesRequestSchema",
+                "responseBodies": [
+                    "APIErrorResponse",
+                    "PreloadMessagesResponse"
+                ],
+                "responseStatuses": [
+                    200,
+                    400,
+                    401
                 ],
                 "hasQuery": false
             },

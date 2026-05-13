@@ -31,6 +31,7 @@ const sourceFile = "src/api/routes/channels/preload-messages.ts";
 const deleteManifestId = "api:http:DELETE:/channels/preload-messages/";
 const getManifestId = "api:http:GET:/channels/preload-messages/";
 const postManifestId = "api:http:POST:/channels/preload-messages/";
+const putManifestId = "api:http:PUT:/channels/preload-messages/";
 
 describe("/channels/preload-messages", () => {
     test("documents route identity and keeps the route behind bearer authentication", async (t) => {
@@ -48,15 +49,19 @@ describe("/channels/preload-messages", () => {
         assert.equal(isNoAuthorizationRoute("DELETE", "/api/v9/channels/preload-messages"), false);
         assert.equal(isNoAuthorizationRoute("GET", "/api/v9/channels/preload-messages"), false);
         assert.equal(isNoAuthorizationRoute("POST", "/api/v9/channels/preload-messages"), false);
+        assert.equal(isNoAuthorizationRoute("PUT", "/api/v9/channels/preload-messages"), false);
         assert.deepEqual(parsePreloadMessageChannelIdsQuery({ channels: "local-post-alias", channel_ids: "documented-query" }), ["documented-query"]);
 
         const response = await requestJson(app, "/channels/preload-messages?channel_ids=visible");
         const deleteResponse = await requestJson(app, "/channels/preload-messages", { method: "DELETE" });
+        const putResponse = await requestJson(app, "/channels/preload-messages", { method: "PUT" });
 
         assert.equal(response.status, 401);
         assert.match((response.body as { message?: string }).message ?? "", /Missing Authorization Header/);
         assert.equal(deleteResponse.status, 401);
         assert.match((deleteResponse.body as { message?: string }).message ?? "", /Missing Authorization Header/);
+        assert.equal(putResponse.status, 401);
+        assert.match((putResponse.body as { message?: string }).message ?? "", /Missing Authorization Header/);
         assert.equal(mockOf(dependencies.getAuthorizedChannelIds).mock.callCount(), 0);
         assert.equal(mockOf(dependencies.findLatestMessage).mock.callCount(), 0);
     });
@@ -127,6 +132,31 @@ describe("/channels/preload-messages", () => {
         assert.deepEqual(mockOf(dependencies.getAuthorizedChannelIds).mock.calls[0].arguments, ["viewer", ["visible"]]);
     });
 
+    test("preloads PUT message previews with the same local body contract as POST", async (t) => {
+        const dependencies = createDependencies(t, {
+            authorizedChannelIds: ["visible"],
+            latestMessages: {
+                visible: fakeMessage("latest-visible", "visible"),
+            },
+        });
+
+        const response = await requestJson(createApp(dependencies), "/channels/preload-messages", {
+            method: "PUT",
+            body: {
+                channels: ["visible", "private"],
+            },
+        });
+
+        assert.equal(response.status, 200);
+        assert.deepEqual(response.body, [
+            {
+                id: "latest-visible",
+                channel_id: "visible",
+            },
+        ]);
+        assert.deepEqual(mockOf(dependencies.getAuthorizedChannelIds).mock.calls[0].arguments, ["viewer", ["visible", "private"]]);
+    });
+
     test("acknowledges DELETE preload-messages cache invalidation without touching message storage", async (t) => {
         const dependencies = createDependencies(t, {
             getAuthorizedChannelIds: t.mock.fn(async () => {
@@ -164,10 +194,11 @@ describe("/channels/preload-messages", () => {
 
         assert.match(routeSource, /router\.get\(\s*"\//);
         assert.match(routeSource, /router\.post\(\s*"\//);
+        assert.match(routeSource, /router\.put\(\s*"\//);
         assert.match(routeSource, /router\.delete\(\s*"\//);
         assert.match(routeSource, /channel_ids:\s*\{\s*type:\s*"array"/s);
         assert.match(routeSource, /204:\s*\{\s*\}/s);
-        assert.doesNotMatch(routeSource, /router\.(patch|put)\(/);
+        assert.doesNotMatch(routeSource, /router\.patch\(/);
         assert.doesNotMatch(routeSource, /messages\/search|\/pins|\/threads|\/ack|\/typing|bulk-delete/);
 
         const openApiRoute = openapi.paths["/channels/preload-messages/"];
@@ -185,11 +216,15 @@ describe("/channels/preload-messages", () => {
         assert.equal(openApiRoute?.get?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(openApiRoute?.post?.requestBody?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/PreloadMessagesRequestSchema");
         assert.equal(openApiRoute?.post?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/PreloadMessagesResponse");
+        assert.equal(openApiRoute?.put?.summary, "Preload Messages");
+        assert.equal(openApiRoute?.put?.requestBody?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/PreloadMessagesRequestSchema");
+        assert.equal(openApiRoute?.put?.responses?.["200"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/PreloadMessagesResponse");
+        assert.equal(openApiRoute?.put?.responses?.["400"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
+        assert.equal(openApiRoute?.put?.responses?.["401"]?.content?.["application/json"]?.schema?.$ref, "#/components/schemas/APIErrorResponse");
         assert.equal(openApiRoute?.patch, undefined);
-        assert.equal(openApiRoute?.put, undefined);
 
         const sourceEntries = sourceCatalog.filter((entry) => entry.route === assignedPath);
-        assert.deepEqual(sourceEntries.map((entry) => entry.method).sort(), ["DELETE", "GET", "POST"]);
+        assert.deepEqual(sourceEntries.map((entry) => entry.method).sort(), ["DELETE", "GET", "POST", "PUT"]);
         assert.deepEqual(
             sourceEntries.find((entry) => entry.method === "DELETE"),
             {
@@ -211,6 +246,17 @@ describe("/channels/preload-messages", () => {
             },
         );
         assert.equal(sourceEntries.find((entry) => entry.method === "POST")?.request_schema_ref, "PreloadMessagesRequestSchema");
+        assert.deepEqual(
+            sourceEntries.find((entry) => entry.method === "PUT"),
+            {
+                method: "PUT",
+                request_schema_ref: "PreloadMessagesRequestSchema",
+                response_schema_refs: ["APIErrorResponse", "PreloadMessagesResponse"],
+                route: assignedPath,
+                route_name: "PUT_CHANNELS_PRELOAD_MESSAGES",
+                source: sourceFile,
+            },
+        );
 
         assert.deepEqual(
             xhyromCatalog
@@ -251,6 +297,18 @@ describe("/channels/preload-messages", () => {
         assert.equal(postManifestEntry?.routeMetadata?.requestBody, "PreloadMessagesRequestSchema");
         assert.equal(postManifestEntry?.routeMetadata?.hasQuery, false);
 
+        const putManifestEntry = manifest.entries?.find((entry) => entry.id === putManifestId);
+        assert.equal(putManifestEntry?.authMode, "bearer");
+        assert.equal(putManifestEntry?.path, "/channels/preload-messages/");
+        assert.equal(putManifestEntry?.sourceFile, sourceFile);
+        assert.equal(putManifestEntry?.routeMetadata?.requestBody, "PreloadMessagesRequestSchema");
+        assert.equal(putManifestEntry?.routeMetadata?.hasQuery, false);
+        assert.deepEqual(putManifestEntry?.routeMetadata?.responseBodies?.sort(), ["APIErrorResponse", "PreloadMessagesResponse"]);
+        assert.deepEqual(
+            putManifestEntry?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
+            [200, 400, 401],
+        );
+
         const deleteContract = contracts.contracts?.find((entry) => entry.manifestId === deleteManifestId);
         assert.equal(deleteContract?.authMode, "bearer");
         assert.equal(deleteContract?.sourceFile, sourceFile);
@@ -265,10 +323,20 @@ describe("/channels/preload-messages", () => {
         assert.equal(getContract?.sourceFile, sourceFile);
         assert.deepEqual(getContract?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "PreloadMessagesResponse"]);
 
+        const putContract = contracts.contracts?.find((entry) => entry.manifestId === putManifestId);
+        assert.equal(putContract?.authMode, "bearer");
+        assert.equal(putContract?.sourceFile, sourceFile);
+        assert.deepEqual(putContract?.routeMetadata?.responses?.sort(), ["APIErrorResponse", "PreloadMessagesResponse"]);
+        assert.deepEqual(
+            putContract?.routeMetadata?.responseStatuses?.sort((left, right) => left - right),
+            [200, 400, 401],
+        );
+
         const coveredManifestIds = suiteCoverage.groups?.flatMap((group) => group.suites ?? []).flatMap((suite) => suite.manifestIds ?? []) ?? [];
         assert.equal(coveredManifestIds.includes(deleteManifestId), true);
         assert.equal(coveredManifestIds.includes(getManifestId), true);
         assert.equal(coveredManifestIds.includes(postManifestId), true);
+        assert.equal(coveredManifestIds.includes(putManifestId), true);
 
         assert.equal(
             missingRoutes.missing_entries.some((entry) => entry.method === "DELETE" && entry.route === assignedPath),
@@ -279,7 +347,7 @@ describe("/channels/preload-messages", () => {
                 .filter((entry) => entry.route === assignedPath)
                 .map((entry) => entry.method)
                 .sort(),
-            ["PATCH", "PUT"],
+            ["PATCH"],
         );
     });
 });

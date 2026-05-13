@@ -62803,6 +62803,60 @@
                     "channels"
                 ]
             },
+            "put": {
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ],
+                "description": "Preloads the latest locally backed message from each requested channel ID JSON body without including reactions.",
+                "summary": "Preload Messages",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PreloadMessagesRequestSchema"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PreloadMessagesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/APIErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "channels"
+                ]
+            },
             "delete": {
                 "security": [
                     {
